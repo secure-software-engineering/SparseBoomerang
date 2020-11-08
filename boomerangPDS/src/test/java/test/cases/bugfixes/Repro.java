@@ -8,20 +8,15 @@ import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.*;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
-import com.google.common.collect.Table.Cell;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
 import soot.*;
-import soot.jimple.AssignStmt;
 import soot.options.Options;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
 import wpds.impl.Weight.NoWeight;
-import wpds.interfaces.State;
 
 /**
  * This code was added to test https://github.com/CodeShield-Security/SPDS/issues/5.
@@ -41,9 +36,12 @@ public class Repro {
   public void includeFoo() {
     G.reset();
     setupSoot("src/test/resources/Test.jar", false);
-    analyze("<Foo: void baz()>", "<Foo: void bar()>", "<Foo: void <init>()>", "<java.lang.Object: void <init>()>");
+    analyze(
+        "<Foo: void baz()>",
+        "<Foo: void bar()>",
+        "<Foo: void <init>()>",
+        "<java.lang.Object: void <init>()>");
   }
-
 
   private static void setupSoot(String classPath, boolean excludeFoo) {
     Options.v().set_whole_program(true);
@@ -53,7 +51,7 @@ public class Repro {
     Options.v().set_keep_line_number(true);
 
     /* ********* Uncomment this line to see methods invoked on Foo! ********* */
-    if(excludeFoo) {
+    if (excludeFoo) {
       Options.v().set_exclude(Collections.singletonList("Foo"));
     }
 
@@ -65,15 +63,24 @@ public class Repro {
   }
 
   private static void analyze(String... expectedCallSignatureOnFoo) {
-    PackManager.v().getPack("wjtp").add(new Transform("wjtp.repro", new ReproTransformer(expectedCallSignatureOnFoo)));
+    PackManager.v()
+        .getPack("wjtp")
+        .add(new Transform("wjtp.repro", new ReproTransformer(expectedCallSignatureOnFoo)));
     PackManager.v().getPack("cg").apply();
     PackManager.v().getPack("wjtp").apply();
   }
 
-
-  private static Map<Edge, DeclaredMethod> getMethodsInvokedFromInstanceInStatement(Statement queryStatement) {
+  private static Map<Edge, DeclaredMethod> getMethodsInvokedFromInstanceInStatement(
+      Statement queryStatement) {
     Val var = new AllocVal(queryStatement.getLeftOp(), queryStatement, queryStatement.getRightOp());
-    ForwardQuery fwq = new ForwardQuery(new Edge(queryStatement, queryStatement.getMethod().getControlFlowGraph().getSuccsOf(queryStatement).stream().findFirst().get()),var);
+    ForwardQuery fwq =
+        new ForwardQuery(
+            new Edge(
+                queryStatement,
+                queryStatement.getMethod().getControlFlowGraph().getSuccsOf(queryStatement).stream()
+                    .findFirst()
+                    .get()),
+            var);
     Boomerang solver = new Boomerang(new SootCallGraph(), SootDataFlowScope.make(Scene.v()), opts);
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
     return results.getInvokedMethodOnInstance();
@@ -82,6 +89,7 @@ public class Repro {
   static class ReproTransformer extends SceneTransformer {
 
     Set<String> expectedCalledMethodsOnFoo;
+
     public ReproTransformer(String... expectedCallSignatureOnFoo) {
       expectedCalledMethodsOnFoo = Sets.newHashSet(expectedCallSignatureOnFoo);
     }
@@ -99,13 +107,16 @@ public class Repro {
         System.out.println("\t" + s.toString());
       }
 
-      Statement newFoo = method.getControlFlowGraph().getStatements().stream().filter(
-          x -> x.toString().contains("$stack2 = new Foo")).findFirst().get();
+      Statement newFoo =
+          method.getControlFlowGraph().getStatements().stream()
+              .filter(x -> x.toString().contains("$stack2 = new Foo"))
+              .findFirst()
+              .get();
 
       // This will only show results if set_exclude above gets uncommented
       System.out.println("\nFoo invoked methods:");
-      Set<Entry<Edge, DeclaredMethod>> entries = getMethodsInvokedFromInstanceInStatement(newFoo)
-          .entrySet();
+      Set<Entry<Edge, DeclaredMethod>> entries =
+          getMethodsInvokedFromInstanceInStatement(newFoo).entrySet();
       Set<String> methodCalledOnFoo = Sets.newHashSet();
       for (Map.Entry<Edge, DeclaredMethod> e : entries) {
         System.out.println("\t" + e.getKey().toString());
