@@ -95,7 +95,6 @@ public class DemandDrivenGuidedAnalysis {
         Table<Edge, Val, NoWeight> forwardResults =
             results.asStatementValWeightTable((ForwardQuery) pop.query);
         // Any ForwardQuery may trigger additional ForwardQuery under its own scope.
-        triggerNewForwardQueries(forwardResults, currentQuery);
         triggerNewBackwardQueries(forwardResults, currentQuery, QueryDirection.FORWARD);
       } else {
         BackwardBoomerangResults<NoWeight> results;
@@ -124,15 +123,10 @@ public class DemandDrivenGuidedAnalysis {
               entry.getKey(),
               QueryDirection.FORWARD);
         }
-        // Any ForwardQuery may trigger additional ForwardQuery under its own scope.
-        for (ForwardBoomerangSolver<NoWeight> solver : bSolver.getSolvers().values()) {
-          triggerNewForwardQueries(solver.asStatementValWeightTable(), solver.getQuery());
-        }
       }
     }
 
     QueryGraph<NoWeight> queryGraph = bSolver.getQueryGraph();
-    System.out.println(queryGraph.toDotString());
     bSolver.unregisterAllListeners();
     return finalAllocationSites;
   }
@@ -232,19 +226,6 @@ public class DemandDrivenGuidedAnalysis {
     return Optional.empty();
   }
 
-  private void triggerNewForwardQueries(
-      Table<Edge, Val, NoWeight> forwardResults, Query currentQuery) {
-    for (Cell<Edge, Val, NoWeight> cell : forwardResults.cellSet()) {
-      Val reachingVariable = cell.getColumnKey();
-      Edge edge = cell.getRowKey();
-      Collection<Query> newQueries = createNextQuery(edge, reachingVariable);
-      for (Query newQuery : newQueries) {
-        addToQueue(
-            new QueryWithContext(newQuery, new Node<>(edge, reachingVariable), currentQuery));
-      }
-    }
-  }
-
   private void addToQueue(QueryWithContext nextQuery) {
     if (visited.add(nextQuery.query)) {
       queryQueue.add(nextQuery);
@@ -254,34 +235,6 @@ public class DemandDrivenGuidedAnalysis {
   private boolean isStringOrIntAllocation(Statement stmt) {
     return stmt.isAssign()
         && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
-  }
-
-  private boolean isInSourceList(Statement stmt) {
-    return stmt.getInvokeExpr()
-            .getMethod()
-            .getDeclaringClass()
-            .getFullyQualifiedName()
-            .equals("java.lang.String")
-        && stmt.getInvokeExpr().getMethod().getName().equals("<init>");
-  }
-
-  private Collection<Query> createNextQuery(Edge edge, Val reachingVariable) {
-    Statement potentialCallSite = edge.getTarget();
-    Method method = potentialCallSite.getMethod();
-    if (potentialCallSite.containsInvokeExpr() && isInSourceList(potentialCallSite)) {
-      if (potentialCallSite.getInvokeExpr().getArgs().contains(reachingVariable)) {
-        Set<Query> res = Sets.newHashSet();
-        for (Statement succ : method.getControlFlowGraph().getSuccsOf(potentialCallSite)) {
-          Val base = potentialCallSite.getInvokeExpr().getBase();
-          res.add(
-              new ForwardQuery(
-                  new Edge(potentialCallSite, succ), new AllocVal(base, potentialCallSite, base)));
-        }
-
-        return res;
-      }
-    }
-    return Sets.newHashSet();
   }
 
   private static class QueryWithContext {
