@@ -17,6 +17,7 @@ import boomerang.callgraph.CalleeListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
 import boomerang.controlflowgraph.PredecessorListener;
+import boomerang.controlflowgraph.SuccessorListener;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -50,6 +51,7 @@ import sync.pds.solver.nodes.SingleNode;
 import wpds.impl.NestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
+import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public abstract class BackwardBoomerangSolver<W extends Weight> extends AbstractBoomerangSolver<W> {
@@ -228,6 +230,18 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   }
 
   @Override
+  public void processPush(
+      Node<Edge, Val> curr, Location location, PushNode<Edge, Val, ?> succ, PDSSystem system) {
+    if (PDSSystem.CALLS == system) {
+      if (!((PushNode<Edge, Val, Edge>) succ).location().getTarget().equals(curr.stmt().getStart())
+          || !(curr.stmt().getStart().containsInvokeExpr())) {
+        throw new RuntimeException("Invalid push rule");
+      }
+    }
+    super.processPush(curr, location, succ, system);
+  }
+
+  @Override
   protected Collection<State> computeNormalFlow(Method method, Edge currEdge, Val fact) {
     // BW data-flow inverses, therefore we
     Statement curr = currEdge.getTarget();
@@ -335,30 +349,42 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
 
   @Override
   protected void propagateUnbalancedToCallSite(
-      Edge callSite, Transition<Edge, INode<Val>> transInCallee) {
+      Statement callSite, Transition<Edge, INode<Val>> transInCallee) {
     GeneratedState<Val, Edge> target = (GeneratedState<Val, Edge>) transInCallee.getTarget();
-    cfg.addPredsOfListener(
-        new PredecessorListener(callSite.getStart()) {
+
+    if (!callSite.containsInvokeExpr()) {
+      throw new RuntimeException("Invalid propagate Unbalanced return");
+    }
+    assertCalleeCallerRelation(callSite, transInCallee.getLabel().getMethod());
+    cfg.addSuccsOfListener(
+        new SuccessorListener(callSite) {
           @Override
-          public void getPredecessor(Statement pred) {
-            Node<ControlFlowGraph.Edge, Val> curr = new Node<>(callSite, query.var());
+          public void getSuccessor(Statement succ) {
+            cfg.addPredsOfListener(
+                new PredecessorListener(callSite) {
+                  @Override
+                  public void getPredecessor(Statement pred) {
+                    Node<ControlFlowGraph.Edge, Val> curr =
+                        new Node<>(new Edge(callSite, succ), query.var());
 
-            Transition<ControlFlowGraph.Edge, INode<Val>> callTrans =
-                new Transition<>(
-                    wrap(curr.fact()),
-                    curr.stmt(),
-                    generateCallState(wrap(curr.fact()), curr.stmt()));
-            callAutomaton.addTransition(callTrans);
-            callAutomaton.addUnbalancedState(
-                generateCallState(wrap(curr.fact()), curr.stmt()), target);
+                    Transition<ControlFlowGraph.Edge, INode<Val>> callTrans =
+                        new Transition<>(
+                            wrap(curr.fact()),
+                            curr.stmt(),
+                            generateCallState(wrap(curr.fact()), curr.stmt()));
+                    callAutomaton.addTransition(callTrans);
+                    callAutomaton.addUnbalancedState(
+                        generateCallState(wrap(curr.fact()), curr.stmt()), target);
 
-            State s =
-                new PushNode<>(
-                    target.location(),
-                    target.node().fact(),
-                    new Edge(pred, callSite.getStart()),
-                    PDSSystem.CALLS);
-            propagate(curr, s);
+                    State s =
+                        new PushNode<>(
+                            target.location(),
+                            target.node().fact(),
+                            new Edge(pred, callSite),
+                            PDSSystem.CALLS);
+                    propagate(curr, s);
+                  }
+                });
           }
         });
   }
