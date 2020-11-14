@@ -1,8 +1,8 @@
 [![Java CI with Maven](https://github.com/CodeShield-Security/SPDS/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)](https://github.com/CodeShield-Security/SPDS/actions)
 
-# WPDS
+# SPDS
 
-This repository contains a Java implementation of Weighted Pushdown Systems.
+This repository contains a Java implementation of Synchronized Pushdown Systems.
 Additionally, it contains an implementation of [Boomerang](boomerangPDS) and [IDEal](idealPDS) based on a Weighted Pushdown System.
 
 # Use as Maven dependency
@@ -34,7 +34,7 @@ An in-depth documentation on how to do this can be found [here](https://docs.git
 
 # Checkout, Build and Install
 
-To build and install WPDS into your local repository, run 
+To build and install SPDS into your local repository, run 
 
 ``mvn clean install -DskipTests``
 
@@ -42,7 +42,7 @@ in the root directory of this git repository. If you do not want to skip the tes
 
 # Examples
 
-Boomerang code examples can be found [here](https://github.com/CodeShield-Security/SPDS/blob/master/boomerangPDS/src/main/java/boomerang/example/ExampleMain.java). Code examples for IDEal are given [here](https://github.com/CodeShield-Security/SPDS/tree/master/idealPDS/src/main/java/inference/example).
+Boomerang code examples can be found [here](https://github.com/CodeShield-Security/SPDS/tree/master/boomerangPDS/src/main/java/boomerang/example). Code examples for IDEal are given [here](https://github.com/CodeShield-Security/SPDS/tree/master/idealPDS/src/main/java/inference/example).
 
 
 # Notes on the Test Cases
