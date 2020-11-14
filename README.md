@@ -42,7 +42,7 @@ in the root directory of this git repository. If you do not want to skip the tes
 
 # Examples
 
-Boomerang code examples can be found [here](https://github.com/CROSSINGTUD/WPDS/blob/master/boomerangPDS/src/main/java/boomerang/example/ExampleMain.java). Code examples for IDEal are given [here](https://github.com/CROSSINGTUD/WPDS/tree/master/idealPDS/src/main/java/inference/example).
+Boomerang code examples can be found [here](https://github.com/CodeShield-Security/SPDS/blob/master/boomerangPDS/src/main/java/boomerang/example/ExampleMain.java). Code examples for IDEal are given [here](https://github.com/CodeShield-Security/SPDS/tree/master/idealPDS/src/main/java/inference/example).
 
 
 # Notes on the Test Cases
