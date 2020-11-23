@@ -200,7 +200,7 @@ public class DemandDrivenGuidedAnalysis {
   }
 
   private boolean isParameter(Statement stmt, Val fact, Parameter argumentSelection) {
-    if (argumentSelection.equals(Parameter.base())) {
+    if (stmt.getInvokeExpr().isInstanceInvokeExpr() && argumentSelection.equals(Parameter.base())) {
       return stmt.getInvokeExpr().getBase().equals(fact);
     }
     if (argumentSelection.equals(Parameter.returnParam())) {
