@@ -2,11 +2,10 @@ package boomerang.guided;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
-import boomerang.DefaultBoomerangOptions;
+import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
-import boomerang.callgraph.ObservableICFG;
 import boomerang.guided.Specification.Parameter;
 import boomerang.guided.Specification.QueryDirection;
 import boomerang.guided.Specification.QuerySelector;
@@ -21,10 +20,8 @@ import boomerang.scene.Method;
 import boomerang.scene.SootDataFlowScope;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.scene.jimple.JimpleStatement;
 import boomerang.scene.jimple.SootCallGraph;
-import boomerang.solver.ForwardBoomerangSolver;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
@@ -35,6 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import soot.Scene;
 import soot.jimple.Stmt;
@@ -43,41 +41,25 @@ import wpds.impl.Weight.NoWeight;
 
 public class DemandDrivenGuidedAnalysis {
 
-  private final DefaultBoomerangOptions customBoomerangOptions;
+  private final BoomerangOptions customBoomerangOptions;
   private final Specification spec;
   private final DataFlowScope scope;
   private final SootCallGraph callGraph;
   private final LinkedList<QueryWithContext> queryQueue = Lists.newLinkedList();
   private final Set<Query> visited = Sets.newHashSet();
 
-  public DemandDrivenGuidedAnalysis(Specification specification) {
+  public DemandDrivenGuidedAnalysis(Specification specification, BoomerangOptions options) {
     spec = specification;
     callGraph = new SootCallGraph();
     scope = SootDataFlowScope.make(Scene.v());
-    customBoomerangOptions =
-        new IntAndStringBoomerangOptions() {
-          @Override
-          public Optional<AllocVal> getAllocationVal(
-              Method m, Statement stmt, Val fact, ObservableICFG<Statement, Method> icfg) {
-            if (stmt.isAssign() && stmt.getLeftOp().equals(fact) && isStringOrIntAllocation(stmt)) {
-              return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp()));
-            }
-            return super.getAllocationVal(m, stmt, fact, icfg);
-          }
-
-          @Override
-          public int analysisTimeoutMS() {
-            return 1999999;
-          }
-
-          @Override
-          public boolean allowMultipleQueries() {
-            return true;
-          }
-        };
+    if (!options.allowMultipleQueries()) {
+      throw new RuntimeException(
+          "Boomerang options allowMultipleQueries is set to false. Please enable it.");
+    }
+    customBoomerangOptions = options;
   }
 
-  public Collection<ForwardQuery> run(Query query) {
+  public Collection<ForwardQuery> run(Query query, Predicate<Statement> outputForwardQuery) {
     queryQueue.add(new QueryWithContext(query));
     Boomerang bSolver = new Boomerang(callGraph, scope, customBoomerangOptions);
     Collection<ForwardQuery> finalAllocationSites = Sets.newHashSet();
@@ -114,7 +96,7 @@ public class DemandDrivenGuidedAnalysis {
         for (Entry<ForwardQuery, Context> entry : allocationSites.entrySet()) {
           ForwardQuery forwardQuery = entry.getKey();
           Statement start = forwardQuery.cfgEdge().getStart();
-          if (isStringOrIntAllocation(start)) {
+          if (outputForwardQuery.test(start)) {
             finalAllocationSites.add(entry.getKey());
           }
 
@@ -127,6 +109,9 @@ public class DemandDrivenGuidedAnalysis {
     }
 
     QueryGraph<NoWeight> queryGraph = bSolver.getQueryGraph();
+    System.out.println(queryGraph.toDotString());
+    System.out.println(finalAllocationSites);
+
     bSolver.unregisterAllListeners();
     return finalAllocationSites;
   }
@@ -230,11 +215,6 @@ public class DemandDrivenGuidedAnalysis {
     if (visited.add(nextQuery.query)) {
       queryQueue.add(nextQuery);
     }
-  }
-
-  private boolean isStringOrIntAllocation(Statement stmt) {
-    return stmt.isAssign()
-        && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
   }
 
   private static class QueryWithContext {

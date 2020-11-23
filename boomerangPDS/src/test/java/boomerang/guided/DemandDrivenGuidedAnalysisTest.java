@@ -2,10 +2,13 @@ package boomerang.guided;
 
 import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
+import boomerang.callgraph.ObservableICFG;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
 import boomerang.guided.targets.ContextSensitiveTarget;
+import boomerang.guided.targets.IntegerCastTarget;
 import boomerang.guided.targets.LeftUnbalancedTarget;
 import boomerang.guided.targets.NestedContextAndBranchingTarget;
 import boomerang.guided.targets.NestedContextTarget;
@@ -20,14 +23,16 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.jimple.BoomerangPretransformer;
+import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.scene.jimple.JimpleMethod;
-import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -44,19 +49,33 @@ public class DemandDrivenGuidedAnalysisTest {
   public static String CG = "cha";
 
   @Test
+  public void integerCastTest() {
+    setupSoot(IntegerCastTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.IntegerCastTarget: void main(java.lang.String[])>");
+    BackwardQuery query = selectFirstBaseOfToString(m);
+    System.out.println(query);
+    Specification spec =
+        Specification.create("<java.lang.Integer: ON{B}java.lang.Integer valueOf(GO{B}int)>");
+    runAnalysis(spec, query, 1);
+  }
+
+  @Test
   public void basicTarget() {
     setupSoot(BasicTarget.class);
     SootMethod m =
         Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>");
+            .getMethod("<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>");
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(query, "bar");
   }
 
   @Test
-  @Ignore("We need additional logic to tell the analysis to continue at some unknown parent context")
+  @Ignore(
+      "We need additional logic to tell the analysis to continue at some unknown parent context")
   public void leftUnbalancedTargetTest() {
     setupSoot(LeftUnbalancedTarget.class);
     SootMethod m =
@@ -157,8 +176,7 @@ public class DemandDrivenGuidedAnalysisTest {
     setupSoot(BranchingTest.class);
     SootMethod m =
         Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.BranchingTest: void main(java.lang.String[])>");
+            .getMethod("<boomerang.guided.targets.BranchingTest: void main(java.lang.String[])>");
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(query, "bar", "foo");
@@ -181,8 +199,7 @@ public class DemandDrivenGuidedAnalysisTest {
     setupSoot(PingPongTarget.class);
     SootMethod m =
         Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.PingPongTarget: void main(java.lang.String[])>");
+            .getMethod("<boomerang.guided.targets.PingPongTarget: void main(java.lang.String[])>");
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(getPingPongSpecification(), query, "hello", "world");
@@ -202,10 +219,10 @@ public class DemandDrivenGuidedAnalysisTest {
 
   private Specification getPingPongSpecification() {
     return Specification.create(
-            "<ON{B}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
-            "<ON{F}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
-            "<ON{F}java.lang.StringBuilder: GO{F}java.lang.StringBuilder append(java.lang.String)>",
-            "<GO{B}java.lang.StringBuilder: ON{B}java.lang.String toString()>");
+        "<ON{B}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
+        "<ON{F}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
+        "<ON{F}java.lang.StringBuilder: GO{F}java.lang.StringBuilder append(java.lang.String)>",
+        "<GO{B}java.lang.StringBuilder: ON{B}java.lang.String toString()>");
   }
 
   public static BackwardQuery selectFirstFileInitArgument(SootMethod m) {
@@ -214,11 +231,6 @@ public class DemandDrivenGuidedAnalysisTest {
     Statement newFileStatement =
         method.getStatements().stream()
             .filter(x -> x.containsInvokeExpr())
-            .filter(
-                x -> {
-                  x.toString();
-                  return true;
-                })
             .filter(
                 x ->
                     x.getInvokeExpr().getMethod().getName().equals("<init>")
@@ -237,7 +249,24 @@ public class DemandDrivenGuidedAnalysisTest {
     return BackwardQuery.make(cfgEdge, arg);
   }
 
-  protected void runAnalysis(BackwardQuery query, String... expectedValues) {
+  public static BackwardQuery selectFirstBaseOfToString(SootMethod m) {
+    Method method = JimpleMethod.of(m);
+    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+    Statement newFileStatement =
+        method.getStatements().stream()
+            .filter(x -> x.containsInvokeExpr())
+            .filter(x -> x.getInvokeExpr().getMethod().getName().equals("toString"))
+            .findFirst()
+            .get();
+    Val arg = newFileStatement.getInvokeExpr().getBase();
+
+    Statement predecessor =
+        method.getControlFlowGraph().getPredsOf(newFileStatement).stream().findFirst().get();
+    Edge cfgEdge = new Edge(predecessor, newFileStatement);
+    return BackwardQuery.make(cfgEdge, arg);
+  }
+
+  protected void runAnalysis(BackwardQuery query, Object... expectedValues) {
     Specification specification =
         Specification.create(
             "<GO{F}java.lang.String: void <init>(ON{F}java.lang.String)>",
@@ -245,17 +274,53 @@ public class DemandDrivenGuidedAnalysisTest {
     runAnalysis(specification, query, expectedValues);
   }
 
+  private boolean isStringOrIntAllocation(Statement stmt) {
+    return stmt.isAssign()
+        && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
+  }
+
   protected void runAnalysis(
-      Specification specification, BackwardQuery query, String... expectedValues) {
+      Specification specification, BackwardQuery query, Object... expectedValues) {
     DemandDrivenGuidedAnalysis demandDrivenGuidedAnalysis =
-        new DemandDrivenGuidedAnalysis(specification);
-    Collection<ForwardQuery> res = demandDrivenGuidedAnalysis.run(query);
+        new DemandDrivenGuidedAnalysis(
+            specification,
+            new IntAndStringBoomerangOptions() {
+              @Override
+              public Optional<AllocVal> getAllocationVal(
+                  Method m, Statement stmt, Val fact, ObservableICFG<Statement, Method> icfg) {
+                if (stmt.isAssign()
+                    && stmt.getLeftOp().equals(fact)
+                    && isStringOrIntAllocation(stmt)) {
+                  return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp()));
+                }
+                return super.getAllocationVal(m, stmt, fact, icfg);
+              }
+
+              @Override
+              public int analysisTimeoutMS() {
+                return 5000;
+              }
+
+              @Override
+              public boolean allowMultipleQueries() {
+                return true;
+              }
+            });
+    Collection<ForwardQuery> res =
+        demandDrivenGuidedAnalysis.run(
+            query,
+            new Predicate<Statement>() {
+              @Override
+              public boolean test(Statement statement) {
+                return isStringOrIntAllocation(statement);
+              }
+            });
     Assert.assertEquals(
         Sets.newHashSet(expectedValues),
         res.stream()
             .map(t -> ((AllocVal) t.var()).getAllocVal())
-            .filter(x -> x.isStringConstant())
-            .map(x -> x.getStringValue())
+            .filter(x -> x.isStringConstant() || x.isIntConstant())
+            .map(x -> (x.isIntConstant() ? x.getIntValue() : x.getStringValue()))
             .collect(Collectors.toSet()));
   }
 

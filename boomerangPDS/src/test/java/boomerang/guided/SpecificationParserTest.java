@@ -1,6 +1,5 @@
 package boomerang.guided;
 
-import boomerang.guided.Specification;
 import org.junit.Test;
 
 public class SpecificationParserTest {
