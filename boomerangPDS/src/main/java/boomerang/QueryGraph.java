@@ -68,10 +68,13 @@ public class QueryGraph<W extends Weight> {
   }
 
   public void unregisterAllListeners() {
-    this.roots.clear();
     this.edgeAddListener.clear();
-    this.sourceToQueryEdgeLookUp.clear();
-    this.targetToQueryEdgeLookUp.clear();
+  }
+
+  public Set<Query> getNodes() {
+    Set<Query> nodes = Sets.newHashSet(sourceToQueryEdgeLookUp.keySet());
+    nodes.addAll(targetToQueryEdgeLookUp.keySet());
+    return nodes;
   }
 
   private class SourceListener extends WPAStateListener<Edge, INode<Val>, W> {

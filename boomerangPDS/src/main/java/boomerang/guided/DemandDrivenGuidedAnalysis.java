@@ -42,13 +42,13 @@ import wpds.impl.Weight.NoWeight;
 public class DemandDrivenGuidedAnalysis {
 
   private final BoomerangOptions customBoomerangOptions;
-  private final Specification spec;
+  private final IDemandDrivenGuidedManager spec;
   private final DataFlowScope scope;
   private final SootCallGraph callGraph;
   private final LinkedList<QueryWithContext> queryQueue = Lists.newLinkedList();
   private final Set<Query> visited = Sets.newHashSet();
 
-  public DemandDrivenGuidedAnalysis(Specification specification, BoomerangOptions options) {
+  public DemandDrivenGuidedAnalysis(IDemandDrivenGuidedManager specification, BoomerangOptions options) {
     spec = specification;
     callGraph = new SootCallGraph();
     scope = SootDataFlowScope.make(Scene.v());
@@ -59,10 +59,17 @@ public class DemandDrivenGuidedAnalysis {
     customBoomerangOptions = options;
   }
 
-  public Collection<ForwardQuery> run(Query query, Predicate<Statement> outputForwardQuery) {
+  /**
+   * The query graph takes as input an initial query from which all follow up computations are computed. Based on the specification provided.
+   * It returns the QueryGraph which is a graph whose nodes are Boomerang Queries, there is an edge between the queries if there node A triggered
+   * a subsequent query B.
+   *
+   * @param query The initial query to start the analysis from.
+   * @return a query graph containing all queries triggered.
+   */
+  public QueryGraph<NoWeight> run(Query query) {
     queryQueue.add(new QueryWithContext(query));
     Boomerang bSolver = new Boomerang(callGraph, scope, customBoomerangOptions);
-    Collection<ForwardQuery> finalAllocationSites = Sets.newHashSet();
     while (!queryQueue.isEmpty()) {
       QueryWithContext pop = queryQueue.pop();
       if (pop.query instanceof ForwardQuery) {
@@ -94,12 +101,6 @@ public class DemandDrivenGuidedAnalysis {
         Map<ForwardQuery, Context> allocationSites = results.getAllocationSites();
 
         for (Entry<ForwardQuery, Context> entry : allocationSites.entrySet()) {
-          ForwardQuery forwardQuery = entry.getKey();
-          Statement start = forwardQuery.cfgEdge().getStart();
-          if (outputForwardQuery.test(start)) {
-            finalAllocationSites.add(entry.getKey());
-          }
-
           triggerNewBackwardQueries(
               results.asStatementValWeightTable(entry.getKey()),
               entry.getKey(),
@@ -109,107 +110,27 @@ public class DemandDrivenGuidedAnalysis {
     }
 
     QueryGraph<NoWeight> queryGraph = bSolver.getQueryGraph();
-    System.out.println(queryGraph.toDotString());
-    System.out.println(finalAllocationSites);
-
     bSolver.unregisterAllListeners();
-    return finalAllocationSites;
+    return queryGraph;
   }
 
   private void triggerNewBackwardQueries(
       Table<Edge, Val, NoWeight> backwardResults, Query lastQuery, QueryDirection direction) {
     for (Cell<Edge, Val, NoWeight> cell : backwardResults.cellSet()) {
       Edge triggeringEdge = cell.getRowKey();
-      Statement stmt = triggeringEdge.getStart();
       Val fact = cell.getColumnKey();
-      if (stmt.containsInvokeExpr()) {
-        Set<SootMethodWithSelector> selectors =
-            spec.getMethodAndQueries().stream()
-                .filter(x -> isInOnList(x, stmt, fact, direction))
-                .collect(Collectors.toSet());
-        for (SootMethodWithSelector sel : selectors) {
-          Collection<Query> queries = createNewQueries(sel, stmt);
-          for (Query q : queries) {
-            addToQueue(new QueryWithContext(q, new Node<>(triggeringEdge, fact), lastQuery));
-          }
-        }
+      Collection<Query> queries;
+      if(direction == QueryDirection.FORWARD){
+        queries = spec.onForwardFlow((ForwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
+      } else {
+        queries = spec.onBackwardFlow((BackwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
+      }
+      for(Query q : queries) {
+        addToQueue(new QueryWithContext(q, new Node<>(triggeringEdge, fact), lastQuery));
       }
     }
   }
 
-  private Collection<Query> createNewQueries(SootMethodWithSelector sel, Statement stmt) {
-    Set<Query> results = Sets.newHashSet();
-    Method method = stmt.getMethod();
-    for (QuerySelector qSel : sel.getGo()) {
-      Optional<Val> parameterVal = getParameterVal(stmt, qSel.argumentSelection);
-      if (parameterVal.isPresent()) {
-        if (qSel.direction == QueryDirection.BACKWARD) {
-          for (Statement pred : method.getControlFlowGraph().getPredsOf(stmt)) {
-            results.add(BackwardQuery.make(new Edge(pred, stmt), parameterVal.get()));
-          }
-        } else if (qSel.direction == QueryDirection.FORWARD) {
-          for (Statement succ : method.getControlFlowGraph().getSuccsOf(stmt)) {
-            results.add(
-                new ForwardQuery(
-                    new Edge(stmt, succ),
-                    new AllocVal(parameterVal.get(), stmt, parameterVal.get())));
-          }
-        }
-      }
-    }
-    return results;
-  }
-
-  public boolean isInOnList(
-      SootMethodWithSelector methodSelector, Statement stmt, Val fact, QueryDirection direction) {
-    if (stmt instanceof JimpleStatement) {
-      // This only works for Soot propagations
-      Stmt jimpleStmt = ((JimpleStatement) stmt).getDelegate();
-      if (jimpleStmt
-          .getInvokeExpr()
-          .getMethod()
-          .getSignature()
-          .equals(methodSelector.getSootMethod())) {
-        Collection<QuerySelector> on = methodSelector.getOn();
-        return isInList(on, direction, stmt, fact);
-      }
-    }
-    return false;
-  }
-
-  private boolean isInList(
-      Collection<QuerySelector> list, QueryDirection direction, Statement stmt, Val fact) {
-    return list.stream()
-        .anyMatch(
-            sel -> (sel.direction == direction && isParameter(stmt, fact, sel.argumentSelection)));
-  }
-
-  private boolean isParameter(Statement stmt, Val fact, Parameter argumentSelection) {
-    if (stmt.getInvokeExpr().isInstanceInvokeExpr() && argumentSelection.equals(Parameter.base())) {
-      return stmt.getInvokeExpr().getBase().equals(fact);
-    }
-    if (argumentSelection.equals(Parameter.returnParam())) {
-      return stmt.isAssign() && stmt.getLeftOp().equals(fact);
-    }
-    return stmt.getInvokeExpr().getArgs().size() > argumentSelection.getValue()
-        && argumentSelection.getValue() >= 0
-        && stmt.getInvokeExpr().getArg(argumentSelection.getValue()).equals(fact);
-  }
-
-  private Optional<Val> getParameterVal(Statement stmt, Parameter selector) {
-    if (stmt.containsInvokeExpr()
-        && !stmt.getInvokeExpr().isStaticInvokeExpr()
-        && selector.equals(Parameter.base())) {
-      return Optional.of(stmt.getInvokeExpr().getBase());
-    }
-    if (stmt.isAssign() && selector.equals(Parameter.returnParam())) {
-      return Optional.of(stmt.getLeftOp());
-    }
-    if (stmt.getInvokeExpr().getArgs().size() > selector.getValue() && selector.getValue() >= 0) {
-      return Optional.of(stmt.getInvokeExpr().getArg(selector.getValue()));
-    }
-    return Optional.empty();
-  }
 
   private void addToQueue(QueryWithContext nextQuery) {
     if (visited.add(nextQuery.query)) {

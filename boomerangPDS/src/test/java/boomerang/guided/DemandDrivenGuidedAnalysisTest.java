@@ -2,6 +2,8 @@ package boomerang.guided;
 
 import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
+import boomerang.Query;
+import boomerang.QueryGraph;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,6 +46,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.options.Options;
+import wpds.impl.Weight.NoWeight;
 
 public class DemandDrivenGuidedAnalysisTest {
 
@@ -283,7 +287,7 @@ public class DemandDrivenGuidedAnalysisTest {
       Specification specification, BackwardQuery query, Object... expectedValues) {
     DemandDrivenGuidedAnalysis demandDrivenGuidedAnalysis =
         new DemandDrivenGuidedAnalysis(
-            specification,
+            new SimpleSpecificationGuidedManager(specification),
             new IntAndStringBoomerangOptions() {
               @Override
               public Optional<AllocVal> getAllocationVal(
@@ -306,19 +310,18 @@ public class DemandDrivenGuidedAnalysisTest {
                 return true;
               }
             });
-    Collection<ForwardQuery> res =
+
+    QueryGraph<NoWeight> queryGraph =
         demandDrivenGuidedAnalysis.run(
-            query,
-            new Predicate<Statement>() {
-              @Override
-              public boolean test(Statement statement) {
-                return isStringOrIntAllocation(statement);
-              }
-            });
+            query);
+    Stream<Query> res = queryGraph.getNodes().stream().filter(x -> x instanceof ForwardQuery && isStringOrIntAllocation(x.asNode().stmt().getStart()));
+   // System.out.println(res.collect(Collectors.toList()));
     Assert.assertEquals(
         Sets.newHashSet(expectedValues),
-        res.stream()
-            .map(t -> ((AllocVal) t.var()).getAllocVal())
+        res
+            .map(t -> {
+              System.out.println(t);
+              return ((AllocVal) t.var()).getAllocVal();})
             .filter(x -> x.isStringConstant() || x.isIntConstant())
             .map(x -> (x.isIntConstant() ? x.getIntValue() : x.getStringValue()))
             .collect(Collectors.toSet()));
