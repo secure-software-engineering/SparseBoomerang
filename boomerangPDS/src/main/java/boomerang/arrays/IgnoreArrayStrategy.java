@@ -14,8 +14,6 @@ package boomerang.arrays;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Pair;
 import boomerang.scene.Val;
-import boomerang.solver.BackwardBoomerangSolver;
-import boomerang.solver.ForwardBoomerangSolver;
 import java.util.Set;
 import wpds.impl.Weight;
 import wpds.interfaces.State;
@@ -23,13 +21,8 @@ import wpds.interfaces.State;
 public class IgnoreArrayStrategy<W extends Weight> implements ArrayHandlingStrategy<W> {
 
   @Override
-  public void handleForward(
-      Edge storeStmt,
-      Pair<Val, Integer> storedVal,
-      Set<State> out,
-      ForwardBoomerangSolver<W> solver) {}
+  public void handleForward(Edge storeStmt, Pair<Val, Integer> storedVal, Set<State> out) {}
 
   @Override
-  public void handleBackward(
-      Edge curr, Pair<Val, Integer> arrayBase, Set<State> out, BackwardBoomerangSolver<W> solver) {}
+  public void handleBackward(Edge curr, Pair<Val, Integer> arrayBase, Set<State> out) {}
 }
