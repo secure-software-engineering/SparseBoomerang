@@ -1,7 +1,6 @@
 package boomerang.solver;
 
 import boomerang.BoomerangOptions;
-import boomerang.WeightedBoomerang;
 import boomerang.arrays.ArrayHandlingStrategy;
 import boomerang.arrays.ArrayIndexInsensitiveStrategy;
 import boomerang.arrays.ArrayIndexSensitiveStrategy;
@@ -16,13 +15,13 @@ public class Strategies<W extends Weight> {
   private final StaticFieldStrategy<W> staticFieldStrategy;
   private final ArrayHandlingStrategy<W> arrayHandlingStrategy;
 
-  public Strategies(BoomerangOptions opts, WeightedBoomerang<W> boomerang) {
+  public Strategies(BoomerangOptions opts) {
     switch (opts.getStaticFieldStrategy()) {
       case IGNORE:
         staticFieldStrategy = new IgnoreStaticFieldStrategy();
         break;
       case SINGLETON:
-        staticFieldStrategy = new SingletonStaticFieldStrategy<W>(boomerang);
+        staticFieldStrategy = new SingletonStaticFieldStrategy<W>();
         break;
       case FLOW_SENSITIVE:
       default:

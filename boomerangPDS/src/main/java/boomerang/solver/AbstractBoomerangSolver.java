@@ -17,8 +17,6 @@ import boomerang.callgraph.BackwardsObservableICFG;
 import boomerang.callgraph.CallerListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
-import boomerang.controlflowgraph.PredecessorListener;
-import boomerang.controlflowgraph.SuccessorListener;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -29,6 +27,7 @@ import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.util.RegExAccessPath;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -92,8 +91,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
   protected final BoomerangOptions options;
   protected final Type type;
 
-  protected final Strategies<W> strategies;
-
   public AbstractBoomerangSolver(
       ObservableICFG<Statement, Method> icfg,
       ObservableControlFlowGraph cfg,
@@ -102,7 +99,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
       NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W> callSummaries,
       NestedWeightedPAutomatons<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> fieldSummaries,
       DataFlowScope scope,
-      Strategies<W> strategies,
       Type propagationType) {
     super(
         icfg instanceof BackwardsObservableICFG ? false : options.callSummaries(),
@@ -116,7 +112,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     this.icfg = icfg;
     this.cfg = cfg;
     this.dataFlowScope = scope;
-    this.strategies = strategies;
     this.type = propagationType;
     this.fieldAutomaton.registerListener(
         (t, w, aut) -> {
@@ -130,6 +125,18 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
         });
     this.callAutomaton.registerListener(new UnbalancedListener());
     this.generatedFieldState = genField;
+  }
+
+  public boolean reachesNodeWithEmptyField(Node<Edge, Val> node) {
+    for (Transition<Field, INode<Node<Edge, Val>>> t : getFieldAutomaton().getTransitions()) {
+      if (t.getStart() instanceof GeneratedState) {
+        continue;
+      }
+      if (t.getStart().fact().equals(node) && t.getLabel().equals(Field.empty())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private class UnbalancedListener
@@ -220,6 +227,22 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
         });
   }
 
+  public Table<Edge, Val, W> asStatementValWeightTable() {
+    final Table<Edge, Val, W> results = HashBasedTable.create();
+    Stopwatch sw = Stopwatch.createStarted();
+    WeightedPAutomaton<Edge, INode<Val>, W> callAut = getCallAutomaton();
+    for (Entry<Transition<Edge, INode<Val>>, W> e :
+        callAut.getTransitionsToFinalWeights().entrySet()) {
+      Transition<Edge, INode<Val>> t = e.getKey();
+      W w = e.getValue();
+      if (t.getLabel().equals(new Edge(Statement.epsilon(), Statement.epsilon()))) continue;
+      if (t.getStart().fact().isLocal()
+          && !t.getLabel().getMethod().equals(t.getStart().fact().m())) continue;
+      results.put(t.getLabel(), t.getStart().fact(), w);
+    }
+    return results;
+  }
+
   protected void addPotentialUnbalancedFlow(
       Method callee, Transition<ControlFlowGraph.Edge, INode<Val>> trans, W weight) {
     if (unbalancedDataFlows.put(callee, new UnbalancedDataFlow<>(callee, trans))) {
@@ -241,23 +264,7 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
 
             @Override
             public void onCallerAdded(Statement n, Method m) {
-              if (AbstractBoomerangSolver.this instanceof ForwardBoomerangSolver) {
-                cfg.addPredsOfListener(
-                    new PredecessorListener(n) {
-                      @Override
-                      public void getPredecessor(Statement pred) {
-                        propagateUnbalancedToCallSite(new Edge(pred, n), trans);
-                      }
-                    });
-              } else if (AbstractBoomerangSolver.this instanceof BackwardBoomerangSolver) {
-                cfg.addSuccsOfListener(
-                    new SuccessorListener(n) {
-                      @Override
-                      public void getSuccessor(Statement succ) {
-                        propagateUnbalancedToCallSite(new Edge(n, succ), trans);
-                      }
-                    });
-              }
+              propagateUnbalancedToCallSite(n, trans);
             }
           });
     }
@@ -267,22 +274,40 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     return false;
   }
 
-  public void allowUnbalanced(Method callee, Edge callSiteEdge) {
+  public void allowUnbalanced(Method callee, Statement callSite) {
     if (dataFlowScope.isExcluded(callee)) {
       return;
     }
-    UnbalancedDataFlowListener l = new UnbalancedDataFlowListener(callee, callSiteEdge);
+    UnbalancedDataFlowListener l = new UnbalancedDataFlowListener(callee, callSite);
     if (unbalancedDataFlowListeners.put(callee, l)) {
-      LOGGER.trace(
-          "Allowing unbalanced propagation from {} to {} of {}", callee, callSiteEdge, this);
+      LOGGER.trace("Allowing unbalanced propagation from {} to {} of {}", callee, callSite, this);
       for (UnbalancedDataFlow<W> e : Lists.newArrayList(unbalancedDataFlows.get(callee))) {
-        propagateUnbalancedToCallSite(callSiteEdge, e.getReturningTransition());
+        propagateUnbalancedToCallSite(callSite, e.getReturningTransition());
       }
     }
   }
 
+  protected void assertCalleeCallerRelation(Statement callSite, Method method) {
+    Set<Statement> callsitesOfCall = Sets.newHashSet();
+    icfg.addCallerListener(
+        new CallerListener<Statement, Method>() {
+          @Override
+          public Method getObservedCallee() {
+            return method;
+          }
+
+          @Override
+          public void onCallerAdded(Statement statement, Method method) {
+            callsitesOfCall.add(statement);
+          }
+        });
+    if (!callsitesOfCall.contains(callSite)) {
+      throw new RuntimeException("Invalid pair of callSite and method for unbalanced return");
+    }
+  }
+
   protected abstract void propagateUnbalancedToCallSite(
-      Edge callSiteEdge, Transition<ControlFlowGraph.Edge, INode<Val>> transInCallee);
+      Statement callSiteEdge, Transition<ControlFlowGraph.Edge, INode<Val>> transInCallee);
 
   @Override
   protected boolean preventCallTransitionAdd(
@@ -385,8 +410,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     return generatedFieldState.get(e);
   }
 
-  protected abstract boolean killFlow(Method method, Statement curr, Val value);
-
   private boolean isBackward() {
     return this instanceof BackwardBoomerangSolver;
   }
@@ -404,9 +427,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
       propagate(currNode, s);
     }
   }
-
-  protected abstract Collection<? extends State> getEmptyCalleeFlow(
-      Method caller, Edge callSiteEdge, Val value);
 
   protected abstract Collection<State> computeNormalFlow(Method method, Edge currEdge, Val value);
 
@@ -623,14 +643,14 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
 
   private static class UnbalancedDataFlowListener {
     private Method callee;
-    private Edge callSite;
+    private Statement callSite;
 
-    public UnbalancedDataFlowListener(Method callee, Edge callSite) {
+    public UnbalancedDataFlowListener(Method callee, Statement callSite) {
       this.callee = callee;
       this.callSite = callSite;
     }
 
-    public Edge getCallSiteEdge() {
+    public Statement getCallSiteEdge() {
       return callSite;
     }
 

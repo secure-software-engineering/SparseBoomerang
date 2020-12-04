@@ -68,10 +68,13 @@ public class QueryGraph<W extends Weight> {
   }
 
   public void unregisterAllListeners() {
-    this.roots.clear();
     this.edgeAddListener.clear();
-    this.sourceToQueryEdgeLookUp.clear();
-    this.targetToQueryEdgeLookUp.clear();
+  }
+
+  public Set<Query> getNodes() {
+    Set<Query> nodes = Sets.newHashSet(sourceToQueryEdgeLookUp.keySet());
+    nodes.addAll(targetToQueryEdgeLookUp.keySet());
+    return nodes;
   }
 
   private class SourceListener extends WPAStateListener<Edge, INode<Val>, W> {
@@ -94,7 +97,12 @@ public class QueryGraph<W extends Weight> {
         WeightedPAutomaton<Edge, INode<Val>, W> weightedPAutomaton) {
       if (t.getStart() instanceof GeneratedState && callee != null) {
         Edge callSiteLabel = t.getLabel();
-        getSolver(child).allowUnbalanced(callee, callSiteLabel);
+        getSolver(child)
+            .allowUnbalanced(
+                callee,
+                (parent instanceof BackwardQuery
+                    ? callSiteLabel.getTarget()
+                    : callSiteLabel.getStart()));
       }
       if (t.getTarget() instanceof GeneratedState) {
         getSolver(parent)

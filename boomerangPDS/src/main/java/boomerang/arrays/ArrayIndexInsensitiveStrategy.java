@@ -15,8 +15,6 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Field;
 import boomerang.scene.Pair;
 import boomerang.scene.Val;
-import boomerang.solver.BackwardBoomerangSolver;
-import boomerang.solver.ForwardBoomerangSolver;
 import java.util.Set;
 import sync.pds.solver.SyncPDSSolver.PDSSystem;
 import sync.pds.solver.nodes.PushNode;
@@ -26,14 +24,12 @@ import wpds.interfaces.State;
 public class ArrayIndexInsensitiveStrategy<W extends Weight> implements ArrayHandlingStrategy<W> {
 
   @Override
-  public void handleForward(
-      Edge curr, Pair<Val, Integer> arrayBase, Set<State> out, ForwardBoomerangSolver<W> solver) {
+  public void handleForward(Edge curr, Pair<Val, Integer> arrayBase, Set<State> out) {
     out.add(new PushNode<>(curr, arrayBase.getX(), Field.array(-1), PDSSystem.FIELDS));
   }
 
   @Override
-  public void handleBackward(
-      Edge curr, Pair<Val, Integer> arrayBase, Set<State> out, BackwardBoomerangSolver<W> solver) {
+  public void handleBackward(Edge curr, Pair<Val, Integer> arrayBase, Set<State> out) {
     out.add(new PushNode<>(curr, arrayBase.getX(), Field.array(-1), PDSSystem.FIELDS));
   }
 }

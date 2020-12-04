@@ -17,7 +17,9 @@ import boomerang.Query;
 import boomerang.callgraph.CalleeListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
+import boomerang.controlflowgraph.PredecessorListener;
 import boomerang.controlflowgraph.SuccessorListener;
+import boomerang.flowfunction.IForwardFlowFunction;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -25,24 +27,20 @@ import boomerang.scene.DataFlowScope;
 import boomerang.scene.Field;
 import boomerang.scene.InvokeExpr;
 import boomerang.scene.Method;
-import boomerang.scene.Pair;
 import boomerang.scene.Statement;
-import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
-import sync.pds.solver.nodes.ExclusionNode;
 import sync.pds.solver.nodes.GeneratedState;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
-import sync.pds.solver.nodes.NodeWithLocation;
 import sync.pds.solver.nodes.PopNode;
 import sync.pds.solver.nodes.PushNode;
 import sync.pds.solver.nodes.SingleNode;
@@ -50,6 +48,7 @@ import wpds.impl.NestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
 import wpds.impl.WeightedPAutomaton;
+import wpds.interfaces.Location;
 import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 
@@ -57,6 +56,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
   private static final org.slf4j.Logger LOGGER =
       LoggerFactory.getLogger(ForwardBoomerangSolver.class);
   private final ForwardQuery query;
+  private final IForwardFlowFunction flowFunctions;
 
   public ForwardBoomerangSolver(
       ObservableICFG<Statement, Method> callGraph,
@@ -67,19 +67,23 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W> callSummaries,
       NestedWeightedPAutomatons<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> fieldSummaries,
       DataFlowScope scope,
-      Strategies strategies,
+      IForwardFlowFunction flowFunctions,
       Type propagationType) {
-    super(
-        callGraph,
-        cfg,
-        genField,
-        options,
-        callSummaries,
-        fieldSummaries,
-        scope,
-        strategies,
-        propagationType);
+    super(callGraph, cfg, genField, options, callSummaries, fieldSummaries, scope, propagationType);
     this.query = query;
+    this.flowFunctions = flowFunctions;
+  }
+
+  @Override
+  public void processPush(
+      Node<Edge, Val> curr, Location location, PushNode<Edge, Val, ?> succ, PDSSystem system) {
+    if (PDSSystem.CALLS == system) {
+      if (!((PushNode<Edge, Val, Edge>) succ).location().getStart().equals(curr.stmt().getTarget())
+          || !curr.stmt().getTarget().containsInvokeExpr()) {
+        throw new RuntimeException("Invalid push rule");
+      }
+    }
+    super.processPush(curr, location, succ, system);
   }
 
   private final class OverwriteAtFieldStore
@@ -190,33 +194,44 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
 
   @Override
   protected void propagateUnbalancedToCallSite(
-      Edge callSiteEdge, Transition<ControlFlowGraph.Edge, INode<Val>> transInCallee) {
+      Statement callSite, Transition<ControlFlowGraph.Edge, INode<Val>> transInCallee) {
     GeneratedState<Val, Edge> target = (GeneratedState<Val, Edge>) transInCallee.getTarget();
+    if (!callSite.containsInvokeExpr()) {
+      throw new RuntimeException("Invalid propagate Unbalanced return");
+    }
+    assertCalleeCallerRelation(callSite, transInCallee.getLabel().getMethod());
     cfg.addSuccsOfListener(
-        new SuccessorListener(callSiteEdge.getTarget()) {
+        new SuccessorListener(callSite) {
           @Override
           public void getSuccessor(Statement succ) {
-            Node<ControlFlowGraph.Edge, Val> curr = new Node<>(callSiteEdge, query.var());
-            /**
-             * Transition<Field, INode<Node<Statement, Val>>> fieldTrans = new Transition<>(new
-             * SingleNode<>(curr), emptyField(), new SingleNode<>(curr));
-             * fieldAutomaton.addTransition(fieldTrans);*
-             */
-            Transition<ControlFlowGraph.Edge, INode<Val>> callTrans =
-                new Transition<>(
-                    wrap(curr.fact()),
-                    curr.stmt(),
-                    generateCallState(wrap(curr.fact()), curr.stmt()));
-            callAutomaton.addTransition(callTrans);
-            callAutomaton.addUnbalancedState(
-                generateCallState(wrap(curr.fact()), curr.stmt()), target);
-            State s =
-                new PushNode<>(
-                    target.location(),
-                    target.node().fact(),
-                    new Edge(callSiteEdge.getTarget(), succ),
-                    PDSSystem.CALLS);
-            propagate(curr, s);
+            cfg.addPredsOfListener(
+                new PredecessorListener(callSite) {
+                  @Override
+                  public void getPredecessor(Statement pred) {
+                    Node<ControlFlowGraph.Edge, Val> curr =
+                        new Node<>(new Edge(pred, callSite), query.var());
+                    /**
+                     * Transition<Field, INode<Node<Statement, Val>>> fieldTrans = new
+                     * Transition<>(new SingleNode<>(curr), emptyField(), new SingleNode<>(curr));
+                     * fieldAutomaton.addTransition(fieldTrans);*
+                     */
+                    Transition<ControlFlowGraph.Edge, INode<Val>> callTrans =
+                        new Transition<>(
+                            wrap(curr.fact()),
+                            curr.stmt(),
+                            generateCallState(wrap(curr.fact()), curr.stmt()));
+                    callAutomaton.addTransition(callTrans);
+                    callAutomaton.addUnbalancedState(
+                        generateCallState(wrap(curr.fact()), curr.stmt()), target);
+                    State s =
+                        new PushNode<>(
+                            target.location(),
+                            target.node().fact(),
+                            new Edge(callSite, succ),
+                            PDSSystem.CALLS);
+                    propagate(curr, s);
+                  }
+                });
           }
         });
   }
@@ -284,13 +299,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       for (Statement calleeSp : icfg.getStartPointsOf(callee)) {
         Collection<? extends State> res =
             computeCallFlow(
-                caller,
-                callSite,
-                callSiteEdge,
-                invokeExpr,
-                currNode,
-                callee,
-                new Edge(calleeSp, calleeSp));
+                caller, callSite, callSiteEdge, currNode, callee, new Edge(calleeSp, calleeSp));
         for (State s : res) {
           propagate(currNode, s);
         }
@@ -355,74 +364,21 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       Method caller,
       Statement callSite,
       Edge succOfCallSite,
-      InvokeExpr invokeExpr,
       Node<ControlFlowGraph.Edge, Val> currNode,
       Method callee,
       Edge calleeStartEdge) {
-    Val fact = currNode.fact();
-    if (callee.isStaticInitializer()) {
-      return Collections.emptySet();
-    }
     if (dataFlowScope.isExcluded(callee)) {
       byPassFlowAtCallSite(caller, currNode, callSite);
       return Collections.emptySet();
     }
-    Set<State> out = Sets.newHashSet();
-    if (invokeExpr.isInstanceInvokeExpr()) {
-      if (invokeExpr.getBase().equals(fact) && !callee.isStatic()) {
-        out.add(
-            new PushNode<>(
-                calleeStartEdge, callee.getThisLocal(), succOfCallSite, PDSSystem.CALLS));
-      }
-    }
-    int i = 0;
-    List<Val> parameterLocals = callee.getParameterLocals();
-    for (Val arg : invokeExpr.getArgs()) {
-      if (arg.equals(fact) && parameterLocals.size() > i) {
-        Val param = parameterLocals.get(i);
-        out.add(new PushNode<>(calleeStartEdge, param, succOfCallSite, PDSSystem.CALLS));
-      }
-      i++;
-    }
-    if (fact.isStatic()) {
-      out.add(
-          new PushNode<>(
-              calleeStartEdge, fact.withNewMethod(callee), succOfCallSite, PDSSystem.CALLS));
-    }
-    return out;
+    Val fact = currNode.fact();
+    return flowFunctions.callFlow(callSite, fact, callee).stream()
+        .map(x -> new PushNode<>(calleeStartEdge, x, succOfCallSite, PDSSystem.CALLS))
+        .collect(Collectors.toSet());
   }
 
   public Query getQuery() {
     return query;
-  }
-
-  @Override
-  protected boolean killFlow(Method m, Statement curr, Val value) {
-    if (!m.getLocals().contains(value) && !value.isStatic()) return true;
-    if (curr.isThrowStmt() || curr.isCatchStmt()) {
-      return true;
-    }
-
-    if (curr.isAssign()) {
-      // Kill x at any statement x = * during propagation.
-      if (curr.getLeftOp().equals(value)) {
-        // But not for a statement x = x.f
-        if (curr.isFieldLoad()) {
-          Pair<Val, Field> ifr = curr.getFieldLoad();
-          if (ifr.getX().equals(value)) {
-            return false;
-          }
-        }
-        return true;
-      }
-      if (curr.isStaticFieldStore()) {
-        StaticFieldVal sf = curr.getStaticField();
-        if (value.isStatic() && value.equals(sf)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   @Override
@@ -450,11 +406,14 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
               return;
             }
 
+            if (!method.getLocals().contains(value) && !value.isStatic()) {
+              return;
+            }
             if (curr.getTarget().containsInvokeExpr()
                 && (curr.getTarget().isParameter(value) || value.isStatic())) {
               callFlow(
                   method, node, new Edge(curr.getTarget(), succ), curr.getTarget().getInvokeExpr());
-            } else if (!killFlow(method, succ, value)) {
+            } else {
               checkForFieldOverwrite(curr, value);
               Collection<State> out =
                   computeNormalFlow(method, new Edge(curr.getTarget(), succ), value);
@@ -484,83 +443,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
 
   @Override
   public Collection<State> computeNormalFlow(Method method, Edge nextEdge, Val fact) {
-    Statement succ = nextEdge.getStart();
-    Set<State> out = Sets.newHashSet();
-    if (!succ.isFieldWriteWithBase(fact)) {
-      // always maintain data-flow if not a field write // killFlow has
-      // been taken care of
-      if (!options.trackReturnOfInstanceOf()
-          || !(query.getType().isNullType() && succ.isInstanceOfStatement(fact))) {
-        out.add(new Node<>(nextEdge, fact));
-      }
-    } else {
-      out.add(new ExclusionNode<>(nextEdge, fact, succ.getWrittenField()));
-    }
-    if (succ.isAssign()) {
-      Val leftOp = succ.getLeftOp();
-      Val rightOp = succ.getRightOp();
-      if (rightOp.equals(fact)) {
-        if (succ.isFieldStore()) {
-          Pair<Val, Field> ifr = succ.getFieldStore();
-          if (options.trackFields()) {
-            if (!options.ignoreInnerClassFields() || !ifr.getY().isInnerClassField()) {
-              out.add(new PushNode<>(nextEdge, ifr.getX(), ifr.getY(), PDSSystem.FIELDS));
-            }
-          }
-        } else if (succ.isStaticFieldStore()) {
-          StaticFieldVal sf = succ.getStaticField();
-          if (options.trackFields()) {
-            strategies.getStaticFieldStrategy().handleForward(nextEdge, rightOp, sf, out, this);
-          }
-        } else if (leftOp.isArrayRef()) {
-          Pair<Val, Integer> arrayBase = succ.getArrayBase();
-          if (options.trackFields()) {
-            strategies.getArrayHandlingStrategy().handleForward(nextEdge, arrayBase, out, this);
-          }
-        } else {
-          out.add(new Node<>(nextEdge, leftOp));
-        }
-      }
-      if (succ.isFieldLoad()) {
-        Pair<Val, Field> ifr = succ.getFieldLoad();
-        if (ifr.getX().equals(fact)) {
-          NodeWithLocation<Edge, Val, Field> succNode =
-              new NodeWithLocation<>(nextEdge, leftOp, ifr.getY());
-          out.add(new PopNode<>(succNode, PDSSystem.FIELDS));
-        }
-      } else if (succ.isStaticFieldLoad()) {
-        StaticFieldVal sf = succ.getStaticField();
-        if (fact.isStatic() && fact.equals(sf)) {
-          out.add(new Node<>(nextEdge, leftOp));
-        }
-      } else if (rightOp.isArrayRef()) {
-        Pair<Val, Integer> arrayBase = succ.getArrayBase();
-        if (arrayBase.getX().equals(fact)) {
-          NodeWithLocation<Edge, Val, Field> succNode =
-              new NodeWithLocation<>(nextEdge, leftOp, Field.array(arrayBase.getY()));
-
-          //                    out.add(new Node<Statement, Val>(succ, leftOp));
-          out.add(new PopNode<>(succNode, PDSSystem.FIELDS));
-        }
-      } else if (rightOp.isCast()) {
-        if (rightOp.getCastOp().equals(fact)) {
-          out.add(new Node<>(nextEdge, leftOp));
-        }
-      } else if (rightOp.isInstanceOfExpr()
-          && query.getType().isNullType()
-          && options.trackReturnOfInstanceOf()) {
-        if (rightOp.getInstanceOfOp().equals(fact)) {
-          out.add(new Node<>(nextEdge, fact.withSecondVal(leftOp)));
-        }
-      } else if (succ.isPhiStatement()) {
-        Collection<Val> phiVals = succ.getPhiVals();
-        if (phiVals.contains(fact)) {
-          out.add(new Node<>(nextEdge, succ.getLeftOp()));
-        }
-      }
-    }
-
-    return out;
+    return flowFunctions.normalFlow(query, nextEdge, fact);
   }
 
   protected void callFlow(
@@ -587,11 +470,8 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
           @Override
           public void getSuccessor(Statement returnSite) {
             for (State s :
-                getEmptyCalleeFlow(caller, new Edge(callSite, returnSite), currNode.fact())) {
-              propagate(currNode, s);
-            }
-            for (State s :
-                computeNormalFlow(caller, new Edge(callSite, returnSite), currNode.fact())) {
+                flowFunctions.callToReturn(
+                    query, new Edge(callSite, returnSite), currNode.fact())) {
               propagate(currNode, s);
             }
           }
@@ -600,30 +480,9 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
 
   @Override
   public Collection<? extends State> computeReturnFlow(Method method, Statement curr, Val value) {
-    if (curr.isThrowStmt() && !options.throwFlows()) {
-      return Collections.emptySet();
-    }
-    Set<State> out = Sets.newHashSet();
-    if (curr.isReturnStmt()) {
-      if (curr.getReturnOp().equals(value)) {
-        out.add(new PopNode<>(value, PDSSystem.CALLS));
-      }
-    }
-    if (!method.isStatic()) {
-      if (method.getThisLocal().equals(value)) {
-        out.add(new PopNode<>(value, PDSSystem.CALLS));
-      }
-    }
-    for (Val param : method.getParameterLocals()) {
-      if (param.equals(value)) {
-        out.add(new PopNode<>(value, PDSSystem.CALLS));
-      }
-    }
-    if (value.isStatic()) {
-      // TODO value.withNewMethod(callSite.getMethod()) must be done when applying summary
-      out.add(new PopNode<>(value, PDSSystem.CALLS));
-    }
-    return out;
+    return flowFunctions.returnFlow(method, curr, value).stream()
+        .map(x -> new PopNode<>(x, PDSSystem.CALLS))
+        .collect(Collectors.toSet());
   }
 
   @Override

@@ -14,22 +14,12 @@ package boomerang.arrays;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Pair;
 import boomerang.scene.Val;
-import boomerang.solver.BackwardBoomerangSolver;
-import boomerang.solver.ForwardBoomerangSolver;
 import java.util.Set;
 import wpds.impl.Weight;
 import wpds.interfaces.State;
 
 public interface ArrayHandlingStrategy<W extends Weight> {
-  void handleForward(
-      Edge arrayStoreStmt,
-      Pair<Val, Integer> arrayBase,
-      Set<State> out,
-      ForwardBoomerangSolver<W> solver);
+  void handleForward(Edge arrayStoreStmt, Pair<Val, Integer> arrayBase, Set<State> out);
 
-  void handleBackward(
-      Edge arrayStoreStmt,
-      Pair<Val, Integer> arrayBase,
-      Set<State> out,
-      BackwardBoomerangSolver<W> solver);
+  void handleBackward(Edge arrayStoreStmt, Pair<Val, Integer> arrayBase, Set<State> out);
 }
