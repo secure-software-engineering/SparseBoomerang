@@ -13,7 +13,8 @@ package boomerang;
 
 import boomerang.callgraph.BoomerangResolver;
 import boomerang.callgraph.ICallerCalleeResolutionStrategy.Factory;
-import boomerang.callgraph.ObservableICFG;
+import boomerang.flowfunction.IBackwardFlowFunction;
+import boomerang.flowfunction.IForwardFlowFunction;
 import boomerang.scene.AllocVal;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
@@ -32,6 +33,8 @@ public interface BoomerangOptions {
   boolean trackImplicitFlows();
 
   boolean handleMaps();
+
+  IForwardFlowFunction getForwardFlowFunctions();
 
   enum StaticFieldStrategy {
     FLOW_SENSITIVE,
@@ -61,9 +64,7 @@ public interface BoomerangOptions {
 
   int analysisTimeoutMS();
 
-  // TODO remove icfg here.
-  Optional<AllocVal> getAllocationVal(
-      Method m, Statement stmt, Val fact, ObservableICFG<Statement, Method> icfg);
+  Optional<AllocVal> getAllocationVal(Method m, Statement stmt, Val fact);
 
   IBoomerangStats statsFactory();
 
@@ -102,4 +103,6 @@ public interface BoomerangOptions {
   boolean trackDataFlowPath();
 
   boolean allowMultipleQueries();
+
+  IBackwardFlowFunction getBackwardFlowFunction();
 }

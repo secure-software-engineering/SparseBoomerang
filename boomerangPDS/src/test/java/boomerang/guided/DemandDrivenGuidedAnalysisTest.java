@@ -4,7 +4,6 @@ import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
-import boomerang.callgraph.ObservableICFG;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
@@ -287,14 +286,13 @@ public class DemandDrivenGuidedAnalysisTest {
             new SimpleSpecificationGuidedManager(specification),
             new IntAndStringBoomerangOptions() {
               @Override
-              public Optional<AllocVal> getAllocationVal(
-                  Method m, Statement stmt, Val fact, ObservableICFG<Statement, Method> icfg) {
+              public Optional<AllocVal> getAllocationVal(Method m, Statement stmt, Val fact) {
                 if (stmt.isAssign()
                     && stmt.getLeftOp().equals(fact)
                     && isStringOrIntAllocation(stmt)) {
                   return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp()));
                 }
-                return super.getAllocationVal(m, stmt, fact, icfg);
+                return super.getAllocationVal(m, stmt, fact);
               }
 
               @Override
@@ -308,18 +306,20 @@ public class DemandDrivenGuidedAnalysisTest {
               }
             });
 
-    QueryGraph<NoWeight> queryGraph =
-        demandDrivenGuidedAnalysis.run(
-            query);
+    QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
 
-    //Filter out query graph's node to only return the queries of interest (ForwardQueries & String/Int Allocation sites).
-    Stream<Query> res = queryGraph.getNodes().stream().filter(x -> x instanceof ForwardQuery && isStringOrIntAllocation(x.asNode().stmt().getStart()));
+    // Filter out query graph's node to only return the queries of interest (ForwardQueries &
+    // String/Int Allocation sites).
+    Stream<Query> res =
+        queryGraph.getNodes().stream()
+            .filter(
+                x ->
+                    x instanceof ForwardQuery
+                        && isStringOrIntAllocation(x.asNode().stmt().getStart()));
     Assert.assertEquals(
         Sets.newHashSet(expectedValues),
-        res
-            .map(t -> {
-              System.out.println(t);
-              return ((AllocVal) t.var()).getAllocVal();})
+        res.map(
+                t ->((AllocVal) t.var()).getAllocVal())
             .filter(x -> x.isStringConstant() || x.isIntConstant())
             .map(x -> (x.isIntConstant() ? x.getIntValue() : x.getStringValue()))
             .collect(Collectors.toSet()));

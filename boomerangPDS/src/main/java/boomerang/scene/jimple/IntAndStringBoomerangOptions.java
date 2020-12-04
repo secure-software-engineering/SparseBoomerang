@@ -12,7 +12,6 @@
 package boomerang.scene.jimple;
 
 import boomerang.DefaultBoomerangOptions;
-import boomerang.callgraph.ObservableICFG;
 import boomerang.scene.AllocVal;
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.Method;
@@ -34,8 +33,7 @@ public class IntAndStringBoomerangOptions extends DefaultBoomerangOptions {
   }
 
   @Override
-  public Optional<AllocVal> getAllocationVal(
-      Method m, Statement stmt, Val fact, ObservableICFG<Statement, Method> icfg) {
+  public Optional<AllocVal> getAllocationVal(Method m, Statement stmt, Val fact) {
     if (!(stmt.isAssign())) {
       return Optional.empty();
     }
@@ -61,7 +59,7 @@ public class IntAndStringBoomerangOptions extends DefaultBoomerangOptions {
         return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, arg));
       }
     }
-    return super.getAllocationVal(m, stmt, fact, icfg);
+    return super.getAllocationVal(m, stmt, fact);
   }
 
   @Override

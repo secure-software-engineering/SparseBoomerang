@@ -24,7 +24,7 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
 
   private final Specification spec;
 
-  public SimpleSpecificationGuidedManager(Specification spec){
+  public SimpleSpecificationGuidedManager(Specification spec) {
     this.spec = spec;
   }
 
@@ -59,8 +59,6 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
     }
     return res;
   }
-
-
 
   private Collection<Query> createNewQueries(SootMethodWithSelector sel, Statement stmt) {
     Set<Query> results = Sets.newHashSet();

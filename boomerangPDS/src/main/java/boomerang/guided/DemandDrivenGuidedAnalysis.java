@@ -6,21 +6,14 @@ import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
-import boomerang.guided.Specification.Parameter;
 import boomerang.guided.Specification.QueryDirection;
-import boomerang.guided.Specification.QuerySelector;
-import boomerang.guided.Specification.SootMethodWithSelector;
 import boomerang.results.AbstractBoomerangResults.Context;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.Method;
 import boomerang.scene.SootDataFlowScope;
-import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.JimpleStatement;
 import boomerang.scene.jimple.SootCallGraph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -30,12 +23,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import soot.Scene;
-import soot.jimple.Stmt;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight.NoWeight;
 
@@ -48,7 +37,8 @@ public class DemandDrivenGuidedAnalysis {
   private final LinkedList<QueryWithContext> queryQueue = Lists.newLinkedList();
   private final Set<Query> visited = Sets.newHashSet();
 
-  public DemandDrivenGuidedAnalysis(IDemandDrivenGuidedManager specification, BoomerangOptions options) {
+  public DemandDrivenGuidedAnalysis(
+      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
     spec = specification;
     callGraph = new SootCallGraph();
     scope = SootDataFlowScope.make(Scene.v());
@@ -60,9 +50,10 @@ public class DemandDrivenGuidedAnalysis {
   }
 
   /**
-   * The query graph takes as input an initial query from which all follow up computations are computed. Based on the specification provided.
-   * It returns the QueryGraph which is a graph whose nodes are Boomerang Queries, there is an edge between the queries if there node A triggered
-   * a subsequent query B.
+   * The query graph takes as input an initial query from which all follow up computations are
+   * computed. Based on the specification provided. It returns the QueryGraph which is a graph whose
+   * nodes are Boomerang Queries, there is an edge between the queries if there node A triggered a
+   * subsequent query B.
    *
    * @param query The initial query to start the analysis from.
    * @return a query graph containing all queries triggered.
@@ -120,17 +111,18 @@ public class DemandDrivenGuidedAnalysis {
       Edge triggeringEdge = cell.getRowKey();
       Val fact = cell.getColumnKey();
       Collection<Query> queries;
-      if(direction == QueryDirection.FORWARD){
-        queries = spec.onForwardFlow((ForwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
+      if (direction == QueryDirection.FORWARD) {
+        queries =
+            spec.onForwardFlow((ForwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
       } else {
-        queries = spec.onBackwardFlow((BackwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
+        queries =
+            spec.onBackwardFlow((BackwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
       }
-      for(Query q : queries) {
+      for (Query q : queries) {
         addToQueue(new QueryWithContext(q, new Node<>(triggeringEdge, fact), lastQuery));
       }
     }
   }
-
 
   private void addToQueue(QueryWithContext nextQuery) {
     if (visited.add(nextQuery.query)) {

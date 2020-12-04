@@ -11,7 +11,10 @@
  */
 package boomerang;
 
-import boomerang.callgraph.ObservableICFG;
+import boomerang.flowfunction.DefaultBackwardFlowFunction;
+import boomerang.flowfunction.DefaultForwardFlowFunction;
+import boomerang.flowfunction.IBackwardFlowFunction;
+import boomerang.flowfunction.IForwardFlowFunction;
 import boomerang.scene.AllocVal;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
@@ -99,8 +102,7 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
   }
 
   @Override
-  public Optional<AllocVal> getAllocationVal(
-      Method m, Statement stmt, Val fact, ObservableICFG<Statement, Method> icfg) {
+  public Optional<AllocVal> getAllocationVal(Method m, Statement stmt, Val fact) {
     if (!stmt.isAssign()) {
       return Optional.empty();
     }
@@ -224,5 +226,15 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
   @Override
   public boolean handleMaps() {
     return true;
+  }
+
+  @Override
+  public IForwardFlowFunction getForwardFlowFunctions() {
+    return new DefaultForwardFlowFunction(this);
+  }
+
+  @Override
+  public IBackwardFlowFunction getBackwardFlowFunction() {
+    return new DefaultBackwardFlowFunction(this);
   }
 }

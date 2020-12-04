@@ -91,8 +91,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
   protected final BoomerangOptions options;
   protected final Type type;
 
-  protected final Strategies<W> strategies;
-
   public AbstractBoomerangSolver(
       ObservableICFG<Statement, Method> icfg,
       ObservableControlFlowGraph cfg,
@@ -101,7 +99,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
       NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W> callSummaries,
       NestedWeightedPAutomatons<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> fieldSummaries,
       DataFlowScope scope,
-      Strategies<W> strategies,
       Type propagationType) {
     super(
         icfg instanceof BackwardsObservableICFG ? false : options.callSummaries(),
@@ -115,7 +112,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     this.icfg = icfg;
     this.cfg = cfg;
     this.dataFlowScope = scope;
-    this.strategies = strategies;
     this.type = propagationType;
     this.fieldAutomaton.registerListener(
         (t, w, aut) -> {
@@ -414,8 +410,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     return generatedFieldState.get(e);
   }
 
-  protected abstract boolean killFlow(Method method, Statement curr, Val value);
-
   private boolean isBackward() {
     return this instanceof BackwardBoomerangSolver;
   }
@@ -433,9 +427,6 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
       propagate(currNode, s);
     }
   }
-
-  protected abstract Collection<? extends State> getEmptyCalleeFlow(
-      Method caller, Edge callSiteEdge, Val value);
 
   protected abstract Collection<State> computeNormalFlow(Method method, Edge currEdge, Val value);
 

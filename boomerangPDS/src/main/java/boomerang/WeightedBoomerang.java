@@ -21,9 +21,6 @@ import boomerang.controlflowgraph.ObservableControlFlowGraph;
 import boomerang.controlflowgraph.PredecessorListener;
 import boomerang.controlflowgraph.StaticCFG;
 import boomerang.controlflowgraph.SuccessorListener;
-import boomerang.customize.BackwardEmptyCalleeFlow;
-import boomerang.customize.EmptyCalleeFlow;
-import boomerang.customize.ForwardEmptyCalleeFlow;
 import boomerang.debugger.Debugger;
 import boomerang.poi.AbstractPOI;
 import boomerang.poi.CopyAccessPathChain;
@@ -46,7 +43,6 @@ import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;
 import boomerang.solver.ForwardBoomerangSolver;
-import boomerang.solver.Strategies;
 import boomerang.stats.IBoomerangStats;
 import boomerang.util.DefaultValueMap;
 import com.google.common.base.Stopwatch;
@@ -81,7 +77,6 @@ import wpds.impl.SummaryNestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
 import wpds.impl.WeightedPAutomaton;
-import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 
 public abstract class WeightedBoomerang<W extends Weight> {
@@ -133,15 +128,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
                   createCallSummaries(null, backwardCallSummaries),
                   createFieldSummaries(null, backwardFieldSummaries),
                   WeightedBoomerang.this.dataFlowscope,
-                  strategies,
+                  options.getBackwardFlowFunction(),
                   null) {
-
-                @Override
-                protected Collection<? extends State> getEmptyCalleeFlow(
-                    Method caller, Edge callSiteEdge, Val value) {
-                  return backwardEmptyCalleeFlow.getEmptyCalleeFlow(
-                      caller, callSiteEdge.getStart(), value, callSiteEdge.getTarget());
-                }
 
                 @Override
                 public WeightFunctions<ControlFlowGraph.Edge, Val, Field, W> getFieldWeights() {
@@ -351,9 +339,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   private ObservableICFG<Statement, Method> bwicfg;
-  private EmptyCalleeFlow forwardEmptyCalleeFlow = new ForwardEmptyCalleeFlow();
-  private EmptyCalleeFlow backwardEmptyCalleeFlow = new BackwardEmptyCalleeFlow();
-
   private NestedWeightedPAutomatons<Edge, INode<Val>, W> backwardCallSummaries =
       new SummaryNestedWeightedPAutomatons<>();
   private NestedWeightedPAutomatons<Field, INode<Node<Edge, Val>>, W> backwardFieldSummaries =
@@ -373,7 +358,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
   protected final BoomerangOptions options;
   private Stopwatch analysisWatch = Stopwatch.createUnstarted();
   private final DataFlowScope dataFlowscope;
-  private Strategies<W> strategies;
   private CallGraph callGraph;
   private INode<Val> rootQuery;
 
@@ -395,7 +379,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
       icfg = new ObservableStaticICFG(cg);
     }
     this.callGraph = cg;
-    this.strategies = new Strategies<>(options, this);
     this.queryGraph = new QueryGraph<>(this);
   }
 
@@ -410,7 +393,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   protected Optional<AllocVal> isAllocationNode(ControlFlowGraph.Edge s, Val fact) {
-    return options.getAllocationVal(s.getStart().getMethod(), s.getStart(), fact, icfg());
+    return options.getAllocationVal(s.getStart().getMethod(), s.getStart(), fact);
   }
 
   protected ForwardBoomerangSolver<W> createForwardSolver(final ForwardQuery sourceQuery) {
@@ -424,15 +407,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
             createCallSummaries(sourceQuery, forwardCallSummaries),
             createFieldSummaries(sourceQuery, forwardFieldSummaries),
             dataFlowscope,
-            strategies,
+            options.getForwardFlowFunctions(),
             sourceQuery.getType()) {
-
-          @Override
-          protected Collection<? extends State> getEmptyCalleeFlow(
-              Method caller, Edge callSiteEdge, Val value) {
-            return forwardEmptyCalleeFlow.getEmptyCalleeFlow(
-                caller, callSiteEdge.getStart(), value, callSiteEdge.getTarget());
-          }
 
           @Override
           public WeightFunctions<ControlFlowGraph.Edge, Val, ControlFlowGraph.Edge, W>
