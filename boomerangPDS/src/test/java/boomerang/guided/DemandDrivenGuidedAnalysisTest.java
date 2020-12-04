@@ -318,8 +318,7 @@ public class DemandDrivenGuidedAnalysisTest {
                         && isStringOrIntAllocation(x.asNode().stmt().getStart()));
     Assert.assertEquals(
         Sets.newHashSet(expectedValues),
-        res.map(
-                t ->((AllocVal) t.var()).getAllocVal())
+        res.map(t -> ((AllocVal) t.var()).getAllocVal())
             .filter(x -> x.isStringConstant() || x.isIntConstant())
             .map(x -> (x.isIntConstant() ? x.getIntValue() : x.getStringValue()))
             .collect(Collectors.toSet()));

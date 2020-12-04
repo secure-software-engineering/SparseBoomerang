@@ -50,8 +50,8 @@ public interface IBackwardFlowFunction {
    * Called by the backward analysis, when data-flow by-passes a call site with data-flow fact. Here
    * logic can be added to handle native calls, or methods that are excluded from propagation.
    *
-   * @param edge Edge that bypasses the call site. edge.getStart() is the call site,
-   *     edge.getTarget() is the call site, edge.getStart() is any predecessor
+   * @param edge Edge that bypasses the call site. edge.getTarget() is the call site,
+   *     edge.getStart() is any predecessor
    * @param fact The fact that by-passes the call site.
    * @return A set of data-flow states (states in the pushdown system, typically of type
    *     Node<Edge,Val>)
