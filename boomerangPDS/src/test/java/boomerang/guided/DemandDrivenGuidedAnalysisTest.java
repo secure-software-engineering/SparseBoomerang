@@ -31,10 +31,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
@@ -60,7 +58,6 @@ public class DemandDrivenGuidedAnalysisTest {
             .getMethod(
                 "<boomerang.guided.targets.IntegerCastTarget: void main(java.lang.String[])>");
     BackwardQuery query = selectFirstBaseOfToString(m);
-    System.out.println(query);
     Specification spec =
         Specification.create("<java.lang.Integer: ON{B}java.lang.Integer valueOf(GO{B}int)>");
     runAnalysis(spec, query, 1);
@@ -314,8 +311,9 @@ public class DemandDrivenGuidedAnalysisTest {
     QueryGraph<NoWeight> queryGraph =
         demandDrivenGuidedAnalysis.run(
             query);
+
+    //Filter out query graph's node to only return the queries of interest (ForwardQueries & String/Int Allocation sites).
     Stream<Query> res = queryGraph.getNodes().stream().filter(x -> x instanceof ForwardQuery && isStringOrIntAllocation(x.asNode().stmt().getStart()));
-   // System.out.println(res.collect(Collectors.toList()));
     Assert.assertEquals(
         Sets.newHashSet(expectedValues),
         res
