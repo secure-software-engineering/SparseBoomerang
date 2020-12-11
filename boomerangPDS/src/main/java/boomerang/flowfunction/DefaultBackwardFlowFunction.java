@@ -1,7 +1,6 @@
 package boomerang.flowfunction;
 
 import boomerang.BoomerangOptions;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Field;
 import boomerang.scene.InvokeExpr;

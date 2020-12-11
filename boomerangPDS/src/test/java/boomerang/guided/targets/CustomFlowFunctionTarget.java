@@ -1,10 +1,9 @@
 package boomerang.guided.targets;
 
-import java.io.File;
 
 public class CustomFlowFunctionTarget {
 
-  public static void main(String... args){
+  public static void main(String... args) {
     int x = 1;
     int y = x + 1;
     Object z = new Object();
@@ -13,6 +12,5 @@ public class CustomFlowFunctionTarget {
     queryFor(z);
   }
 
-  private static void queryFor(Object x) {
-  }
+  private static void queryFor(Object x) {}
 }

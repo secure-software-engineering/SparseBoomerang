@@ -21,8 +21,9 @@ public class CustomForwardFlowFunction extends DefaultForwardFlowFunction {
   @Override
   public Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact) {
     DeclaredMethod method = edge.getStart().getInvokeExpr().getMethod();
-    //Avoid any propagations by passing the call site.
-    if(method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System") && method.getName().equals("exit")){
+    // Avoid any propagations by passing the call site.
+    if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
+        && method.getName().equals("exit")) {
       return Collections.emptySet();
     }
     return super.callToReturnFlow(query, edge, fact);
@@ -30,10 +31,12 @@ public class CustomForwardFlowFunction extends DefaultForwardFlowFunction {
 
   @Override
   public Set<State> normalFlow(ForwardQuery query, Edge nextEdge, Val fact) {
-    if(nextEdge.getStart().containsInvokeExpr()){
+    if (nextEdge.getStart().containsInvokeExpr()) {
       DeclaredMethod method = nextEdge.getStart().getInvokeExpr().getMethod();
-      //Avoid any propagations by passing any call site (this covers the case, when the fact is not used at the call site).
-      if(method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System") && method.getName().equals("exit")){
+      // Avoid any propagations by passing any call site (this covers the case, when the fact is not
+      // used at the call site).
+      if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
+          && method.getName().equals("exit")) {
         return Collections.emptySet();
       }
     }
@@ -42,8 +45,9 @@ public class CustomForwardFlowFunction extends DefaultForwardFlowFunction {
 
   @Override
   public Set<Val> callFlow(Statement callSite, Val fact, Method callee) {
-    //Avoid propagations into the method when a call parameter reaches the call site
-    if(callee.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System") && callee.getName().equals("exit")){
+    // Avoid propagations into the method when a call parameter reaches the call site
+    if (callee.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
+        && callee.getName().equals("exit")) {
       return Collections.emptySet();
     }
     return super.callFlow(callSite, fact, callee);

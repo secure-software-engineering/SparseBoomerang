@@ -219,7 +219,7 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   @Test
-  public void arrayContainerTest(){
+  public void arrayContainerTest() {
     setupSoot(ArrayContainerTarget.class);
     SootMethod m =
         Scene.v()
@@ -228,7 +228,6 @@ public class DemandDrivenGuidedAnalysisTest {
     BackwardQuery query = selectFirstBaseOfToString(m);
 
     runAnalysis(new ArrayContainerCollectionManager(), query, "hello", "world");
-
   }
 
   private Specification getPingPongSpecification() {
@@ -292,7 +291,6 @@ public class DemandDrivenGuidedAnalysisTest {
     return stmt.isAssign()
         && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
   }
-
 
   protected void runAnalysis(
       Specification specification, BackwardQuery query, Object... expectedValues) {
