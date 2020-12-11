@@ -56,5 +56,5 @@ public interface IForwardFlowFunction {
    * @return A set of data-flow states (states in the pushdown system, typically of type
    *     Node<Edge,Val>)
    */
-  Collection<State> callToReturn(ForwardQuery query, Edge edge, Val fact);
+  Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact);
 }

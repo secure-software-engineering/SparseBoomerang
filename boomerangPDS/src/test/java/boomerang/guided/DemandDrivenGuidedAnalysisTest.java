@@ -4,6 +4,7 @@ import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
+import boomerang.guided.targets.ArrayContainerTarget;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
@@ -217,6 +218,19 @@ public class DemandDrivenGuidedAnalysisTest {
     runAnalysis(getPingPongSpecification(), query, "hello", "world");
   }
 
+  @Test
+  public void arrayContainerTest(){
+    setupSoot(ArrayContainerTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ArrayContainerTarget: void main(java.lang.String[])>");
+    BackwardQuery query = selectFirstBaseOfToString(m);
+
+    runAnalysis(new ArrayContainerCollectionManager(), query, "hello", "world");
+
+  }
+
   private Specification getPingPongSpecification() {
     return Specification.create(
         "<ON{B}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
@@ -279,11 +293,17 @@ public class DemandDrivenGuidedAnalysisTest {
         && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
   }
 
+
   protected void runAnalysis(
       Specification specification, BackwardQuery query, Object... expectedValues) {
+    runAnalysis(new SimpleSpecificationGuidedManager(specification), query, expectedValues);
+  }
+
+  protected void runAnalysis(
+      IDemandDrivenGuidedManager queryManager, BackwardQuery query, Object... expectedValues) {
     DemandDrivenGuidedAnalysis demandDrivenGuidedAnalysis =
         new DemandDrivenGuidedAnalysis(
-            new SimpleSpecificationGuidedManager(specification),
+            queryManager,
             new IntAndStringBoomerangOptions() {
               @Override
               public Optional<AllocVal> getAllocationVal(Method m, Statement stmt, Val fact) {
