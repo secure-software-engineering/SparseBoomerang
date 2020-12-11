@@ -470,7 +470,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
           @Override
           public void getSuccessor(Statement returnSite) {
             for (State s :
-                flowFunctions.callToReturn(
+                flowFunctions.callToReturnFlow(
                     query, new Edge(callSite, returnSite), currNode.fact())) {
               propagate(currNode, s);
             }

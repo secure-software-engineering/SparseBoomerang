@@ -200,7 +200,7 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
   }
 
   @Override
-  public Collection<State> callToReturn(ForwardQuery query, Edge edge, Val fact) {
+  public Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact) {
     if (FlowFunctionUtils.isSystemArrayCopy(edge.getStart().getInvokeExpr().getMethod())) {
       return systemArrayCopyFlow(edge, fact);
     }

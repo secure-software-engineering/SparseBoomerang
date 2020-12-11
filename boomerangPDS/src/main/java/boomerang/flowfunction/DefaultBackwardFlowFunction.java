@@ -1,6 +1,6 @@
 package boomerang.flowfunction;
 
-import boomerang.DefaultBoomerangOptions;
+import boomerang.BoomerangOptions;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Field;
 import boomerang.scene.InvokeExpr;
@@ -27,9 +27,9 @@ import wpds.interfaces.State;
 public class DefaultBackwardFlowFunction implements IBackwardFlowFunction {
 
   private final Strategies<Weight> strategies;
-  private final DefaultBoomerangOptions options;
+  private final BoomerangOptions options;
 
-  public DefaultBackwardFlowFunction(DefaultBoomerangOptions opts) {
+  public DefaultBackwardFlowFunction(BoomerangOptions opts) {
     this.options = opts;
     this.strategies = new Strategies<>(opts);
   }
