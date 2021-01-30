@@ -8,7 +8,6 @@ public class CustomFlowFunctionTarget {
     int y = x + 1;
     Object z = new Object();
     System.exit(y);
-    y++;
     queryFor(z);
   }
 
