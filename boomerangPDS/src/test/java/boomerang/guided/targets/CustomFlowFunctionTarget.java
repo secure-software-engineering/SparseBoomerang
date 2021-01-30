@@ -1,6 +1,5 @@
 package boomerang.guided.targets;
 
-
 public class CustomFlowFunctionTarget {
 
   public static void main(String... args) {

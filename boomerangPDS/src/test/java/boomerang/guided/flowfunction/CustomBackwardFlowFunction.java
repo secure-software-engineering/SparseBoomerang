@@ -19,7 +19,7 @@ public class CustomBackwardFlowFunction extends DefaultBackwardFlowFunction {
 
   @Override
   public Collection<State> normalFlow(Edge edge, Val fact) {
-    if(edge.getTarget().containsInvokeExpr()) {
+    if (edge.getTarget().containsInvokeExpr()) {
       DeclaredMethod method = edge.getTarget().getInvokeExpr().getMethod();
       // Avoid any propagations by passing the call site (also when the fact is not used at the call
       // site).
@@ -33,7 +33,7 @@ public class CustomBackwardFlowFunction extends DefaultBackwardFlowFunction {
 
   @Override
   public Collection<State> callToReturnFlow(Edge edge, Val fact) {
-    if(edge.getTarget().containsInvokeExpr()) {
+    if (edge.getTarget().containsInvokeExpr()) {
       DeclaredMethod method = edge.getTarget().getInvokeExpr().getMethod();
       // Avoid any propagations by passing the call site (also when the fact is not used at the call
       // site).

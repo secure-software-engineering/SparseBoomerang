@@ -40,7 +40,6 @@ public class CustomFlowFunctionTest {
 
   public static String CG = "cha";
 
-
   @Test
   public void killOnSystemExitBackwardTestInteger() {
     setupSoot(CustomFlowFunctionTarget.class);
@@ -53,11 +52,13 @@ public class CustomFlowFunctionTest {
     SootCallGraph sootCallGraph = new SootCallGraph();
     Boomerang solver =
         new Boomerang(
-            sootCallGraph, SootDataFlowScope.make(Scene.v()), new CustomIntAndStringBoomerangOptions());
+            sootCallGraph,
+            SootDataFlowScope.make(Scene.v()),
+            new CustomIntAndStringBoomerangOptions());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
-    for(BackwardBoomerangSolver bw : solver.getBackwardSolvers().values()){
+    for (BackwardBoomerangSolver bw : solver.getBackwardSolvers().values()) {
       Assert.assertEquals(true, bw.getCallAutomaton().getTransitions().size() < 3);
     }
     System.out.println(backwardQueryResults.getAllocationSites());
@@ -204,7 +205,6 @@ public class CustomFlowFunctionTest {
     }
   }
 
-
   private class CustomIntAndStringBoomerangOptions extends IntAndStringBoomerangOptions {
 
     @Override
@@ -216,6 +216,5 @@ public class CustomFlowFunctionTest {
     public IBackwardFlowFunction getBackwardFlowFunction() {
       return new CustomBackwardFlowFunction(this);
     }
-
   }
 }
