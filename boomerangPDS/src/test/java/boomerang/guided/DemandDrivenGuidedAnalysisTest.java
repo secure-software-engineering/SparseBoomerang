@@ -8,6 +8,7 @@ import boomerang.guided.targets.ArrayContainerTarget;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
 import boomerang.guided.targets.ContextSensitiveTarget;
 import boomerang.guided.targets.IntegerCastTarget;
@@ -131,6 +132,18 @@ public class DemandDrivenGuidedAnalysisTest {
         Scene.v()
             .getMethod(
                 "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget: void context(java.lang.String)>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
+  public void contextSensitiveAndLeftUnbalancedWithFieldTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalancedFieldTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget: void context(java.lang.String)>");
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(query, "bar");
