@@ -62,5 +62,5 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
   }
 
   @Override
-  protected void backwardSolve(BackwardQuery query) {}
+  protected void backwardSolve(BackwardQuery query, boolean allowUnbalanced) {}
 }
