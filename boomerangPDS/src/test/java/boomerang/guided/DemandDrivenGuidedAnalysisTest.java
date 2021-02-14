@@ -368,7 +368,7 @@ public class DemandDrivenGuidedAnalysisTest {
 
               @Override
               public int analysisTimeoutMS() {
-                return 5000000;
+                return 5000;
               }
 
               @Override
