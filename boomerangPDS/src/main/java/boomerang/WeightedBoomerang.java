@@ -115,9 +115,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         @Override
         protected BackwardBoomerangSolver<W> createItem(BackwardQuery key) {
 
-          if (backwardSolverIns != null) {
-            return backwardSolverIns;
-          }
+          if (backwardSolverIns != null) return backwardSolverIns;
           BackwardBoomerangSolver<W> backwardSolver =
               new BackwardBoomerangSolver<W>(
                   bwicfg(),
@@ -989,12 +987,12 @@ public abstract class WeightedBoomerang<W extends Weight> {
     try {
       LOGGER.trace("Starting forward analysis of: {}", query);
       forwardSolve(query);
+      queryGraph.addEdge(parentQuery, triggeringNode, query);
       LOGGER.trace(
           "Query terminated in {} ({}), visited methods {}",
           analysisWatch,
           query,
           visitedMethods.size());
-      queryGraph.addEdge(parentQuery, triggeringNode, query);
     } catch (BoomerangTimeoutException e) {
       timedout = true;
       LOGGER.trace(

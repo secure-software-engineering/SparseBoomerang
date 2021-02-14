@@ -8,8 +8,11 @@ import boomerang.guided.targets.ArrayContainerTarget;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget;
 import boomerang.guided.targets.ContextSensitiveTarget;
 import boomerang.guided.targets.IntegerCastTarget;
 import boomerang.guided.targets.LeftUnbalancedTarget;
@@ -126,6 +129,18 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   @Test
+  public void contextSensitiveAndLeftUnbalanced2StacksTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalanced2StacksTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget: void context()>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
   public void contextSensitiveAndLeftUnbalancedTest() {
     setupSoot(ContextSensitiveAndLeftUnbalancedTarget.class);
     SootMethod m =
@@ -145,6 +160,30 @@ public class DemandDrivenGuidedAnalysisTest {
             .getMethod(
                 "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget: void context(java.lang.String)>");
     BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
+  public void contextSensitiveAndLeftUnbalancedWithThisFieldTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalancedThisFieldTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget$MyObject: void context()>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
+  public void contextSensitiveAndLeftUnbalancedWithFieldTest2() {
+    setupSoot(ContextSensitiveAndLeftUnbalancedTarget2.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2: void context()>");
+    BackwardQuery query = selectFirstBaseOfToString(m);
 
     runAnalysis(query, "bar");
   }
@@ -296,7 +335,8 @@ public class DemandDrivenGuidedAnalysisTest {
     Specification specification =
         Specification.create(
             "<GO{F}java.lang.String: void <init>(ON{F}java.lang.String)>",
-            "<ON{B}java.lang.String: void <init>(GO{B}java.lang.String)>");
+            "<ON{B}java.lang.String: void <init>(GO{B}java.lang.String)>",
+            "<GO{B}java.lang.String: ON{B}byte[] getBytes()>");
     runAnalysis(specification, query, expectedValues);
   }
 

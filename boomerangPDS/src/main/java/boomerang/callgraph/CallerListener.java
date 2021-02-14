@@ -4,5 +4,5 @@ public interface CallerListener<N, M> {
 
   M getObservedCallee();
 
-  void onCallerAdded(N n, M m);
+  void onCallerAdded(N callSite, M callee);
 }
