@@ -54,7 +54,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -116,9 +115,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         @Override
         protected BackwardBoomerangSolver<W> createItem(BackwardQuery key) {
 
-          if (backwardSolverIns != null) {
-            return backwardSolverIns;
-          }
+          if (backwardSolverIns != null) return backwardSolverIns;
           BackwardBoomerangSolver<W> backwardSolver =
               new BackwardBoomerangSolver<W>(
                   bwicfg(),
@@ -145,8 +142,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
                 @Override
                 protected boolean forceUnbalanced(INode<Val> node, Collection<INode<Val>> sources) {
-                  return !Collections.disjoint(sources, backwardRootQueries)
-                      && callAutomaton.isUnbalancedState(node);
+                  return sources.contains(rootQuery) && callAutomaton.isUnbalancedState(node);
                 }
 
                 @Override
@@ -198,7 +194,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
               public void getPredecessor(Statement pred) {
                 BackwardQuery bwq =
                     BackwardQuery.make(new Edge(pred, rstmt), rstmt.getInvokeExpr().getArg(0));
-                backwardSolve(bwq, false);
+                backwardSolve(bwq);
                 for (ForwardQuery q : Lists.newArrayList(queryToSolvers.keySet())) {
                   if (queryToSolvers.get(q).getReachedStates().contains(bwq.asNode())) {
                     Val var = q.var();
@@ -228,7 +224,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
               public void getPredecessor(Statement pred) {
                 BackwardQuery bwq =
                     BackwardQuery.make(new Edge(pred, rstmt), rstmt.getInvokeExpr().getArg(0));
-                backwardSolve(bwq, false);
+                backwardSolve(bwq);
                 for (ForwardQuery q : Lists.newArrayList(queryToSolvers.keySet())) {
                   if (queryToSolvers.get(q).getReachedStates().contains(bwq.asNode())) {
                     Val var = q.var();
@@ -257,7 +253,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       if (rstmt.isAssign() && rstmt.getInvokeExpr().toString().contains(MAP_GET_SUB_SIGNATURE)) {
         if (rstmt.getInvokeExpr().getBase().equals(node.fact())) {
           BackwardQuery bwq = BackwardQuery.make(node.stmt(), rstmt.getInvokeExpr().getArg(0));
-          backwardSolve(bwq, false);
+          backwardSolve(bwq);
           cfg.addSuccsOfListener(
               new SuccessorListener(rstmt) {
                 @Override
@@ -284,7 +280,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         if (rstmt.getInvokeExpr().getArg(1).equals(node.fact())) {
 
           BackwardQuery bwq = BackwardQuery.make(node.stmt(), rstmt.getInvokeExpr().getArg(0));
-          backwardSolve(bwq, false);
+          backwardSolve(bwq);
           cfg.addSuccsOfListener(
               new SuccessorListener(rstmt) {
                 @Override
@@ -361,7 +357,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
   private Stopwatch analysisWatch = Stopwatch.createUnstarted();
   private final DataFlowScope dataFlowscope;
   private CallGraph callGraph;
-  private Collection<INode<Val>> backwardRootQueries = Sets.newHashSet();
+  private INode<Val> rootQuery;
 
   public WeightedBoomerang(CallGraph cg, DataFlowScope scope, BoomerangOptions options) {
     this.options = options;
@@ -566,7 +562,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       final ForwardQuery sourceQuery) {
     BackwardQuery backwardQuery = BackwardQuery.make(node.stmt(), fieldWritePoi.getBaseVar());
     if (node.fact().equals(fieldWritePoi.getStoredVar())) {
-      backwardSolve(backwardQuery, false);
+      backwardSolve(backwardQuery);
       queryGraph.addEdge(sourceQuery, node, backwardQuery);
       queryToSolvers
           .get(sourceQuery)
@@ -932,7 +928,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
     try {
       queryGraph.addRoot(query);
       LOGGER.trace("Starting backward analysis of: {}", query);
-      backwardSolve(query, true);
+      backwardSolve(query);
     } catch (BoomerangTimeoutException e) {
       timedout = true;
       LOGGER.info("Timeout ({}) of query: {} ", analysisWatch, query);
@@ -963,7 +959,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
     try {
 
       LOGGER.trace("Starting backward analysis of: {}", query);
-      backwardSolve(query, true);
+      backwardSolve(query);
       queryGraph.addEdge(parentQuery, triggeringNode, query);
       this.debugOutput();
     } catch (BoomerangTimeoutException e) {
@@ -991,12 +987,12 @@ public abstract class WeightedBoomerang<W extends Weight> {
     try {
       LOGGER.trace("Starting forward analysis of: {}", query);
       forwardSolve(query);
+      queryGraph.addEdge(parentQuery, triggeringNode, query);
       LOGGER.trace(
           "Query terminated in {} ({}), visited methods {}",
           analysisWatch,
           query,
           visitedMethods.size());
-      queryGraph.addEdge(parentQuery, triggeringNode, query);
     } catch (BoomerangTimeoutException e) {
       timedout = true;
       LOGGER.trace(
@@ -1039,14 +1035,14 @@ public abstract class WeightedBoomerang<W extends Weight> {
     }
   }
 
-  protected void backwardSolve(BackwardQuery query, boolean allowUnbalanced) {
+  protected void backwardSolve(BackwardQuery query) {
     if (!options.aliasing()) return;
     AbstractBoomerangSolver<W> solver = queryToBackwardSolvers.getOrCreate(query);
     INode<Node<ControlFlowGraph.Edge, Val>> fieldTarget = solver.createQueryNodeField(query);
     INode<Val> callTarget =
         solver.generateCallState(new SingleNode<>(query.var()), query.cfgEdge());
-    if (allowUnbalanced) {
-      backwardRootQueries.add(callTarget);
+    if (rootQuery == null) {
+      rootQuery = callTarget;
     }
     solver.solve(query.asNode(), Field.empty(), fieldTarget, query.cfgEdge(), callTarget);
   }

@@ -8,6 +8,7 @@ import boomerang.guided.targets.ArrayContainerTarget;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2;
@@ -128,6 +129,18 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   @Test
+  public void contextSensitiveAndLeftUnbalanced2StacksTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalanced2StacksTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget: void context()>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
   public void contextSensitiveAndLeftUnbalancedTest() {
     setupSoot(ContextSensitiveAndLeftUnbalancedTarget.class);
     SootMethod m =
@@ -153,7 +166,7 @@ public class DemandDrivenGuidedAnalysisTest {
 
   @Test
   public void contextSensitiveAndLeftUnbalancedWithThisFieldTest() {
-    setupSoot(ContextSensitiveAndLeftUnbalancedThisFieldTarget.MyObject.class);
+    setupSoot(ContextSensitiveAndLeftUnbalancedThisFieldTarget.class);
     SootMethod m =
         Scene.v()
             .getMethod(
@@ -355,7 +368,7 @@ public class DemandDrivenGuidedAnalysisTest {
 
               @Override
               public int analysisTimeoutMS() {
-                return 5000;
+                return 5000000;
               }
 
               @Override
