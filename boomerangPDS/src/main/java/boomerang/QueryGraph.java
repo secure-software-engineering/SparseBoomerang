@@ -82,47 +82,7 @@ public class QueryGraph<W extends Weight> {
     nodes.addAll(targetToQueryEdgeLookUp.keySet());
     return nodes;
   }
-
-  public boolean backwardAllowUnbalanced(BackwardQuery key, INode<Val> node) {
-    Collection<QueryEdge> queryEdges = targetToQueryEdgeLookUp.get(key);
-    System.out.println(queryEdges);
-    for (QueryEdge edge : queryEdges) {
-      WeightedPAutomaton<Edge, INode<Val>, W> callAut =
-          backwardSolver.get(edge.source).getCallAutomaton();
-      callAut.registerListener(
-          new WPAUpdateListener<Edge, INode<Val>, W>() {
-            @Override
-            public void onWeightAdded(
-                Transition<Edge, INode<Val>> t, W w, WeightedPAutomaton<Edge, INode<Val>, W> aut) {
-              if (t.getTarget().fact().equals(edge.node.fact())
-                  && edge.node.stmt().equals(t.getLabel())) {
-                INode<Val> start = t.getStart();
-
-                callAut.registerListener(
-                    new WPAStateListener<Edge, INode<Val>, W>(start) {
-                      @Override
-                      public void onOutTransitionAdded(
-                          Transition<Edge, INode<Val>> t,
-                          W w,
-                          WeightedPAutomaton<Edge, INode<Val>, W> weightedPAutomaton) {
-                        System.out.println(t);
-                      }
-
-                      @Override
-                      public void onInTransitionAdded(
-                          Transition<Edge, INode<Val>> t,
-                          W w,
-                          WeightedPAutomaton<Edge, INode<Val>, W> weightedPAutomaton) {
-                        System.out.println(t);
-                      }
-                    });
-              }
-            }
-          });
-    }
-    return false;
-  }
-
+  
   private class SourceListener extends WPAStateListener<Edge, INode<Val>, W> {
 
     private Query child;
