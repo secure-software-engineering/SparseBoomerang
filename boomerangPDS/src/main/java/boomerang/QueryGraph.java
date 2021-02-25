@@ -82,7 +82,7 @@ public class QueryGraph<W extends Weight> {
     nodes.addAll(targetToQueryEdgeLookUp.keySet());
     return nodes;
   }
-  
+
   private class SourceListener extends WPAStateListener<Edge, INode<Val>, W> {
 
     private Query child;
