@@ -17,7 +17,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,7 +30,6 @@ import wpds.impl.Transition;
 import wpds.impl.Weight;
 import wpds.impl.WeightedPAutomaton;
 import wpds.interfaces.WPAStateListener;
-import wpds.interfaces.WPAUpdateListener;
 
 public class QueryGraph<W extends Weight> {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryGraph.class);
@@ -82,7 +80,7 @@ public class QueryGraph<W extends Weight> {
     nodes.addAll(targetToQueryEdgeLookUp.keySet());
     return nodes;
   }
-  
+
   private class SourceListener extends WPAStateListener<Edge, INode<Val>, W> {
 
     private Query child;
@@ -223,7 +221,7 @@ public class QueryGraph<W extends Weight> {
     @Override
     public void noParentEdge() {
       if (child instanceof BackwardQuery) {
-        Method callee = transition.getLabel().getMethod();
+        Method callee = transition.getTarget().fact().m();
         icfg.addCallerListener(
             new CallerListener<Statement, Method>() {
               @Override

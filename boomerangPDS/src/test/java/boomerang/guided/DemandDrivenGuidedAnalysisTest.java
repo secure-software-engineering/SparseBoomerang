@@ -20,6 +20,7 @@ import boomerang.guided.targets.NestedContextAndBranchingTarget;
 import boomerang.guided.targets.NestedContextTarget;
 import boomerang.guided.targets.PingPongInterproceduralTarget;
 import boomerang.guided.targets.PingPongTarget;
+import boomerang.guided.targets.ValueOfTarget;
 import boomerang.guided.targets.WrappedInNewStringInnerTarget;
 import boomerang.guided.targets.WrappedInNewStringTarget;
 import boomerang.guided.targets.WrappedInStringTwiceTest;
@@ -282,6 +283,40 @@ public class DemandDrivenGuidedAnalysisTest {
     runAnalysis(new ArrayContainerCollectionManager(), query, "hello", "world");
   }
 
+  @Test
+  public void valueOfTarget() {
+    setupSoot(ValueOfTarget.class);
+    SootMethod m =
+        Scene.v().getMethod("<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>");
+    BackwardQuery query = selectFirstArgOfQueryTarget(m);
+
+    runAnalysis(query, 1);
+  }
+
+  public static BackwardQuery selectFirstArgOfQueryTarget(SootMethod m) {
+    Method method = JimpleMethod.of(m);
+    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+    Statement newFileStatement =
+        method.getStatements().stream()
+            .filter(x -> x.containsInvokeExpr())
+            .filter(
+                x ->
+                    x.getInvokeExpr().getMethod().getName().equals("queryFor")
+                        && x.getInvokeExpr()
+                            .getMethod()
+                            .getDeclaringClass()
+                            .getFullyQualifiedName()
+                            .equals("boomerang.guided.targets.Query"))
+            .findFirst()
+            .get();
+    Val arg = newFileStatement.getInvokeExpr().getArg(0);
+
+    Statement predecessor =
+        method.getControlFlowGraph().getPredsOf(newFileStatement).stream().findFirst().get();
+    Edge cfgEdge = new Edge(predecessor, newFileStatement);
+    return BackwardQuery.make(cfgEdge, arg);
+  }
+
   private Specification getPingPongSpecification() {
     return Specification.create(
         "<ON{B}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
@@ -334,6 +369,8 @@ public class DemandDrivenGuidedAnalysisTest {
   protected void runAnalysis(BackwardQuery query, Object... expectedValues) {
     Specification specification =
         Specification.create(
+            "<java.lang.Integer: ON{B}java.lang.Integer valueOf(GO{B}int)>",
+            "<ON{B}java.lang.Integer: java.lang.Integer <init>(GO{B}int)>",
             "<GO{F}java.lang.String: void <init>(ON{F}java.lang.String)>",
             "<ON{B}java.lang.String: void <init>(GO{B}java.lang.String)>",
             "<GO{B}java.lang.String: ON{B}byte[] getBytes()>");

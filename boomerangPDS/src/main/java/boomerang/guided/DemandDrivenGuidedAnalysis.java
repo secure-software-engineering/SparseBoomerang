@@ -38,15 +38,22 @@ public class DemandDrivenGuidedAnalysis {
   private final Set<Query> visited = Sets.newHashSet();
 
   public DemandDrivenGuidedAnalysis(
-      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
+      IDemandDrivenGuidedManager specification,
+      BoomerangOptions options,
+      DataFlowScope dataFlowScope) {
     spec = specification;
     callGraph = new SootCallGraph();
-    scope = SootDataFlowScope.make(Scene.v());
+    scope = dataFlowScope;
     if (!options.allowMultipleQueries()) {
       throw new RuntimeException(
           "Boomerang options allowMultipleQueries is set to false. Please enable it.");
     }
     customBoomerangOptions = options;
+  }
+
+  public DemandDrivenGuidedAnalysis(
+      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
+    this(specification, options, SootDataFlowScope.make(Scene.v()));
   }
 
   /**
