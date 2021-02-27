@@ -287,8 +287,7 @@ public class DemandDrivenGuidedAnalysisTest {
   public void valueOfTarget() {
     setupSoot(ValueOfTarget.class);
     SootMethod m =
-        Scene.v()
-            .getMethod("<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>");
+        Scene.v().getMethod("<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>");
     BackwardQuery query = selectFirstArgOfQueryTarget(m);
 
     runAnalysis(query, 1);
@@ -304,10 +303,10 @@ public class DemandDrivenGuidedAnalysisTest {
                 x ->
                     x.getInvokeExpr().getMethod().getName().equals("queryFor")
                         && x.getInvokeExpr()
-                        .getMethod()
-                        .getDeclaringClass()
-                        .getFullyQualifiedName()
-                        .equals("boomerang.guided.targets.Query"))
+                            .getMethod()
+                            .getDeclaringClass()
+                            .getFullyQualifiedName()
+                            .equals("boomerang.guided.targets.Query"))
             .findFirst()
             .get();
     Val arg = newFileStatement.getInvokeExpr().getArg(0);
