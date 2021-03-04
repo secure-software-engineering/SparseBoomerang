@@ -187,12 +187,10 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
   private void handleStaticInitializer(
       Node<Edge, Val> node, BackwardBoomerangSolver<W> backwardSolver) {
-    System.out.println(node);
     if (options.trackStaticFieldAtEntryPointToClinit()
         && node.fact().isStatic()
         && isFirstStatementOfEntryPoint(node.stmt().getStart())) {
       Val fact = node.fact();
-      System.out.println("Triggering static init");
       if (fact instanceof JimpleStaticFieldVal) {
         JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
         for (SootMethod m :
@@ -202,7 +200,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
           }
           JimpleMethod jimpleMethod = JimpleMethod.of(m);
           if (m.isStaticInitializer()) {
-            System.out.println("Propagating into " + m);
             for (Statement ep : icfg().getEndPointsOf(JimpleMethod.of(m))) {
               StaticFieldVal newVal =
                   new JimpleStaticFieldVal(((JimpleField) val.field()), jimpleMethod);
@@ -211,9 +208,9 @@ public abstract class WeightedBoomerang<W extends Weight> {
                     @Override
                     public void getPredecessor(Statement pred) {
                       backwardSolver.addNormalCallFlow(
-                          node, new Node<Edge, Val>(new Edge(pred, ep), newVal));
+                          node, new Node<>(new Edge(pred, ep), newVal));
                       backwardSolver.addNormalFieldFlow(
-                          node, new Node<Edge, Val>(new Edge(pred, ep), newVal));
+                          node, new Node<>(new Edge(pred, ep), newVal));
                     }
                   });
             }
