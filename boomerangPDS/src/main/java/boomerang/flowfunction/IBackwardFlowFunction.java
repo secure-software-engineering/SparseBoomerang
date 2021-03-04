@@ -1,9 +1,12 @@
 package boomerang.flowfunction;
 
 import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scene.Field;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
+import boomerang.solver.BackwardBoomerangSolver;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import wpds.interfaces.State;
 
@@ -63,4 +66,9 @@ public interface IBackwardFlowFunction {
    *     Node<Edge,Val>)
    */
   Collection<State> callToReturnFlow(Edge edge, Val fact);
+
+  void setSolver(
+      BackwardBoomerangSolver solver,
+      Multimap<Field, Statement> fieldLoadStatements,
+      Multimap<Field, Statement> fieldStoreStatements);
 }

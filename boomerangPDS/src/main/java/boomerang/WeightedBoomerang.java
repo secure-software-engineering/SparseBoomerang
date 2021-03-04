@@ -132,6 +132,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
                   createFieldSummaries(null, backwardFieldSummaries),
                   WeightedBoomerang.this.dataFlowscope,
                   options.getBackwardFlowFunction(),
+                  callGraph.getFieldLoadStatements(),
+                  callGraph.getFieldStoreStatements(),
                   null) {
 
                 @Override
@@ -453,6 +455,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
             createFieldSummaries(sourceQuery, forwardFieldSummaries),
             dataFlowscope,
             options.getForwardFlowFunctions(),
+            callGraph.getFieldLoadStatements(),
+            callGraph.getFieldStoreStatements(),
             sourceQuery.getType()) {
 
           @Override
