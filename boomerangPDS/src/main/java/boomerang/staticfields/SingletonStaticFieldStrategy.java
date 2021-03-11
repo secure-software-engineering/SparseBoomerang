@@ -31,11 +31,13 @@ public class SingletonStaticFieldStrategy<W extends Weight> implements StaticFie
   public void handleForward(
       Edge storeStmt, Val storedVal, StaticFieldVal staticVal, Set<State> out) {
     for (Statement matchingStore : fieldLoadStatements.get(staticVal.field())) {
-      for (Statement succ :
-          matchingStore.getMethod().getControlFlowGraph().getSuccsOf(matchingStore)) {
-        solver.processNormal(
-            new Node<>(storeStmt, storedVal),
-            new Node<>(new Edge(matchingStore, succ), matchingStore.getLeftOp()));
+      if(matchingStore.isAssign()) {
+        for (Statement succ :
+            matchingStore.getMethod().getControlFlowGraph().getSuccsOf(matchingStore)) {
+          solver.processNormal(
+              new Node<>(storeStmt, storedVal),
+              new Node<>(new Edge(matchingStore, succ), matchingStore.getLeftOp()));
+        }
       }
     }
   }
