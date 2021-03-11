@@ -31,7 +31,7 @@ public class SingletonStaticFieldStrategy<W extends Weight> implements StaticFie
   public void handleForward(
       Edge storeStmt, Val storedVal, StaticFieldVal staticVal, Set<State> out) {
     for (Statement matchingStore : fieldLoadStatements.get(staticVal.field())) {
-      if(matchingStore.isAssign()) {
+      if (matchingStore.isAssign()) {
         for (Statement succ :
             matchingStore.getMethod().getControlFlowGraph().getSuccsOf(matchingStore)) {
           solver.processNormal(
