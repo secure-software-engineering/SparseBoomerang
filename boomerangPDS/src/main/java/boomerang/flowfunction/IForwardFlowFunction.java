@@ -2,9 +2,12 @@ package boomerang.flowfunction;
 
 import boomerang.ForwardQuery;
 import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scene.Field;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
+import boomerang.solver.ForwardBoomerangSolver;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import wpds.interfaces.State;
 
@@ -65,4 +68,9 @@ public interface IForwardFlowFunction {
    *     Node<Edge,Val>)
    */
   Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact);
+
+  void setSolver(
+      ForwardBoomerangSolver solver,
+      Multimap<Field, Statement> fieldLoadStatements,
+      Multimap<Field, Statement> fieldStoreStatements);
 }
