@@ -105,7 +105,7 @@ public class SootDataFlowScope {
         if (c.hasOuterClass() && excludes.contains(c.getOuterClass())) excludes.add(c);
       }
       if (excludes.isEmpty()) {
-        LOGGER.warn("Excludes empty for {}", MAP);
+        LOGGER.debug("Excludes empty for {}", MAP);
       }
     }
 
@@ -127,7 +127,7 @@ public class SootDataFlowScope {
         if (c.hasOuterClass() && excludes.contains(c.getOuterClass())) excludes.add(c);
       }
       if (excludes.isEmpty()) {
-        LOGGER.warn("Excludes empty for {}", ITERABLE);
+        LOGGER.debug("Excludes empty for {}", ITERABLE);
       }
     }
 
@@ -149,7 +149,7 @@ public class SootDataFlowScope {
         }
       }
       if (excludes.isEmpty()) {
-        LOGGER.warn("Excludes empty for {}", subSig);
+        LOGGER.debug("Excludes empty for {}", subSig);
       }
     }
 
