@@ -984,7 +984,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       backwardSolve(query);
     } catch (BoomerangTimeoutException e) {
       timedout = true;
-      LOGGER.info("Timeout ({}) of query: {} ", analysisWatch, query);
+      LOGGER.trace("Timeout ({}) of query: {} ", analysisWatch, query);
     }
     debugOutput();
     // printAllBackwardCallAutomatonFlow();
@@ -1017,7 +1017,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       this.debugOutput();
     } catch (BoomerangTimeoutException e) {
       timedout = true;
-      LOGGER.info("Timeout ({}) of query: {} ", analysisWatch, query);
+      LOGGER.trace("Timeout ({}) of query: {} ", analysisWatch, query);
     }
     if (analysisWatch.isRunning()) {
       analysisWatch.stop();
