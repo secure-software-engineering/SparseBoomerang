@@ -415,7 +415,7 @@ public class DemandDrivenGuidedAnalysisTest {
             });
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
-
+    demandDrivenGuidedAnalysis.cleanUp();
     // Filter out query graph's node to only return the queries of interest (ForwardQueries &
     // String/Int Allocation sites).
     Stream<Query> res =
