@@ -65,14 +65,16 @@ public class DemandDrivenGuidedAnalysis {
    * nodes are Boomerang Queries, there is an edge between the queries if there node A triggered a
    * subsequent query B.
    *
-   * Important note: Ensure to call cleanUp() after finishing the analysis.
+   * <p>Important note: Ensure to call cleanUp() after finishing the analysis.
    *
    * @param query The initial query to start the analysis from.
    * @return a query graph containing all queries triggered.
    */
   public QueryGraph<NoWeight> run(Query query) {
-    if(triggered){
-      throw new RuntimeException(DemandDrivenGuidedAnalysis.class.getName() + " must be instantiated once per query. Use a different instance.");
+    if (triggered) {
+      throw new RuntimeException(
+          DemandDrivenGuidedAnalysis.class.getName()
+              + " must be instantiated once per query. Use a different instance.");
     }
     triggered = true;
     queryQueue.add(new QueryWithContext(query));
@@ -120,9 +122,10 @@ public class DemandDrivenGuidedAnalysis {
   }
 
   /**
-   * Ensure to call cleanup to detach all listeners from the solver, otherwise the analysis may run into a Memory issues.
+   * Ensure to call cleanup to detach all listeners from the solver, otherwise the analysis may run
+   * into a Memory issues.
    */
-  public void cleanUp(){
+  public void cleanUp() {
     solver.unregisterAllListeners();
   }
 

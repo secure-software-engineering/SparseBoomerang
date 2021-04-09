@@ -234,7 +234,9 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     if (!callSite.containsInvokeExpr()) {
       throw new RuntimeException("Invalid propagate Unbalanced return");
     }
-    assertCalleeCallerRelation(callSite, transInCallee.getLabel().getMethod());
+    if (!isMatchingCallSiteCalleePair(callSite, transInCallee.getLabel().getMethod())) {
+      return;
+    }
     cfg.addSuccsOfListener(
         new SuccessorListener(callSite) {
           @Override

@@ -180,7 +180,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
                 handleMapsBackward(node);
 
-                if(options.trackStaticFieldAtEntryPointToClinit()) {
+                if (options.trackStaticFieldAtEntryPointToClinit()) {
                   handleStaticInitializer(node, backwardSolver);
                 }
               });
