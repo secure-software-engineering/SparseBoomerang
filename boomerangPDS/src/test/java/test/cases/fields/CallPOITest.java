@@ -181,6 +181,31 @@ public class CallPOITest extends AbstractBoomerangTest {
     queryFor(alias);
   }
 
+  @Test
+  public void testForBackwardCallPOI() {
+    // Thanks to Martin Mory for contributing the test.
+    Alloc v = new Alloc();
+    Object x = front(v);
+    queryFor(x);
+  }
+
+  public static Object fromIt(SomeObj it) {
+    Alloc x = it.f;
+    return x;
+  }
+
+  public static Object front(Alloc y) {
+    SomeObj it = new SomeObj();
+    SomeObj it2 = it;
+    it2.f = y;
+    Object f = fromIt(it);
+    return f;
+  }
+
+  public static class SomeObj {
+    Alloc f;
+  }
+
   private void allocation(A1 a, AllocObj1 d) {
     B1 intermediate = a.b;
     intermediate.c = d;

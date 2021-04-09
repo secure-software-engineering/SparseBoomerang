@@ -10,7 +10,9 @@ import boomerang.scene.Pair;
 import boomerang.scene.Statement;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Val;
+import boomerang.solver.ForwardBoomerangSolver;
 import boomerang.solver.Strategies;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,11 +29,11 @@ import wpds.interfaces.State;
 public class DefaultForwardFlowFunction implements IForwardFlowFunction {
 
   private final BoomerangOptions options;
-  private final Strategies stategies;
+  private Strategies strategies;
+  private ForwardBoomerangSolver solver;
 
   public DefaultForwardFlowFunction(BoomerangOptions opts) {
     this.options = opts;
-    this.stategies = new Strategies(opts);
   }
 
   @Override
@@ -121,12 +123,12 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
         } else if (succ.isStaticFieldStore()) {
           StaticFieldVal sf = succ.getStaticField();
           if (options.trackFields()) {
-            stategies.getStaticFieldStrategy().handleForward(nextEdge, rightOp, sf, out);
+            strategies.getStaticFieldStrategy().handleForward(nextEdge, rightOp, sf, out);
           }
         } else if (leftOp.isArrayRef()) {
           Pair<Val, Integer> arrayBase = succ.getArrayBase();
           if (options.trackFields()) {
-            stategies.getArrayHandlingStrategy().handleForward(nextEdge, arrayBase, out);
+            strategies.getArrayHandlingStrategy().handleForward(nextEdge, arrayBase, out);
           }
         } else {
           out.add(new Node<>(nextEdge, leftOp));
@@ -214,5 +216,14 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
       return Collections.singleton(new Node<>(edge, arg));
     }
     return Collections.emptySet();
+  }
+
+  @Override
+  public void setSolver(
+      ForwardBoomerangSolver solver,
+      Multimap<Field, Statement> fieldLoadStatements,
+      Multimap<Field, Statement> fieldStoreStatements) {
+    this.solver = solver;
+    this.strategies = new Strategies<>(options, solver, fieldLoadStatements, fieldStoreStatements);
   }
 }

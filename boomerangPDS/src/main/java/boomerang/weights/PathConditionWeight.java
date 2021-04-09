@@ -96,7 +96,7 @@ public class PathConditionWeight extends Weight {
       for (Map.Entry<Val, ConditionDomain> v : newVals.entrySet()) {
         if (returnVals.contains(v.getKey())) {
           Statement s = calleeToCallSite.get(v.getKey().m());
-          if (s != null) {
+          if (s != null && s.isAssign()) {
             Val leftOp = s.getLeftOp();
             returnToAssignedVariableMap.put(leftOp, v.getValue());
           }
@@ -160,7 +160,7 @@ public class PathConditionWeight extends Weight {
       for (Map.Entry<Val, ConditionDomain> v : newVals.entrySet()) {
         if (returnVals.contains(v.getKey())) {
           Statement s = calleeToCallSite.get(v.getKey().m());
-          if (s != null) {
+          if (s != null && s.isAssign()) {
             Val leftOp = s.getLeftOp();
             returnToAssignedVariableMap.put(leftOp, v.getValue());
           }

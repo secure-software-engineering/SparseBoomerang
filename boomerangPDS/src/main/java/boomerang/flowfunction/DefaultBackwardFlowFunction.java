@@ -9,7 +9,9 @@ import boomerang.scene.Pair;
 import boomerang.scene.Statement;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Val;
+import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.Strategies;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,12 +28,12 @@ import wpds.interfaces.State;
 
 public class DefaultBackwardFlowFunction implements IBackwardFlowFunction {
 
-  private final Strategies<Weight> strategies;
   private final BoomerangOptions options;
+  private Strategies<Weight> strategies;
+  private BackwardBoomerangSolver solver;
 
   public DefaultBackwardFlowFunction(BoomerangOptions opts) {
     this.options = opts;
-    this.strategies = new Strategies<>(opts);
   }
 
   @Override
@@ -168,6 +170,15 @@ public class DefaultBackwardFlowFunction implements IBackwardFlowFunction {
       return systemArrayCopyFlow(edge, fact);
     }
     return normalFlow(edge, fact);
+  }
+
+  @Override
+  public void setSolver(
+      BackwardBoomerangSolver solver,
+      Multimap<Field, Statement> fieldLoadStatements,
+      Multimap<Field, Statement> fieldStoreStatements) {
+    this.solver = solver;
+    this.strategies = new Strategies<>(options, solver, fieldLoadStatements, fieldStoreStatements);
   }
 
   protected Collection<State> systemArrayCopyFlow(Edge edge, Val fact) {
