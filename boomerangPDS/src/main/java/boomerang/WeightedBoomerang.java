@@ -38,7 +38,11 @@ import boomerang.scene.Field.ArrayField;
 import boomerang.scene.Method;
 import boomerang.scene.Pair;
 import boomerang.scene.Statement;
+import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Val;
+import boomerang.scene.jimple.JimpleField;
+import boomerang.scene.jimple.JimpleMethod;
+import boomerang.scene.jimple.JimpleStaticFieldVal;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;
@@ -62,6 +66,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import soot.SootMethod;
 import sync.pds.solver.SyncPDSSolver.PDSSystem;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.GeneratedState;
@@ -115,9 +120,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         @Override
         protected BackwardBoomerangSolver<W> createItem(BackwardQuery key) {
 
-          if (backwardSolverIns != null) {
-            return backwardSolverIns;
-          }
+          if (backwardSolverIns != null) return backwardSolverIns;
           BackwardBoomerangSolver<W> backwardSolver =
               new BackwardBoomerangSolver<W>(
                   bwicfg(),
@@ -129,6 +132,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
                   createFieldSummaries(null, backwardFieldSummaries),
                   WeightedBoomerang.this.dataFlowscope,
                   options.getBackwardFlowFunction(),
+                  callGraph.getFieldLoadStatements(),
+                  callGraph.getFieldStoreStatements(),
                   null) {
 
                 @Override
@@ -174,11 +179,55 @@ public abstract class WeightedBoomerang<W extends Weight> {
                 addVisitedMethod(node.stmt().getStart().getMethod());
 
                 handleMapsBackward(node);
+
+                if (options.trackStaticFieldAtEntryPointToClinit()) {
+                  handleStaticInitializer(node, backwardSolver);
+                }
               });
           backwardSolverIns = backwardSolver;
           return backwardSolver;
         }
       };
+
+  private void handleStaticInitializer(
+      Node<Edge, Val> node, BackwardBoomerangSolver<W> backwardSolver) {
+    if (options.trackStaticFieldAtEntryPointToClinit()
+        && node.fact().isStatic()
+        && isFirstStatementOfEntryPoint(node.stmt().getStart())) {
+      Val fact = node.fact();
+      if (fact instanceof JimpleStaticFieldVal) {
+        JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
+        for (SootMethod m :
+            ((JimpleField) val.field()).getSootField().getDeclaringClass().getMethods()) {
+          if (!m.hasActiveBody()) {
+            continue;
+          }
+          JimpleMethod jimpleMethod = JimpleMethod.of(m);
+          if (m.isStaticInitializer()) {
+            for (Statement ep : icfg().getEndPointsOf(JimpleMethod.of(m))) {
+              StaticFieldVal newVal =
+                  new JimpleStaticFieldVal(((JimpleField) val.field()), jimpleMethod);
+              cfg.addPredsOfListener(
+                  new PredecessorListener(ep) {
+                    @Override
+                    public void getPredecessor(Statement pred) {
+                      backwardSolver.addNormalCallFlow(
+                          node, new Node<>(new Edge(pred, ep), newVal));
+                      backwardSolver.addNormalFieldFlow(
+                          node, new Node<>(new Edge(pred, ep), newVal));
+                    }
+                  });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  protected boolean isFirstStatementOfEntryPoint(Statement stmt) {
+    return callGraph.getEntryPoints().contains(stmt.getMethod())
+        && stmt.getMethod().getControlFlowGraph().getStartPoints().contains(stmt);
+  }
 
   private static final String MAP_PUT_SUB_SIGNATURE = "java.util.Map: java.lang.Object put(";
   private static final String MAP_GET_SUB_SIGNATURE = "java.util.Map: java.lang.Object get(";
@@ -408,6 +457,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
             createFieldSummaries(sourceQuery, forwardFieldSummaries),
             dataFlowscope,
             options.getForwardFlowFunctions(),
+            callGraph.getFieldLoadStatements(),
+            callGraph.getFieldStoreStatements(),
             sourceQuery.getType()) {
 
           @Override
@@ -933,7 +984,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       backwardSolve(query);
     } catch (BoomerangTimeoutException e) {
       timedout = true;
-      LOGGER.info("Timeout ({}) of query: {} ", analysisWatch, query);
+      LOGGER.trace("Timeout ({}) of query: {} ", analysisWatch, query);
     }
     debugOutput();
     // printAllBackwardCallAutomatonFlow();
@@ -966,7 +1017,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       this.debugOutput();
     } catch (BoomerangTimeoutException e) {
       timedout = true;
-      LOGGER.info("Timeout ({}) of query: {} ", analysisWatch, query);
+      LOGGER.trace("Timeout ({}) of query: {} ", analysisWatch, query);
     }
     if (analysisWatch.isRunning()) {
       analysisWatch.stop();
@@ -989,12 +1040,12 @@ public abstract class WeightedBoomerang<W extends Weight> {
     try {
       LOGGER.trace("Starting forward analysis of: {}", query);
       forwardSolve(query);
+      queryGraph.addEdge(parentQuery, triggeringNode, query);
       LOGGER.trace(
           "Query terminated in {} ({}), visited methods {}",
           analysisWatch,
           query,
           visitedMethods.size());
-      queryGraph.addEdge(parentQuery, triggeringNode, query);
     } catch (BoomerangTimeoutException e) {
       timedout = true;
       LOGGER.trace(

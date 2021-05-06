@@ -36,17 +36,27 @@ public class DemandDrivenGuidedAnalysis {
   private final SootCallGraph callGraph;
   private final LinkedList<QueryWithContext> queryQueue = Lists.newLinkedList();
   private final Set<Query> visited = Sets.newHashSet();
+  private final Boomerang solver;
+  private boolean triggered;
 
   public DemandDrivenGuidedAnalysis(
-      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
+      IDemandDrivenGuidedManager specification,
+      BoomerangOptions options,
+      DataFlowScope dataFlowScope) {
     spec = specification;
     callGraph = new SootCallGraph();
-    scope = SootDataFlowScope.make(Scene.v());
+    scope = dataFlowScope;
     if (!options.allowMultipleQueries()) {
       throw new RuntimeException(
           "Boomerang options allowMultipleQueries is set to false. Please enable it.");
     }
     customBoomerangOptions = options;
+    solver = new Boomerang(callGraph, scope, customBoomerangOptions);
+  }
+
+  public DemandDrivenGuidedAnalysis(
+      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
+    this(specification, options, SootDataFlowScope.make(Scene.v()));
   }
 
   /**
@@ -55,21 +65,28 @@ public class DemandDrivenGuidedAnalysis {
    * nodes are Boomerang Queries, there is an edge between the queries if there node A triggered a
    * subsequent query B.
    *
+   * <p>Important note: Ensure to call cleanUp() after finishing the analysis.
+   *
    * @param query The initial query to start the analysis from.
    * @return a query graph containing all queries triggered.
    */
   public QueryGraph<NoWeight> run(Query query) {
+    if (triggered) {
+      throw new RuntimeException(
+          DemandDrivenGuidedAnalysis.class.getName()
+              + " must be instantiated once per query. Use a different instance.");
+    }
+    triggered = true;
     queryQueue.add(new QueryWithContext(query));
-    Boomerang bSolver = new Boomerang(callGraph, scope, customBoomerangOptions);
     while (!queryQueue.isEmpty()) {
       QueryWithContext pop = queryQueue.pop();
       if (pop.query instanceof ForwardQuery) {
         ForwardBoomerangResults<NoWeight> results;
         ForwardQuery currentQuery = (ForwardQuery) pop.query;
         if (pop.parentQuery == null) {
-          results = bSolver.solve(currentQuery);
+          results = solver.solve(currentQuery);
         } else {
-          results = bSolver.solveUnderScope(currentQuery, pop.triggeringNode, pop.parentQuery);
+          results = solver.solveUnderScope(currentQuery, pop.triggeringNode, pop.parentQuery);
         }
 
         Table<Edge, Val, NoWeight> forwardResults =
@@ -79,14 +96,14 @@ public class DemandDrivenGuidedAnalysis {
       } else {
         BackwardBoomerangResults<NoWeight> results;
         if (pop.parentQuery == null) {
-          results = bSolver.solve((BackwardQuery) pop.query);
+          results = solver.solve((BackwardQuery) pop.query);
         } else {
           results =
-              bSolver.solveUnderScope(
+              solver.solveUnderScope(
                   (BackwardQuery) pop.query, pop.triggeringNode, pop.parentQuery);
         }
         Table<Edge, Val, NoWeight> backwardResults =
-            bSolver.getBackwardSolvers().get(query).asStatementValWeightTable();
+            solver.getBackwardSolvers().get(query).asStatementValWeightTable();
 
         triggerNewBackwardQueries(backwardResults, pop.query, QueryDirection.BACKWARD);
         Map<ForwardQuery, Context> allocationSites = results.getAllocationSites();
@@ -100,9 +117,20 @@ public class DemandDrivenGuidedAnalysis {
       }
     }
 
-    QueryGraph<NoWeight> queryGraph = bSolver.getQueryGraph();
-    bSolver.unregisterAllListeners();
+    QueryGraph<NoWeight> queryGraph = solver.getQueryGraph();
     return queryGraph;
+  }
+
+  /**
+   * Ensure to call cleanup to detach all listeners from the solver, otherwise the analysis may run
+   * into a Memory issues.
+   */
+  public void cleanUp() {
+    solver.unregisterAllListeners();
+  }
+
+  public Boomerang getSolver() {
+    return solver;
   }
 
   private void triggerNewBackwardQueries(

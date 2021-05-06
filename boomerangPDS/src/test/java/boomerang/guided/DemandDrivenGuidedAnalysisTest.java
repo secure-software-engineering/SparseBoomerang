@@ -8,7 +8,11 @@ import boomerang.guided.targets.ArrayContainerTarget;
 import boomerang.guided.targets.BasicTarget;
 import boomerang.guided.targets.BranchingAfterNewStringTest;
 import boomerang.guided.targets.BranchingTest;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget;
 import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget;
 import boomerang.guided.targets.ContextSensitiveTarget;
 import boomerang.guided.targets.IntegerCastTarget;
 import boomerang.guided.targets.LeftUnbalancedTarget;
@@ -16,6 +20,7 @@ import boomerang.guided.targets.NestedContextAndBranchingTarget;
 import boomerang.guided.targets.NestedContextTarget;
 import boomerang.guided.targets.PingPongInterproceduralTarget;
 import boomerang.guided.targets.PingPongTarget;
+import boomerang.guided.targets.ValueOfTarget;
 import boomerang.guided.targets.WrappedInNewStringInnerTarget;
 import boomerang.guided.targets.WrappedInNewStringTarget;
 import boomerang.guided.targets.WrappedInStringTwiceTest;
@@ -125,6 +130,18 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   @Test
+  public void contextSensitiveAndLeftUnbalanced2StacksTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalanced2StacksTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget: void context()>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
   public void contextSensitiveAndLeftUnbalancedTest() {
     setupSoot(ContextSensitiveAndLeftUnbalancedTarget.class);
     SootMethod m =
@@ -132,6 +149,42 @@ public class DemandDrivenGuidedAnalysisTest {
             .getMethod(
                 "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget: void context(java.lang.String)>");
     BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
+  public void contextSensitiveAndLeftUnbalancedWithFieldTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalancedFieldTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget: void context(java.lang.String)>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
+  public void contextSensitiveAndLeftUnbalancedWithThisFieldTest() {
+    setupSoot(ContextSensitiveAndLeftUnbalancedThisFieldTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget$MyObject: void context()>");
+    BackwardQuery query = selectFirstFileInitArgument(m);
+
+    runAnalysis(query, "bar");
+  }
+
+  @Test
+  public void contextSensitiveAndLeftUnbalancedWithFieldTest2() {
+    setupSoot(ContextSensitiveAndLeftUnbalancedTarget2.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2: void context()>");
+    BackwardQuery query = selectFirstBaseOfToString(m);
 
     runAnalysis(query, "bar");
   }
@@ -230,6 +283,40 @@ public class DemandDrivenGuidedAnalysisTest {
     runAnalysis(new ArrayContainerCollectionManager(), query, "hello", "world");
   }
 
+  @Test
+  public void valueOfTarget() {
+    setupSoot(ValueOfTarget.class);
+    SootMethod m =
+        Scene.v().getMethod("<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>");
+    BackwardQuery query = selectFirstArgOfQueryTarget(m);
+
+    runAnalysis(query, 1);
+  }
+
+  public static BackwardQuery selectFirstArgOfQueryTarget(SootMethod m) {
+    Method method = JimpleMethod.of(m);
+    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+    Statement newFileStatement =
+        method.getStatements().stream()
+            .filter(x -> x.containsInvokeExpr())
+            .filter(
+                x ->
+                    x.getInvokeExpr().getMethod().getName().equals("queryFor")
+                        && x.getInvokeExpr()
+                            .getMethod()
+                            .getDeclaringClass()
+                            .getFullyQualifiedName()
+                            .equals("boomerang.guided.targets.Query"))
+            .findFirst()
+            .get();
+    Val arg = newFileStatement.getInvokeExpr().getArg(0);
+
+    Statement predecessor =
+        method.getControlFlowGraph().getPredsOf(newFileStatement).stream().findFirst().get();
+    Edge cfgEdge = new Edge(predecessor, newFileStatement);
+    return BackwardQuery.make(cfgEdge, arg);
+  }
+
   private Specification getPingPongSpecification() {
     return Specification.create(
         "<ON{B}java.lang.StringBuilder: java.lang.StringBuilder append(GO{B}java.lang.String)>",
@@ -282,8 +369,11 @@ public class DemandDrivenGuidedAnalysisTest {
   protected void runAnalysis(BackwardQuery query, Object... expectedValues) {
     Specification specification =
         Specification.create(
+            "<java.lang.Integer: ON{B}java.lang.Integer valueOf(GO{B}int)>",
+            "<ON{B}java.lang.Integer: java.lang.Integer <init>(GO{B}int)>",
             "<GO{F}java.lang.String: void <init>(ON{F}java.lang.String)>",
-            "<ON{B}java.lang.String: void <init>(GO{B}java.lang.String)>");
+            "<ON{B}java.lang.String: void <init>(GO{B}java.lang.String)>",
+            "<GO{B}java.lang.String: ON{B}byte[] getBytes()>");
     runAnalysis(specification, query, expectedValues);
   }
 
@@ -325,7 +415,7 @@ public class DemandDrivenGuidedAnalysisTest {
             });
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
-
+    demandDrivenGuidedAnalysis.cleanUp();
     // Filter out query graph's node to only return the queries of interest (ForwardQueries &
     // String/Int Allocation sites).
     Stream<Query> res =

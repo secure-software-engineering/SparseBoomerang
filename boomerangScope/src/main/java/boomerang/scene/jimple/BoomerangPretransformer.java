@@ -253,7 +253,7 @@ public class BoomerangPretransformer extends BodyTransformer {
   private static void addNulliefiedFields(SootMethod cons) {
     Chain<SootField> fields = cons.getDeclaringClass().getFields();
     UnitPatchingChain units = cons.getActiveBody().getUnits();
-    Set<SootField> fieldsDefinedInMethod = getFieldsDefinedInMethod(cons);
+    Set<SootField> fieldsDefinedInMethod = getFieldsDefinedInMethod(cons, Sets.newHashSet());
     for (SootField f : fields) {
       if (fieldsDefinedInMethod.contains(f)) continue;
       if (f.isStatic()) continue;
@@ -286,8 +286,9 @@ public class BoomerangPretransformer extends BodyTransformer {
     return null;
   }
 
-  private static Set<SootField> getFieldsDefinedInMethod(SootMethod cons) {
+  private static Set<SootField> getFieldsDefinedInMethod(SootMethod cons, Set<SootMethod> visited) {
     Set<SootField> res = Sets.newHashSet();
+    if (!visited.add(cons)) return res;
     if (!cons.hasActiveBody()) return res;
     for (Unit u : cons.getActiveBody().getUnits()) {
       if (u instanceof AssignStmt) {
@@ -301,13 +302,8 @@ public class BoomerangPretransformer extends BodyTransformer {
       if (u instanceof Stmt) {
         Stmt stmt = (Stmt) u;
         if (stmt.containsInvokeExpr()) {
-          if (stmt.getInvokeExpr().getMethod().isConstructor()
-              && // TODO which constructor calls itself recursively? Doesn't make sense to me
-              !stmt.getInvokeExpr()
-                  .getMethod()
-                  .getDeclaringClass()
-                  .equals(cons.getDeclaringClass())) {
-            res.addAll(getFieldsDefinedInMethod(stmt.getInvokeExpr().getMethod()));
+          if (stmt.getInvokeExpr().getMethod().isConstructor()) {
+            res.addAll(getFieldsDefinedInMethod(stmt.getInvokeExpr().getMethod(), visited));
           }
         }
       }

@@ -20,11 +20,11 @@ public class CustomForwardFlowFunction extends DefaultForwardFlowFunction {
 
   @Override
   public Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact) {
-    DeclaredMethod method = edge.getStart().getInvokeExpr().getMethod();
-    // Avoid any propagations by passing the call site.
-    if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
-        && method.getName().equals("exit")) {
-      return Collections.emptySet();
+    if (edge.getStart().containsInvokeExpr()) {
+      // Avoid any propagations by passing the call site.
+      if (declaredMethodIsSystemExit(edge.getStart())) {
+        return Collections.emptySet();
+      }
     }
     return super.callToReturnFlow(query, edge, fact);
   }
@@ -32,15 +32,22 @@ public class CustomForwardFlowFunction extends DefaultForwardFlowFunction {
   @Override
   public Set<State> normalFlow(ForwardQuery query, Edge nextEdge, Val fact) {
     if (nextEdge.getStart().containsInvokeExpr()) {
-      DeclaredMethod method = nextEdge.getStart().getInvokeExpr().getMethod();
       // Avoid any propagations by passing any call site (this covers the case, when the fact is not
       // used at the call site).
-      if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
-          && method.getName().equals("exit")) {
+      if (declaredMethodIsSystemExit(nextEdge.getStart())) {
         return Collections.emptySet();
       }
     }
     return super.normalFlow(query, nextEdge, fact);
+  }
+
+  public boolean declaredMethodIsSystemExit(Statement callSite) {
+    DeclaredMethod method = callSite.getInvokeExpr().getMethod();
+    if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
+        && method.getName().equals("exit")) {
+      return true;
+    }
+    return false;
   }
 
   @Override

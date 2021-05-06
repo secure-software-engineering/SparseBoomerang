@@ -30,6 +30,7 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,14 +65,17 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       ForwardQuery query,
       Map<Entry<INode<Node<Edge, Val>>, Field>, INode<Node<Edge, Val>>> genField,
       BoomerangOptions options,
-      NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W> callSummaries,
-      NestedWeightedPAutomatons<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> fieldSummaries,
+      NestedWeightedPAutomatons<Edge, INode<Val>, W> callSummaries,
+      NestedWeightedPAutomatons<Field, INode<Node<Edge, Val>>, W> fieldSummaries,
       DataFlowScope scope,
       IForwardFlowFunction flowFunctions,
+      Multimap<Field, Statement> fieldLoadStatements,
+      Multimap<Field, Statement> fieldStoreStatements,
       Type propagationType) {
     super(callGraph, cfg, genField, options, callSummaries, fieldSummaries, scope, propagationType);
     this.query = query;
     this.flowFunctions = flowFunctions;
+    this.flowFunctions.setSolver(this, fieldLoadStatements, fieldStoreStatements);
   }
 
   @Override
@@ -199,7 +203,9 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
     if (!callSite.containsInvokeExpr()) {
       throw new RuntimeException("Invalid propagate Unbalanced return");
     }
-    assertCalleeCallerRelation(callSite, transInCallee.getLabel().getMethod());
+    if (!isMatchingCallSiteCalleePair(callSite, transInCallee.getLabel().getMethod())) {
+      return;
+    }
     cfg.addSuccsOfListener(
         new SuccessorListener(callSite) {
           @Override

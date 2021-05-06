@@ -1,8 +1,11 @@
 package boomerang;
 
+import boomerang.callgraph.CallerListener;
+import boomerang.callgraph.ObservableICFG;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Method;
+import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
@@ -13,6 +16,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,25 +33,25 @@ import wpds.interfaces.WPAStateListener;
 
 public class QueryGraph<W extends Weight> {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryGraph.class);
+  private final ObservableICFG<Statement, Method> icfg;
   private Multimap<Query, QueryEdge> sourceToQueryEdgeLookUp = HashMultimap.create();
   private Multimap<Query, QueryEdge> targetToQueryEdgeLookUp = HashMultimap.create();
   private Set<Query> roots = Sets.newHashSet();
   private DefaultValueMap<ForwardQuery, ForwardBoomerangSolver<W>> forwardSolvers;
   private Multimap<Query, AddTargetEdgeListener> edgeAddListener = HashMultimap.create();
   private DefaultValueMap<BackwardQuery, BackwardBoomerangSolver<W>> backwardSolver;
-  private Query backwardQuery;
 
   public QueryGraph(WeightedBoomerang<W> weightedBoomerang) {
     this.forwardSolvers = weightedBoomerang.getSolvers();
     this.backwardSolver = weightedBoomerang.getBackwardSolvers();
+    this.icfg = weightedBoomerang.icfg;
   }
 
   public void addRoot(Query root) {
     this.roots.add(root);
   }
 
-  public void addEdge(Query parent, Node<ControlFlowGraph.Edge, Val> node, Query child) {
-    assert getSolver(child) != null;
+  public void addEdge(Query parent, Node<Edge, Val> node, Query child) {
     QueryEdge queryEdge = new QueryEdge(parent, node, child);
     sourceToQueryEdgeLookUp.put(parent, queryEdge);
     if (targetToQueryEdgeLookUp.put(child, queryEdge)) {
@@ -112,7 +116,7 @@ public class QueryGraph<W extends Weight> {
       }
 
       if (weightedPAutomaton.isUnbalancedState(t.getTarget())) {
-        registerEdgeListener(new UnbalancedContextListener(child, parent));
+        registerEdgeListener(new UnbalancedContextListener(child, parent, t));
       }
     }
 
@@ -169,8 +173,12 @@ public class QueryGraph<W extends Weight> {
 
   public void registerEdgeListener(AddTargetEdgeListener l) {
     if (edgeAddListener.put(l.getTarget(), l)) {
-      for (QueryEdge edge : Lists.newArrayList(targetToQueryEdgeLookUp.get(l.getTarget()))) {
+      ArrayList<QueryEdge> edges = Lists.newArrayList(targetToQueryEdgeLookUp.get(l.getTarget()));
+      for (QueryEdge edge : edges) {
         l.edgeAdded(edge);
+      }
+      if (edges.isEmpty()) {
+        l.noParentEdge();
       }
     }
   }
@@ -179,16 +187,20 @@ public class QueryGraph<W extends Weight> {
     Query getTarget();
 
     void edgeAdded(QueryEdge queryEdge);
+
+    void noParentEdge();
   }
 
   private class UnbalancedContextListener implements AddTargetEdgeListener {
 
+    private final Transition<Edge, INode<Val>> transition;
     private Query parent;
     private Query child;
 
-    public UnbalancedContextListener(Query child, Query parent) {
+    public UnbalancedContextListener(Query child, Query parent, Transition<Edge, INode<Val>> t) {
       this.child = child;
       this.parent = parent;
+      this.transition = t;
     }
 
     @Override
@@ -207,12 +219,32 @@ public class QueryGraph<W extends Weight> {
     }
 
     @Override
+    public void noParentEdge() {
+      if (child instanceof BackwardQuery) {
+        Method callee = transition.getTarget().fact().m();
+        icfg.addCallerListener(
+            new CallerListener<Statement, Method>() {
+              @Override
+              public Method getObservedCallee() {
+                return callee;
+              }
+
+              @Override
+              public void onCallerAdded(Statement callSite, Method method) {
+                getSolver(child).allowUnbalanced(callee, callSite);
+              }
+            });
+      }
+    }
+
+    @Override
     public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + getEnclosingInstance().hashCode();
       result = prime * result + ((child == null) ? 0 : child.hashCode());
       result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+      result = prime * result + ((transition == null) ? 0 : transition.hashCode());
       return result;
     }
 
@@ -229,6 +261,9 @@ public class QueryGraph<W extends Weight> {
       if (parent == null) {
         if (other.parent != null) return false;
       } else if (!parent.equals(other.parent)) return false;
+      if (parent == null) {
+        if (other.transition != null) return false;
+      } else if (!transition.equals(other.transition)) return false;
       return true;
     }
 

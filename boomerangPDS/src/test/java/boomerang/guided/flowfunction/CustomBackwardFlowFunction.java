@@ -18,13 +18,29 @@ public class CustomBackwardFlowFunction extends DefaultBackwardFlowFunction {
   }
 
   @Override
+  public Collection<State> normalFlow(Edge edge, Val fact) {
+    if (edge.getTarget().containsInvokeExpr()) {
+      DeclaredMethod method = edge.getTarget().getInvokeExpr().getMethod();
+      // Avoid any propagations by passing the call site (also when the fact is not used at the call
+      // site).
+      if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
+          && method.getName().equals("exit")) {
+        return Collections.emptySet();
+      }
+    }
+    return super.normalFlow(edge, fact);
+  }
+
+  @Override
   public Collection<State> callToReturnFlow(Edge edge, Val fact) {
-    DeclaredMethod method = edge.getStart().getInvokeExpr().getMethod();
-    // Avoid any propagations by passing the call site (also when the fact is not used at the call
-    // site).
-    if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
-        && method.getName().equals("exit")) {
-      return Collections.emptySet();
+    if (edge.getTarget().containsInvokeExpr()) {
+      DeclaredMethod method = edge.getTarget().getInvokeExpr().getMethod();
+      // Avoid any propagations by passing the call site (also when the fact is not used at the call
+      // site).
+      if (method.getDeclaringClass().getFullyQualifiedName().equals("java.lang.System")
+          && method.getName().equals("exit")) {
+        return Collections.emptySet();
+      }
     }
     return super.callToReturnFlow(edge, fact);
   }

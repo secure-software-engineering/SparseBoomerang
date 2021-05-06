@@ -287,7 +287,7 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     }
   }
 
-  protected void assertCalleeCallerRelation(Statement callSite, Method method) {
+  protected boolean isMatchingCallSiteCalleePair(Statement callSite, Method method) {
     Set<Statement> callsitesOfCall = Sets.newHashSet();
     icfg.addCallerListener(
         new CallerListener<Statement, Method>() {
@@ -301,9 +301,7 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
             callsitesOfCall.add(statement);
           }
         });
-    if (!callsitesOfCall.contains(callSite)) {
-      throw new RuntimeException("Invalid pair of callSite and method for unbalanced return");
-    }
+    return callsitesOfCall.contains(callSite);
   }
 
   protected abstract void propagateUnbalancedToCallSite(

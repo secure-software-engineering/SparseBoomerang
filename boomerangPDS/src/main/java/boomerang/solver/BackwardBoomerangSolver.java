@@ -29,6 +29,7 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
@@ -68,10 +69,13 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
       NestedWeightedPAutomatons<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> fieldSummaries,
       DataFlowScope scope,
       IBackwardFlowFunction backwardFlowFunction,
+      Multimap<Field, Statement> fieldLoadStatements,
+      Multimap<Field, Statement> fieldStoreStatements,
       Type propagationType) {
     super(icfg, cfg, genField, options, callSummaries, fieldSummaries, scope, propagationType);
     this.query = query;
     this.flowFunction = backwardFlowFunction;
+    this.flowFunction.setSolver(this, fieldLoadStatements, fieldStoreStatements);
   }
 
   private boolean notUsedInMethod(Method m, Statement curr, Val value) {
@@ -230,7 +234,9 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     if (!callSite.containsInvokeExpr()) {
       throw new RuntimeException("Invalid propagate Unbalanced return");
     }
-    assertCalleeCallerRelation(callSite, transInCallee.getLabel().getMethod());
+    if (!isMatchingCallSiteCalleePair(callSite, transInCallee.getLabel().getMethod())) {
+      return;
+    }
     cfg.addSuccsOfListener(
         new SuccessorListener(callSite) {
           @Override

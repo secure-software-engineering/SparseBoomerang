@@ -18,8 +18,10 @@ import boomerang.scene.SootDataFlowScope;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.jimple.BoomerangPretransformer;
+import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.SootCallGraph;
+import boomerang.solver.BackwardBoomerangSolver;
 import com.google.common.collect.Lists;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,6 +39,34 @@ import wpds.impl.Weight.NoWeight;
 public class CustomFlowFunctionTest {
 
   public static String CG = "cha";
+
+  @Test
+  public void killOnSystemExitBackwardTestInteger() {
+    setupSoot(CustomFlowFunctionTarget.class);
+    SootMethod m =
+        Scene.v()
+            .getMethod(
+                "<boomerang.guided.targets.CustomFlowFunctionIntTarget: void main(java.lang.String[])>");
+    BackwardQuery query = selectQueryForStatement(m);
+
+    SootCallGraph sootCallGraph = new SootCallGraph();
+    Boomerang solver =
+        new Boomerang(
+            sootCallGraph,
+            SootDataFlowScope.make(Scene.v()),
+            new CustomIntAndStringBoomerangOptions());
+
+    System.out.println("Solving query: " + query);
+    BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
+    for (BackwardBoomerangSolver bw : solver.getBackwardSolvers().values()) {
+      Assert.assertEquals(true, bw.getCallAutomaton().getTransitions().size() < 3);
+    }
+    System.out.println(backwardQueryResults.getAllocationSites());
+
+    // For the query no allocation site is found, as between queryFor and the allocation site there
+    // exists a System.exit call.
+    Assert.assertEquals(true, backwardQueryResults.isEmpty());
+  }
 
   @Test
   public void killOnSystemExitBackwardTest() {
@@ -163,6 +193,19 @@ public class CustomFlowFunctionTest {
   }
 
   private class CustomBoomerangOptions extends DefaultBoomerangOptions {
+
+    @Override
+    public IForwardFlowFunction getForwardFlowFunctions() {
+      return new CustomForwardFlowFunction(this);
+    }
+
+    @Override
+    public IBackwardFlowFunction getBackwardFlowFunction() {
+      return new CustomBackwardFlowFunction(this);
+    }
+  }
+
+  private class CustomIntAndStringBoomerangOptions extends IntAndStringBoomerangOptions {
 
     @Override
     public IForwardFlowFunction getForwardFlowFunctions() {
