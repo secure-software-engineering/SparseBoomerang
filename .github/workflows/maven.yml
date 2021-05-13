@@ -32,7 +32,8 @@ jobs:
       - name: Release
         uses: qcastel/github-actions-maven-release@master
         env:
-          GPG_TTY: "$(tty)" 
+          GPG_TTY: "$(tty)"
+          JAVA_HOME: /usr/lib/jvm/java-1.8-openjdk/
         with:
           release-branch-name: "master"
           
