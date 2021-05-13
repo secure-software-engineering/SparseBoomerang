@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.1.2</version>
     <packaging>pom</packaging>
     <name>SPDS</name>
 
@@ -16,9 +16,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/CodeShield-Security/SPDS.git</connection>
-        <url>https://github.com/CodeShield-Security/SPDS</url>
-        <tag>SPDS-${project.version}</tag>
+        <connection>scm:git:git://github.com/CodeShield-Security/SPDS.git</connection>
+        <url>git@github.com:CodeShield-Security/SPDS.git</url>
+        <tag>SPDS-3.1.2</tag>
     </scm>
 
     <developers>
@@ -47,7 +47,7 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sootVersion>4.2.1</sootVersion>
+        <sootVersion>4.3.0-SNAPSHOT</sootVersion>
         <fmt-maven-plugin.version>2.9</fmt-maven-plugin.version>
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
@@ -171,7 +171,7 @@
             <dependency>
                 <groupId>org.soot-oss</groupId>
                 <artifactId>soot</artifactId>
-                <version>${sootVersion}</version>
+                <version>4.2.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
