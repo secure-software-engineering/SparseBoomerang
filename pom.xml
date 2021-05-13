@@ -16,8 +16,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/CodeShield-Security/SPDS.git</connection>
-        <url>https://github.com/CodeShield-Security/SPDS</url>
+        <connection>scm:git:git://github.com/CodeShield-Security/SPDS.git</connection>
+        <url>git@github.com:CodeShield-Security/SPDS.git</url>
         <tag>SPDS-${project.version}</tag>
     </scm>
 
