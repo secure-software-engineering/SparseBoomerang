@@ -12,20 +12,22 @@ import soot.UnitPatchingChain;
 import soot.jimple.IdentityStmt;
 import soot.jimple.Stmt;
 import soot.toolkits.graph.BriefUnitGraph;
-import soot.toolkits.graph.UnitGraph;
+import soot.toolkits.graph.DirectedGraph;
 
 public class JimpleControlFlowGraph implements ControlFlowGraph {
 
-  private UnitGraph graph;
+  protected DirectedGraph<Unit> graph;
 
-  private boolean cacheBuild = false;
-  private List<Statement> startPointCache = Lists.newArrayList();
-  private List<Statement> endPointCache = Lists.newArrayList();
-  private Multimap<Statement, Statement> succsOfCache = HashMultimap.create();
-  private Multimap<Statement, Statement> predsOfCache = HashMultimap.create();
-  private List<Statement> statements = Lists.newArrayList();;
+  protected boolean cacheBuild = false;
+  protected List<Statement> startPointCache = Lists.newArrayList();
+  protected List<Statement> endPointCache = Lists.newArrayList();
+  protected Multimap<Statement, Statement> succsOfCache = HashMultimap.create();
+  protected Multimap<Statement, Statement> predsOfCache = HashMultimap.create();
+  protected List<Statement> statements = Lists.newArrayList();
 
-  private JimpleMethod method;
+  protected JimpleMethod method;
+
+  public JimpleControlFlowGraph() {}
 
   public JimpleControlFlowGraph(JimpleMethod method) {
     this.method = method;
@@ -37,7 +39,7 @@ public class JimpleControlFlowGraph implements ControlFlowGraph {
     return startPointCache;
   }
 
-  private void buildCache() {
+  protected void buildCache() {
     if (cacheBuild) return;
     cacheBuild = true;
     List<Unit> heads = graph.getHeads();

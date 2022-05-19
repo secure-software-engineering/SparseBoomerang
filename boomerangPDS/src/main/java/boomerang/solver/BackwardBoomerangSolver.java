@@ -80,7 +80,10 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
 
   private boolean notUsedInMethod(Method m, Statement curr, Val value) {
     if (value.isStatic()) return false;
-    if (!m.getLocals().contains(value)) return true;
+    if (!m.getLocals().stream()
+        .filter(e -> e.toString().equals(value.toString()))
+        .findAny()
+        .isPresent()) return true;
     return false;
   }
 

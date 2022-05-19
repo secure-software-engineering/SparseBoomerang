@@ -16,14 +16,14 @@ import soot.SootMethod;
 import soot.util.Chain;
 
 public class JimpleMethod extends Method {
-  private final SootMethod delegate;
+  private SootMethod delegate;
 
-  private static Interner<JimpleMethod> INTERNAL_POOL = Interners.newWeakInterner();
-  private ControlFlowGraph cfg;
+  protected static Interner<JimpleMethod> INTERNAL_POOL = Interners.newWeakInterner();
+  protected ControlFlowGraph cfg;
   private List<Val> parameterLocalCache;
   private Set<Val> localCache;
 
-  private JimpleMethod(SootMethod m) {
+  protected JimpleMethod(SootMethod m) {
     this.delegate = m;
     if (!m.hasActiveBody()) {
       throw new RuntimeException("Building a Jimple method without active body present");
