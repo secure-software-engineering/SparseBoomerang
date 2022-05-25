@@ -86,8 +86,9 @@ public class SparseAliasingCFGBuilder {
   private boolean existInValueToUnits(Unit stmt) {
     for (List<Unit> units : valueToUnits.values()) {
       for (Unit unit : units) {
-        unit.equals(stmt);
-        return true;
+        if (unit.equals(stmt)) {
+          return true;
+        }
       }
     }
     return false;
@@ -369,7 +370,6 @@ public class SparseAliasingCFGBuilder {
 
   /**
    * DFS traverse Original Graph and keep all the stmts
-   *
    *
    * @param curr
    * @param graph
