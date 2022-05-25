@@ -104,5 +104,7 @@ public interface BoomerangOptions {
 
   boolean allowMultipleQueries();
 
+  boolean sparse();
+
   IBackwardFlowFunction getBackwardFlowFunction();
 }

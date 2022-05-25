@@ -13,7 +13,8 @@ import soot.jimple.Stmt;
 
 public class JimpleSparseControlFlowGraph extends JimpleControlFlowGraph {
 
-  public JimpleSparseControlFlowGraph(JimpleMethod method, JimpleStatement stmt, JimpleVal value) {
+  public JimpleSparseControlFlowGraph(
+      JimpleSparseMethod method, JimpleStatement stmt, JimpleVal value) {
     this.method = method;
     this.graph = buildSparseCFG(method.getDelegate().getActiveBody(), stmt, value);
   }

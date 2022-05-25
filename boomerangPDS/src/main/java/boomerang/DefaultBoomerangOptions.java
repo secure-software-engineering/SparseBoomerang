@@ -216,6 +216,11 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
     return false;
   }
 
+  @Override
+  public boolean sparse() {
+    return false;
+  }
+
   public void checkValid() {
     if (trackPathConditions() == false && prunePathConditions()) {
       throw new RuntimeException(
