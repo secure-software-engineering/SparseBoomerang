@@ -27,17 +27,39 @@ public class SparseAliasingCFGCache {
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
 
-  public synchronized SparseAliasingCFG getSparseCFG(SootMethod m, Value d, Stmt stmt) {
+  public SparseAliasingCFG getSparseCFG(SootMethod m, Stmt stmt) {
+    for (String s : cache.keySet()) {
+      if (s.startsWith(m.getSignature())) {
+        SparseAliasingCFG sparseAliasingCFG = cache.get(s);
+        if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
+          return sparseAliasingCFG;
+        }
+      }
+    }
+    throw new RuntimeException("CFG not found for:" + m + " s:" + stmt);
+    // return null;
+  }
+
+  public synchronized SparseAliasingCFG getSparseCFG(
+      Value queryVal, Stmt queryStmt, SootMethod m, Value d, Stmt stmt) {
     String key =
         new StringBuilder(m.getSignature())
             .append("-")
-            .append(d)
+            .append(queryVal)
             .append("-")
-            .append(stmt)
+            .append(queryStmt)
             .toString();
 
     if (cache.containsKey(key)) {
-      return cache.get(key);
+      if (cache.get(key).getGraph().nodes().contains(stmt)) {
+        return cache.get(key);
+      } else {
+        SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(m, d, stmt);
+        cache.put(key + stmt, cfg);
+        return cfg;
+      }
+    } else if (cache.containsKey(key + stmt)) {
+      return cache.get(key + stmt);
     } else {
       SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(m, d, stmt);
       cache.put(key, cfg);

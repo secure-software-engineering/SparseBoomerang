@@ -18,6 +18,7 @@ import boomerang.callgraph.CalleeListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
 import boomerang.controlflowgraph.PredecessorListener;
+import boomerang.controlflowgraph.StaticCFG;
 import boomerang.controlflowgraph.SuccessorListener;
 import boomerang.flowfunction.IForwardFlowFunction;
 import boomerang.scene.AllocVal;
@@ -389,6 +390,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
 
   @Override
   public void computeSuccessor(Node<Edge, Val> node) {
+    System.out.println("fwd:" + node);
     Edge curr = node.stmt();
     Val value = node.fact();
     assert !(value instanceof AllocVal);
@@ -401,6 +403,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       returnFlow(method, node);
       return;
     }
+    ((StaticCFG) cfg).setSparse(options.sparse());
     cfg.addSuccsOfListener(
         new SuccessorListener(curr.getTarget()) {
 

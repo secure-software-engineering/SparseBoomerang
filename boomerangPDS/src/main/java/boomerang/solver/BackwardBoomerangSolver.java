@@ -29,6 +29,11 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
+import boomerang.scene.jimple.JimpleMethod;
+import boomerang.scene.jimple.JimpleStatement;
+import boomerang.scene.jimple.JimpleVal;
+import boomerang.scene.sparse.SparseAliasingCFG;
+import boomerang.scene.sparse.SparseAliasingCFGCache;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.AbstractMap.SimpleEntry;
@@ -39,6 +44,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import soot.Unit;
+import soot.jimple.Stmt;
 import sync.pds.solver.nodes.GeneratedState;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
@@ -167,13 +174,67 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   protected void normalFlow(Method method, Node<ControlFlowGraph.Edge, Val> currNode) {
     Edge curr = currNode.stmt();
     Val value = currNode.fact();
-    for (Statement pred :
-        curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
-      Collection<State> flow = computeNormalFlow(method, new Edge(pred, curr.getStart()), value);
-      for (State s : flow) {
-        propagate(currNode, s);
+    if (options.sparse()) {
+      SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, curr.getStart());
+      Stmt stmt = asStmt(curr.getStart());
+      if (sparseCFG.getGraph().nodes().contains(stmt)) {
+        Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
+        for (Unit pred : predecessors) {
+          Collection<State> flow =
+              computeNormalFlow(
+                  method, new Edge(asStatement(pred, method), curr.getStart()), value);
+          for (State s : flow) {
+            System.out.println("propagating sparse:" + s);
+            propagate(currNode, s);
+          }
+        }
+      } else {
+        System.out.println("node not in cfg:" + stmt);
+      }
+
+    } else {
+      for (Statement pred :
+          curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
+        Collection<State> flow = computeNormalFlow(method, new Edge(pred, curr.getStart()), value);
+        for (State s : flow) {
+          System.out.println("propagating non-sparse:" + s);
+          propagate(currNode, s);
+        }
       }
     }
+  }
+
+  private Statement asStatement(Unit unit, Method method) {
+    return JimpleStatement.create((Stmt) unit, method);
+  }
+
+  private Stmt asStmt(Statement stmt) {
+    return ((JimpleStatement) stmt).getDelegate();
+  }
+
+  /**
+   * BackwardQuery: (b2 (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void
+   * main(java.lang.String[])>),b2.secret = $stack9 -> return)
+   *
+   * @param method
+   * @param val
+   * @param stmt
+   * @return
+   */
+  private SparseAliasingCFG getSparseCFG(
+      BackwardQuery query, Method method, Val val, Statement stmt) {
+    JimpleMethod jMethod = (JimpleMethod) method;
+    JimpleVal jVal = (JimpleVal) val;
+    JimpleStatement jStmt = (JimpleStatement) stmt;
+    SparseAliasingCFG sparseCFG =
+        SparseAliasingCFGCache.getInstance()
+            .getSparseCFG(
+                ((JimpleVal) query.var()).getDelegate(),
+                ((JimpleStatement) query.asNode().stmt().getStart()).getDelegate(),
+                jMethod.getDelegate(),
+                jVal.getDelegate(),
+                jStmt.getDelegate());
+    return sparseCFG;
   }
 
   protected Collection<? extends State> computeCallFlow(
