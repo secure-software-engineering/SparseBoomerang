@@ -1,15 +1,13 @@
 package boomerang.scene.sparse;
 
+import boomerang.scene.Pair;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Traverser;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import soot.SootMethod;
-import soot.Type;
-import soot.Unit;
-import soot.Value;
+import soot.*;
 import soot.jimple.InvokeExpr;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
@@ -26,7 +24,8 @@ public class SparseAliasingCFGBuilder {
   private Deque<Value> backwardStack = new ArrayDeque<>();
   private Deque<Value> forwardStack = new ArrayDeque<>();
   private Map<Value, Unit> definitions = new HashMap<>();
-  private Map<Value, List<Unit>> valueToUnits = new HashMap<>();
+  private Map<Value, LinkedHashSet<Unit>> valueToUnits = new HashMap<>();
+  private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
 
   private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
 
@@ -84,7 +83,7 @@ public class SparseAliasingCFGBuilder {
   }
 
   private boolean existInValueToUnits(Unit stmt) {
-    for (List<Unit> units : valueToUnits.values()) {
+    for (Set<Unit> units : valueToUnits.values()) {
       for (Unit unit : units) {
         if (unit.equals(stmt)) {
           return true;
@@ -114,11 +113,42 @@ public class SparseAliasingCFGBuilder {
   private void findStmtsToKeep(MutableGraph<Unit> mCFG, Value queryVar, Unit queryStmt) {
     Unit def = findBackwardDefForValue(mCFG, queryStmt, queryVar, new HashSet<>());
     putToValueToUnits(queryVar, def);
+    backwardPass(mCFG, def);
+    forwardPass(mCFG, queryStmt);
+    findStmtsAfterKill(mCFG, queryStmt);
+  }
+
+  private void findStmtsAfterKill(MutableGraph<Unit> mCFG, Unit queryStmt) {
+    Unit def;
+    while (!backwardStack.isEmpty()) {
+      Value val = backwardStack.pop();
+      Unit killedAt = null;
+      Collection<Pair<Value, Unit>> killers = valueKillebyValuedAt.values();
+      for (Pair<Value, Unit> killer : killers) {
+        if (killer.getX().equals(val)) {
+          killedAt = killer.getY();
+          break;
+        }
+      }
+      if (killedAt != null) {
+        def = findBackwardDefForValue(mCFG, killedAt, val, new HashSet<>());
+        putToValueToUnits(val, def);
+      } else {
+        throw new RuntimeException("if a val is killed there must be a killer");
+      }
+    }
+    forwardPass(mCFG, queryStmt);
+  }
+
+  private void backwardPass(MutableGraph<Unit> mCFG, Unit def) {
     while (!backwardStack.isEmpty()) {
       Value val = backwardStack.pop();
       def = findBackwardDefForValue(mCFG, def, val, new HashSet<>());
       putToValueToUnits(val, def);
     }
+  }
+
+  private void forwardPass(MutableGraph<Unit> mCFG, Unit queryStmt) {
     while (!forwardStack.isEmpty()) {
       Value val = forwardStack.pop();
       Unit defStmt = definitions.get(val);
@@ -133,10 +163,10 @@ public class SparseAliasingCFGBuilder {
 
   private void putToValueToUnits(Value val, Unit stmt) {
     if (valueToUnits.containsKey(val)) {
-      List<Unit> units = valueToUnits.get(val);
+      Set<Unit> units = valueToUnits.get(val);
       units.add(stmt);
     } else {
-      List<Unit> units = new ArrayList<>();
+      LinkedHashSet<Unit> units = new LinkedHashSet<>();
       units.add(stmt);
       valueToUnits.put(val, units);
     }
@@ -229,11 +259,13 @@ public class SparseAliasingCFGBuilder {
         // do not process after queryStmt
         return stmtsToKeep;
       }
-      if (keepContainingStmtsForward(succ, queryVar)) {
+      if (!valueKillebyValuedAt.containsKey(queryVar)
+          && keepContainingStmtsForward(succ, queryVar)) {
         stmtsToKeep.add(succ);
       }
       if (!visited.contains(succ)) {
-        findForwardDefUseForValue(mCFG, succ, queryVar, queryStmt, visited);
+        Set<Unit> ret = findForwardDefUseForValue(mCFG, succ, queryVar, queryStmt, visited);
+        stmtsToKeep.addAll(ret);
       }
     }
     return stmtsToKeep;
@@ -255,14 +287,15 @@ public class SparseAliasingCFGBuilder {
         JCastExpr cast = (JCastExpr) rightOp;
         rightOp = cast.getOp();
       }
-
       if (queryVar.equals(rightOp)) {
         forwardStack.push(leftOp);
         definitions.put(leftOp, unit);
         return true;
       } else if (queryVar.equals(leftOp)) {
-        // kill
-        valueToUnits.remove(queryVar);
+        // kill: need to find the alloc of the killer object
+        valueKillebyValuedAt.put(queryVar, new Pair<>(rightOp, unit));
+        backwardStack.push(rightOp);
+        return true;
       }
     }
     if (keepInvokeForValue(unit, queryVar)) {
