@@ -41,7 +41,7 @@ public class SparseAliasingCFGCache {
   }
 
   public synchronized SparseAliasingCFG getSparseCFG(
-      Value queryVal, Stmt queryStmt, SootMethod m, Value d, Stmt stmt) {
+      Value queryVal, Stmt queryStmt, SootMethod m, Value d, Stmt stmt, Stmt targetStmt) {
     String key =
         new StringBuilder(m.getSignature())
             .append("-")
@@ -54,14 +54,14 @@ public class SparseAliasingCFGCache {
       if (cache.get(key).getGraph().nodes().contains(stmt)) {
         return cache.get(key);
       } else {
-        SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(queryVal, m, d, stmt);
+        SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(queryVal, m, d, stmt, targetStmt);
         cache.put(key + stmt, cfg);
         return cfg;
       }
     } else if (cache.containsKey(key + stmt)) {
       return cache.get(key + stmt);
     } else {
-      SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(queryVal, m, d, stmt);
+      SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(queryVal, m, d, stmt, targetStmt);
       cache.put(key, cfg);
       return cfg;
     }

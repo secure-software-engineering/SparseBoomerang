@@ -27,6 +27,7 @@ public class SparseAliasingCFGBuilder {
   private Map<Value, LinkedHashSet<Unit>> valueToUnits = new HashMap<>();
   private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
   private Type queryVarType;
+  private Unit targetStmt;
 
   private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
 
@@ -37,7 +38,7 @@ public class SparseAliasingCFGBuilder {
   }
 
   public SparseAliasingCFG buildSparseCFG(
-      Value initialQueryVar, SootMethod m, Value queryVar, Unit queryStmt) {
+      Value initialQueryVar, SootMethod m, Value queryVar, Unit queryStmt, Unit targetStmt) {
     queryVarType = initialQueryVar.getType();
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
@@ -72,7 +73,8 @@ public class SparseAliasingCFGBuilder {
           && !existInValueToUnits(unit)
           && !unit.equals(queryStmt)
           && !unit.equals(head)
-          && !unit.equals(tail)) {
+          && !unit.equals(tail)
+          && !isTargetCallSite(unit)) {
         stmsToRemove.add(unit);
       }
     }
@@ -86,6 +88,29 @@ public class SparseAliasingCFGBuilder {
         mCFG.putEdge(preds.iterator().next(), succs.iterator().next());
       }
     }
+  }
+
+  private boolean isTargetCallSite(Unit unit) {
+    if (unit instanceof Stmt) {
+      Stmt stmt = (Stmt) unit;
+      if (stmt.containsInvokeExpr()) {
+        InvokeExpr invokeExpr = stmt.getInvokeExpr();
+        List<Value> args = invokeExpr.getArgs();
+        for (Value d : valueToUnits.keySet()) {
+          // v as arg
+          for (Value arg : args) {
+            if (d.equals(arg)) {
+              return true;
+            }
+          }
+          // v as base v.m()
+          if (isInvokeBase(d, invokeExpr)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private boolean existInValueToUnits(Unit stmt) {
