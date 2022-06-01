@@ -26,6 +26,7 @@ public class SparseAliasingCFGBuilder {
   private Map<Value, Unit> definitions = new HashMap<>();
   private Map<Value, LinkedHashSet<Unit>> valueToUnits = new HashMap<>();
   private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
+  private Type queryVarType;
 
   private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
 
@@ -35,7 +36,9 @@ public class SparseAliasingCFGBuilder {
     this.enableExceptions = enableExceptions;
   }
 
-  public SparseAliasingCFG buildSparseCFG(SootMethod m, Value queryVar, Unit queryStmt) {
+  public SparseAliasingCFG buildSparseCFG(
+      Value initialQueryVar, SootMethod m, Value queryVar, Unit queryStmt) {
+    queryVarType = initialQueryVar.getType();
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
             ? new ExceptionalUnitGraph(m.getActiveBody())
@@ -123,8 +126,12 @@ public class SparseAliasingCFGBuilder {
   }
 
   private void findStmtsForFieldBase(MutableGraph<Unit> mCFG, Unit queryStmt) {
-    backwardPass(mCFG, queryStmt);
-    forwardPass(mCFG, queryStmt);
+    while (!backwardStack.isEmpty()) {
+      backwardPass(mCFG, queryStmt);
+      while (!forwardStack.isEmpty()) {
+        forwardPass(mCFG, queryStmt);
+      }
+    }
   }
 
   private void findStmtsAfterKill(MutableGraph<Unit> mCFG, Unit queryStmt) {
@@ -321,7 +328,8 @@ public class SparseAliasingCFGBuilder {
           || equalsFieldRef(rightOp, queryVar)
           || equalsQueryBase(rightOp, queryVar)
           || equalsFieldType(rightOp, queryVar)
-          || equalsArrayItem(rightOp, queryVar)) {
+          || equalsArrayItem(rightOp, queryVar)
+          || equalsInitialFieldType(rightOp, queryVar)) {
         if (!leftOp.equals(queryVar)) { // oth it would create a loop
           forwardStack.push(leftOp);
           definitions.put(leftOp, unit);
@@ -338,6 +346,9 @@ public class SparseAliasingCFGBuilder {
           || equalsArrayItem(leftOp, queryVar)) {
         // kill: need to find the alloc of the killer object
         valueKillebyValuedAt.put(queryVar, new Pair<>(rightOp, unit));
+        backwardStack.push(rightOp);
+        return true;
+      } else if (equalsInitialFieldType(leftOp, queryVar)) {
         backwardStack.push(rightOp);
         return true;
       }
@@ -360,6 +371,17 @@ public class SparseAliasingCFGBuilder {
     if (queryVar instanceof JInstanceFieldRef) {
       Value queryBase = ((JInstanceFieldRef) queryVar).getBase();
       if (queryBase.equals(rightOp)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean equalsInitialFieldType(Value op, Value queryVar) {
+    if (op instanceof JInstanceFieldRef) {
+      Value base = ((JInstanceFieldRef) op).getBase();
+      Type fieldType = ((JInstanceFieldRef) op).getField().getType();
+      if (base.equals(queryVar) && fieldType.equals(queryVarType)) {
         return true;
       }
     }
@@ -394,6 +416,15 @@ public class SparseAliasingCFGBuilder {
         // v as arg
         for (Value arg : args) {
           if (d.equals(arg)) {
+            for (Value otherArg : args) {
+              if (!otherArg.equals(d) && otherArg.getType().equals(d.getType())) {
+                // other args of the same type can cause aliasing so we need to find their alloc
+                // sites
+                if (!definitions.containsKey(otherArg)) {
+                  backwardStack.push(otherArg);
+                }
+              }
+            }
             return true;
           }
         }

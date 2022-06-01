@@ -54,14 +54,14 @@ public class SparseAliasingCFGCache {
       if (cache.get(key).getGraph().nodes().contains(stmt)) {
         return cache.get(key);
       } else {
-        SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(m, d, stmt);
+        SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(queryVal, m, d, stmt);
         cache.put(key + stmt, cfg);
         return cfg;
       }
     } else if (cache.containsKey(key + stmt)) {
       return cache.get(key + stmt);
     } else {
-      SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(m, d, stmt);
+      SparseAliasingCFG cfg = sparseCFGBuilder.buildSparseCFG(queryVal, m, d, stmt);
       cache.put(key, cfg);
       return cfg;
     }
