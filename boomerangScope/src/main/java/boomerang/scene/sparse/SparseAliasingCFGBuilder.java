@@ -44,16 +44,19 @@ public class SparseAliasingCFGBuilder {
     Unit head = getHead(unitGraph);
 
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
+    LOGGER.info(m.getName() + " original");
     logCFG(mCFG);
 
+    // if (!m.getName().equals("test")) {
     findStmtsToKeep(mCFG, queryVar, queryStmt);
 
     List<Unit> tails = unitGraph.getTails();
     for (Unit tail : tails) {
       sparsify(mCFG, head, tail, queryStmt);
     }
+    LOGGER.info(m.getName() + " sparse");
     logCFG(mCFG);
-
+    // }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet());
   }
 
@@ -102,20 +105,26 @@ public class SparseAliasingCFGBuilder {
       return true;
     }
     if (stmt instanceof JIdentityStmt) {
-      JIdentityStmt id = (JIdentityStmt) stmt;
-      if (id.getRightOp() instanceof JCaughtExceptionRef) {
-        return true;
-      }
+      //      JIdentityStmt id = (JIdentityStmt) stmt;
+      //      if (id.getRightOp() instanceof JCaughtExceptionRef) {
+      return true;
+      //      }
     }
     return false;
   }
 
   private void findStmtsToKeep(MutableGraph<Unit> mCFG, Value queryVar, Unit queryStmt) {
-    Unit def = findBackwardDefForValue(mCFG, queryStmt, queryVar, new HashSet<>());
+    Unit def = findBackwardDefForValue(mCFG, queryStmt, queryVar, new HashSet<>(), false);
     putToValueToUnits(queryVar, def);
     backwardPass(mCFG, def);
     forwardPass(mCFG, queryStmt);
+    findStmtsForFieldBase(mCFG, queryStmt);
     findStmtsAfterKill(mCFG, queryStmt);
+  }
+
+  private void findStmtsForFieldBase(MutableGraph<Unit> mCFG, Unit queryStmt) {
+    backwardPass(mCFG, queryStmt);
+    forwardPass(mCFG, queryStmt);
   }
 
   private void findStmtsAfterKill(MutableGraph<Unit> mCFG, Unit queryStmt) {
@@ -131,7 +140,7 @@ public class SparseAliasingCFGBuilder {
         }
       }
       if (killedAt != null) {
-        def = findBackwardDefForValue(mCFG, killedAt, val, new HashSet<>());
+        def = findBackwardDefForValue(mCFG, killedAt, val, new HashSet<>(), false);
         putToValueToUnits(val, def);
       } else {
         throw new RuntimeException("if a val is killed there must be a killer");
@@ -143,8 +152,15 @@ public class SparseAliasingCFGBuilder {
   private void backwardPass(MutableGraph<Unit> mCFG, Unit def) {
     while (!backwardStack.isEmpty()) {
       Value val = backwardStack.pop();
-      def = findBackwardDefForValue(mCFG, def, val, new HashSet<>());
-      putToValueToUnits(val, def);
+      Unit existingDef = definitions.get(val);
+      if (existingDef != null) {
+        def = findBackwardDefForValue(mCFG, existingDef, val, new HashSet<>(), true);
+      } else {
+        def = findBackwardDefForValue(mCFG, def, val, new HashSet<>(), false);
+      }
+      if (def != null) {
+        putToValueToUnits(val, def);
+      }
     }
   }
 
@@ -173,21 +189,26 @@ public class SparseAliasingCFGBuilder {
   }
 
   private Unit findBackwardDefForValue(
-      MutableGraph<Unit> mCFG, Unit tail, Value queryVar, Set<Unit> visited) {
+      MutableGraph<Unit> mCFG, Unit tail, Value queryVar, Set<Unit> visited, boolean existingDef) {
     visited.add(tail);
-    if (isDefOfValue(tail, queryVar)) {
+    if (!existingDef && isDefOfValue(tail, queryVar)) {
       return tail;
     }
     Set<Unit> preds = mCFG.predecessors(tail);
     for (Unit pred : preds) {
       if (!visited.contains(pred)) {
-        return findBackwardDefForValue(mCFG, pred, queryVar, visited);
+        Unit u = findBackwardDefForValue(mCFG, pred, queryVar, visited, false);
+        if (u == null) {
+          continue;
+        } else {
+          return u;
+        }
       }
     }
     if (queryVar instanceof JInstanceFieldRef) {
       return new DefinedOutside(queryVar);
     } else {
-      throw new RuntimeException("No def found for value:" + queryVar);
+      return null; // throw new RuntimeException("No def found for value:" + queryVar);
     }
   }
 
@@ -203,10 +224,23 @@ public class SparseAliasingCFGBuilder {
       }
       if (queryVar.equals(leftOp)
           || equalsFieldRef(leftOp, queryVar)
-          || equalsArrayItem(leftOp, queryVar)) {
+          || equalsQueryBase(leftOp, queryVar)
+          || equalsArrayItem(leftOp, queryVar)
+          || equalsFieldType(leftOp, queryVar)) {
         if (isAllocOrMethodAssignment(stmt, queryVar)) {
           forwardStack.push(queryVar);
         } else {
+          if (equalsFieldRef(rightOp, queryVar)
+              && rightOp instanceof JInstanceFieldRef) { // recursion
+            Value base = ((JInstanceFieldRef) rightOp).getBase();
+            if (base.equals(leftOp)) {
+              backwardStack.push(leftOp);
+              definitions.put(leftOp, unit);
+              forwardStack.push(rightOp);
+              definitions.put(rightOp, unit);
+              return false;
+            }
+          }
           backwardStack.push(rightOp);
         }
         definitions.put(queryVar, unit);
@@ -227,24 +261,20 @@ public class SparseAliasingCFGBuilder {
     return false;
   }
 
-  private boolean equalsFieldRef(Value leftOp, Value queryVar) {
-    if (leftOp instanceof JInstanceFieldRef && queryVar instanceof JInstanceFieldRef) {
-      return ((JInstanceFieldRef) queryVar).getBase().equals(((JInstanceFieldRef) leftOp).getBase())
-          && ((JInstanceFieldRef) queryVar)
-              .getField()
-              .equals(((JInstanceFieldRef) leftOp).getField());
-    } else if (leftOp instanceof StaticFieldRef && queryVar instanceof StaticFieldRef) {
-      return ((StaticFieldRef) leftOp)
-          .getFieldRef()
-          .equals(((StaticFieldRef) queryVar).getFieldRef());
+  private boolean equalsFieldRef(Value op, Value queryVar) {
+    if (op instanceof JInstanceFieldRef && queryVar instanceof JInstanceFieldRef) {
+      return ((JInstanceFieldRef) queryVar).getBase().equals(((JInstanceFieldRef) op).getBase())
+          && ((JInstanceFieldRef) queryVar).getField().equals(((JInstanceFieldRef) op).getField());
+    } else if (op instanceof StaticFieldRef && queryVar instanceof StaticFieldRef) {
+      return ((StaticFieldRef) op).getFieldRef().equals(((StaticFieldRef) queryVar).getFieldRef());
     }
     return false;
   }
 
-  private boolean equalsArrayItem(Value leftOp, Value queryVar) {
-    if (leftOp instanceof JArrayRef && queryVar instanceof JArrayRef) {
-      return ((JArrayRef) queryVar).getBase().equals(((JArrayRef) leftOp).getBase())
-          && ((JArrayRef) queryVar).getIndex().equals(((JArrayRef) leftOp).getIndex());
+  private boolean equalsArrayItem(Value op, Value queryVar) {
+    if (op instanceof JArrayRef && queryVar instanceof JArrayRef) {
+      return ((JArrayRef) queryVar).getBase().equals(((JArrayRef) op).getBase())
+          && ((JArrayRef) queryVar).getIndex().equals(((JArrayRef) op).getIndex());
     }
     return false;
   }
@@ -287,11 +317,25 @@ public class SparseAliasingCFGBuilder {
         JCastExpr cast = (JCastExpr) rightOp;
         rightOp = cast.getOp();
       }
-      if (queryVar.equals(rightOp)) {
-        forwardStack.push(leftOp);
-        definitions.put(leftOp, unit);
+      if (queryVar.equals(rightOp)
+          || equalsFieldRef(rightOp, queryVar)
+          || equalsQueryBase(rightOp, queryVar)
+          || equalsFieldType(rightOp, queryVar)
+          || equalsArrayItem(rightOp, queryVar)) {
+        if (!leftOp.equals(queryVar)) { // oth it would create a loop
+          forwardStack.push(leftOp);
+          definitions.put(leftOp, unit);
+        }
+        if (leftOp instanceof JInstanceFieldRef) {
+          // we need to find how the base was created too
+          Value base = ((JInstanceFieldRef) leftOp).getBase();
+          backwardStack.push(base);
+        }
         return true;
-      } else if (queryVar.equals(leftOp)) {
+      } else if (queryVar.equals(leftOp)
+          || equalsFieldRef(leftOp, queryVar)
+          || equalsQueryBase(leftOp, queryVar)
+          || equalsArrayItem(leftOp, queryVar)) {
         // kill: need to find the alloc of the killer object
         valueKillebyValuedAt.put(queryVar, new Pair<>(rightOp, unit));
         backwardStack.push(rightOp);
@@ -300,6 +344,43 @@ public class SparseAliasingCFGBuilder {
     }
     if (keepInvokeForValue(unit, queryVar)) {
       return true;
+    }
+    return false;
+  }
+
+  /**
+   * queryVar is a field reference, and its base equals current rightOp e.g.: queryVar: box.f box2 =
+   * box we want to find this
+   *
+   * @param rightOp
+   * @param queryVar
+   * @return
+   */
+  private boolean equalsQueryBase(Value rightOp, Value queryVar) {
+    if (queryVar instanceof JInstanceFieldRef) {
+      Value queryBase = ((JInstanceFieldRef) queryVar).getBase();
+      if (queryBase.equals(rightOp)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * queryVar: this leftOp: this.N and N is of the same type as this we want to keep this.N because
+   * it might be used for recursive field store
+   *
+   * @param op
+   * @param queryVar
+   * @return
+   */
+  private boolean equalsFieldType(Value op, Value queryVar) {
+    if (op instanceof JInstanceFieldRef) {
+      Value base = ((JInstanceFieldRef) op).getBase();
+      Type fieldType = ((JInstanceFieldRef) op).getField().getType();
+      if (base.equals(queryVar) && fieldType.equals(queryVar.getType())) {
+        return true;
+      }
     }
     return false;
   }
