@@ -116,7 +116,7 @@ public class SparseAliasingCFGBuilder {
   private boolean existInValueToUnits(Unit stmt) {
     for (Set<Unit> units : valueToUnits.values()) {
       for (Unit unit : units) {
-        if (unit.equals(stmt)) {
+        if (stmt.equals(unit)) {
           return true;
         }
       }
