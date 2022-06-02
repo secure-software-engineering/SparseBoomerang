@@ -176,7 +176,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     Val value = currNode.fact();
     if (options.sparse()) {
       SparseAliasingCFG sparseCFG =
-          getSparseCFG(query, method, value, curr.getStart(), curr.getTarget());
+          getSparseCFG(query, method, value, curr.getStart());
       Stmt stmt = asStmt(curr.getStart());
       if (sparseCFG.getGraph().nodes().contains(stmt)) {
         Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
@@ -223,11 +223,10 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
    * @return
    */
   private SparseAliasingCFG getSparseCFG(
-      BackwardQuery query, Method method, Val val, Statement stmt, Statement targetStmt) {
+      BackwardQuery query, Method method, Val val, Statement stmt) {
     JimpleMethod jMethod = (JimpleMethod) method;
     JimpleVal jVal = (JimpleVal) val;
     JimpleStatement jStmt = (JimpleStatement) stmt;
-    JimpleStatement tStmt = (JimpleStatement) targetStmt;
     SparseAliasingCFG sparseCFG =
         SparseAliasingCFGCache.getInstance()
             .getSparseCFG(
@@ -235,8 +234,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
                 ((JimpleStatement) query.asNode().stmt().getStart()).getDelegate(),
                 jMethod.getDelegate(),
                 jVal.getDelegate(),
-                jStmt.getDelegate(),
-                tStmt.getDelegate());
+                jStmt.getDelegate());
     return sparseCFG;
   }
 

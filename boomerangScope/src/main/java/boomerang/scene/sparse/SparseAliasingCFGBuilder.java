@@ -27,7 +27,6 @@ public class SparseAliasingCFGBuilder {
   private Map<Value, LinkedHashSet<Unit>> valueToUnits = new HashMap<>();
   private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
   private Type queryVarType;
-  private Unit targetStmt;
 
   private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
 
@@ -38,7 +37,7 @@ public class SparseAliasingCFGBuilder {
   }
 
   public SparseAliasingCFG buildSparseCFG(
-      Value initialQueryVar, SootMethod m, Value queryVar, Unit queryStmt, Unit targetStmt) {
+      Value initialQueryVar, SootMethod m, Value queryVar, Unit queryStmt) {
     queryVarType = initialQueryVar.getType();
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
@@ -222,6 +221,9 @@ public class SparseAliasingCFGBuilder {
 
   private Unit findBackwardDefForValue(
       MutableGraph<Unit> mCFG, Unit tail, Value queryVar, Set<Unit> visited, boolean existingDef) {
+    if (tail == null) {
+      return null;
+    }
     visited.add(tail);
     if (!existingDef && isDefOfValue(tail, queryVar)) {
       return tail;
@@ -261,6 +263,8 @@ public class SparseAliasingCFGBuilder {
           || equalsFieldType(leftOp, queryVar)) {
         if (isAllocOrMethodAssignment(stmt, queryVar)) {
           forwardStack.push(queryVar);
+          Set<Value> params = getParams(rightOp, queryVar);
+          params.forEach(backwardStack::add);
         } else {
           if (equalsFieldRef(rightOp, queryVar)
               && rightOp instanceof JInstanceFieldRef) { // recursion
@@ -272,6 +276,11 @@ public class SparseAliasingCFGBuilder {
               definitions.put(rightOp, unit);
               return false;
             }
+          }
+          if (rightOp instanceof JInstanceFieldRef) {
+            Value base = ((JInstanceFieldRef) rightOp).getBase();
+            backwardStack.push(base);
+            return true;
           }
           backwardStack.push(rightOp);
         }
@@ -432,6 +441,39 @@ public class SparseAliasingCFGBuilder {
     return false;
   }
 
+  /*
+  private boolean isAllocOrMethodAssignment(JAssignStmt stmt, Value d) {
+    Value rightOp = stmt.getRightOp();
+    if (rightOp instanceof JNewExpr) {
+      JNewExpr newExpr = (JNewExpr) rightOp;
+      Type type = newExpr.getType();
+      if (type.equals(d.getType())) {
+        return true;
+      }
+    } else if (rightOp instanceof JSpecialInvokeExpr
+            || rightOp instanceof JStaticInvokeExpr
+            || rightOp instanceof JVirtualInvokeExpr
+            || rightOp instanceof JInterfaceInvokeExpr
+            || rightOp instanceof JDynamicInvokeExpr) {
+      return true;
+    }
+    return false;
+  }*/
+
+  private Set<Value> getParams(Value invoke, Value d) {
+    Set<Value> otherArgs = new HashSet<>();
+    if (invoke instanceof AbstractInvokeExpr) {
+      List<Value> args = ((AbstractInvokeExpr) invoke).getArgs();
+      for (Value arg : args) {
+        if (!arg.equals(d) && (arg.getType().equals(d.getType()))
+            || arg.getType().equals(queryVarType)) {
+          otherArgs.add(arg);
+        }
+      }
+    }
+    return otherArgs;
+  }
+
   private boolean keepInvokeForValue(Unit unit, Value d) {
     if (unit instanceof Stmt) {
       Stmt stmt = (Stmt) unit;
@@ -439,6 +481,7 @@ public class SparseAliasingCFGBuilder {
         InvokeExpr invokeExpr = stmt.getInvokeExpr();
         List<Value> args = invokeExpr.getArgs();
         // v as arg
+        // TODO: check this looks absurd
         for (Value arg : args) {
           if (d.equals(arg)) {
             for (Value otherArg : args) {
@@ -455,6 +498,8 @@ public class SparseAliasingCFGBuilder {
         }
         // v as base v.m()
         if (isInvokeBase(d, invokeExpr)) {
+          Set<Value> params = getParams(invokeExpr, d);
+          params.forEach(backwardStack::push);
           return true;
         }
       }

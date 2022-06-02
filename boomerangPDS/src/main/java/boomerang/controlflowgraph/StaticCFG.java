@@ -37,6 +37,10 @@ public class StaticCFG implements ObservableControlFlowGraph {
     Statement curr = l.getCurr();
     if (sparse) {
       SparseAliasingCFG sparseCFG = getSparseCFG(method, curr);
+      if (sparseCFG == null) {
+        sparse = false;
+        return;
+      }
       Set<Unit> successors = sparseCFG.getGraph().successors(asStmt(curr));
       for (Unit succ : successors) {
         l.getSuccessor(asStatement(succ, method));
