@@ -1,4 +1,4 @@
-package boomerang.scene.sparse;
+package boomerang.scene.sparse.aliasaware;
 
 import java.util.HashMap;
 import java.util.Map;

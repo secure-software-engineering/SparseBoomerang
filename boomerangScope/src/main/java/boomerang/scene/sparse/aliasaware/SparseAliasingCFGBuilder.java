@@ -1,4 +1,4 @@
-package boomerang.scene.sparse;
+package boomerang.scene.sparse.aliasaware;
 
 import boomerang.scene.Pair;
 import com.google.common.graph.GraphBuilder;

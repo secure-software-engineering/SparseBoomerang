@@ -32,8 +32,9 @@ import boomerang.scene.Val;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStatement;
 import boomerang.scene.jimple.JimpleVal;
-import boomerang.scene.sparse.SparseAliasingCFG;
-import boomerang.scene.sparse.SparseAliasingCFGCache;
+import boomerang.scene.sparse.SootAdapter;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFGCache;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.AbstractMap.SimpleEntry;
@@ -177,13 +178,13 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     if (options.sparse()) {
       SparseAliasingCFG sparseCFG =
           getSparseCFG(query, method, value, curr.getStart());
-      Stmt stmt = asStmt(curr.getStart());
+      Stmt stmt = SootAdapter.asStmt(curr.getStart());
       if (sparseCFG.getGraph().nodes().contains(stmt)) {
         Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
         for (Unit pred : predecessors) {
           Collection<State> flow =
               computeNormalFlow(
-                  method, new Edge(asStatement(pred, method), curr.getStart()), value);
+                  method, new Edge(SootAdapter.asStatement(pred, method), curr.getStart()), value);
           for (State s : flow) {
             System.out.println("propagating sparse:" + s);
             propagate(currNode, s);
@@ -205,13 +206,6 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     }
   }
 
-  private Statement asStatement(Unit unit, Method method) {
-    return JimpleStatement.create((Stmt) unit, method);
-  }
-
-  private Stmt asStmt(Statement stmt) {
-    return ((JimpleStatement) stmt).getDelegate();
-  }
 
   /**
    * BackwardQuery: (b2 (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void

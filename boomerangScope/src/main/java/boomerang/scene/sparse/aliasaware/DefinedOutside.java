@@ -1,4 +1,4 @@
-package boomerang.scene.sparse;
+package boomerang.scene.sparse.aliasaware;
 
 import soot.AbstractUnit;
 import soot.UnitPrinter;

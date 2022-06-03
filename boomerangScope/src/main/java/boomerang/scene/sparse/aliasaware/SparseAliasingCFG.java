@@ -1,4 +1,4 @@
-package boomerang.scene.sparse;
+package boomerang.scene.sparse.aliasaware;
 
 import com.google.common.graph.MutableGraph;
 import java.util.ArrayList;

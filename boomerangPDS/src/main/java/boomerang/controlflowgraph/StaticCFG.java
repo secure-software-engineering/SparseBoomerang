@@ -4,8 +4,9 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStatement;
-import boomerang.scene.sparse.SparseAliasingCFG;
-import boomerang.scene.sparse.SparseAliasingCFGCache;
+import boomerang.scene.sparse.SootAdapter;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFGCache;
 import java.util.Set;
 import soot.Unit;
 import soot.jimple.Stmt;
@@ -41,9 +42,9 @@ public class StaticCFG implements ObservableControlFlowGraph {
         sparse = false;
         return;
       }
-      Set<Unit> successors = sparseCFG.getGraph().successors(asStmt(curr));
+      Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
       for (Unit succ : successors) {
-        l.getSuccessor(asStatement(succ, method));
+        l.getSuccessor(SootAdapter.asStatement(succ, method));
       }
     } else {
       for (Statement s : l.getCurr().getMethod().getControlFlowGraph().getSuccsOf(l.getCurr())) {
@@ -53,13 +54,7 @@ public class StaticCFG implements ObservableControlFlowGraph {
     sparse = false;
   }
 
-  private Statement asStatement(Unit unit, Method method) {
-    return JimpleStatement.create((Stmt) unit, method);
-  }
 
-  private Stmt asStmt(Statement stmt) {
-    return ((JimpleStatement) stmt).getDelegate();
-  }
 
   private SparseAliasingCFG getSparseCFG(Method method, Statement stmt) {
     JimpleMethod jMethod = (JimpleMethod) method;
