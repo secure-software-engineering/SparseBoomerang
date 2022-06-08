@@ -29,12 +29,9 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.JimpleMethod;
-import boomerang.scene.jimple.JimpleStatement;
-import boomerang.scene.jimple.JimpleVal;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
-import boomerang.scene.sparse.aliasaware.SparseAliasingCFGCache;
+import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.AbstractMap.SimpleEntry;
@@ -176,8 +173,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     Edge curr = currNode.stmt();
     Val value = currNode.fact();
     if (options.sparse()) {
-      SparseAliasingCFG sparseCFG =
-          getSparseCFG(query, method, value, curr.getStart());
+      SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, curr.getStart());
       Stmt stmt = SootAdapter.asStmt(curr.getStart());
       if (sparseCFG.getGraph().nodes().contains(stmt)) {
         Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
@@ -206,7 +202,6 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     }
   }
 
-
   /**
    * BackwardQuery: (b2 (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void
    * main(java.lang.String[])>),b2.secret = $stack9 -> return)
@@ -218,17 +213,9 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
    */
   private SparseAliasingCFG getSparseCFG(
       BackwardQuery query, Method method, Val val, Statement stmt) {
-    JimpleMethod jMethod = (JimpleMethod) method;
-    JimpleVal jVal = (JimpleVal) val;
-    JimpleStatement jStmt = (JimpleStatement) stmt;
     SparseAliasingCFG sparseCFG =
-        SparseAliasingCFGCache.getInstance()
-            .getSparseCFG(
-                ((JimpleVal) query.var()).getDelegate(),
-                ((JimpleStatement) query.asNode().stmt().getStart()).getDelegate(),
-                jMethod.getDelegate(),
-                jVal.getDelegate(),
-                jStmt.getDelegate());
+        TypeBasedSparseCFGCache.getInstance()
+            .getSparseCFG(query.var(), query.asNode().stmt().getStart(), method, val, stmt);
     return sparseCFG;
   }
 

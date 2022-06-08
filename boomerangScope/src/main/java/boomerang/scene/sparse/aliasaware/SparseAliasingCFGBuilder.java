@@ -1,12 +1,10 @@
 package boomerang.scene.sparse.aliasaware;
 
 import boomerang.scene.Pair;
-import com.google.common.graph.GraphBuilder;
+import boomerang.scene.sparse.SparseCFGBuilder;
 import com.google.common.graph.MutableGraph;
-import com.google.common.graph.Traverser;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import soot.*;
 import soot.jimple.InvokeExpr;
 import soot.jimple.StaticFieldRef;
@@ -17,9 +15,7 @@ import soot.toolkits.graph.DirectedGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
 /** Value is the type of DFF */
-public class SparseAliasingCFGBuilder {
-
-  Map<Unit, Integer> unitToNumber = new HashMap<>();
+public class SparseAliasingCFGBuilder extends SparseCFGBuilder {
 
   private Deque<Value> backwardStack = new ArrayDeque<>();
   private Deque<Value> forwardStack = new ArrayDeque<>();
@@ -48,7 +44,7 @@ public class SparseAliasingCFGBuilder {
 
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
     LOGGER.info(m.getName() + " original");
-    logCFG(mCFG);
+    logCFG(LOGGER, mCFG);
 
     // if (!m.getName().equals("test")) {
     findStmtsToKeep(mCFG, queryVar, queryStmt);
@@ -58,7 +54,7 @@ public class SparseAliasingCFGBuilder {
       sparsify(mCFG, head, tail, queryStmt);
     }
     LOGGER.info(m.getName() + " sparse");
-    logCFG(mCFG);
+    logCFG(LOGGER, mCFG);
     // }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet());
   }
@@ -119,23 +115,6 @@ public class SparseAliasingCFGBuilder {
           return true;
         }
       }
-    }
-    return false;
-  }
-
-  private boolean isControlStmt(Unit stmt) {
-    if (stmt instanceof JIfStmt
-        || stmt instanceof JNopStmt
-        || stmt instanceof JGotoStmt
-        || stmt instanceof JReturnStmt
-        || stmt instanceof JReturnVoidStmt) {
-      return true;
-    }
-    if (stmt instanceof JIdentityStmt) {
-      //      JIdentityStmt id = (JIdentityStmt) stmt;
-      //      if (id.getRightOp() instanceof JCaughtExceptionRef) {
-      return true;
-      //      }
     }
     return false;
   }
@@ -520,49 +499,6 @@ public class SparseAliasingCFGBuilder {
       }
     }
     return false;
-  }
-
-  private void logCFG(MutableGraph<Unit> graph) {
-    LOGGER.info(
-        graph.nodes().stream()
-            .map(Objects::toString)
-            .collect(Collectors.joining(System.lineSeparator())));
-  }
-
-  private Iterator<Unit> getBFSIterator(MutableGraph<Unit> graph, Unit head) {
-    Traverser<Unit> traverser = Traverser.forGraph(graph);
-    return traverser.breadthFirst(head).iterator();
-  }
-
-  private Unit getHead(DirectedGraph<Unit> graph) {
-    List<Unit> heads = graph.getHeads();
-    if (heads.size() > 1) {
-      throw new RuntimeException("Multiple Heads");
-    }
-    return heads.get(0);
-  }
-
-  private MutableGraph<Unit> numberStmtsAndConvertToMutableGraph(DirectedGraph<Unit> rawGraph) {
-    MutableGraph<Unit> mGraph = GraphBuilder.directed().build();
-    Unit head = getHead(rawGraph);
-    convertToMutableGraph(rawGraph, head, mGraph, 0);
-    return mGraph;
-  }
-
-  private void convertToMutableGraph(
-      DirectedGraph<Unit> graph, Unit curr, MutableGraph<Unit> mutableGraph, int depth) {
-    Integer num = unitToNumber.get(curr);
-    if (num == null || num < depth) {
-      unitToNumber.put(curr, depth);
-    }
-    depth++;
-    List<Unit> succsOf = graph.getSuccsOf(curr);
-    for (Unit succ : succsOf) {
-      if (!mutableGraph.hasEdgeConnecting(curr, succ)) {
-        mutableGraph.putEdge(curr, succ);
-        convertToMutableGraph(graph, succ, mutableGraph, depth);
-      }
-    }
   }
 
   private boolean isAllocOrMethodAssignment(JAssignStmt stmt, Value d) {

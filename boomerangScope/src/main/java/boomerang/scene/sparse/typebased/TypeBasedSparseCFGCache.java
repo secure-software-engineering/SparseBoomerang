@@ -1,32 +1,33 @@
-package boomerang.scene.sparse.aliasaware;
+package boomerang.scene.sparse.typebased;
 
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
 import java.util.HashMap;
 import java.util.Map;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;
 
-public class SparseAliasingCFGCache {
+public class TypeBasedSparseCFGCache {
 
   Map<String, SparseAliasingCFG> cache;
-  SparseAliasingCFGBuilder sparseCFGBuilder;
+  TypeBasedSparseCFGBuilder sparseCFGBuilder;
 
-  private static SparseAliasingCFGCache INSTANCE;
+  private static TypeBasedSparseCFGCache INSTANCE;
 
-  private SparseAliasingCFGCache() {}
+  private TypeBasedSparseCFGCache() {}
 
-  public static SparseAliasingCFGCache getInstance() {
+  public static TypeBasedSparseCFGCache getInstance() {
     if (INSTANCE == null) {
-      INSTANCE = new SparseAliasingCFGCache(new SparseAliasingCFGBuilder(true));
+      INSTANCE = new TypeBasedSparseCFGCache(new TypeBasedSparseCFGBuilder(true));
     }
     return INSTANCE;
   }
 
-  private SparseAliasingCFGCache(SparseAliasingCFGBuilder sparseCFGBuilder) {
+  private TypeBasedSparseCFGCache(TypeBasedSparseCFGBuilder sparseCFGBuilder) {
     this.cache = new HashMap<>();
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
@@ -71,7 +72,7 @@ public class SparseAliasingCFGCache {
       } else {
         SparseAliasingCFG cfg =
             sparseCFGBuilder.buildSparseCFG(
-                sootInitialQueryVal, sootSurrentMethod, sootCurrentQueryVal, sootCurrentStmt);
+                sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);
         cache.put(key + currentStmt, cfg);
         return cfg;
       }
@@ -79,8 +80,7 @@ public class SparseAliasingCFGCache {
       return cache.get(key + currentStmt);
     } else {
       SparseAliasingCFG cfg =
-          sparseCFGBuilder.buildSparseCFG(
-              sootInitialQueryVal, sootSurrentMethod, sootCurrentQueryVal, sootCurrentStmt);
+          sparseCFGBuilder.buildSparseCFG(sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);
       cache.put(key, cfg);
       return cfg;
     }

@@ -1,0 +1,211 @@
+package boomerang.scene.sparse.typebased;
+
+import boomerang.scene.sparse.SparseCFGBuilder;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFGBuilder;
+import com.google.common.graph.MutableGraph;
+import java.util.*;
+import java.util.logging.Logger;
+import soot.*;
+import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
+import soot.jimple.internal.*;
+import soot.toolkits.graph.BriefUnitGraph;
+import soot.toolkits.graph.DirectedGraph;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+
+public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
+  private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
+
+  private boolean enableExceptions;
+  private Deque<Type> containerStack = new ArrayDeque<>();
+  private Set<Type> containerTypes = new HashSet<>();
+
+  public TypeBasedSparseCFGBuilder(boolean enableExceptions) {
+    this.enableExceptions = enableExceptions;
+  }
+
+  public SparseAliasingCFG buildSparseCFG(Value queryVar, SootMethod m, Unit queryStmt) {
+    DirectedGraph<Unit> unitGraph =
+        (this.enableExceptions
+            ? new ExceptionalUnitGraph(m.getActiveBody())
+            : new BriefUnitGraph(m.getActiveBody()));
+
+    MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
+    LOGGER.info(m.getName() + " original");
+    logCFG(LOGGER, mCFG);
+    if (m.getName().equals("id")) {
+      Unit head = getHead(unitGraph);
+      Set<Unit> stmtsToKeep = findStmtsToKeep(mCFG, head, queryVar.getType());
+      containerTypes.add(queryVar.getType());
+      while (!containerStack.isEmpty()) {
+        Type containerType = containerStack.pop();
+        stmtsToKeep.addAll(findStmtsToKeep(mCFG, head, containerType));
+      }
+      List<Unit> tails = unitGraph.getTails();
+      for (Unit tail : tails) {
+        sparsify(mCFG, stmtsToKeep, head, tail);
+      }
+      LOGGER.info(m.getName() + " sparse");
+      logCFG(LOGGER, mCFG);
+    }
+    return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null);
+  }
+
+  private void sparsify(MutableGraph<Unit> mCFG, Set<Unit> stmtsToKeep, Unit head, Unit tail) {
+    Iterator<Unit> iter = getBFSIterator(mCFG, head);
+    Set<Unit> stmsToRemove = new HashSet<>();
+    while (iter.hasNext()) {
+      Unit unit = iter.next();
+      if (!isControlStmt(unit)
+          && !stmtsToKeep.contains(unit)
+          && !unit.equals(head)
+          && !unit.equals(tail)) {
+        stmsToRemove.add(unit);
+      }
+    }
+    for (Unit unit : stmsToRemove) {
+      Set<Unit> preds = mCFG.predecessors(unit);
+      Set<Unit> succs = mCFG.successors(unit);
+      if (preds.size() == 1 && succs.size() == 1) {
+        // TODO: revise this
+        // if a node has multiple in and out edges, don't remove it
+        mCFG.removeNode(unit);
+        mCFG.putEdge(preds.iterator().next(), succs.iterator().next());
+      }
+    }
+  }
+
+  private Set<Unit> findStmtsToKeep(MutableGraph<Unit> mCFG, Unit head, Type queryVarType) {
+    Set<Unit> stmtsToKeep = new HashSet<>();
+    Iterator<Unit> iter = getBFSIterator(mCFG, head);
+    while (iter.hasNext()) {
+      Unit unit = iter.next();
+      if (keepStmt(unit, queryVarType)) {
+        stmtsToKeep.add(unit);
+      }
+    }
+    return stmtsToKeep;
+  }
+
+  private boolean isAssignableType(Type targetType, Type sourceType) {
+    return Scene.v().getOrMakeFastHierarchy().canStoreType(targetType, sourceType)
+        || Scene.v().getOrMakeFastHierarchy().canStoreType(sourceType, targetType);
+  }
+
+  private boolean keepStmt(Unit unit, Type queryVarType) {
+    boolean keep =
+        false; // Incase of Container.f = base.m(f_type), keep both base and Container as container
+    // types
+    if (unit instanceof Stmt) {
+      Stmt stmt = (Stmt) unit;
+      if (stmt.containsInvokeExpr()) {
+        InvokeExpr invokeExpr = stmt.getInvokeExpr();
+        List<Value> args = invokeExpr.getArgs();
+        // v as arg
+        for (Value arg : args) {
+          if (isFieldTypeRelevant(queryVarType, arg)) {
+            handleInvokeBase(invokeExpr, queryVarType);
+            keep = true;
+          }
+          if (isAssignableType(arg.getType(), queryVarType)) {
+            handleInvokeBase(invokeExpr, queryVarType);
+            keep = true;
+          }
+        }
+        // v as base v.m()
+        if (isInvokeBase(queryVarType, invokeExpr)) {
+          keep = true;
+        }
+      }
+    }
+    if (unit instanceof JAssignStmt) {
+      JAssignStmt stmt = (JAssignStmt) unit;
+      Value leftOp = stmt.getLeftOp();
+      Value rightOp = stmt.getRightOp();
+
+      // handle Casts (Not mentioned)
+      if (rightOp instanceof JCastExpr) {
+        JCastExpr cast = (JCastExpr) rightOp;
+        rightOp = cast.getOp();
+      }
+
+      if (rightOp.toString().startsWith("this$")) { // TODO: quickfix
+        keep = true;
+      }
+
+      // left's field is of the same type
+      if (isFieldTypeRelevant(queryVarType, leftOp) || isFieldTypeRelevant(queryVarType, rightOp)) {
+        keep = true;
+      }
+
+      // left or right of the same type
+      if (isAssignableType(leftOp.getType(), queryVarType)
+          || isAssignableType(rightOp.getType(), queryVarType)) {
+        keep = true;
+      }
+    }
+    return keep;
+  }
+
+  /**
+   * To keep base of an invoke in the cfg
+   *
+   * @param invokeExpr
+   * @param queryVarType
+   */
+  private void handleInvokeBase(InvokeExpr invokeExpr, Type queryVarType) {
+    if (invokeExpr instanceof JVirtualInvokeExpr) {
+      Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
+      handleContainerType(base, queryVarType);
+    } else if (invokeExpr instanceof JSpecialInvokeExpr) {
+      Value base = ((JSpecialInvokeExpr) invokeExpr).getBase();
+      handleContainerType(base, queryVarType);
+    }
+  }
+
+  private void handleContainerType(Value base, Type queryVarType) {
+    if (!base.getType().equals(queryVarType)
+        && !containerTypes.contains(base.getType())) { // we already track this type
+      containerStack.push(base.getType()); // we need to find how base is allocated
+      containerTypes.add(base.getType()); // we will track all the bases where queryType is a field
+    }
+  }
+
+  /**
+   * value is an instance field. The field is the same type as queryVarType. Keep the base type of
+   * that field.
+   *
+   * @param queryVarType
+   * @param value
+   * @return
+   */
+  private boolean isFieldTypeRelevant(Type queryVarType, Value value) {
+    // left's field is of the same type
+    if (value instanceof JInstanceFieldRef) { // TODO: rightOp case?
+      JInstanceFieldRef fieldRef = (JInstanceFieldRef) value;
+      SootField field = fieldRef.getField();
+      if (isAssignableType(field.getType(), queryVarType)) {
+        Value base = fieldRef.getBase();
+        handleContainerType(base, queryVarType);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isInvokeBase(Type queryVarType, InvokeExpr invokeExpr) {
+    if (invokeExpr instanceof JVirtualInvokeExpr) {
+      Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
+      if (isAssignableType(base.getType(), queryVarType)) {
+        return true;
+      }
+    } else if (invokeExpr instanceof JSpecialInvokeExpr) {
+      Value base = ((JSpecialInvokeExpr) invokeExpr).getBase();
+      if (isAssignableType(base.getType(), queryVarType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
