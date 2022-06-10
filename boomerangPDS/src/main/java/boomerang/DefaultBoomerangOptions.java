@@ -217,8 +217,8 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
   }
 
   @Override
-  public boolean sparse() {
-    return false;
+  public SparsificationStrategy getSparsificationStrategy() {
+    return SparsificationStrategy.NONE;
   }
 
   public void checkValid() {

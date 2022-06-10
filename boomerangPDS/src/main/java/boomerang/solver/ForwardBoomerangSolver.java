@@ -403,7 +403,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       returnFlow(method, node);
       return;
     }
-    ((StaticCFG) cfg).setSparse(options.sparse());
+    ((StaticCFG) cfg).setSparse(options.getSparsificationStrategy());
     cfg.addSuccsOfListener(
         new SuccessorListener(curr.getTarget()) {
 

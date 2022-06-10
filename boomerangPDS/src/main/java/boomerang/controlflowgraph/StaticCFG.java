@@ -1,5 +1,6 @@
 package boomerang.controlflowgraph;
 
+import boomerang.BoomerangOptions;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.jimple.JimpleMethod;
@@ -12,10 +13,10 @@ import soot.Unit;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
-  private boolean sparse;
+  private BoomerangOptions.SparsificationStrategy sparsificationStrategy;
 
-  public void setSparse(boolean sparse) {
-    this.sparse = sparse;
+  public void setSparse(BoomerangOptions.SparsificationStrategy sparsificationStrategy) {
+    this.sparsificationStrategy = sparsificationStrategy;
   }
 
   @Override
@@ -35,10 +36,10 @@ public class StaticCFG implements ObservableControlFlowGraph {
   public void addSuccsOfListener(SuccessorListener l) {
     Method method = l.getCurr().getMethod();
     Statement curr = l.getCurr();
-    if (sparse) {
+    if (sparsificationStrategy != BoomerangOptions.SparsificationStrategy.NONE) {
       SparseAliasingCFG sparseCFG = getSparseCFG(method, curr);
       if (sparseCFG == null) {
-        sparse = false;
+        sparsificationStrategy = BoomerangOptions.SparsificationStrategy.NONE;
         return;
       }
       Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
@@ -50,7 +51,7 @@ public class StaticCFG implements ObservableControlFlowGraph {
         l.getSuccessor(s);
       }
     }
-    sparse = false;
+    sparsificationStrategy = BoomerangOptions.SparsificationStrategy.NONE;
   }
 
   private SparseAliasingCFG getSparseCFG(Method method, Statement stmt) {

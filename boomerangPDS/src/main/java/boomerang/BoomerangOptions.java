@@ -104,7 +104,14 @@ public interface BoomerangOptions {
 
   boolean allowMultipleQueries();
 
-  boolean sparse();
+  enum SparsificationStrategy {
+    NONE,
+    TYPE_BASED,
+    ALIAS_AWARE,
+    FACT_SPECIFIC
+  }
+
+  SparsificationStrategy getSparsificationStrategy();
 
   IBackwardFlowFunction getBackwardFlowFunction();
 }

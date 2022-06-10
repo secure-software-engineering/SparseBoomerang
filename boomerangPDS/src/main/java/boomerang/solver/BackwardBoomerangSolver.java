@@ -172,24 +172,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   protected void normalFlow(Method method, Node<ControlFlowGraph.Edge, Val> currNode) {
     Edge curr = currNode.stmt();
     Val value = currNode.fact();
-    if (options.sparse()) {
-      SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, curr.getStart());
-      Stmt stmt = SootAdapter.asStmt(curr.getStart());
-      if (sparseCFG.getGraph().nodes().contains(stmt)) {
-        Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
-        for (Unit pred : predecessors) {
-          Collection<State> flow =
-              computeNormalFlow(
-                  method, new Edge(SootAdapter.asStatement(pred, method), curr.getStart()), value);
-          for (State s : flow) {
-            System.out.println("propagating sparse:" + s);
-            propagate(currNode, s);
-          }
-        }
-      } else {
-        System.out.println("node not in cfg:" + stmt);
-      }
-
+    if (options.getSparsificationStrategy() != BoomerangOptions.SparsificationStrategy.NONE) {
+      propagateSparse(method, currNode, curr, value);
     } else {
       for (Statement pred :
           curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
@@ -199,6 +183,25 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
           propagate(currNode, s);
         }
       }
+    }
+  }
+
+  private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {
+    SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, curr.getStart());
+    Stmt stmt = SootAdapter.asStmt(curr.getStart());
+    if (sparseCFG.getGraph().nodes().contains(stmt)) {
+      Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
+      for (Unit pred : predecessors) {
+        Collection<State> flow =
+            computeNormalFlow(
+                method, new Edge(SootAdapter.asStatement(pred, method), curr.getStart()), value);
+        for (State s : flow) {
+          System.out.println("propagating sparse:" + s);
+          propagate(currNode, s);
+        }
+      }
+    } else {
+      System.out.println("node not in cfg:" + stmt);
     }
   }
 
