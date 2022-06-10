@@ -31,6 +31,7 @@ import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
+import boomerang.scene.sparse.aliasaware.SparseAliasingCFGCache;
 import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -216,9 +217,18 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
    */
   private SparseAliasingCFG getSparseCFG(
       BackwardQuery query, Method method, Val val, Statement stmt) {
-    SparseAliasingCFG sparseCFG =
-        TypeBasedSparseCFGCache.getInstance()
-            .getSparseCFG(query.var(), query.asNode().stmt().getStart(), method, val, stmt);
+    SparseAliasingCFG sparseCFG;
+    if(options.getSparsificationStrategy()== BoomerangOptions.SparsificationStrategy.TYPE_BASED){
+      sparseCFG =
+              TypeBasedSparseCFGCache.getInstance()
+                      .getSparseCFG(query.var(), query.asNode().stmt().getStart(), method, val, stmt);
+    } else if(options.getSparsificationStrategy() == BoomerangOptions.SparsificationStrategy.ALIAS_AWARE){
+      sparseCFG =
+              SparseAliasingCFGCache.getInstance()
+                      .getSparseCFG(query.var(), query.asNode().stmt().getStart(), method, val, stmt);
+    } else{
+      throw new RuntimeException("Sparsification Strategy not implemented");
+    }
     return sparseCFG;
   }
 
