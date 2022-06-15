@@ -6,13 +6,20 @@ import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;
 
 public class TypeBasedSparseCFGCache implements SparseCFGCache {
+
+  List<SparseCFGQueryLog> logList = new ArrayList<>();
 
   Map<String, SparseAliasingCFG> cache;
   TypeBasedSparseCFGBuilder sparseCFGBuilder;
@@ -67,23 +74,44 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
             .append(sootInitialQueryStmt)
             .toString();
 
+    // currentStmt must be part of the sparseCFG that was built for the initialQueryStmt
+    // if not we'll built another sparseCFG for the currentStmt
     if (cache.containsKey(key)) {
       if (cache.get(key).getGraph().nodes().contains(sootCurrentStmt)) {
+        SparseCFGQueryLog queryLog = new SparseCFGQueryLog(true);
+        logList.add(queryLog);
         return cache.get(key);
       } else {
+        SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false);
+        queryLog.logStart();
         SparseAliasingCFG cfg =
             sparseCFGBuilder.buildSparseCFG(
                 sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);
+        queryLog.logEnd();
         cache.put(key + currentStmt, cfg);
+        logList.add(queryLog);
         return cfg;
       }
     } else if (cache.containsKey(key + currentStmt)) {
+      SparseCFGQueryLog queryLog = new SparseCFGQueryLog(true);
+      logList.add(queryLog);
       return cache.get(key + currentStmt);
     } else {
+      SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false);
+      queryLog.logStart();
       SparseAliasingCFG cfg =
           sparseCFGBuilder.buildSparseCFG(sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);
+      queryLog.logEnd();
       cache.put(key, cfg);
+      logList.add(queryLog);
       return cfg;
     }
   }
+
+  @Override
+  public List<SparseCFGQueryLog> getQueryLogs() {
+    return logList;
+  }
+
+
 }

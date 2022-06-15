@@ -44,7 +44,13 @@ public class SparseCFGQueryLog {
   public long getDuration() {
     if (!retrievedFromCache) {
       return this.watch.elapsed(TimeUnit.MICROSECONDS);
+    }else{
+      return -1;
     }
-    throw new RuntimeException("Retrieved from cache, so duration wasn't measured!");
   }
+
+  public boolean isRetrievedFromCache(){
+    return retrievedFromCache;
+  }
+
 }

@@ -4,10 +4,13 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
+import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import boomerang.scene.sparse.factspecific.FactSpecificSparseCFGCache;
 import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import soot.SootMethod;
 import soot.jimple.Stmt;
+
+import java.util.List;
 
 public interface SparseCFGCache {
 
@@ -56,4 +59,7 @@ public interface SparseCFGCache {
       Method currentMethod,
       Val currentVal,
       Statement currentStmt);
+
+  List<SparseCFGQueryLog> getQueryLogs();
+
 }

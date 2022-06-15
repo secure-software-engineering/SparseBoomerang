@@ -7,7 +7,10 @@ import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;
@@ -86,5 +89,10 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
       cache.put(key, cfg);
       return cfg;
     }
+  }
+
+  @Override
+  public List<SparseCFGQueryLog> getQueryLogs() {
+    return null;
   }
 }
