@@ -5,6 +5,8 @@ import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
+import boomerang.scene.sparse.eval.SparseCFGQueryLog;
+import java.util.List;
 import soot.SootMethod;
 import soot.jimple.Stmt;
 
@@ -22,6 +24,11 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
       Method currentMethod,
       Val currentVal,
       Statement currentStmt) {
+    return null;
+  }
+
+  @Override
+  public List<SparseCFGQueryLog> getQueryLogs() {
     return null;
   }
 }

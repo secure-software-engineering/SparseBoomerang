@@ -32,8 +32,6 @@ import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
-import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
-import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.AbstractMap.SimpleEntry;
@@ -220,7 +218,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
       BackwardQuery query, Method method, Val val, Statement stmt) {
     SparseAliasingCFG sparseCFG;
     SparseCFGCache sparseCFGCache = SparseCFGCache.getInstance(options.getSparsificationStrategy());
-    sparseCFG = sparseCFGCache.getSparseCFGForBackwardPropagation(
+    sparseCFG =
+        sparseCFGCache.getSparseCFGForBackwardPropagation(
             query.var(), query.asNode().stmt().getStart(), method, val, stmt);
     return sparseCFG;
   }

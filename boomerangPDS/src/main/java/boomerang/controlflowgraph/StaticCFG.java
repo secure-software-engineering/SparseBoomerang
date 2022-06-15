@@ -7,13 +7,10 @@ import boomerang.scene.jimple.JimpleStatement;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
-import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
-import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
+import java.util.Set;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;
-
-import java.util.Set;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
@@ -62,7 +59,8 @@ public class StaticCFG implements ObservableControlFlowGraph {
     SootMethod sootMethod = ((JimpleMethod) method).getDelegate();
     Stmt sootStmt = ((JimpleStatement) stmt).getDelegate();
     SparseCFGCache sparseCFGCache = SparseCFGCache.getInstance(sparsificationStrategy);
-    SparseAliasingCFG sparseCFG = sparseCFGCache.getSparseCFGForForwardPropagation(sootMethod, sootStmt);
+    SparseAliasingCFG sparseCFG =
+        sparseCFGCache.getSparseCFGForForwardPropagation(sootMethod, sootStmt);
     return sparseCFG;
   }
 

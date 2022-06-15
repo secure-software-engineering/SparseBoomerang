@@ -26,14 +26,12 @@ public class SparseCFGQueryLog {
     if (!retrievedFromCache) {
       this.watch.start();
     }
-    throw new RuntimeException("Retrieved from cache, so duration wasn't measured!");
   }
 
   public void logEnd() {
     if (!retrievedFromCache) {
       this.watch.stop();
     }
-    throw new RuntimeException("Retrieved from cache, so duration wasn't measured!");
   }
 
   /**
@@ -44,13 +42,12 @@ public class SparseCFGQueryLog {
   public long getDuration() {
     if (!retrievedFromCache) {
       return this.watch.elapsed(TimeUnit.MICROSECONDS);
-    }else{
+    } else {
       return -1;
     }
   }
 
-  public boolean isRetrievedFromCache(){
+  public boolean isRetrievedFromCache() {
     return retrievedFromCache;
   }
-
 }

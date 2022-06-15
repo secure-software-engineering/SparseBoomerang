@@ -6,13 +6,11 @@ import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
-
+import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;
@@ -112,6 +110,4 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
   public List<SparseCFGQueryLog> getQueryLogs() {
     return logList;
   }
-
-
 }
