@@ -1,7 +1,7 @@
 package boomerang.scene.sparse.typebased;
 
-import boomerang.scene.sparse.SparseCFGBuilder;
 import boomerang.scene.sparse.SparseAliasingCFG;
+import boomerang.scene.sparse.SparseCFGBuilder;
 import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGBuilder;
 import com.google.common.graph.MutableGraph;
 import java.util.*;

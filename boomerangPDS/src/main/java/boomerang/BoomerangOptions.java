@@ -19,6 +19,7 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
+import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.stats.IBoomerangStats;
 import java.util.Optional;
 
@@ -104,14 +105,7 @@ public interface BoomerangOptions {
 
   boolean allowMultipleQueries();
 
-  enum SparsificationStrategy {
-    NONE,
-    TYPE_BASED,
-    ALIAS_AWARE,
-    FACT_SPECIFIC
-  }
-
-  SparsificationStrategy getSparsificationStrategy();
+  SparseCFGCache.SparsificationStrategy getSparsificationStrategy();
 
   IBackwardFlowFunction getBackwardFlowFunction();
 }

@@ -11,48 +11,49 @@ import soot.jimple.Stmt;
 
 public interface SparseCFGCache {
 
-    enum SparsificationStrategy{
-        TYPE_BASED,
-        ALIAS_AWARE,
-        FACT_SPECIFIC;
+  enum SparsificationStrategy {
+    TYPE_BASED,
+    ALIAS_AWARE,
+    FACT_SPECIFIC,
+    NONE;
+  }
+
+  static SparseCFGCache getInstance(SparsificationStrategy strategy) {
+    switch (strategy) {
+      case TYPE_BASED:
+        return TypeBasedSparseCFGCache.getInstance();
+      case ALIAS_AWARE:
+        return AliasAwareSparseCFGCache.getInstance();
+      case FACT_SPECIFIC:
+        return new FactSpecificSparseCFGCache();
+      default:
+        throw new RuntimeException("SparsificationStrategy not implemented");
     }
+  }
 
-    static SparseCFGCache getInstance(SparsificationStrategy strategy){
-        switch (strategy){
-            case TYPE_BASED:
-                return TypeBasedSparseCFGCache.getInstance();
-            case ALIAS_AWARE:
-                return AliasAwareSparseCFGCache.getInstance();
-            case FACT_SPECIFIC:
-                return new FactSpecificSparseCFGCache();
-            default:
-                throw new RuntimeException("SparsificationStrategy not implemented");
-        }
-    }
+  /**
+   * For retrieving the same {@link SparseAliasingCFG} built by the backward query
+   *
+   * @param m
+   * @param stmt
+   * @return
+   */
+  SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt);
 
-    /**
-     * For retrieving the same {@link SparseAliasingCFG} built by the backward query
-     * @param m
-     * @param stmt
-     * @return
-     */
-    SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt);
-
-    /**
-     * For building the {@link SparseAliasingCFG} for the first time for a backward query.
-     * @param initialQueryVal
-     * @param initialQueryStmt
-     * @param currentMethod
-     * @param currentVal
-     * @param currentStmt
-     * @return
-     */
-     SparseAliasingCFG getSparseCFGForBackwardPropagation(
-            Val initialQueryVal,
-            Statement initialQueryStmt,
-            Method currentMethod,
-            Val currentVal,
-            Statement currentStmt);
-
-
+  /**
+   * For building the {@link SparseAliasingCFG} for the first time for a backward query.
+   *
+   * @param initialQueryVal
+   * @param initialQueryStmt
+   * @param currentMethod
+   * @param currentVal
+   * @param currentStmt
+   * @return
+   */
+  SparseAliasingCFG getSparseCFGForBackwardPropagation(
+      Val initialQueryVal,
+      Statement initialQueryStmt,
+      Method currentMethod,
+      Val currentVal,
+      Statement currentStmt);
 }

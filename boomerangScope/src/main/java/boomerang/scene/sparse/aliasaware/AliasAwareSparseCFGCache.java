@@ -4,11 +4,10 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
-import java.util.HashMap;
-import java.util.Map;
-
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
+import java.util.HashMap;
+import java.util.Map;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;

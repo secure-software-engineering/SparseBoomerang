@@ -31,6 +31,7 @@ import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
+import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
 import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import com.google.common.collect.Multimap;
@@ -173,7 +174,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   protected void normalFlow(Method method, Node<ControlFlowGraph.Edge, Val> currNode) {
     Edge curr = currNode.stmt();
     Val value = currNode.fact();
-    if (options.getSparsificationStrategy() != BoomerangOptions.SparsificationStrategy.NONE) {
+    if (options.getSparsificationStrategy() != SparseCFGCache.SparsificationStrategy.NONE) {
       propagateSparse(method, currNode, curr, value);
     } else {
       for (Statement pred :
@@ -218,17 +219,9 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   private SparseAliasingCFG getSparseCFG(
       BackwardQuery query, Method method, Val val, Statement stmt) {
     SparseAliasingCFG sparseCFG;
-    if(options.getSparsificationStrategy()== BoomerangOptions.SparsificationStrategy.TYPE_BASED){
-      sparseCFG =
-              TypeBasedSparseCFGCache.getInstance()
-                      .getSparseCFGForBackwardPropagation(query.var(), query.asNode().stmt().getStart(), method, val, stmt);
-    } else if(options.getSparsificationStrategy() == BoomerangOptions.SparsificationStrategy.ALIAS_AWARE){
-      sparseCFG =
-              AliasAwareSparseCFGCache.getInstance()
-                      .getSparseCFGForBackwardPropagation(query.var(), query.asNode().stmt().getStart(), method, val, stmt);
-    } else{
-      throw new RuntimeException("Sparsification Strategy not implemented");
-    }
+    SparseCFGCache sparseCFGCache = SparseCFGCache.getInstance(options.getSparsificationStrategy());
+    sparseCFG = sparseCFGCache.getSparseCFGForBackwardPropagation(
+            query.var(), query.asNode().stmt().getStart(), method, val, stmt);
     return sparseCFG;
   }
 

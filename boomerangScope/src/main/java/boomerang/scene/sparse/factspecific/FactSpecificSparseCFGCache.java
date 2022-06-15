@@ -10,13 +10,18 @@ import soot.jimple.Stmt;
 
 public class FactSpecificSparseCFGCache implements SparseCFGCache {
 
-    @Override
-    public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt) {
-        return null;
-    }
+  @Override
+  public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt) {
+    return null;
+  }
 
-    @Override
-    public SparseAliasingCFG getSparseCFGForBackwardPropagation(Val initialQueryVal, Statement initialQueryStmt, Method currentMethod, Val currentVal, Statement currentStmt) {
-        return null;
-    }
+  @Override
+  public SparseAliasingCFG getSparseCFGForBackwardPropagation(
+      Val initialQueryVal,
+      Statement initialQueryStmt,
+      Method currentMethod,
+      Val currentVal,
+      Statement currentStmt) {
+    return null;
+  }
 }
