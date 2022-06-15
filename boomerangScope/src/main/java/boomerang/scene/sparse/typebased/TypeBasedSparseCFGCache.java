@@ -4,14 +4,15 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
-import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
+import boomerang.scene.sparse.SparseCFGCache;
+import boomerang.scene.sparse.SparseAliasingCFG;
 import java.util.HashMap;
 import java.util.Map;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Stmt;
 
-public class TypeBasedSparseCFGCache {
+public class TypeBasedSparseCFGCache implements SparseCFGCache {
 
   Map<String, SparseAliasingCFG> cache;
   TypeBasedSparseCFGBuilder sparseCFGBuilder;
@@ -32,7 +33,7 @@ public class TypeBasedSparseCFGCache {
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
 
-  public SparseAliasingCFG getSparseCFG(SootMethod m, Stmt stmt) {
+  public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt) {
     for (String s : cache.keySet()) {
       if (s.startsWith(m.getSignature())) {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
@@ -45,7 +46,7 @@ public class TypeBasedSparseCFGCache {
     return null;
   }
 
-  public synchronized SparseAliasingCFG getSparseCFG(
+  public synchronized SparseAliasingCFG getSparseCFGForBackwardPropagation(
       Val initialQueryVal,
       Statement initialQueryStmt,
       Method currentMethod,

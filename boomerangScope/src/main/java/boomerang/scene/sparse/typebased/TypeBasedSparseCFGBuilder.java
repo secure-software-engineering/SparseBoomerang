@@ -1,8 +1,8 @@
 package boomerang.scene.sparse.typebased;
 
 import boomerang.scene.sparse.SparseCFGBuilder;
-import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
-import boomerang.scene.sparse.aliasaware.SparseAliasingCFGBuilder;
+import boomerang.scene.sparse.SparseAliasingCFG;
+import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGBuilder;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;
@@ -15,7 +15,7 @@ import soot.toolkits.graph.DirectedGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
 public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
-  private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
   private boolean enableExceptions;
   private Deque<Type> containerStack = new ArrayDeque<>();

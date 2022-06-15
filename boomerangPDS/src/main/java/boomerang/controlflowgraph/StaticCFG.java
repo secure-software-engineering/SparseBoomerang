@@ -6,8 +6,8 @@ import boomerang.scene.Statement;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStatement;
 import boomerang.scene.sparse.SootAdapter;
-import boomerang.scene.sparse.aliasaware.SparseAliasingCFG;
-import boomerang.scene.sparse.aliasaware.SparseAliasingCFGCache;
+import boomerang.scene.sparse.SparseAliasingCFG;
+import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
 import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 
 import java.util.Set;
@@ -64,11 +64,11 @@ public class StaticCFG implements ObservableControlFlowGraph {
         if (sparsificationStrategy == BoomerangOptions.SparsificationStrategy.TYPE_BASED) {
             sparseCFG =
                     TypeBasedSparseCFGCache.getInstance()
-                            .getSparseCFG(jMethod.getDelegate(), jStmt.getDelegate());
+                            .getSparseCFGForForwardPropagation(jMethod.getDelegate(), jStmt.getDelegate());
         } else if (sparsificationStrategy == BoomerangOptions.SparsificationStrategy.ALIAS_AWARE) {
             sparseCFG =
-                    SparseAliasingCFGCache.getInstance()
-                            .getSparseCFG(jMethod.getDelegate(), jStmt.getDelegate());
+                    AliasAwareSparseCFGCache.getInstance()
+                            .getSparseCFGForForwardPropagation(jMethod.getDelegate(), jStmt.getDelegate());
         } else {
             throw new RuntimeException("Sparsification strategy not implemented");
         }

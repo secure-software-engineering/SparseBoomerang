@@ -1,6 +1,7 @@
 package boomerang.scene.sparse.aliasaware;
 
 import boomerang.scene.Pair;
+import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGBuilder;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
@@ -15,7 +16,7 @@ import soot.toolkits.graph.DirectedGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
 /** Value is the type of DFF */
-public class SparseAliasingCFGBuilder extends SparseCFGBuilder {
+public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private Deque<Value> backwardStack = new ArrayDeque<>();
   private Deque<Value> forwardStack = new ArrayDeque<>();
@@ -24,11 +25,11 @@ public class SparseAliasingCFGBuilder extends SparseCFGBuilder {
   private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
   private Type queryVarType;
 
-  private static final Logger LOGGER = Logger.getLogger(SparseAliasingCFGBuilder.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
   private boolean enableExceptions;
 
-  public SparseAliasingCFGBuilder(boolean enableExceptions) {
+  public AliasAwareSparseCFGBuilder(boolean enableExceptions) {
     this.enableExceptions = enableExceptions;
   }
 
