@@ -11,10 +11,18 @@ public class SparseCFGQueryLog {
 
   private boolean retrievedFromCache;
 
+  private QueryDirection direction;
+
+  public enum QueryDirection {
+    FWD,
+    BWD;
+  }
+
   private final Stopwatch watch;
 
-  public SparseCFGQueryLog(boolean retrievedFromCache) {
+  public SparseCFGQueryLog(boolean retrievedFromCache, QueryDirection direction) {
     this.retrievedFromCache = retrievedFromCache;
+    this.direction = direction;
     if (!retrievedFromCache) {
       this.watch = Stopwatch.createUnstarted();
     } else {
@@ -49,5 +57,9 @@ public class SparseCFGQueryLog {
 
   public boolean isRetrievedFromCache() {
     return retrievedFromCache;
+  }
+
+  public QueryDirection getDirection() {
+    return direction;
   }
 }

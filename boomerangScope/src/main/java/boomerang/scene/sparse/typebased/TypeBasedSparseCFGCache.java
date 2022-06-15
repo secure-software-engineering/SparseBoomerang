@@ -43,6 +43,9 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
       if (s.startsWith(m.getSignature())) {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
         if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
+          SparseCFGQueryLog queryLog =
+              new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
+          logList.add(queryLog);
           return sparseAliasingCFG;
         }
       }
@@ -76,11 +79,13 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
     // if not we'll built another sparseCFG for the currentStmt
     if (cache.containsKey(key)) {
       if (cache.get(key).getGraph().nodes().contains(sootCurrentStmt)) {
-        SparseCFGQueryLog queryLog = new SparseCFGQueryLog(true);
+        SparseCFGQueryLog queryLog =
+            new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
         logList.add(queryLog);
         return cache.get(key);
       } else {
-        SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false);
+        SparseCFGQueryLog queryLog =
+            new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
         queryLog.logStart();
         SparseAliasingCFG cfg =
             sparseCFGBuilder.buildSparseCFG(
@@ -91,11 +96,13 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
         return cfg;
       }
     } else if (cache.containsKey(key + currentStmt)) {
-      SparseCFGQueryLog queryLog = new SparseCFGQueryLog(true);
+      SparseCFGQueryLog queryLog =
+          new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
       logList.add(queryLog);
       return cache.get(key + currentStmt);
     } else {
-      SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false);
+      SparseCFGQueryLog queryLog =
+          new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
       queryLog.logStart();
       SparseAliasingCFG cfg =
           sparseCFGBuilder.buildSparseCFG(sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);

@@ -28,7 +28,10 @@ public class EvalPrinter {
         str.append(",");
         str.append(queryLog.isRetrievedFromCache());
         str.append(",");
+        str.append(queryLog.getDirection());
+        str.append(",");
         str.append(queryLog.getDuration());
+        str.append(System.lineSeparator());
         writer.write(str.toString());
       }
     } catch (IOException e) {
