@@ -390,7 +390,6 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
 
   @Override
   public void computeSuccessor(Node<Edge, Val> node) {
-    System.out.println("fwd:" + node);
     Edge curr = node.stmt();
     Val value = node.fact();
     assert !(value instanceof AllocVal);
