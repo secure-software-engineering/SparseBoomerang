@@ -32,6 +32,7 @@ import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
+import boomerang.scene.sparse.eval.PropagationCounter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.AbstractMap.SimpleEntry;
@@ -181,6 +182,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
         for (State s : flow) {
           // TODO: log propagations
           // System.out.println("propagating non-sparse:" + s);
+          PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
           propagate(currNode, s);
         }
       }
@@ -197,8 +199,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
             computeNormalFlow(
                 method, new Edge(SootAdapter.asStatement(pred, method), curr.getStart()), value);
         for (State s : flow) {
-          // TODO: log propagations
-          // System.out.println("propagating sparse:" + s);
+          PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
           propagate(currNode, s);
         }
       }

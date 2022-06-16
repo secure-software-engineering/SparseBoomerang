@@ -7,7 +7,6 @@ import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.scene.sparse.eval.SparseCFGQueryLog;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,7 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
         if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
           SparseCFGQueryLog queryLog =
-                  new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
+              new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
           logList.add(queryLog);
           return sparseAliasingCFG;
         }
@@ -79,12 +78,12 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
     if (cache.containsKey(key)) {
       if (cache.get(key).getGraph().nodes().contains(sootCurrentStmt)) {
         SparseCFGQueryLog queryLog =
-                new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
+            new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
         logList.add(queryLog);
         return cache.get(key);
       } else {
         SparseCFGQueryLog queryLog =
-                new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
+            new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
         queryLog.logStart();
         SparseAliasingCFG cfg =
             sparseCFGBuilder.buildSparseCFG(
@@ -96,12 +95,12 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
       }
     } else if (cache.containsKey(key + currentStmt)) {
       SparseCFGQueryLog queryLog =
-              new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
+          new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
       logList.add(queryLog);
       return cache.get(key + currentStmt);
     } else {
       SparseCFGQueryLog queryLog =
-              new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
+          new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
       queryLog.logStart();
       SparseAliasingCFG cfg =
           sparseCFGBuilder.buildSparseCFG(
@@ -115,6 +114,6 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
 
   @Override
   public List<SparseCFGQueryLog> getQueryLogs() {
-    return null;
+    return logList;
   }
 }

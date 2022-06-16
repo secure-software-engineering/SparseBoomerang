@@ -3,6 +3,7 @@ package boomerang.scene.sparse.eval;
 import boomerang.scene.sparse.SparseCFGCache;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EvalPrinter {
@@ -34,6 +35,29 @@ public class EvalPrinter {
         str.append(System.lineSeparator());
         writer.write(str.toString());
       }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void printPropagationCount() {
+    List<PropagationCounter> counters = new ArrayList<>();
+    counters.add(PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.NONE));
+    counters.add(PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.TYPE_BASED));
+    counters.add(PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.ALIAS_AWARE));
+    counters.add(
+        PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC));
+    try (FileWriter writer = new FileWriter(evalName + "-" + "propCount.csv")) {
+      StringBuilder str = new StringBuilder();
+      for (PropagationCounter counter : counters) {
+        str.append(counter.getStrategy().toString());
+        str.append(",");
+        str.append(counter.getForwardPropagation());
+        str.append(",");
+        str.append(counter.getBackwardPropagation());
+        str.append(System.lineSeparator());
+      }
+      writer.write(str.toString());
     } catch (IOException e) {
       e.printStackTrace();
     }
