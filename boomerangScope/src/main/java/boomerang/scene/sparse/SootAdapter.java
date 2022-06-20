@@ -5,10 +5,7 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.jimple.*;
-import soot.SootField;
-import soot.SootMethod;
-import soot.Unit;
-import soot.Value;
+import soot.*;
 import soot.jimple.Stmt;
 
 public class SootAdapter {
@@ -21,7 +18,22 @@ public class SootAdapter {
     return ((JimpleStatement) stmt).getDelegate();
   }
 
+  public static Type getTypeOfVal(Val val) {
+    if (val instanceof JimpleVal) {
+      Value value = asValue(val);
+      return value.getType();
+    } else if (val instanceof JimpleStaticFieldVal) {
+      SootField field = asField(val);
+      return field.getType();
+    } else {
+      throw new RuntimeException("Unknown Val");
+    }
+  }
+
   public static Value asValue(Val val) {
+    if (val instanceof JimpleStaticFieldVal) {
+      throw new RuntimeException("handle this");
+    }
     return ((JimpleVal) val).getDelegate();
   }
 

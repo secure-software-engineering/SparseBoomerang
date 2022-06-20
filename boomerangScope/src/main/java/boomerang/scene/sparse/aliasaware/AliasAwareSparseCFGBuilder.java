@@ -1,6 +1,8 @@
 package boomerang.scene.sparse.aliasaware;
 
 import boomerang.scene.Pair;
+import boomerang.scene.Val;
+import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGBuilder;
 import com.google.common.graph.MutableGraph;
@@ -34,8 +36,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   public SparseAliasingCFG buildSparseCFG(
-      Value initialQueryVar, SootMethod m, Value queryVar, Unit queryStmt) {
-    queryVarType = initialQueryVar.getType();
+      Val initialQueryVar, SootMethod m, Val queryVar, Unit queryStmt) {
+    queryVarType = SootAdapter.getTypeOfVal(initialQueryVar);
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
             ? new ExceptionalUnitGraph(m.getActiveBody())
@@ -48,7 +50,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     logCFG(LOGGER, mCFG);
 
     // if (!m.getName().equals("test")) {
-    findStmtsToKeep(mCFG, queryVar, queryStmt);
+    // TODO: important fix asap
+    findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
 
     List<Unit> tails = unitGraph.getTails();
     for (Unit tail : tails) {

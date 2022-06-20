@@ -43,7 +43,7 @@ public class SparseCFGQueryLog {
   }
 
   /**
-   * in microseconds
+   * SparseCFG built time in microseconds, 0 if it was retrieved from the cache
    *
    * @return
    */

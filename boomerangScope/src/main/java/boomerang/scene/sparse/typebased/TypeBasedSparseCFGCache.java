@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import soot.SootMethod;
-import soot.Value;
 import soot.jimple.Stmt;
 
 public class TypeBasedSparseCFGCache implements SparseCFGCache {
@@ -64,8 +63,8 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
     SootMethod sootSurrentMethod = SootAdapter.asSootMethod(currentMethod);
     Stmt sootInitialQueryStmt = SootAdapter.asStmt(initialQueryStmt);
     Stmt sootCurrentStmt = SootAdapter.asStmt(currentStmt);
-    Value sootInitialQueryVal = SootAdapter.asValue(initialQueryVal);
-    Value sootCurrentQueryVal = SootAdapter.asValue(currentVal);
+    //    Value sootInitialQueryVal = SootAdapter.asValue(initialQueryVal);
+    //    Value sootCurrentQueryVal = SootAdapter.asValue(currentVal);
 
     String key =
         new StringBuilder(sootSurrentMethod.getSignature())
@@ -88,8 +87,7 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
             new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
         queryLog.logStart();
         SparseAliasingCFG cfg =
-            sparseCFGBuilder.buildSparseCFG(
-                sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);
+            sparseCFGBuilder.buildSparseCFG(initialQueryVal, sootSurrentMethod, sootCurrentStmt);
         queryLog.logEnd();
         cache.put(key + currentStmt, cfg);
         logList.add(queryLog);
@@ -105,7 +103,7 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
           new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
       queryLog.logStart();
       SparseAliasingCFG cfg =
-          sparseCFGBuilder.buildSparseCFG(sootInitialQueryVal, sootSurrentMethod, sootCurrentStmt);
+          sparseCFGBuilder.buildSparseCFG(initialQueryVal, sootSurrentMethod, sootCurrentStmt);
       queryLog.logEnd();
       cache.put(key, cfg);
       logList.add(queryLog);

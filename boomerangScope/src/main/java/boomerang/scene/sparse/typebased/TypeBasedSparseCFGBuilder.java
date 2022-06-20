@@ -1,5 +1,7 @@
 package boomerang.scene.sparse.typebased;
 
+import boomerang.scene.Val;
+import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGBuilder;
 import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGBuilder;
@@ -25,7 +27,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     this.enableExceptions = enableExceptions;
   }
 
-  public SparseAliasingCFG buildSparseCFG(Value queryVar, SootMethod m, Unit queryStmt) {
+  public SparseAliasingCFG buildSparseCFG(Val queryVar, SootMethod m, Unit queryStmt) {
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
             ? new ExceptionalUnitGraph(m.getActiveBody())
@@ -34,21 +36,23 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
     LOGGER.info(m.getName() + " original");
     logCFG(LOGGER, mCFG);
-    if (m.getName().equals("id")) {
-      Unit head = getHead(unitGraph);
-      Set<Unit> stmtsToKeep = findStmtsToKeep(mCFG, head, queryVar.getType());
-      containerTypes.add(queryVar.getType());
-      while (!containerStack.isEmpty()) {
-        Type containerType = containerStack.pop();
-        stmtsToKeep.addAll(findStmtsToKeep(mCFG, head, containerType));
-      }
-      List<Unit> tails = unitGraph.getTails();
-      for (Unit tail : tails) {
-        sparsify(mCFG, stmtsToKeep, head, tail);
-      }
-      LOGGER.info(m.getName() + " sparse");
-      logCFG(LOGGER, mCFG);
+    // if (m.getName().equals("id")) {
+    Unit head = getHead(unitGraph);
+    Type typeOfQueryVar = SootAdapter.getTypeOfVal(queryVar);
+    Set<Unit> stmtsToKeep = findStmtsToKeep(mCFG, head, typeOfQueryVar);
+    containerTypes.add(typeOfQueryVar);
+    while (!containerStack.isEmpty()) {
+      Type containerType = containerStack.pop();
+      stmtsToKeep.addAll(findStmtsToKeep(mCFG, head, containerType));
     }
+    stmtsToKeep.add(queryStmt);
+    List<Unit> tails = unitGraph.getTails();
+    for (Unit tail : tails) {
+      sparsify(mCFG, stmtsToKeep, head, tail);
+    }
+    LOGGER.info(m.getName() + " sparse");
+    logCFG(LOGGER, mCFG);
+    // }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null);
   }
 
