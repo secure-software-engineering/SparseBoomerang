@@ -419,7 +419,9 @@ public abstract class WeightedBoomerang<W extends Weight> {
     if (options.onTheFlyControlFlow()) {
       this.cfg = new DynamicCFG();
     } else {
-      this.cfg = new StaticCFG();
+      StaticCFG staticCFG = new StaticCFG();
+      staticCFG.setSparse(options.getSparsificationStrategy());
+      this.cfg = staticCFG;
     }
 
     if (options.onTheFlyCallGraph()) {

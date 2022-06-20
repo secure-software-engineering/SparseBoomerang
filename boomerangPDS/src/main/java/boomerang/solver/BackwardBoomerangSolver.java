@@ -161,7 +161,11 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     if (notUsedInMethod(method, edge.getStart(), value)) {
       return;
     }
-    if (edge.getStart().containsInvokeExpr() && edge.getStart().uses(value) && INTERPROCEDURAL) {
+    if (edge.getStart().containsInvokeExpr()
+        && edge.getStart().uses(value)
+        && INTERPROCEDURAL
+        && !edge.getStart().getInvokeExpr().isSpecialInvokeExpr()) {
+      // TODO: parameterize this for the fix for flowdroid
       callFlow(method, node, edge.getStart());
     } else if (icfg.isExitStmt(edge.getStart())) {
       returnFlow(method, node);

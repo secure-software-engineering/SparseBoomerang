@@ -40,22 +40,31 @@ public class StaticCFG implements ObservableControlFlowGraph {
     Statement curr = l.getCurr();
     if (sparsificationStrategy != SparseCFGCache.SparsificationStrategy.NONE) {
       SparseAliasingCFG sparseCFG = getSparseCFG(method, curr);
-      if (sparseCFG == null) {
-        sparsificationStrategy = SparseCFGCache.SparsificationStrategy.NONE;
-        return;
-      }
-      Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
-      for (Unit succ : successors) {
-        PropagationCounter.getInstance(sparsificationStrategy).countForward();
-        l.getSuccessor(SootAdapter.asStatement(succ, method));
+      if (sparseCFG != null) {
+        propagateSparse(l, method, curr, sparseCFG);
+      } else {
+        propagateDefault(l); // TODO: parameterize this only for FlowDroid
       }
     } else {
-      for (Statement s : l.getCurr().getMethod().getControlFlowGraph().getSuccsOf(l.getCurr())) {
-        PropagationCounter.getInstance(sparsificationStrategy).countForward();
-        l.getSuccessor(s);
-      }
+      propagateDefault(l);
     }
     sparsificationStrategy = SparseCFGCache.SparsificationStrategy.NONE;
+  }
+
+  private void propagateSparse(
+      SuccessorListener l, Method method, Statement curr, SparseAliasingCFG sparseCFG) {
+    Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
+    for (Unit succ : successors) {
+      PropagationCounter.getInstance(sparsificationStrategy).countForward();
+      l.getSuccessor(SootAdapter.asStatement(succ, method));
+    }
+  }
+
+  private void propagateDefault(SuccessorListener l) {
+    for (Statement s : l.getCurr().getMethod().getControlFlowGraph().getSuccsOf(l.getCurr())) {
+      PropagationCounter.getInstance(sparsificationStrategy).countForward();
+      l.getSuccessor(s);
+    }
   }
 
   private SparseAliasingCFG getSparseCFG(Method method, Statement stmt) {
