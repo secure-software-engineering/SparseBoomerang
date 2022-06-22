@@ -30,7 +30,7 @@ public class SparseCFGBuilder {
     depth++;
     List<Unit> succsOf = graph.getSuccsOf(curr);
     for (Unit succ : succsOf) {
-      if (!mutableGraph.hasEdgeConnecting(curr, succ)) {
+      if (!mutableGraph.hasEdgeConnecting(curr, succ) && !curr.equals(succ)) {
         mutableGraph.putEdge(curr, succ);
         convertToMutableGraph(graph, succ, mutableGraph, depth);
       }
