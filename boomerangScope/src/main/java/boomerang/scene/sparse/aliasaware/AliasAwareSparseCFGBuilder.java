@@ -46,8 +46,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     Unit head = getHead(unitGraph);
 
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    LOGGER.info(m.getName() + " original");
-    logCFG(LOGGER, mCFG);
+    // LOGGER.info(m.getName() + " original");
+    // logCFG(LOGGER, mCFG);
 
     // if (!m.getName().equals("test")) {
     // TODO: important fix asap
@@ -57,8 +57,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     for (Unit tail : tails) {
       sparsify(mCFG, head, tail, queryStmt);
     }
-    LOGGER.info(m.getName() + " sparse");
-    logCFG(LOGGER, mCFG);
+    // LOGGER.info(m.getName() + " sparse");
+    // logCFG(LOGGER, mCFG);
     // }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet());
   }

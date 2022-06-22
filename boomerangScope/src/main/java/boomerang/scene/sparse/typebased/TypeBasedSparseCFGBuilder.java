@@ -34,8 +34,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
             : new BriefUnitGraph(m.getActiveBody()));
 
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    LOGGER.info(m.getName() + " original");
-    logCFG(LOGGER, mCFG);
+    // LOGGER.info(m.getName() + " original");
+    // logCFG(LOGGER, mCFG);
     // if (m.getName().equals("id")) {
     Unit head = getHead(unitGraph);
     Type typeOfQueryVar = SootAdapter.getTypeOfVal(queryVar);
@@ -50,8 +50,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     for (Unit tail : tails) {
       sparsify(mCFG, stmtsToKeep, head, tail);
     }
-    LOGGER.info(m.getName() + " sparse");
-    logCFG(LOGGER, mCFG);
+    // LOGGER.info(m.getName() + " sparse");
+    // logCFG(LOGGER, mCFG);
     // }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null);
   }
