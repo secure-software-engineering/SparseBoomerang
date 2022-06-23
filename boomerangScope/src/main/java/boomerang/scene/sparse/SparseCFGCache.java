@@ -27,7 +27,7 @@ public interface SparseCFGCache {
       case ALIAS_AWARE:
         return AliasAwareSparseCFGCache.getInstance();
       case FACT_SPECIFIC:
-        return new FactSpecificSparseCFGCache();
+        return FactSpecificSparseCFGCache.getInstance();
       default:
         throw new RuntimeException("SparsificationStrategy not implemented");
     }
