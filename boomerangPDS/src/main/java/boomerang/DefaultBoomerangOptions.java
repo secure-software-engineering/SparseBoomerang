@@ -222,6 +222,11 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
     return SparseCFGCache.SparsificationStrategy.NONE;
   }
 
+  @Override
+  public boolean handleSpecialInvokeAsNormalPropagation() {
+    return false;
+  }
+
   public void checkValid() {
     if (trackPathConditions() == false && prunePathConditions()) {
       throw new RuntimeException(

@@ -107,5 +107,7 @@ public interface BoomerangOptions {
 
   SparseCFGCache.SparsificationStrategy getSparsificationStrategy();
 
+  boolean handleSpecialInvokeAsNormalPropagation();
+
   IBackwardFlowFunction getBackwardFlowFunction();
 }

@@ -163,14 +163,20 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     }
     if (edge.getStart().containsInvokeExpr()
         && edge.getStart().uses(value)
-        && INTERPROCEDURAL
-        && !edge.getStart().getInvokeExpr().isSpecialInvokeExpr()) {
-      // TODO: parameterize this for the fix for flowdroid
+        && INTERPROCEDURAL && checkSpecialInvoke(edge)) {
       callFlow(method, node, edge.getStart());
     } else if (icfg.isExitStmt(edge.getStart())) {
       returnFlow(method, node);
     } else {
       normalFlow(method, node);
+    }
+  }
+
+  private boolean checkSpecialInvoke(Edge edge){
+    if(!options.handleSpecialInvokeAsNormalPropagation()){
+      return true;
+    }else{
+      return !edge.getStart().getInvokeExpr().isSpecialInvokeExpr();
     }
   }
 

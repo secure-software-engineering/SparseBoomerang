@@ -50,7 +50,6 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     // logCFG(LOGGER, mCFG);
 
     // if (!m.getName().equals("test")) {
-    // TODO: important fix asap
     findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
 
     List<Unit> tails = unitGraph.getTails();
