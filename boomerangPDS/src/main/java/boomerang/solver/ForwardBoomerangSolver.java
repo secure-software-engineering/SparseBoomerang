@@ -16,10 +16,7 @@ import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.callgraph.CalleeListener;
 import boomerang.callgraph.ObservableICFG;
-import boomerang.controlflowgraph.ObservableControlFlowGraph;
-import boomerang.controlflowgraph.PredecessorListener;
-import boomerang.controlflowgraph.StaticCFG;
-import boomerang.controlflowgraph.SuccessorListener;
+import boomerang.controlflowgraph.*;
 import boomerang.flowfunction.IForwardFlowFunction;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
@@ -402,39 +399,16 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       returnFlow(method, node);
       return;
     }
-    ((StaticCFG) cfg).setSparse(options.getSparsificationStrategy());
+    ((StaticCFG) cfg).setCurrentVal(value);
     cfg.addSuccsOfListener(
-        new SuccessorListener(curr.getTarget()) {
-
-          @Override
-          public void getSuccessor(Statement succ) {
-            if (query.getType().isNullType()
-                && curr.getStart().isIfStmt()
-                && curr.getStart().killAtIfStmt(value, succ)) {
-              return;
-            }
-
-            if (!method.getLocals().contains(value) && !value.isStatic()) {
-              return;
-            }
-            if (curr.getTarget().containsInvokeExpr()
-                && (curr.getTarget().isParameter(value) || value.isStatic())) {
-              callFlow(
-                  method, node, new Edge(curr.getTarget(), succ), curr.getTarget().getInvokeExpr());
-            } else {
-              checkForFieldOverwrite(curr, value);
-              Collection<State> out =
-                  computeNormalFlow(method, new Edge(curr.getTarget(), succ), value);
-              for (State s : out) {
-                LOGGER.trace("{}: {} -> {}", s, node, ForwardBoomerangSolver.this.query);
-                propagate(node, s);
-              }
-            }
-          }
-        });
+        new ForwardSolverSuccessorListener(curr, query, value, method, node, LOGGER, this));
   }
 
-  private void checkForFieldOverwrite(Edge curr, Val value) {
+  public BoomerangOptions getOptions() {
+    return options;
+  }
+
+  public void checkForFieldOverwrite(Edge curr, Val value) {
     if ((curr.getTarget().isFieldStore()
         && curr.getTarget().getFieldStore().getX().equals(value))) {
       Node<ControlFlowGraph.Edge, Val> node = new Node<>(curr, value);
@@ -454,7 +428,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
     return flowFunctions.normalFlow(query, nextEdge, fact);
   }
 
-  protected void callFlow(
+  public void callFlow(
       Method caller,
       Node<ControlFlowGraph.Edge, Val> currNode,
       Edge callSiteEdge,
