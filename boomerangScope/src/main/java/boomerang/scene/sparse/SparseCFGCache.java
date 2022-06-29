@@ -40,7 +40,7 @@ public interface SparseCFGCache {
    * @param stmt
    * @return
    */
-  SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt);
+  SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt, Val val);
 
   /**
    * For building the {@link SparseAliasingCFG} for the first time for a backward query.
