@@ -25,7 +25,11 @@ public class FactSpecificSparseCFGBuilder extends SparseCFGBuilder {
     this.enableExceptions = enableExceptions;
   }
 
-  public SparseAliasingCFG buildSparseCFG(Val queryVar, SootMethod m, Unit queryStmt) {
+  private Unit initialQueryStmt;
+
+  public SparseAliasingCFG buildSparseCFG(
+      Val queryVar, SootMethod m, Unit queryStmt, Unit initialQueryStmt) {
+    this.initialQueryStmt = initialQueryStmt;
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
             ? new ExceptionalUnitGraph(m.getActiveBody())
@@ -56,7 +60,8 @@ public class FactSpecificSparseCFGBuilder extends SparseCFGBuilder {
       if (!isControlStmt(unit)
           && !stmtsToKeep.contains(unit)
           && !unit.equals(head)
-          && !unit.equals(tail)) {
+          && !unit.equals(tail)
+          && !initialQueryStmt.equals(unit)) {
         stmsToRemove.add(unit);
       }
     }

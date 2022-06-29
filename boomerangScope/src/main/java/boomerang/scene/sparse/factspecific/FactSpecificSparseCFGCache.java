@@ -38,19 +38,17 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
 
-  public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt) {
-    for (String s : cache.keySet()) {
-      if (s.startsWith(m.getSignature())) {
-        SparseAliasingCFG sparseAliasingCFG = cache.get(s);
-        if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
-          SparseCFGQueryLog queryLog =
-              new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
-          logList.add(queryLog);
-          return sparseAliasingCFG;
-        }
-      }
+  public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt, Val val) {
+    Value sootCurrentQueryVal = SootAdapter.asValue(val);
+    String key =
+        new StringBuilder(m.getSignature()).append("-").append(sootCurrentQueryVal).toString();
+    if (cache.containsKey(key)) {
+      SparseCFGQueryLog queryLog =
+          new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
+      logList.add(queryLog);
+      SparseAliasingCFG cfg = cache.get(key);
+      return cfg;
     }
-    // throw new RuntimeException("CFG not found for:" + m + " s:" + stmt);
     return null;
   }
 
@@ -83,7 +81,8 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
           new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
       queryLog.logStart();
       SparseAliasingCFG cfg =
-          sparseCFGBuilder.buildSparseCFG(currentVal, sootSurrentMethod, sootCurrentStmt);
+          sparseCFGBuilder.buildSparseCFG(
+              currentVal, sootSurrentMethod, sootCurrentStmt, sootInitialQueryStmt);
       cache.put(key, cfg);
       return cfg;
     }
