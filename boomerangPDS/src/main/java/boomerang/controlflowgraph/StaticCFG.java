@@ -1,24 +1,41 @@
 package boomerang.controlflowgraph;
 
+import boomerang.BoomerangOptions;
+import boomerang.flowfunction.DefaultForwardFlowFunction;
+import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
+import boomerang.scene.Val;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStatement;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.scene.sparse.eval.PropagationCounter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;
+import sync.pds.solver.nodes.Node;
+import wpds.interfaces.State;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
   private SparseCFGCache.SparsificationStrategy sparsificationStrategy;
 
-  public void setSparse(SparseCFGCache.SparsificationStrategy sparsificationStrategy) {
-    this.sparsificationStrategy = sparsificationStrategy;
+  private BoomerangOptions options;
+
+  private Val currentVal;
+
+  public void setCurrentVal(Val val) {
+    this.currentVal = val;
+  }
+
+  public StaticCFG(BoomerangOptions options) {
+    this.options = options;
+    this.sparsificationStrategy = options.getSparsificationStrategy();
   }
 
   @Override
@@ -28,27 +45,73 @@ public class StaticCFG implements ObservableControlFlowGraph {
     }
   }
 
-  // Stmt stmt = asStmt(curr.getStart());
-  //      Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
-  //      for (Unit pred : predecessors) {
-  //        Collection<State> flow =
-  //            computeNormalFlow(method, new Edge(asStatement(pred, method), curr.getStart()),
-  // value);
   @Override
   public void addSuccsOfListener(SuccessorListener l) {
     Method method = l.getCurr().getMethod();
     Statement curr = l.getCurr();
     if (sparsificationStrategy != SparseCFGCache.SparsificationStrategy.NONE) {
-      SparseAliasingCFG sparseCFG = getSparseCFG(method, curr);
-      if (sparseCFG != null) {
-        propagateSparse(l, method, curr, sparseCFG);
+      if (sparsificationStrategy == SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC) {
+        propagateSparseForFactSpecific(l, method, curr);
       } else {
-        propagateDefault(l); // TODO: parameterize this only for FlowDroid
+        SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, currentVal);
+        if (sparseCFG != null) {
+          propagateSparse(l, method, curr, sparseCFG);
+        } else if(options.handleSpecialInvokeAsNormalPropagation()) {
+          propagateDefault(l);
+        }
       }
     } else {
       propagateDefault(l);
     }
-    sparsificationStrategy = SparseCFGCache.SparsificationStrategy.NONE;
+  }
+
+  private void propagateSparseForFactSpecific(SuccessorListener l, Method method, Statement curr) {
+    ForwardSolverSuccessorListener listener = null;
+    if (l instanceof ForwardSolverSuccessorListener) {
+      listener = (ForwardSolverSuccessorListener) l;
+    }
+    ControlFlowGraph.Edge edge = listener.getEdge();
+    List<Statement> nextSucc = new ArrayList<>();
+    for (Statement next : method.getControlFlowGraph().getSuccsOf(curr)) {
+      ControlFlowGraph.Edge nextEdge = new ControlFlowGraph.Edge(edge.getTarget(), next);
+      DefaultForwardFlowFunction ff = new DefaultForwardFlowFunction(options);
+      Set<State> newValues = ff.normalFlow(null, nextEdge, currentVal);
+      for (State newValue : newValues) {
+        if (newValue instanceof Node) {
+          Node node = (Node) newValue;
+          Val value = (Val) node.fact();
+          if (!value.equals(currentVal)) {
+            SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, value);
+            List<Unit> nextUses = sparseCFG.getNextUses(SootAdapter.asStmt(curr));
+            for (Unit nextUs : nextUses) {
+              nextSucc.add(SootAdapter.asStatement(nextUs, method));
+            }
+          }
+        }
+      }
+    }
+    propagetWithSucc(l, nextSucc, method, edge, currentVal);
+  }
+
+  private void propagetWithSucc(
+      SuccessorListener l,
+      List<Statement> nextSucc,
+      Method method,
+      ControlFlowGraph.Edge edge,
+      Val value) {
+    if (nextSucc.isEmpty()) {
+      SparseAliasingCFG sparseCFG = getSparseCFG(method, edge.getTarget(), value);
+      if (sparseCFG.getGraph().nodes().contains(SootAdapter.asStmt(edge.getTarget()))) {
+        propagateSparse(l, method, edge.getTarget(), sparseCFG);
+      } else {
+        propagateSparse(l, method, edge.getStart(), sparseCFG);
+      }
+      return;
+    }
+    for (Statement s : nextSucc) {
+      PropagationCounter.getInstance(sparsificationStrategy).countForward();
+      l.getSuccessor(s);
+    }
   }
 
   private void propagateSparse(
@@ -67,12 +130,12 @@ public class StaticCFG implements ObservableControlFlowGraph {
     }
   }
 
-  private SparseAliasingCFG getSparseCFG(Method method, Statement stmt) {
+  private SparseAliasingCFG getSparseCFG(Method method, Statement stmt, Val currentVal) {
     SootMethod sootMethod = ((JimpleMethod) method).getDelegate();
     Stmt sootStmt = ((JimpleStatement) stmt).getDelegate();
     SparseCFGCache sparseCFGCache = SparseCFGCache.getInstance(sparsificationStrategy);
     SparseAliasingCFG sparseCFG =
-        sparseCFGCache.getSparseCFGForForwardPropagation(sootMethod, sootStmt);
+        sparseCFGCache.getSparseCFGForForwardPropagation(sootMethod, sootStmt, currentVal);
     return sparseCFG;
   }
 
