@@ -163,7 +163,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     }
     if (edge.getStart().containsInvokeExpr()
         && edge.getStart().uses(value)
-        && INTERPROCEDURAL && checkSpecialInvoke(edge)) {
+        && INTERPROCEDURAL
+        && checkSpecialInvoke(edge)) {
       callFlow(method, node, edge.getStart());
     } else if (icfg.isExitStmt(edge.getStart())) {
       returnFlow(method, node);
@@ -172,10 +173,10 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     }
   }
 
-  private boolean checkSpecialInvoke(Edge edge){
-    if(!options.handleSpecialInvokeAsNormalPropagation()){
+  private boolean checkSpecialInvoke(Edge edge) {
+    if (!options.handleSpecialInvokeAsNormalPropagation()) {
       return true;
-    }else{
+    } else {
       return !edge.getStart().getInvokeExpr().isSpecialInvokeExpr();
     }
   }
@@ -199,15 +200,50 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     }
   }
 
+  private Val currentVal = null;
+  private Method context = null;
+
+  private Statement getPropStmt(Method method, Edge curr, Val value) {
+    boolean propWithTarget;
+    if (context == null && currentVal == null) {
+      context = method;
+      currentVal = value;
+      propWithTarget = false;
+    } else {
+      if (context.equals(method)) {
+        // in the same context, handle when each new value with target stmt
+        if (currentVal.equals(value)) {
+          propWithTarget = false;
+        } else {
+          currentVal = value;
+          propWithTarget = true;
+        }
+      } else {
+        // in new context, treat like initial query
+        context = method;
+        currentVal = value;
+        propWithTarget = false;
+      }
+    }
+    return propWithTarget ? curr.getTarget() : curr.getStart();
+  }
+
   private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {
-    SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, curr.getStart());
-    Stmt stmt = SootAdapter.asStmt(curr.getStart());
+    Statement propStmt;
+    if(options.getSparsificationStrategy() == SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC){
+      // prop with targetStmt only when we switch to a new value
+      propStmt = getPropStmt(method, curr, value);
+    }else{
+      propStmt = curr.getStart();
+    }
+    SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, propStmt);
+    Stmt stmt = SootAdapter.asStmt(propStmt);
     if (sparseCFG.getGraph().nodes().contains(stmt)) {
       Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
       for (Unit pred : predecessors) {
         Collection<State> flow =
             computeNormalFlow(
-                method, new Edge(SootAdapter.asStatement(pred, method), curr.getStart()), value);
+                method, new Edge(SootAdapter.asStatement(pred, method), propStmt), value);
         for (State s : flow) {
           PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
           propagate(currNode, s);
