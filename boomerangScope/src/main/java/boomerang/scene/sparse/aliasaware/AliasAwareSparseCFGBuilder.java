@@ -59,7 +59,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     // LOGGER.info(m.getName() + " sparse");
     // logCFG(LOGGER, mCFG);
     // }
-    return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet());
+    return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet(), unitToNumber);
   }
 
   private void sparsify(MutableGraph<Unit> mCFG, Unit head, Unit tail, Unit queryStmt) {

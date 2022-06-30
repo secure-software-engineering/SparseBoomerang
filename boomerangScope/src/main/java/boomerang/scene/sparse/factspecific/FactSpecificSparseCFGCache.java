@@ -21,6 +21,7 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
 
   Map<String, SparseAliasingCFG> cache;
   FactSpecificSparseCFGBuilder sparseCFGBuilder;
+  Map<String, Stmt> methodToInitialQueryStmt;
 
   private static FactSpecificSparseCFGCache INSTANCE;
 
@@ -35,6 +36,7 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
 
   private FactSpecificSparseCFGCache(FactSpecificSparseCFGBuilder sparseCFGBuilder) {
     this.cache = new HashMap<>();
+    this.methodToInitialQueryStmt = new HashMap<>();
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
 
@@ -48,8 +50,18 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
       logList.add(queryLog);
       SparseAliasingCFG cfg = cache.get(key);
       return cfg;
+    } else {
+      // build for forward access too
+      SparseCFGQueryLog queryLog =
+          new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.FWD);
+      queryLog.logStart();
+      SparseAliasingCFG cfg =
+          sparseCFGBuilder.buildSparseCFG(
+              val, m, stmt, methodToInitialQueryStmt.get(m.getSignature()));
+      queryLog.logEnd();
+      cache.put(key, cfg);
+      return cfg;
     }
-    return null;
   }
 
   public synchronized SparseAliasingCFG getSparseCFGForBackwardPropagation(
@@ -64,6 +76,7 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
     Stmt sootCurrentStmt = SootAdapter.asStmt(currentStmt);
     //    Value sootInitialQueryVal = SootAdapter.asValue(initialQueryVal);
     Value sootCurrentQueryVal = SootAdapter.asValue(currentVal);
+    methodToInitialQueryStmt.put(sootSurrentMethod.getSignature(), sootInitialQueryStmt);
 
     String key =
         new StringBuilder(sootSurrentMethod.getSignature())
@@ -83,6 +96,7 @@ public class FactSpecificSparseCFGCache implements SparseCFGCache {
       SparseAliasingCFG cfg =
           sparseCFGBuilder.buildSparseCFG(
               currentVal, sootSurrentMethod, sootCurrentStmt, sootInitialQueryStmt);
+      queryLog.logEnd();
       cache.put(key, cfg);
       return cfg;
     }

@@ -49,7 +49,7 @@ public class FactSpecificSparseCFGBuilder extends SparseCFGBuilder {
     // LOGGER.info(m.getName() + " sparse");
     // logCFG(LOGGER, mCFG);
     // }
-    return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null);
+    return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null, unitToNumber);
   }
 
   private void sparsify(MutableGraph<Unit> mCFG, Set<Unit> stmtsToKeep, Unit head, Unit tail) {
@@ -61,7 +61,7 @@ public class FactSpecificSparseCFGBuilder extends SparseCFGBuilder {
           && !stmtsToKeep.contains(unit)
           && !unit.equals(head)
           && !unit.equals(tail)
-          && !initialQueryStmt.equals(unit)) {
+          && !unit.equals(initialQueryStmt)) {
         stmsToRemove.add(unit);
       }
     }
