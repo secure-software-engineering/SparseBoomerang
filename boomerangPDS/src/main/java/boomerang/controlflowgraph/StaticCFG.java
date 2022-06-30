@@ -12,9 +12,7 @@ import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.scene.sparse.eval.PropagationCounter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;
@@ -51,12 +49,17 @@ public class StaticCFG implements ObservableControlFlowGraph {
     Statement curr = l.getCurr();
     if (sparsificationStrategy != SparseCFGCache.SparsificationStrategy.NONE) {
       if (sparsificationStrategy == SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC) {
-        propagateSparseForFactSpecific(l, method, curr);
+        if (l instanceof ForwardSolverSuccessorListener) {
+          ForwardSolverSuccessorListener listener = (ForwardSolverSuccessorListener) l;
+          propagateSparseForFactSpecific(listener, method, curr);
+        } else {
+          propagateDefault(l);
+        }
       } else {
         SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, currentVal);
         if (sparseCFG != null) {
           propagateSparse(l, method, curr, sparseCFG);
-        } else if(options.handleSpecialInvokeAsNormalPropagation()) {
+        } else if (options.handleSpecialInvokeAsNormalPropagation()) {
           propagateDefault(l);
         }
       }
@@ -65,12 +68,9 @@ public class StaticCFG implements ObservableControlFlowGraph {
     }
   }
 
-  private void propagateSparseForFactSpecific(SuccessorListener l, Method method, Statement curr) {
-    ForwardSolverSuccessorListener listener = null;
-    if (l instanceof ForwardSolverSuccessorListener) {
-      listener = (ForwardSolverSuccessorListener) l;
-    }
-    ControlFlowGraph.Edge edge = listener.getEdge();
+  private void propagateSparseForFactSpecific(
+      ForwardSolverSuccessorListener l, Method method, Statement curr) {
+    ControlFlowGraph.Edge edge = l.getEdge();
     List<Statement> nextSucc = new ArrayList<>();
     for (Statement next : method.getControlFlowGraph().getSuccsOf(curr)) {
       ControlFlowGraph.Edge nextEdge = new ControlFlowGraph.Edge(edge.getTarget(), next);
@@ -80,13 +80,15 @@ public class StaticCFG implements ObservableControlFlowGraph {
         if (newValue instanceof Node) {
           Node node = (Node) newValue;
           Val value = (Val) node.fact();
-          if (!value.equals(currentVal)) {
-            SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, value);
+          // if (!value.equals(currentVal)) {
+          SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, value);
+          if (sparseCFG.getGraph().nodes().contains(SootAdapter.asStmt(curr))) {
             List<Unit> nextUses = sparseCFG.getNextUses(SootAdapter.asStmt(curr));
             for (Unit nextUs : nextUses) {
               nextSucc.add(SootAdapter.asStatement(nextUs, method));
             }
           }
+          // }
         }
       }
     }
@@ -99,18 +101,25 @@ public class StaticCFG implements ObservableControlFlowGraph {
       Method method,
       ControlFlowGraph.Edge edge,
       Val value) {
+    SparseAliasingCFG sparseCFG = getSparseCFG(method, edge.getTarget(), value);
     if (nextSucc.isEmpty()) {
-      SparseAliasingCFG sparseCFG = getSparseCFG(method, edge.getTarget(), value);
       if (sparseCFG.getGraph().nodes().contains(SootAdapter.asStmt(edge.getTarget()))) {
         propagateSparse(l, method, edge.getTarget(), sparseCFG);
       } else {
         propagateSparse(l, method, edge.getStart(), sparseCFG);
       }
       return;
-    }
-    for (Statement s : nextSucc) {
+    } else if (nextSucc.size() == 1) {
       PropagationCounter.getInstance(sparsificationStrategy).countForward();
-      l.getSuccessor(s);
+      l.getSuccessor(nextSucc.get(0));
+    } else if (nextSucc.size() == 2) {
+      JimpleStatement u1 = (JimpleStatement) nextSucc.get(0);
+      JimpleStatement u2 = (JimpleStatement) nextSucc.get(1);
+      Unit earlier = sparseCFG.getEarlier(u1.getDelegate(), u2.getDelegate());
+      PropagationCounter.getInstance(sparsificationStrategy).countForward();
+      l.getSuccessor(SootAdapter.asStatement(earlier, method));
+    } else {
+      throw new RuntimeException("handle this");
     }
   }
 
