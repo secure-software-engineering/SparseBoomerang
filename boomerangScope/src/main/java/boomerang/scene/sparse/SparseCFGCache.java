@@ -6,6 +6,7 @@ import boomerang.scene.Val;
 import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
 import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import boomerang.scene.sparse.factspecific.FactSpecificSparseCFGCache;
+import boomerang.scene.sparse.fieldinsensitive.FieldInsensitiveSparseCFGCache;
 import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import java.util.List;
 import soot.SootMethod;
@@ -17,6 +18,7 @@ public interface SparseCFGCache {
     TYPE_BASED,
     ALIAS_AWARE,
     FACT_SPECIFIC,
+    FIELD_INSENSITIVE,
     NONE;
   }
 
@@ -28,6 +30,8 @@ public interface SparseCFGCache {
         return AliasAwareSparseCFGCache.getInstance();
       case FACT_SPECIFIC:
         return FactSpecificSparseCFGCache.getInstance();
+      case FIELD_INSENSITIVE:
+        return FieldInsensitiveSparseCFGCache.getInstance();
       default:
         throw new RuntimeException("SparsificationStrategy not implemented");
     }

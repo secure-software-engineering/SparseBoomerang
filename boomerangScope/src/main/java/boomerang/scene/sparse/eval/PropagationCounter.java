@@ -11,6 +11,7 @@ public class PropagationCounter {
   private static PropagationCounter TYPE_BASED_INSTANCE;
   private static PropagationCounter ALIAS_AWARE_INSTANCE;
   private static PropagationCounter FACT_SPECIFIC_INSTANCE;
+  private static PropagationCounter FIELD_INSENSITIVE_INSTANCE;
 
   public static PropagationCounter getInstance(SparseCFGCache.SparsificationStrategy strategy) {
     switch (strategy) {
@@ -34,8 +35,13 @@ public class PropagationCounter {
           FACT_SPECIFIC_INSTANCE = new PropagationCounter(strategy);
         }
         return FACT_SPECIFIC_INSTANCE;
+      case FIELD_INSENSITIVE:
+        if (FIELD_INSENSITIVE_INSTANCE == null) {
+          FIELD_INSENSITIVE_INSTANCE = new PropagationCounter(strategy);
+        }
+        return FIELD_INSENSITIVE_INSTANCE;
       default:
-        throw new RuntimeException("No such strategy");
+        throw new RuntimeException("No such strategy:" + strategy);
     }
   }
 

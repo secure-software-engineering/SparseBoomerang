@@ -284,6 +284,13 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return false;
   }
 
+  /**
+   * both op and queryVar are fieldRefs and they are equal. But default equals() cannot capture this
+   *
+   * @param op
+   * @param queryVar
+   * @return
+   */
   private boolean equalsFieldRef(Value op, Value queryVar) {
     if (op instanceof JInstanceFieldRef && queryVar instanceof JInstanceFieldRef) {
       return ((JInstanceFieldRef) queryVar).getBase().equals(((JInstanceFieldRef) op).getBase())
