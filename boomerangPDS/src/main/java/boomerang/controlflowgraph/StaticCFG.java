@@ -44,12 +44,14 @@ public class StaticCFG implements ObservableControlFlowGraph {
     Method method = l.getCurr().getMethod();
     Statement curr = l.getCurr();
     if (sparsificationStrategy != SparseCFGCache.SparsificationStrategy.NONE) {
-        SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, currentVal);
-        if (sparseCFG != null) {
-          propagateSparse(l, method, curr, sparseCFG);
-        } else if (options.handleSpecialInvokeAsNormalPropagation()) {
-          propagateDefault(l);
-        }
+      SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, currentVal);
+      if (sparseCFG != null) {
+        propagateSparse(l, method, curr, sparseCFG);
+      } else if (options.handleSpecialInvokeAsNormalPropagation()) {
+        propagateDefault(l);
+      } else {
+        propagateDefault(l); // back up when not found
+      }
     } else {
       propagateDefault(l);
     }

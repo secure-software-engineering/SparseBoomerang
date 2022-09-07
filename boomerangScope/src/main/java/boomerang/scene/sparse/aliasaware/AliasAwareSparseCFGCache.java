@@ -37,6 +37,7 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
 
+  // TODO: unify in super
   public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt, Val val) {
     for (String s : cache.keySet()) {
       if (s.startsWith(m.getSignature())) {
