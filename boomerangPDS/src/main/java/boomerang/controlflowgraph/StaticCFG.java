@@ -1,7 +1,6 @@
 package boomerang.controlflowgraph;
 
 import boomerang.BoomerangOptions;
-import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
@@ -53,35 +52,6 @@ public class StaticCFG implements ObservableControlFlowGraph {
         }
     } else {
       propagateDefault(l);
-    }
-  }
-
-
-  private void propagetWithSucc(
-      SuccessorListener l,
-      List<Statement> nextSucc,
-      Method method,
-      ControlFlowGraph.Edge edge,
-      Val value) {
-    SparseAliasingCFG sparseCFG = getSparseCFG(method, edge.getTarget(), value);
-    if (nextSucc.isEmpty()) {
-      if (sparseCFG.getGraph().nodes().contains(SootAdapter.asStmt(edge.getTarget()))) {
-        propagateSparse(l, method, edge.getTarget(), sparseCFG);
-      } else {
-        propagateSparse(l, method, edge.getStart(), sparseCFG);
-      }
-      return;
-    } else if (nextSucc.size() == 1) {
-      PropagationCounter.getInstance(sparsificationStrategy).countForward();
-      l.getSuccessor(nextSucc.get(0));
-    } else if (nextSucc.size() == 2) {
-      JimpleStatement u1 = (JimpleStatement) nextSucc.get(0);
-      JimpleStatement u2 = (JimpleStatement) nextSucc.get(1);
-      Unit earlier = sparseCFG.getEarlier(u1.getDelegate(), u2.getDelegate());
-      PropagationCounter.getInstance(sparsificationStrategy).countForward();
-      l.getSuccessor(SootAdapter.asStatement(earlier, method));
-    } else {
-      throw new RuntimeException("handle this");
     }
   }
 
