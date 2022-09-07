@@ -45,8 +45,6 @@ public class EvalPrinter {
     counters.add(PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.NONE));
     counters.add(PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.TYPE_BASED));
     counters.add(PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.ALIAS_AWARE));
-    counters.add(
-        PropagationCounter.getInstance(SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC));
     try (FileWriter writer = new FileWriter(evalName + "-" + "propCount.csv")) {
       StringBuilder str = new StringBuilder();
       for (PropagationCounter counter : counters) {
