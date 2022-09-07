@@ -229,14 +229,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   }
 
   private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {
-    Statement propStmt;
-    if (options.getSparsificationStrategy()
-        == SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC) {
-      // prop with targetStmt only when we switch to a new value
-      propStmt = getPropStmt(method, curr, value);
-    } else {
-      propStmt = curr.getStart();
-    }
+    Statement propStmt = curr.getStart();
     SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, propStmt);
     Stmt stmt = SootAdapter.asStmt(propStmt);
     if (sparseCFG.getGraph().nodes().contains(stmt)) {
