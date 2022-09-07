@@ -8,6 +8,7 @@ import boomerang.scene.sparse.SparseCFGBuilder;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import soot.*;
 import soot.jimple.InvokeExpr;
 import soot.jimple.StaticFieldRef;
@@ -26,6 +27,10 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private Map<Value, LinkedHashSet<Unit>> valueToUnits = new HashMap<>();
   private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
   private Type queryVarType;
+  private SootMethod currentMethod;
+  private Unit queryStmt;
+  private String activePass;
+  private int lastNodeIndex = -1;
 
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
@@ -37,6 +42,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   public SparseAliasingCFG buildSparseCFG(
       Val initialQueryVar, SootMethod m, Val queryVar, Unit queryStmt) {
+    currentMethod = m;
+    this.queryStmt = queryStmt;
     queryVarType = SootAdapter.getTypeOfVal(initialQueryVar);
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
@@ -46,19 +53,22 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     Unit head = getHead(unitGraph);
 
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    // LOGGER.info(m.getName() + " original");
-    // logCFG(LOGGER, mCFG);
+    //    LOGGER.info(m.getName() + " original");
+    //    logCFG(LOGGER, mCFG);
 
-    // if (!m.getName().equals("test")) {
+    //    if (!m.getName().equals("test")) {
     findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
 
     List<Unit> tails = unitGraph.getTails();
     for (Unit tail : tails) {
       sparsify(mCFG, head, tail, queryStmt);
     }
-    // LOGGER.info(m.getName() + " sparse");
-    // logCFG(LOGGER, mCFG);
-    // }
+    if (isDebugTarget()) {
+      LOGGER.info(m.getName() + " sparse");
+      logCFG(LOGGER, mCFG);
+    }
+
+    //    }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet(), unitToNumber);
   }
 
@@ -123,11 +133,16 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private void findStmtsToKeep(MutableGraph<Unit> mCFG, Value queryVar, Unit queryStmt) {
+    activePass = "findBackwardDef";
     Unit def = findBackwardDefForValue(mCFG, queryStmt, queryVar, new HashSet<>(), false);
     putToValueToUnits(queryVar, def);
+    activePass = "backwardPass";
     backwardPass(mCFG, def);
+    activePass = "forwardPass";
     forwardPass(mCFG, queryStmt);
+    activePass = "findStmtsForFieldBase";
     findStmtsForFieldBase(mCFG, queryStmt);
+    activePass = "findStmtsAfterKill";
     findStmtsAfterKill(mCFG, queryStmt);
   }
 
@@ -143,7 +158,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private void findStmtsAfterKill(MutableGraph<Unit> mCFG, Unit queryStmt) {
     Unit def;
     while (!backwardStack.isEmpty()) {
-      Value val = backwardStack.pop();
+      Value val = popBackwardStack();
       Unit killedAt = null;
       Collection<Pair<Value, Unit>> killers = valueKillebyValuedAt.values();
       for (Pair<Value, Unit> killer : killers) {
@@ -164,12 +179,14 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private void backwardPass(MutableGraph<Unit> mCFG, Unit def) {
     while (!backwardStack.isEmpty()) {
-      Value val = backwardStack.pop();
+      Value val = popBackwardStack();
       Unit existingDef = definitions.get(val);
       if (existingDef != null) {
-        def = findBackwardDefForValue(mCFG, existingDef, val, new HashSet<>(), true);
+        Unit newDef = findBackwardDefForValue(mCFG, existingDef, val, new HashSet<>(), true);
+        def = newDef != null ? newDef : def;
       } else {
-        def = findBackwardDefForValue(mCFG, def, val, new HashSet<>(), false);
+        Unit newDef = findBackwardDefForValue(mCFG, def, val, new HashSet<>(), false);
+        def = newDef != null ? newDef : def;
       }
       if (def != null) {
         putToValueToUnits(val, def);
@@ -179,7 +196,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private void forwardPass(MutableGraph<Unit> mCFG, Unit queryStmt) {
     while (!forwardStack.isEmpty()) {
-      Value val = forwardStack.pop();
+      Value val = popForwardStack();
       Unit defStmt = definitions.get(val);
       putToValueToUnits(val, defStmt);
       Set<Unit> unitsForVal =
@@ -190,6 +207,40 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
+  private boolean isDebugTarget() {
+    return false
+        && currentMethod.getName().equals("main")
+        && queryStmt.toString().startsWith("y_q1");
+  }
+
+  private void logStackOp(Value val, String op) {
+    if (isDebugTarget()) {
+      System.out.println(activePass + ": " + op + ": " + val);
+    }
+  }
+
+  private void pushToForwardStack(Value val) {
+    logStackOp(val, "Forw push");
+    forwardStack.push(val);
+  }
+
+  private void pushToBackwardStack(Value val) {
+    logStackOp(val, "Back push");
+    backwardStack.push(val);
+  }
+
+  private Value popBackwardStack() {
+    Value val = backwardStack.pop();
+    logStackOp(val, "Back pop");
+    return val;
+  }
+
+  private Value popForwardStack() {
+    Value val = forwardStack.pop();
+    logStackOp(val, "Forw pop");
+    return val;
+  }
+
   private void putToValueToUnits(Value val, Unit stmt) {
     if (valueToUnits.containsKey(val)) {
       Set<Unit> units = valueToUnits.get(val);
@@ -198,6 +249,14 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
       LinkedHashSet<Unit> units = new LinkedHashSet<>();
       units.add(stmt);
       valueToUnits.put(val, units);
+    }
+    if (isDebugTarget()) {
+      System.out.println("putToValueToUnits:");
+      for (Value k : valueToUnits.keySet()) {
+        System.out.print(k + ": ");
+        System.out.println(
+            valueToUnits.get(k).stream().map(Objects::toString).collect(Collectors.joining("---")));
+      }
     }
   }
 
@@ -244,7 +303,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           || equalsArrayItem(leftOp, queryVar)
           || equalsFieldType(leftOp, queryVar)) {
         if (isAllocOrMethodAssignment(stmt, queryVar)) {
-          forwardStack.push(queryVar);
+          pushToForwardStack(queryVar);
           Set<Value> params = getParams(rightOp, queryVar);
           params.forEach(backwardStack::add);
         } else {
@@ -252,19 +311,19 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
               && rightOp instanceof JInstanceFieldRef) { // recursion
             Value base = ((JInstanceFieldRef) rightOp).getBase();
             if (base.equals(leftOp)) {
-              backwardStack.push(leftOp);
+              pushToBackwardStack(leftOp);
               definitions.put(leftOp, unit);
-              forwardStack.push(rightOp);
+              pushToForwardStack(rightOp);
               definitions.put(rightOp, unit);
               return false;
             }
           }
           if (rightOp instanceof JInstanceFieldRef) {
             Value base = ((JInstanceFieldRef) rightOp).getBase();
-            backwardStack.push(base);
-            return true;
+            pushToBackwardStack(base);
+            // return true;
           }
-          backwardStack.push(rightOp);
+          pushToBackwardStack(rightOp);
         }
         definitions.put(queryVar, unit);
         return true;
@@ -276,7 +335,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           || equalsFieldRef(leftOp, queryVar)
           || equalsArrayItem(leftOp, queryVar)) {
         // we treat it like alloc
-        forwardStack.push(queryVar);
+        pushToForwardStack(queryVar);
         definitions.put(queryVar, unit);
         return true;
       }
@@ -300,6 +359,15 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           && ((JArrayRef) queryVar).getIndex().equals(((JArrayRef) op).getIndex());
     }
     return false;
+  }
+
+  private int getLastNodeIndex() {
+    if (lastNodeIndex == -1) {
+      lastNodeIndex =
+          Collections.max(unitToNumber.entrySet(), Comparator.comparingInt(Map.Entry::getValue))
+              .getValue();
+    }
+    return lastNodeIndex;
   }
 
   private Set<Unit> findForwardDefUseForValue(
@@ -347,13 +415,13 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           || equalsArrayItem(rightOp, queryVar)
           || equalsInitialFieldType(rightOp, queryVar)) {
         if (!leftOp.equals(queryVar)) { // oth it would create a loop
-          forwardStack.push(leftOp);
+          pushToForwardStack(leftOp);
           definitions.put(leftOp, unit);
         }
         if (leftOp instanceof JInstanceFieldRef) {
           // we need to find how the base was created too
           Value base = ((JInstanceFieldRef) leftOp).getBase();
-          backwardStack.push(base);
+          pushToBackwardStack(base);
         }
         return true;
       } else if (queryVar.equals(leftOp)
@@ -362,10 +430,10 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           || equalsArrayItem(leftOp, queryVar)) {
         // kill: need to find the alloc of the killer object
         valueKillebyValuedAt.put(queryVar, new Pair<>(rightOp, unit));
-        backwardStack.push(rightOp);
+        pushToBackwardStack(rightOp);
         return true;
       } else if (equalsInitialFieldType(leftOp, queryVar)) {
-        backwardStack.push(rightOp);
+        pushToBackwardStack(rightOp);
         return true;
       }
     }
@@ -471,7 +539,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
                 // other args of the same type can cause aliasing so we need to find their alloc
                 // sites
                 if (!definitions.containsKey(otherArg)) {
-                  backwardStack.push(otherArg);
+                  pushToBackwardStack(otherArg);
                 }
               }
             }
