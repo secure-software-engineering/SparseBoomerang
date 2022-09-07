@@ -181,13 +181,13 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     while (!backwardStack.isEmpty()) {
       Value val = popBackwardStack();
       Unit existingDef = definitions.get(val);
+      Unit newDef;
       if (existingDef != null) {
-        Unit newDef = findBackwardDefForValue(mCFG, existingDef, val, new HashSet<>(), true);
-        def = newDef != null ? newDef : def;
+        newDef = findBackwardDefForValue(mCFG, existingDef, val, new HashSet<>(), true);
       } else {
-        Unit newDef = findBackwardDefForValue(mCFG, def, val, new HashSet<>(), false);
-        def = newDef != null ? newDef : def;
+        newDef = findBackwardDefForValue(mCFG, def, val, new HashSet<>(), false);
       }
+      def = newDef != null && !(newDef instanceof DefinedOutside) ? newDef : def;
       if (def != null) {
         putToValueToUnits(val, def);
       }
