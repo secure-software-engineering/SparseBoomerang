@@ -1,7 +1,6 @@
 package boomerang.controlflowgraph;
 
 import boomerang.BoomerangOptions;
-import boomerang.flowfunction.DefaultForwardFlowFunction;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
@@ -16,8 +15,6 @@ import java.util.*;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;
-import sync.pds.solver.nodes.Node;
-import wpds.interfaces.State;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
@@ -48,52 +45,17 @@ public class StaticCFG implements ObservableControlFlowGraph {
     Method method = l.getCurr().getMethod();
     Statement curr = l.getCurr();
     if (sparsificationStrategy != SparseCFGCache.SparsificationStrategy.NONE) {
-      if (sparsificationStrategy == SparseCFGCache.SparsificationStrategy.FACT_SPECIFIC) {
-        if (l instanceof ForwardSolverSuccessorListener) {
-          ForwardSolverSuccessorListener listener = (ForwardSolverSuccessorListener) l;
-          propagateSparseForFactSpecific(listener, method, curr);
-        } else {
-          propagateDefault(l);
-        }
-      } else {
         SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, currentVal);
         if (sparseCFG != null) {
           propagateSparse(l, method, curr, sparseCFG);
         } else if (options.handleSpecialInvokeAsNormalPropagation()) {
           propagateDefault(l);
         }
-      }
     } else {
       propagateDefault(l);
     }
   }
 
-  private void propagateSparseForFactSpecific(
-      ForwardSolverSuccessorListener l, Method method, Statement curr) {
-    ControlFlowGraph.Edge edge = l.getEdge();
-    List<Statement> nextSucc = new ArrayList<>();
-    for (Statement next : method.getControlFlowGraph().getSuccsOf(curr)) {
-      ControlFlowGraph.Edge nextEdge = new ControlFlowGraph.Edge(edge.getTarget(), next);
-      DefaultForwardFlowFunction ff = new DefaultForwardFlowFunction(options);
-      Set<State> newValues = ff.normalFlow(null, nextEdge, currentVal);
-      for (State newValue : newValues) {
-        if (newValue instanceof Node) {
-          Node node = (Node) newValue;
-          Val value = (Val) node.fact();
-          // if (!value.equals(currentVal)) {
-          SparseAliasingCFG sparseCFG = getSparseCFG(method, curr, value);
-          if (sparseCFG.getGraph().nodes().contains(SootAdapter.asStmt(curr))) {
-            List<Unit> nextUses = sparseCFG.getNextUses(SootAdapter.asStmt(curr));
-            for (Unit nextUs : nextUses) {
-              nextSucc.add(SootAdapter.asStatement(nextUs, method));
-            }
-          }
-          // }
-        }
-      }
-    }
-    propagetWithSucc(l, nextSucc, method, edge, currentVal);
-  }
 
   private void propagetWithSucc(
       SuccessorListener l,
