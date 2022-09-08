@@ -219,7 +219,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private boolean isDebugTarget() {
-    return true
+    return false
         && currentMethod.getName().equals("main")
         && queryStmt.toString().startsWith("b_q1");
   }
