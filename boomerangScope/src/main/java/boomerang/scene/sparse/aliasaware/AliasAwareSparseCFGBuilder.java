@@ -35,9 +35,11 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
   private boolean enableExceptions;
+  private boolean ignoreAfterQuery;
 
-  public AliasAwareSparseCFGBuilder(boolean enableExceptions) {
+  public AliasAwareSparseCFGBuilder(boolean enableExceptions, boolean ignoreAfterQuery) {
     this.enableExceptions = enableExceptions;
+    this.ignoreAfterQuery = ignoreAfterQuery;
   }
 
   public SparseAliasingCFG buildSparseCFG(
@@ -57,7 +59,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
       LOGGER.info(m.getName() + " original");
       logCFG(LOGGER, mCFG);
     }
-    //    if (!m.getName().equals("test")) {
+    //    if (!m.getName().equals("main")) {
     findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
 
     List<Unit> tails = unitGraph.getTails();
@@ -68,7 +70,6 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
       LOGGER.info(m.getName() + " sparse");
       logCFG(LOGGER, mCFG);
     }
-
     //    }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet(), unitToNumber);
   }
@@ -371,13 +372,29 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return lastNodeIndex;
   }
 
+  /**
+   * Idealy it makes sense to stop searching for stmts after the query stmt, because of flow
+   * sensitivity. But boomerang apparently sometimes need the whole method.
+   *
+   * @param currentStmt
+   * @param queryStmt
+   * @return
+   */
+  private boolean shouldStopSearch(Unit currentStmt, Unit queryStmt) {
+    if (ignoreAfterQuery) {
+      return unitToNumber.get(currentStmt) >= unitToNumber.get(queryStmt);
+    } else {
+      return unitToNumber.get(currentStmt) >= getLastNodeIndex();
+    }
+  }
+
   private Set<Unit> findForwardDefUseForValue(
       MutableGraph<Unit> mCFG, Unit head, Value queryVar, Unit queryStmt, Set<Unit> visited) {
     visited.add(head);
     Set<Unit> stmtsToKeep = new HashSet<>();
     Set<Unit> succs = mCFG.successors(head);
     for (Unit succ : succs) {
-      if (unitToNumber.get(succ) >= unitToNumber.get(queryStmt)) {
+      if (shouldStopSearch(succ, queryStmt)) {
         // do not process after queryStmt
         return stmtsToKeep;
       }

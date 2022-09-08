@@ -227,6 +227,11 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
     return false;
   }
 
+  @Override
+  public boolean ignoreSparsificationAfterQuery() {
+    return true;
+  }
+
   public void checkValid() {
     if (trackPathConditions() == false && prunePathConditions()) {
       throw new RuntimeException(

@@ -109,5 +109,7 @@ public interface BoomerangOptions {
 
   boolean handleSpecialInvokeAsNormalPropagation();
 
+  boolean ignoreSparsificationAfterQuery();
+
   IBackwardFlowFunction getBackwardFlowFunction();
 }

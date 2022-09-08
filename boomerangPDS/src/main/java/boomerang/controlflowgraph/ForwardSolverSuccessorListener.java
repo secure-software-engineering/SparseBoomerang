@@ -123,7 +123,7 @@ public class ForwardSolverSuccessorListener extends SuccessorListener {
     SootMethod sootMethod = ((JimpleMethod) method).getDelegate();
     Stmt sootStmt = ((JimpleStatement) stmt).getDelegate();
     SparseCFGCache sparseCFGCache =
-        SparseCFGCache.getInstance(owner.getOptions().getSparsificationStrategy());
+        SparseCFGCache.getInstance(owner.getOptions().getSparsificationStrategy(), true);
     SparseAliasingCFG sparseCFG =
         sparseCFGCache.getSparseCFGForForwardPropagation(sootMethod, sootStmt, currentVal);
     return sparseCFG;

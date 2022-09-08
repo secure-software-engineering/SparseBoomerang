@@ -18,12 +18,12 @@ public interface SparseCFGCache {
     NONE;
   }
 
-  static SparseCFGCache getInstance(SparsificationStrategy strategy) {
+  static SparseCFGCache getInstance(SparsificationStrategy strategy, boolean ignoreAfterQuery) {
     switch (strategy) {
       case TYPE_BASED:
         return TypeBasedSparseCFGCache.getInstance();
       case ALIAS_AWARE:
-        return AliasAwareSparseCFGCache.getInstance();
+        return AliasAwareSparseCFGCache.getInstance(ignoreAfterQuery);
       default:
         throw new RuntimeException("SparsificationStrategy not implemented");
     }

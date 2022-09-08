@@ -260,7 +260,9 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   private SparseAliasingCFG getSparseCFG(
       BackwardQuery query, Method method, Val val, Statement stmt) {
     SparseAliasingCFG sparseCFG;
-    SparseCFGCache sparseCFGCache = SparseCFGCache.getInstance(options.getSparsificationStrategy());
+    SparseCFGCache sparseCFGCache =
+        SparseCFGCache.getInstance(
+            options.getSparsificationStrategy(), options.ignoreSparsificationAfterQuery());
     sparseCFG =
         sparseCFGCache.getSparseCFGForBackwardPropagation(
             query.var(), query.asNode().stmt().getStart(), method, val, stmt);

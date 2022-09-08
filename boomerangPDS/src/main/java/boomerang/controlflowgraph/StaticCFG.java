@@ -76,7 +76,9 @@ public class StaticCFG implements ObservableControlFlowGraph {
   private SparseAliasingCFG getSparseCFG(Method method, Statement stmt, Val currentVal) {
     SootMethod sootMethod = ((JimpleMethod) method).getDelegate();
     Stmt sootStmt = ((JimpleStatement) stmt).getDelegate();
-    SparseCFGCache sparseCFGCache = SparseCFGCache.getInstance(sparsificationStrategy);
+    SparseCFGCache sparseCFGCache =
+        SparseCFGCache.getInstance(
+            sparsificationStrategy, options.ignoreSparsificationAfterQuery());
     SparseAliasingCFG sparseCFG =
         sparseCFGCache.getSparseCFGForForwardPropagation(sootMethod, sootStmt, currentVal);
     return sparseCFG;
