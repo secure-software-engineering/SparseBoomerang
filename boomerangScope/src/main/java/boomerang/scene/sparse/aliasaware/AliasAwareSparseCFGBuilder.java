@@ -53,9 +53,10 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     Unit head = getHead(unitGraph);
 
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    //    LOGGER.info(m.getName() + " original");
-    //    logCFG(LOGGER, mCFG);
-
+    if (isDebugTarget()) {
+      LOGGER.info(m.getName() + " original");
+      logCFG(LOGGER, mCFG);
+    }
     //    if (!m.getName().equals("test")) {
     findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
 
@@ -208,9 +209,9 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private boolean isDebugTarget() {
-    return false
+    return true
         && currentMethod.getName().equals("main")
-        && queryStmt.toString().startsWith("y_q1");
+        && queryStmt.toString().startsWith("b_q1");
   }
 
   private void logStackOp(Value val, String op) {
@@ -304,7 +305,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           || equalsFieldType(leftOp, queryVar)) {
         if (isAllocOrMethodAssignment(stmt, queryVar)) {
           pushToForwardStack(queryVar);
-          Set<Value> params = getParams(rightOp, queryVar);
+          Set<Value> params = getInvokeBaseAndParams(rightOp, queryVar);
           params.forEach(backwardStack::add);
         } else {
           if (equalsFieldRef(rightOp, queryVar)
@@ -510,7 +511,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return false;
   }*/
 
-  private Set<Value> getParams(Value invoke, Value d) {
+  private Set<Value> getInvokeBaseAndParams(Value invoke, Value d) {
     Set<Value> otherArgs = new HashSet<>();
     if (invoke instanceof AbstractInvokeExpr) {
       List<Value> args = ((AbstractInvokeExpr) invoke).getArgs();
@@ -520,6 +521,10 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
           otherArgs.add(arg);
         }
       }
+    }
+    if (invoke instanceof AbstractInstanceInvokeExpr) {
+      Value base = ((AbstractInstanceInvokeExpr) invoke).getBase();
+      otherArgs.add(base);
     }
     return otherArgs;
   }
@@ -548,7 +553,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
         }
         // v as base v.m()
         if (isInvokeBase(d, invokeExpr)) {
-          Set<Value> params = getParams(invokeExpr, d);
+          Set<Value> params = getInvokeBaseAndParams(invokeExpr, d);
           params.forEach(backwardStack::push);
           return true;
         }
