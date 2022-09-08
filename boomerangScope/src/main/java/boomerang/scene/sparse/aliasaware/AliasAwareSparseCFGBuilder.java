@@ -21,11 +21,11 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 /** Value is the type of DFF */
 public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
-  private Deque<Value> backwardStack = new ArrayDeque<>();
-  private Deque<Value> forwardStack = new ArrayDeque<>();
-  private Map<Value, Unit> definitions = new HashMap<>();
-  private Map<Value, LinkedHashSet<Unit>> valueToUnits = new HashMap<>();
-  private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt = new HashMap<>();
+  private Deque<Value> backwardStack;
+  private Deque<Value> forwardStack;
+  private Map<Value, Unit> definitions;
+  private Map<Value, LinkedHashSet<Unit>> valueToUnits;
+  private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt;
   private Type queryVarType;
   private SootMethod currentMethod;
   private Unit queryStmt;
@@ -40,6 +40,15 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   public AliasAwareSparseCFGBuilder(boolean enableExceptions, boolean ignoreAfterQuery) {
     this.enableExceptions = enableExceptions;
     this.ignoreAfterQuery = ignoreAfterQuery;
+    init();
+  }
+
+  private void init() {
+    backwardStack = new ArrayDeque<>();
+    forwardStack = new ArrayDeque<>();
+    definitions = new HashMap<>();
+    valueToUnits = new HashMap<>();
+    valueKillebyValuedAt = new HashMap<>();
   }
 
   public SparseAliasingCFG buildSparseCFG(

@@ -20,14 +20,16 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
   private boolean enableExceptions;
-  private Deque<Type> containerStack = new ArrayDeque<>();
-  private Set<Type> containerTypes = new HashSet<>();
+  private Deque<Type> containerStack;
+  private Set<Type> containerTypes;
 
   public TypeBasedSparseCFGBuilder(boolean enableExceptions) {
     this.enableExceptions = enableExceptions;
   }
 
   public SparseAliasingCFG buildSparseCFG(Val queryVar, SootMethod m, Unit queryStmt) {
+    containerStack = new ArrayDeque<>();
+    containerTypes = new HashSet<>();
     DirectedGraph<Unit> unitGraph =
         (this.enableExceptions
             ? new ExceptionalUnitGraph(m.getActiveBody())
@@ -120,6 +122,10 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
         // v as base v.m()
         if (isInvokeBase(queryVarType, invokeExpr)) {
           keep = true;
+        }
+        // always check invoke base because we need to know how it was allocated
+        if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
+          handleInvokeBase(invokeExpr, queryVarType);
         }
       }
     }
