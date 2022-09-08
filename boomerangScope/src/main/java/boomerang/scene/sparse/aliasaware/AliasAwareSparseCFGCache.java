@@ -22,11 +22,13 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
   AliasAwareSparseCFGBuilder sparseCFGBuilder;
 
   private static AliasAwareSparseCFGCache INSTANCE;
+  private static boolean ignore;
 
   private AliasAwareSparseCFGCache() {}
 
   public static AliasAwareSparseCFGCache getInstance(boolean ignoreAfterQuery) {
-    if (INSTANCE == null) {
+    if (INSTANCE == null || ignore != ignoreAfterQuery) {
+      ignore = ignoreAfterQuery;
       INSTANCE =
           new AliasAwareSparseCFGCache(new AliasAwareSparseCFGBuilder(true, ignoreAfterQuery));
     }
