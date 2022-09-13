@@ -31,7 +31,7 @@ public class EvalPrinter {
         str.append(",");
         str.append(queryLog.getDirection());
         str.append(",");
-        str.append(queryLog.getDuration());
+        str.append(queryLog.getDuration().toMillis());
         str.append(System.lineSeparator());
         writer.write(str.toString());
       }

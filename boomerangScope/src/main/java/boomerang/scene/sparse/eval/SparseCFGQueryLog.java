@@ -1,7 +1,7 @@
 package boomerang.scene.sparse.eval;
 
 import com.google.common.base.Stopwatch;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 /**
  * For logging if a SparseCFG was retrieved from cache, or it was built for the first time. And how
@@ -47,11 +47,11 @@ public class SparseCFGQueryLog {
    *
    * @return
    */
-  public long getDuration() {
+  public Duration getDuration() {
     if (!retrievedFromCache) {
-      return this.watch.elapsed(TimeUnit.MICROSECONDS);
+      return this.watch.elapsed();
     } else {
-      return -1;
+      return Duration.ZERO;
     }
   }
 
