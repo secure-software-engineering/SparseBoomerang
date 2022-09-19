@@ -191,41 +191,11 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
           curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
         Collection<State> flow = computeNormalFlow(method, new Edge(pred, curr.getStart()), value);
         for (State s : flow) {
-          // TODO: log propagations
-          // System.out.println("propagating non-sparse:" + s);
           PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
           propagate(currNode, s);
         }
       }
     }
-  }
-
-  private Val currentVal = null;
-  private Method context = null;
-
-  private Statement getPropStmt(Method method, Edge curr, Val value) {
-    boolean propWithTarget;
-    if (context == null && currentVal == null) {
-      context = method;
-      currentVal = value;
-      propWithTarget = false;
-    } else {
-      if (context.equals(method)) {
-        // in the same context, handle when each new value with target stmt
-        if (currentVal.equals(value)) {
-          propWithTarget = false;
-        } else {
-          currentVal = value;
-          propWithTarget = true;
-        }
-      } else {
-        // in new context, treat like initial query
-        context = method;
-        currentVal = value;
-        propWithTarget = false;
-      }
-    }
-    return propWithTarget ? curr.getTarget() : curr.getStart();
   }
 
   private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {

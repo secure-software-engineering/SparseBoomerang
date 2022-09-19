@@ -55,9 +55,4 @@ public class SparseAliasingCFG {
     return this.graph;
   }
 
-  public Unit getEarlier(Unit u1, Unit u2) {
-    Integer order1 = unitToNumber.get(u1);
-    Integer order2 = unitToNumber.get(u2);
-    return order1 < order2 ? u1 : u2;
-  }
 }
