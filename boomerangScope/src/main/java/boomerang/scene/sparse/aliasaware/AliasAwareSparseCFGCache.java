@@ -53,6 +53,8 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
         }
       }
     }
+    SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.FWD);
+    logList.add(queryLog);
     // throw new RuntimeException("CFG not found for:" + m + " s:" + stmt);
     return null;
   }
