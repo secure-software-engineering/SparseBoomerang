@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import soot.Unit;
+import soot.jimple.IdentityStmt;
 import soot.jimple.internal.*;
 import soot.toolkits.graph.DirectedGraph;
 
@@ -16,8 +17,10 @@ public class SparseCFGBuilder {
 
   protected MutableGraph<Unit> numberStmtsAndConvertToMutableGraph(DirectedGraph<Unit> rawGraph) {
     MutableGraph<Unit> mGraph = GraphBuilder.directed().build();
-    Unit head = getHead(rawGraph);
-    convertToMutableGraph(rawGraph, head, mGraph, 0);
+    List<Unit> heads = rawGraph.getHeads();
+    for (Unit head : heads) {
+      convertToMutableGraph(rawGraph, head, mGraph, 0);
+    }
     return mGraph;
   }
 
@@ -37,12 +40,24 @@ public class SparseCFGBuilder {
     }
   }
 
+  /**
+   * Boomerang uses BriefUnitGraph and chooses nonidentitiy stmt as the head
+   *
+   * @param graph
+   * @return
+   */
   protected Unit getHead(DirectedGraph<Unit> graph) {
     List<Unit> heads = graph.getHeads();
-    if (heads.size() > 1) {
-      throw new RuntimeException("Multiple Heads");
+    List<Unit> res = new ArrayList<>();
+    for (Unit head : heads) {
+      if (head instanceof IdentityStmt) {
+        res.add(head);
+      }
     }
-    return heads.get(0);
+    if (res.size() > 1) {
+      throw new RuntimeException("Multiple heads!");
+    }
+    return res.get(0);
   }
 
   protected Iterator<Unit> getBFSIterator(MutableGraph<Unit> graph, Unit head) {

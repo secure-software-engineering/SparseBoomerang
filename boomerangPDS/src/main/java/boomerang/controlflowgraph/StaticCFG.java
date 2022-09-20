@@ -60,6 +60,11 @@ public class StaticCFG implements ObservableControlFlowGraph {
   private void propagateSparse(
       SuccessorListener l, Method method, Statement curr, SparseAliasingCFG sparseCFG) {
     Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
+    Collection<Statement> defaultSuccs =
+        l.getCurr().getMethod().getControlFlowGraph().getSuccsOf(l.getCurr());
+    if (successors.size() != defaultSuccs.size()) {
+      System.out.println("different succs for: " + curr);
+    }
     for (Unit succ : successors) {
       PropagationCounter.getInstance(sparsificationStrategy).countForward();
       l.getSuccessor(SootAdapter.asStatement(succ, method));

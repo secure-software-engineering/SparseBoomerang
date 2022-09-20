@@ -43,13 +43,16 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
         if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
           SparseCFGQueryLog queryLog =
-              new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
+              new SparseCFGQueryLog(
+                  true, SparseCFGQueryLog.QueryDirection.FWD, SparseCFGQueryLog.CacheAccessType.F1);
           logList.add(queryLog);
           return sparseAliasingCFG;
         }
       }
     }
-    SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.FWD);
+    SparseCFGQueryLog queryLog =
+        new SparseCFGQueryLog(
+            false, SparseCFGQueryLog.QueryDirection.FWD, SparseCFGQueryLog.CacheAccessType.F2);
     logList.add(queryLog);
     // throw new RuntimeException("CFG not found for:" + m + " s:" + stmt);
     return null;
@@ -81,15 +84,18 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
     if (cache.containsKey(key)) {
       if (cache.get(key).getGraph().nodes().contains(sootCurrentStmt)) {
         SparseCFGQueryLog queryLog =
-            new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
+            new SparseCFGQueryLog(
+                true, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B1);
         logList.add(queryLog);
         return cache.get(key);
       } else {
         SparseCFGQueryLog queryLog =
-            new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
+            new SparseCFGQueryLog(
+                false, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B2);
         queryLog.logStart();
         SparseAliasingCFG cfg =
-            sparseCFGBuilder.buildSparseCFG(initialQueryVal, sootSurrentMethod, sootCurrentStmt);
+            sparseCFGBuilder.buildSparseCFG(
+                initialQueryVal, sootSurrentMethod, sootCurrentStmt, queryLog);
         queryLog.logEnd();
         cache.put(key + currentStmt, cfg);
         logList.add(queryLog);
@@ -97,15 +103,18 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
       }
     } else if (cache.containsKey(key + currentStmt)) {
       SparseCFGQueryLog queryLog =
-          new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
+          new SparseCFGQueryLog(
+              true, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B3);
       logList.add(queryLog);
       return cache.get(key + currentStmt);
     } else {
       SparseCFGQueryLog queryLog =
-          new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
+          new SparseCFGQueryLog(
+              false, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B4);
       queryLog.logStart();
       SparseAliasingCFG cfg =
-          sparseCFGBuilder.buildSparseCFG(initialQueryVal, sootSurrentMethod, sootCurrentStmt);
+          sparseCFGBuilder.buildSparseCFG(
+              initialQueryVal, sootSurrentMethod, sootCurrentStmt, queryLog);
       queryLog.logEnd();
       cache.put(key, cfg);
       logList.add(queryLog);

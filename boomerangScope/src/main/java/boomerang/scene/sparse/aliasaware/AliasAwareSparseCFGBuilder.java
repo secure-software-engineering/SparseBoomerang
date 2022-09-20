@@ -5,6 +5,7 @@ import boomerang.scene.Val;
 import boomerang.scene.sparse.SootAdapter;
 import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGBuilder;
+import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;
@@ -16,7 +17,6 @@ import soot.jimple.Stmt;
 import soot.jimple.internal.*;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
-import soot.toolkits.graph.ExceptionalUnitGraph;
 
 /** Value is the type of DFF */
 public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
@@ -52,33 +52,37 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   public SparseAliasingCFG buildSparseCFG(
-      Val initialQueryVar, SootMethod m, Val queryVar, Unit queryStmt) {
+      Val initialQueryVar, SootMethod m, Val queryVar, Unit queryStmt, SparseCFGQueryLog queryLog) {
     currentMethod = m;
     this.queryStmt = queryStmt;
     queryVarType = SootAdapter.getTypeOfVal(initialQueryVar);
-    DirectedGraph<Unit> unitGraph =
-        (this.enableExceptions
-            ? new ExceptionalUnitGraph(m.getActiveBody())
-            : new BriefUnitGraph(m.getActiveBody()));
+
+    DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
 
     Unit head = getHead(unitGraph);
 
+    queryLog.startCFGNumber();
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    if (isDebugTarget()) {
-      LOGGER.info(m.getName() + " original");
-      logCFG(LOGGER, mCFG);
-    }
+    queryLog.stopCFGNumber();
+    // if (isDebugTarget()) {
+    // LOGGER.info(m.getName() + " original");
+    // logCFG(LOGGER, mCFG);
+    // }
     //    if (!m.getName().equals("main")) {
+    queryLog.startFindStmts();
     findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
+    queryLog.stopFindStmts();
 
+    queryLog.startSparsify();
     List<Unit> tails = unitGraph.getTails();
     for (Unit tail : tails) {
       sparsify(mCFG, head, tail, queryStmt);
     }
-    if (isDebugTarget()) {
-      LOGGER.info(m.getName() + " sparse");
-      logCFG(LOGGER, mCFG);
-    }
+    queryLog.stopSparsify();
+    // if (isDebugTarget()) {
+    // LOGGER.info(m.getName() + " aa-sparse");
+    // logCFG(LOGGER, mCFG);
+    // }
     //    }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet(), unitToNumber);
   }
