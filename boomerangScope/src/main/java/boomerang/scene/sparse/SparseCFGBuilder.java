@@ -51,8 +51,9 @@ public class SparseCFGBuilder {
     List<Unit> res = new ArrayList<>();
     for (Unit head : heads) {
       if (head instanceof IdentityStmt) {
-        res.add(head);
+        continue;
       }
+      res.add(head);
     }
     if (res.size() > 1) {
       throw new RuntimeException("Multiple heads!");

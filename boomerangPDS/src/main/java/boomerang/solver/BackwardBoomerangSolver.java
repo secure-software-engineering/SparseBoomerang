@@ -204,11 +204,6 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     Stmt stmt = SootAdapter.asStmt(propStmt);
     if (sparseCFG.getGraph().nodes().contains(stmt)) {
       Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
-      Collection<Statement> defaultPreds =
-          curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart());
-      if (predecessors.size() != defaultPreds.size()) {
-        System.out.println("different preds for: " + curr.getStart());
-      }
       for (Unit pred : predecessors) {
         Collection<State> flow =
             computeNormalFlow(

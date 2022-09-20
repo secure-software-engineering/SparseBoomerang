@@ -54,5 +54,4 @@ public class SparseAliasingCFG {
   public MutableGraph<Unit> getGraph() {
     return this.graph;
   }
-
 }
