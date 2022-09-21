@@ -1,5 +1,6 @@
 package boomerang.scene.sparse;
 
+import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGBuilder;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Traverser;
@@ -12,6 +13,8 @@ import soot.jimple.internal.*;
 import soot.toolkits.graph.DirectedGraph;
 
 public class SparseCFGBuilder {
+
+  private static final Logger LOGGER = Logger.getLogger(SparseCFGBuilder.class.getName());
 
   protected Map<Unit, Integer> unitToNumber = new HashMap<>();
 
@@ -50,13 +53,13 @@ public class SparseCFGBuilder {
     List<Unit> heads = graph.getHeads();
     List<Unit> res = new ArrayList<>();
     for (Unit head : heads) {
-      if (head instanceof IdentityStmt) {
+      if (head instanceof IdentityStmt || graph.getSuccsOf(head).isEmpty()) {
         continue;
       }
       res.add(head);
     }
     if (res.size() > 1) {
-      throw new RuntimeException("Multiple heads!");
+      LOGGER.warning("Multiple heads!");
     }
     return res.get(0);
   }
