@@ -1,6 +1,5 @@
 package boomerang.scene.sparse;
 
-import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGBuilder;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Traverser;

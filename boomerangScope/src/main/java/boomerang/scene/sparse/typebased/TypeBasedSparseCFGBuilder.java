@@ -39,8 +39,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
     queryLog.stopCFGNumber();
 
-    // LOGGER.info(m.getName() + " original");
-    // logCFG(LOGGER, mCFG);
+    //    LOGGER.info(m.getName() + " original");
+    //    logCFG(LOGGER, mCFG);
     // if (m.getName().equals("id")) {
     Type typeOfQueryVar = SootAdapter.getTypeOfVal(queryVar);
 
@@ -60,8 +60,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
       sparsify(mCFG, stmtsToKeep, head, tail);
     }
     queryLog.stopSparsify();
-    // LOGGER.info(m.getName() + " ta-sparse");
-    // logCFG(LOGGER, mCFG);
+    //    LOGGER.info(m.getName() + " ta-sparse");
+    //    logCFG(LOGGER, mCFG);
     // }
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null, unitToNumber);
   }
@@ -131,10 +131,6 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
         if (isInvokeBase(queryVarType, invokeExpr)) {
           keep = true;
         }
-        // always check invoke base because we need to know how it was allocated
-        if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
-          handleInvokeBase(invokeExpr, queryVarType);
-        }
       }
     }
     if (unit instanceof JAssignStmt) {
@@ -160,6 +156,14 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
       // left or right of the same type
       if (isAssignableType(leftOp.getType(), queryVarType)
           || isAssignableType(rightOp.getType(), queryVarType)) {
+        if (stmt.containsInvokeExpr()) {
+          InvokeExpr invokeExpr = stmt.getInvokeExpr();
+          // always check invoke base if its beign assigned to the type we track, because we need to
+          // know how it was allocated
+          if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
+            handleInvokeBase(invokeExpr, queryVarType);
+          }
+        }
         keep = true;
       }
     }
