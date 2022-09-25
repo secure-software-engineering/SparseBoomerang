@@ -63,6 +63,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     //    LOGGER.info(m.getName() + " ta-sparse");
     //    logCFG(LOGGER, mCFG);
     // }
+    queryLog.setContainerTypeCount(containerTypes.size());
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null, unitToNumber);
   }
 

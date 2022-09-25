@@ -33,6 +33,8 @@ public class SparseCFGQueryLog {
   private final Stopwatch findStmtsWatch;
   private final Stopwatch sparsifysWatch;
 
+  private int containerTypeCount = 0;
+
   public SparseCFGQueryLog(
       boolean retrievedFromCache, QueryDirection direction, CacheAccessType accessType) {
     this.retrievedFromCache = retrievedFromCache;
@@ -146,5 +148,13 @@ public class SparseCFGQueryLog {
 
   public CacheAccessType getCacheAccessType() {
     return accessType;
+  }
+
+  public void setContainerTypeCount(int containerTypeCount) {
+    this.containerTypeCount = containerTypeCount;
+  }
+
+  public int getContainerTypeCount() {
+    return containerTypeCount;
   }
 }
