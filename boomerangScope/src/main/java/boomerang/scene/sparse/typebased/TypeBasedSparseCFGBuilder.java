@@ -33,6 +33,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     containerTypes = new HashSet<>();
     DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
 
+    int initialStmtCount = m.getActiveBody().getUnits().size();
+
     Unit head = getHead(unitGraph);
 
     queryLog.startCFGNumber();
@@ -63,7 +65,11 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     //    LOGGER.info(m.getName() + " ta-sparse");
     //    logCFG(LOGGER, mCFG);
     // }
+    int finalStmtCount = mCFG.nodes().size();
     queryLog.setContainerTypeCount(containerTypes.size());
+    queryLog.setInitialStmtCount(initialStmtCount);
+    queryLog.setFinalStmtCount(finalStmtCount);
+
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null, unitToNumber);
   }
 

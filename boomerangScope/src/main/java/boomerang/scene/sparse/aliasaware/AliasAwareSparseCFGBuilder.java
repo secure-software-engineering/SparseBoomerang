@@ -58,6 +58,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     queryVarType = SootAdapter.getTypeOfVal(initialQueryVar);
 
     DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
+    int initialStmtCount = m.getActiveBody().getUnits().size();
 
     Unit head = getHead(unitGraph);
 
@@ -84,6 +85,9 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     // logCFG(LOGGER, mCFG);
     // }
     //    }
+    int finalStmtCount = mCFG.nodes().size();
+    queryLog.setInitialStmtCount(initialStmtCount);
+    queryLog.setFinalStmtCount(finalStmtCount);
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet(), unitToNumber);
   }
 

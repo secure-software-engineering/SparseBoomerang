@@ -34,6 +34,8 @@ public class SparseCFGQueryLog {
   private final Stopwatch sparsifysWatch;
 
   private int containerTypeCount = 0;
+  private int initialStmtCount = 0;
+  private int finalStmtCount = 0;
 
   public SparseCFGQueryLog(
       boolean retrievedFromCache, QueryDirection direction, CacheAccessType accessType) {
@@ -156,5 +158,21 @@ public class SparseCFGQueryLog {
 
   public int getContainerTypeCount() {
     return containerTypeCount;
+  }
+
+  public int getInitialStmtCount() {
+    return initialStmtCount;
+  }
+
+  public void setInitialStmtCount(int initialStmtCount) {
+    this.initialStmtCount = initialStmtCount;
+  }
+
+  public int getFinalStmtCount() {
+    return finalStmtCount;
+  }
+
+  public void setFinalStmtCount(int finalStmtCount) {
+    this.finalStmtCount = finalStmtCount;
   }
 }
