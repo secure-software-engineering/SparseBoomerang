@@ -33,20 +33,17 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     containerTypes = new HashSet<>();
     DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
 
-    int initialStmtCount = m.getActiveBody().getUnits().size();
-
     Unit head = getHead(unitGraph);
 
-    queryLog.startCFGNumber();
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    queryLog.stopCFGNumber();
+
+    int initialStmtCount = mCFG.nodes().size();
 
     //    LOGGER.info(m.getName() + " original");
     //    logCFG(LOGGER, mCFG);
     // if (m.getName().equals("id")) {
     Type typeOfQueryVar = SootAdapter.getTypeOfVal(queryVar);
 
-    queryLog.startFindStmts();
     Set<Unit> stmtsToKeep = findStmtsToKeep(mCFG, head, typeOfQueryVar);
 
     containerTypes.add(typeOfQueryVar);
@@ -55,18 +52,15 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
       stmtsToKeep.addAll(findStmtsToKeep(mCFG, head, containerType));
     }
     stmtsToKeep.add(queryStmt);
-    queryLog.stopFindStmts();
-    queryLog.startSparsify();
     List<Unit> tails = unitGraph.getTails();
     for (Unit tail : tails) {
       sparsify(mCFG, stmtsToKeep, head, tail);
     }
-    queryLog.stopSparsify();
+
     //    LOGGER.info(m.getName() + " ta-sparse");
     //    logCFG(LOGGER, mCFG);
     // }
     int finalStmtCount = mCFG.nodes().size();
-    queryLog.setContainerTypeCount(containerTypes.size());
     queryLog.setInitialStmtCount(initialStmtCount);
     queryLog.setFinalStmtCount(finalStmtCount);
 

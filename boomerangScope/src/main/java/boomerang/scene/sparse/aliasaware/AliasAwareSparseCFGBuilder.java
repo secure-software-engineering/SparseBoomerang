@@ -58,28 +58,24 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     queryVarType = SootAdapter.getTypeOfVal(initialQueryVar);
 
     DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
-    int initialStmtCount = m.getActiveBody().getUnits().size();
 
     Unit head = getHead(unitGraph);
 
-    queryLog.startCFGNumber();
     MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
-    queryLog.stopCFGNumber();
+
+    int initialStmtCount = mCFG.nodes().size();
     // if (isDebugTarget()) {
     // LOGGER.info(m.getName() + " original");
     // logCFG(LOGGER, mCFG);
     // }
     //    if (!m.getName().equals("main")) {
-    queryLog.startFindStmts();
-    findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
-    queryLog.stopFindStmts();
 
-    queryLog.startSparsify();
+    findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
+
     List<Unit> tails = unitGraph.getTails();
     for (Unit tail : tails) {
       sparsify(mCFG, head, tail, queryStmt);
     }
-    queryLog.stopSparsify();
     // if (isDebugTarget()) {
     // LOGGER.info(m.getName() + " aa-sparse");
     // logCFG(LOGGER, mCFG);

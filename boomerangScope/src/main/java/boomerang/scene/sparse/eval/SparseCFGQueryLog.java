@@ -12,20 +12,10 @@ public class SparseCFGQueryLog {
   private boolean retrievedFromCache;
 
   private QueryDirection direction;
-  private CacheAccessType accessType;
 
   public enum QueryDirection {
     FWD,
     BWD;
-  }
-
-  public enum CacheAccessType {
-    B1,
-    B2,
-    B3,
-    B4,
-    F1,
-    F2;
   }
 
   private final Stopwatch watch;
@@ -37,11 +27,9 @@ public class SparseCFGQueryLog {
   private int initialStmtCount = 0;
   private int finalStmtCount = 0;
 
-  public SparseCFGQueryLog(
-      boolean retrievedFromCache, QueryDirection direction, CacheAccessType accessType) {
+  public SparseCFGQueryLog(boolean retrievedFromCache, QueryDirection direction) {
     this.retrievedFromCache = retrievedFromCache;
     this.direction = direction;
-    this.accessType = accessType;
     if (!retrievedFromCache) {
       this.watch = Stopwatch.createUnstarted();
       this.cfgNumberWatch = Stopwatch.createUnstarted();
@@ -80,84 +68,12 @@ public class SparseCFGQueryLog {
     }
   }
 
-  public void startCFGNumber() {
-    if (!retrievedFromCache) {
-      this.cfgNumberWatch.start();
-    }
-  }
-
-  public void stopCFGNumber() {
-    if (!isRetrievedFromCache()) {
-      this.cfgNumberWatch.stop();
-    }
-  }
-
-  public Duration getCFGNumberDuration() {
-    if (!retrievedFromCache) {
-      return this.cfgNumberWatch.elapsed();
-    } else {
-      return Duration.ZERO;
-    }
-  }
-
-  public void startFindStmts() {
-    if (!retrievedFromCache) {
-      this.findStmtsWatch.start();
-    }
-  }
-
-  public void stopFindStmts() {
-    if (!isRetrievedFromCache()) {
-      this.findStmtsWatch.stop();
-    }
-  }
-
-  public Duration getFindStmtsDuration() {
-    if (!retrievedFromCache) {
-      return this.findStmtsWatch.elapsed();
-    } else {
-      return Duration.ZERO;
-    }
-  }
-
-  public void startSparsify() {
-    if (!retrievedFromCache) {
-      this.sparsifysWatch.start();
-    }
-  }
-
-  public void stopSparsify() {
-    if (!isRetrievedFromCache()) {
-      this.sparsifysWatch.stop();
-    }
-  }
-
-  public Duration getSparsifyDuration() {
-    if (!retrievedFromCache) {
-      return this.sparsifysWatch.elapsed();
-    } else {
-      return Duration.ZERO;
-    }
-  }
-
   public boolean isRetrievedFromCache() {
     return retrievedFromCache;
   }
 
   public QueryDirection getDirection() {
     return direction;
-  }
-
-  public CacheAccessType getCacheAccessType() {
-    return accessType;
-  }
-
-  public void setContainerTypeCount(int containerTypeCount) {
-    this.containerTypeCount = containerTypeCount;
-  }
-
-  public int getContainerTypeCount() {
-    return containerTypeCount;
   }
 
   public int getInitialStmtCount() {

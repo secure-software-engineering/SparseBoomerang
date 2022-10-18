@@ -47,16 +47,13 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
         if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
           SparseCFGQueryLog queryLog =
-              new SparseCFGQueryLog(
-                  true, SparseCFGQueryLog.QueryDirection.FWD, SparseCFGQueryLog.CacheAccessType.F1);
+              new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.FWD);
           logList.add(queryLog);
           return sparseAliasingCFG;
         }
       }
     }
-    SparseCFGQueryLog queryLog =
-        new SparseCFGQueryLog(
-            false, SparseCFGQueryLog.QueryDirection.FWD, SparseCFGQueryLog.CacheAccessType.F2);
+    SparseCFGQueryLog queryLog = new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.FWD);
     logList.add(queryLog);
     // throw new RuntimeException("CFG not found for:" + m + " s:" + stmt);
     return null;
@@ -86,14 +83,12 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
     if (cache.containsKey(key)) {
       if (cache.get(key).getGraph().nodes().contains(sootCurrentStmt)) {
         SparseCFGQueryLog queryLog =
-            new SparseCFGQueryLog(
-                true, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B1);
+            new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
         logList.add(queryLog);
         return cache.get(key);
       } else {
         SparseCFGQueryLog queryLog =
-            new SparseCFGQueryLog(
-                false, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B2);
+            new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
         queryLog.logStart();
         SparseAliasingCFG cfg =
             sparseCFGBuilder.buildSparseCFG(
@@ -105,14 +100,12 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
       }
     } else if (cache.containsKey(key + currentStmt)) {
       SparseCFGQueryLog queryLog =
-          new SparseCFGQueryLog(
-              true, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B3);
+          new SparseCFGQueryLog(true, SparseCFGQueryLog.QueryDirection.BWD);
       logList.add(queryLog);
       return cache.get(key + currentStmt);
     } else {
       SparseCFGQueryLog queryLog =
-          new SparseCFGQueryLog(
-              false, SparseCFGQueryLog.QueryDirection.BWD, SparseCFGQueryLog.CacheAccessType.B4);
+          new SparseCFGQueryLog(false, SparseCFGQueryLog.QueryDirection.BWD);
       queryLog.logStart();
       SparseAliasingCFG cfg =
           sparseCFGBuilder.buildSparseCFG(
