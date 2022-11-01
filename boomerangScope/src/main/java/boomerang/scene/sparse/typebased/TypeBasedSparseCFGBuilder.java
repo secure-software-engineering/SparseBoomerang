@@ -20,7 +20,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
   private boolean enableExceptions;
-  private Deque<Type> containerStack;
+  private Deque<Type> typeWorklist;
   private Set<Type> containerTypes;
 
   public TypeBasedSparseCFGBuilder(boolean enableExceptions) {
@@ -29,7 +29,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
 
   public SparseAliasingCFG buildSparseCFG(
       Val queryVar, SootMethod m, Unit queryStmt, SparseCFGQueryLog queryLog) {
-    containerStack = new ArrayDeque<>();
+    typeWorklist = new ArrayDeque<>();
     containerTypes = new HashSet<>();
     DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
 
@@ -47,8 +47,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     Set<Unit> stmtsToKeep = findStmtsToKeep(mCFG, head, typeOfQueryVar);
 
     containerTypes.add(typeOfQueryVar);
-    while (!containerStack.isEmpty()) {
-      Type containerType = containerStack.pop();
+    while (!typeWorklist.isEmpty()) {
+      Type containerType = typeWorklist.pop();
       stmtsToKeep.addAll(findStmtsToKeep(mCFG, head, containerType));
     }
     stmtsToKeep.add(queryStmt);
@@ -190,7 +190,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private void handleContainerType(Value base, Type queryVarType) {
     if (!base.getType().equals(queryVarType)
         && !containerTypes.contains(base.getType())) { // we already track this type
-      containerStack.push(base.getType()); // we need to find how base is allocated
+      typeWorklist.push(base.getType()); // we need to find how base is allocated
       containerTypes.add(base.getType()); // we will track all the bases where queryType is a field
     }
   }

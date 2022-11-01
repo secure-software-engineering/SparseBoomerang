@@ -21,8 +21,8 @@ import soot.toolkits.graph.DirectedGraph;
 /** Value is the type of DFF */
 public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
-  private Deque<Value> backwardStack;
-  private Deque<Value> forwardStack;
+  private Deque<Value> backwardWorklist;
+  private Deque<Value> forwardWorklist;
   private Map<Value, Unit> definitions;
   private Map<Value, LinkedHashSet<Unit>> valueToUnits;
   private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt;
@@ -44,8 +44,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private void init() {
-    backwardStack = new ArrayDeque<>();
-    forwardStack = new ArrayDeque<>();
+    backwardWorklist = new ArrayDeque<>();
+    forwardWorklist = new ArrayDeque<>();
     definitions = new HashMap<>();
     valueToUnits = new HashMap<>();
     valueKillebyValuedAt = new HashMap<>();
@@ -162,9 +162,9 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private void findStmtsForFieldBase(MutableGraph<Unit> mCFG, Unit queryStmt) {
-    while (!backwardStack.isEmpty()) {
+    while (!backwardWorklist.isEmpty()) {
       backwardPass(mCFG, queryStmt);
-      while (!forwardStack.isEmpty()) {
+      while (!forwardWorklist.isEmpty()) {
         forwardPass(mCFG, queryStmt);
       }
     }
@@ -172,7 +172,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private void findStmtsAfterKill(MutableGraph<Unit> mCFG, Unit queryStmt) {
     Unit def;
-    while (!backwardStack.isEmpty()) {
+    while (!backwardWorklist.isEmpty()) {
       Value val = popBackwardStack();
       Unit killedAt = null;
       Collection<Pair<Value, Unit>> killers = valueKillebyValuedAt.values();
@@ -193,7 +193,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private void backwardPass(MutableGraph<Unit> mCFG, Unit def) {
-    while (!backwardStack.isEmpty()) {
+    while (!backwardWorklist.isEmpty()) {
       Value val = popBackwardStack();
       Unit existingDef = definitions.get(val);
       Unit newDef;
@@ -210,7 +210,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private void forwardPass(MutableGraph<Unit> mCFG, Unit queryStmt) {
-    while (!forwardStack.isEmpty()) {
+    while (!forwardWorklist.isEmpty()) {
       Value val = popForwardStack();
       Unit defStmt = definitions.get(val);
       putToValueToUnits(val, defStmt);
@@ -236,22 +236,22 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private void pushToForwardStack(Value val) {
     logStackOp(val, "Forw push");
-    forwardStack.push(val);
+    forwardWorklist.push(val);
   }
 
   private void pushToBackwardStack(Value val) {
     logStackOp(val, "Back push");
-    backwardStack.push(val);
+    backwardWorklist.push(val);
   }
 
   private Value popBackwardStack() {
-    Value val = backwardStack.pop();
+    Value val = backwardWorklist.pop();
     logStackOp(val, "Back pop");
     return val;
   }
 
   private Value popForwardStack() {
-    Value val = forwardStack.pop();
+    Value val = forwardWorklist.pop();
     logStackOp(val, "Forw pop");
     return val;
   }
@@ -320,7 +320,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
         if (isAllocOrMethodAssignment(stmt, queryVar)) {
           pushToForwardStack(queryVar);
           Set<Value> params = getInvokeBaseAndParams(rightOp, queryVar);
-          params.forEach(backwardStack::add);
+          params.forEach(backwardWorklist::add);
         } else {
           if (equalsFieldRef(rightOp, queryVar)
               && rightOp instanceof JInstanceFieldRef) { // recursion
@@ -584,7 +584,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
         // v as base v.m()
         if (isInvokeBase(d, invokeExpr)) {
           Set<Value> params = getInvokeBaseAndParams(invokeExpr, d);
-          params.forEach(backwardStack::push);
+          params.forEach(backwardWorklist::push);
           return true;
         }
       }
