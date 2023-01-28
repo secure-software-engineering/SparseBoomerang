@@ -1,6 +1,6 @@
-[![Java CI with Maven](https://github.com/CodeShield-Security/SPDS/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)](https://github.com/CodeShield-Security/SPDS/actions)
+# SparseBoomerang
 
-# SPDS
+SparseBoomerang is an extension to SPDS-based Boomerang.
 
 This repository contains a Java implementation of Synchronized Pushdown Systems.
 Additionally, it contains an implementation of [Boomerang](boomerangPDS) and [IDEal](idealPDS) based on a Weighted Pushdown System.
