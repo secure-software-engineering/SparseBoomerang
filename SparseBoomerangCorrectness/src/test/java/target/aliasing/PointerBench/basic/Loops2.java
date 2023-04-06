@@ -2,12 +2,12 @@ package target.aliasing.PointerBench.basic;
 
 /*
  * @testcase Loops2
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description The analysis must support loop constructs. Allocation site in N
  */
 public class Loops2 {
@@ -35,9 +35,11 @@ public class Loops2 {
     N o = node.next;
     N p = node.next.next;
     N node_q1 = node;
-//    Benchmark.test("node",
-//        "{allocId:1, mayAlias:[node], notMayAlias:[i,o,p], mustAlias:[node], notMustAlias:[p]},"
-//            + "{allocId:2, mayAlias:[o], notMayAlias:[node], mustAlias:[o], notMustAlias:[p]}");
+    //    Benchmark.test("node",
+    //        "{allocId:1, mayAlias:[node], notMayAlias:[i,o,p], mustAlias:[node],
+    // notMustAlias:[p]},"
+    //            + "{allocId:2, mayAlias:[o], notMayAlias:[node], mustAlias:[o],
+    // notMustAlias:[p]}");
   }
 
   public static void main(String[] args) {

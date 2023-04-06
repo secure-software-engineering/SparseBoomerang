@@ -5,12 +5,12 @@ import target.aliasing.PointerBench.benchmark.objects.B;
 
 /*
  * @testcase ReturnValue1
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description Alias to a return value from a static method
  */
 public class ReturnValue3 {
@@ -29,7 +29,8 @@ public class ReturnValue3 {
     B x = b.f;
     B y = a.f;
     B x_q1 = x;
-//    Benchmark.test("x",
-//        "{allocId:1, mayAlias:[x], notMayAlias:[a,b,y], mustAlias:[x], notMustAlias:[a,b,y]}");
+    //    Benchmark.test("x",
+    //        "{allocId:1, mayAlias:[x], notMayAlias:[a,b,y], mustAlias:[x],
+    // notMustAlias:[a,b,y]}");
   }
 }

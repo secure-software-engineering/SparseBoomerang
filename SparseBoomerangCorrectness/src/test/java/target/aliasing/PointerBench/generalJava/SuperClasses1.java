@@ -6,12 +6,12 @@ import target.aliasing.PointerBench.benchmark.objects.P;
 
 /*
  * @testcase SuperClass1
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description Alias from method in super class
  */
 public class SuperClasses1 {
@@ -25,9 +25,8 @@ public class SuperClasses1 {
     p.alias(b);
     A h = p.getA();
     A h_q1 = h;
-//    Benchmark.test("h",
-//        "{allocId:1, mayAlias:[h,b], notMayAlias:[a,p], mustAlias:[b,a], notMustAlias:[p]}");
+    //    Benchmark.test("h",
+    //        "{allocId:1, mayAlias:[h,b], notMayAlias:[a,p], mustAlias:[b,a], notMustAlias:[p]}");
     Benchmark.use(h);
   }
-
 }

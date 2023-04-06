@@ -6,12 +6,12 @@ import target.aliasing.PointerBench.benchmark.objects.B;
 
 /*
  * @testcase Null1
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description Direct alias to null
  */
 public class Null1 {
@@ -23,8 +23,8 @@ public class Null1 {
     B a = h.getH();
     B b = a;
     B b_q1 = b;
-//    Benchmark.test("b",
-//        "{NULLALLOC, mayAlias:[], notMayAlias:[b,a], mustAlias:[b,a], notMustAlias:[i]}");
+    //    Benchmark.test("b",
+    //        "{NULLALLOC, mayAlias:[], notMayAlias:[b,a], mustAlias:[b,a], notMustAlias:[i]}");
     Benchmark.use(b);
   }
 }

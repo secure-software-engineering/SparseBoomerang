@@ -1,19 +1,19 @@
 package target.aliasing.PointerBench.benchmark.objects;
 
 public class Q {
-	// Class P extends class Q
+  // Class P extends class Q
 
-	private A a;
+  private A a;
 
-	public Q(A a) {
-		this.a = a;
-	}
+  public Q(A a) {
+    this.a = a;
+  }
 
-	public void alias(A x) {
-		this.a = x;
-	}
-	
-	public A getA(){
-		return a;
-	}
+  public void alias(A x) {
+    this.a = x;
+  }
+
+  public A getA() {
+    return a;
+  }
 }

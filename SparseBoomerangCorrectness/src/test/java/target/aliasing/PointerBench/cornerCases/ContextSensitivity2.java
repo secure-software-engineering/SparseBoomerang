@@ -4,12 +4,12 @@ import target.aliasing.PointerBench.benchmark.objects.A;
 
 /*
  * @testcase ContextSensitivity2
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description Object sensitive alias from caller object (2-CS)
  */
 public class ContextSensitivity2 {
@@ -18,9 +18,9 @@ public class ContextSensitivity2 {
 
   public void callee(A a, A b) {
     A b_q1 = b;
-//    Benchmark.test("b",
-//        "{allocId:1, mayAlias:[a,b], notMayAlias:[], mustAlias:[a,b], notMustAlias:[]},"
-//            + "{allocId:2, mayAlias:[a], notMayAlias:[b], mustAlias:[a], notMustAlias:[b]}");
+    //    Benchmark.test("b",
+    //        "{allocId:1, mayAlias:[a,b], notMayAlias:[], mustAlias:[a,b], notMustAlias:[]},"
+    //            + "{allocId:2, mayAlias:[a], notMayAlias:[b], mustAlias:[a], notMustAlias:[b]}");
   }
 
   public void test1() {

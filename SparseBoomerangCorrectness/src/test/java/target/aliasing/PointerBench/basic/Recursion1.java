@@ -2,12 +2,12 @@ package target.aliasing.PointerBench.basic;
 
 /*
  * @testcase Recursion1
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description The analysis must support recursion
  */
 public class Recursion1 {
@@ -43,8 +43,9 @@ public class Recursion1 {
     N p = node.next.next;
     N q = node.next.next.next;
     N n_q1 = n;
-//    Benchmark.test("n",
-//        "{allocId:1, mayAlias:[n], notMayAlias:[o,p,q], mustAlias:[n], notMustAlias:[o,p,q]}");
+    //    Benchmark.test("n",
+    //        "{allocId:1, mayAlias:[n], notMayAlias:[o,p,q], mustAlias:[n],
+    // notMustAlias:[o,p,q]}");
   }
 
   public static void main(String[] args) {

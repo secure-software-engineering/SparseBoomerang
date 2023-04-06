@@ -1,17 +1,16 @@
 package target.aliasing.PointerBench.collections;
 
-import target.aliasing.PointerBench.benchmark.objects.A;
-
 import java.util.LinkedList;
+import target.aliasing.PointerBench.benchmark.objects.A;
 
 /*
  * @testcase List2
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description LinkedList
  */
 public class List2 {
@@ -26,8 +25,9 @@ public class List2 {
     list.add(b);
     A c = list.get(1);
     A b_q1 = b;
-//    Benchmark
-//        .test("b",
-//            "{allocId:1, mayAlias:[c,b], notMayAlias:[a,list], mustAlias:[c,b], notMustAlias:[a,list]}");
+    //    Benchmark
+    //        .test("b",
+    //            "{allocId:1, mayAlias:[c,b], notMayAlias:[a,list], mustAlias:[c,b],
+    // notMustAlias:[a,list]}");
   }
 }

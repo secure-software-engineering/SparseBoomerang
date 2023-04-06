@@ -1,18 +1,17 @@
 package target.aliasing.PointerBench.collections;
 
+import java.util.HashMap;
 import target.aliasing.PointerBench.benchmark.internal.Benchmark;
 import target.aliasing.PointerBench.benchmark.objects.A;
 
-import java.util.HashMap;
-
 /*
  * @testcase Map1
- * 
+ *
  * @version 1.0
- * 
+ *
  * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
  * Institute SIT)
- * 
+ *
  * @description HashMap
  */
 public class Map1 {
@@ -27,7 +26,8 @@ public class Map1 {
     map.put("second", b);
     A c = map.get("second");
     A c_q1 = c;
-    Benchmark.test("c",
+    Benchmark.test(
+        "c",
         "{allocId:1, mayAlias:[c,b], notMayAlias:[a,map], mustAlias:[c,b], notMustAlias:[a,map]}");
   }
 }
