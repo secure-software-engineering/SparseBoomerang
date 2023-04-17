@@ -1,11 +1,26 @@
+<p align="center">
+<img src="https://github.com/secure-software-engineering/SparseBoomerang/blob/master/SparseBoomerangLogo.png">
+</p> 
+
 # SparseBoomerang
 
-SparseBoomerang is an extension to SPDS-based Boomerang.
+SparseBoomerang is an extension to SPDS-based Boomerang. 
+SparseBoomerang introduces two sparsification strategies to aid the scalability of precise Boomerang pointer analysis.
+[SparseBoomerangCorrectness](SparseBoomerangCorrectness) show how these work and compare them against the default non-sparse Boomerang.
 
+
+## Publications
+Preprint is available:  
+[Two Sparsification Strategies for Accelerating Demand-Driven Pointer Analysis](https://www.bodden.de/pubs/kb23sparsification.pdf) (ICST 2023)
+
+
+
+## Boomerang
 This repository contains a Java implementation of Synchronized Pushdown Systems.
 Additionally, it contains an implementation of [Boomerang](boomerangPDS) and [IDEal](idealPDS) based on a Weighted Pushdown System.
 
-# Use as Maven dependency
+
+## Use as Maven dependency
 
 All projects inside this repository are pushed to GitHub's Maven repository for every release.
 
@@ -17,7 +32,7 @@ To include a dependency from this repository to your poject, you first have to a
   <dependency>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>WPDS</artifactId>
-    <version>3.1.1</version>
+    <version>3.1.2-Sparse</version>
   </dependency>
 </dependencies>
 <repositories>
@@ -32,7 +47,7 @@ To access the GitHub packages repository, you also need to set up GitHub credent
 An in-depth documentation on how to do this can be found [here](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages#authenticating-to-github-packages). 
 
 
-# Checkout, Build and Install
+## Checkout, Build and Install
 
 To build and install SPDS into your local repository, run 
 
@@ -40,12 +55,12 @@ To build and install SPDS into your local repository, run
 
 in the root directory of this git repository. If you do not want to skip the test cases, remove the last flag.
 
-# Examples
+## Examples
 
 Boomerang code examples can be found [here](https://github.com/CodeShield-Security/SPDS/tree/master/boomerangPDS/src/main/java/boomerang/example). Code examples for IDEal are given [here](https://github.com/CodeShield-Security/SPDS/tree/master/idealPDS/src/main/java/inference/example).
 
 
-# Notes on the Test Cases
+## Notes on the Test Cases
 
 The projects Boomerang and IDEal contain JUnit test suites. As for JUnit, the test methods are annotated with @Test and can be run as normal JUnit tests.
 However, these methods are *not* executed but only statically analyzed. When one executes the JUnit tests, the test method bodies are supplied as input to Soot 
