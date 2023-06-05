@@ -15,7 +15,7 @@
     </dependency>
     <dependency>
       <groupId>org.soot-oss</groupId>
-      <artifactId>soot</artifactId>
+      <artifactId>sootup.core</artifactId>
     </dependency>
     <dependency>
       <groupId>de.fraunhofer.iem</groupId>

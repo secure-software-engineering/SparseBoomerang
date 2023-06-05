@@ -17,23 +17,17 @@ import boomerang.scene.Pair;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
-import soot.Local;
-import soot.NullType;
-import soot.Scene;
-import soot.Value;
-import soot.jimple.ArrayRef;
-import soot.jimple.CastExpr;
-import soot.jimple.ClassConstant;
-import soot.jimple.InstanceOfExpr;
-import soot.jimple.IntConstant;
-import soot.jimple.LengthExpr;
-import soot.jimple.LongConstant;
-import soot.jimple.NewArrayExpr;
-import soot.jimple.NewExpr;
-import soot.jimple.NewMultiArrayExpr;
-import soot.jimple.NullConstant;
-import soot.jimple.StaticFieldRef;
-import soot.jimple.StringConstant;
+
+
+import javafx.scene.Scene;
+import sootup.core.jimple.basic.Local;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.constant.*;
+import sootup.core.jimple.common.expr.*;
+import sootup.core.jimple.common.ref.JArrayRef;
+import sootup.core.jimple.common.ref.JInstanceFieldRef;
+import sootup.core.jimple.common.ref.JStaticFieldRef;
+import sootup.core.types.NullType;
 
 public class JimpleVal extends Val {
   private final Value v;
@@ -49,7 +43,7 @@ public class JimpleVal extends Val {
   }
 
   public JimpleType getType() {
-    return v == null ? new JimpleType(NullType.v()) : new JimpleType(v.getType());
+    return v == null ? new JimpleType(NullType.getInstance()) : new JimpleType(v.getType());
   }
 
   public Method m() {
@@ -72,11 +66,11 @@ public class JimpleVal extends Val {
   }
 
   public boolean isNewExpr() {
-    return v instanceof NewExpr;
+    return v instanceof JNewExpr;
   }
 
   public Type getNewExprType() {
-    return new JimpleType(((NewExpr) v).getType());
+    return new JimpleType(((JNewExpr) v).getType());
   }
 
   public Val asUnbalanced(Edge stmt) {
@@ -88,12 +82,12 @@ public class JimpleVal extends Val {
   }
 
   public boolean isArrayAllocationVal() {
-    if (v instanceof NewArrayExpr) {
-      NewArrayExpr expr = (NewArrayExpr) v;
+    if (v instanceof JNewArrayExpr) {
+      JNewArrayExpr expr = (JNewArrayExpr) v;
       // TODO Performance issue?!
       //            return expr.getBaseType() instanceof RefType;
       return true;
-    } else if (v instanceof NewMultiArrayExpr) {
+    } else if (v instanceof JNewMultiArrayExpr) {
       return true;
     }
     return false;
@@ -108,7 +102,7 @@ public class JimpleVal extends Val {
   }
 
   public String getStringValue() {
-    return ((StringConstant) v).value;
+    return ((StringConstant) v).getValue();
   }
 
   public boolean isStringBufferOrBuilder() {
@@ -125,55 +119,55 @@ public class JimpleVal extends Val {
   }
 
   public boolean isCast() {
-    return v instanceof CastExpr;
+    return v instanceof JCastExpr;
   }
 
   public Val getCastOp() {
-    CastExpr cast = (CastExpr) v;
+    JCastExpr cast = (JCastExpr) v;
     return new JimpleVal(cast.getOp(), m);
   }
 
   public boolean isInstanceFieldRef() {
-    return v instanceof soot.jimple.InstanceFieldRef;
+    return v instanceof JInstanceFieldRef;
   }
 
   public boolean isStaticFieldRef() {
-    return v instanceof StaticFieldRef;
+    return v instanceof JStaticFieldRef;
   }
 
   public StaticFieldVal getStaticField() {
-    StaticFieldRef val = (StaticFieldRef) v;
-    return new JimpleStaticFieldVal(new JimpleField(val.getField()), m);
+    JStaticFieldRef val = (JStaticFieldRef) v;
+    return new JimpleStaticFieldVal(new JimpleField(val.getFieldSignature()), m);
   }
 
   public boolean isArrayRef() {
-    return v instanceof ArrayRef;
+    return v instanceof JArrayRef;
   }
 
   @Override
   public Pair<Val, Integer> getArrayBase() {
     return new Pair<>(
-        new JimpleVal(((ArrayRef) v).getBase(), m),
-        ((ArrayRef) v).getIndex() instanceof IntConstant
-            ? ((IntConstant) ((ArrayRef) v).getIndex()).value
+        new JimpleVal(((JArrayRef) v).getBase(), m),
+        ((JArrayRef) v).getIndex() instanceof IntConstant
+            ? ((IntConstant) ((JArrayRef) v).getIndex()).getValue()
             : -1);
   }
 
   public boolean isInstanceOfExpr() {
-    return v instanceof InstanceOfExpr;
+    return v instanceof JInstanceOfExpr;
   }
 
   public Val getInstanceOfOp() {
-    InstanceOfExpr val = (InstanceOfExpr) v;
+    JInstanceOfExpr val = (JInstanceOfExpr) v;
     return new JimpleVal(val.getOp(), m);
   }
 
   public boolean isLengthExpr() {
-    return v instanceof LengthExpr;
+    return v instanceof JLengthExpr;
   }
 
   public Val getLengthOp() {
-    LengthExpr val = (LengthExpr) v;
+    JLengthExpr val = (JLengthExpr) v;
     return new JimpleVal(val.getOp(), m);
   }
 
@@ -182,7 +176,7 @@ public class JimpleVal extends Val {
   }
 
   public int getIntValue() {
-    return ((IntConstant) v).value;
+    return ((IntConstant) v).getValue();
   }
 
   public boolean isLongConstant() {
@@ -190,7 +184,7 @@ public class JimpleVal extends Val {
   }
 
   public long getLongValue() {
-    return ((LongConstant) v).value;
+    return ((LongConstant) v).getValue();
   }
 
   public boolean isClassConstant() {
@@ -198,7 +192,7 @@ public class JimpleVal extends Val {
   }
 
   public Type getClassConstantType() {
-    return new JimpleType(((ClassConstant) v).toSootType());
+    return new JimpleType(((ClassConstant) v).getType());
   }
 
   @Override

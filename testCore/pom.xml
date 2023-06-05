@@ -10,7 +10,8 @@
     <dependencies>
         <dependency>
             <groupId>org.soot-oss</groupId>
-            <artifactId>soot</artifactId>
+            <artifactId>sootup.core</artifactId>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
