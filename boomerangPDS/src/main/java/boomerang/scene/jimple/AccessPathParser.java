@@ -1,16 +1,19 @@
 package boomerang.scene.jimple;
 
 import boomerang.scene.Field;
+import boomerang.scene.up.Client;
 import boomerang.util.AccessPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import sootup.core.jimple.basic.Local;
+import sootup.core.model.SootClass;
+import sootup.core.model.SootField;
+import sootup.core.types.ClassType;
+import sootup.core.types.Type;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import soot.Local;
-import soot.RefType;
-import soot.SootField;
-import soot.util.Chain;
 
 public class AccessPathParser {
 
@@ -37,11 +40,12 @@ public class AccessPathParser {
     }
     List<Field> fields = Lists.newArrayList();
     Local base = getLocal(m, baseName);
-    soot.Type type = base.getType();
+    Type type = base.getType();
     for (String fieldName : fieldNames) {
-      if (type instanceof RefType) {
-        RefType refType = (RefType) type;
-        SootField fieldByName = refType.getSootClass().getFieldByName(fieldName);
+      if (type instanceof ClassType) {
+        ClassType refType = (ClassType) type;
+        SootClass sootClass = Client.getSootClass(refType.getClassName());
+        SootField fieldByName = (SootField) sootClass.getField(fieldName).get();
         fields.add(new JimpleField(fieldByName));
         type = fieldByName.getType();
       }
@@ -51,7 +55,7 @@ public class AccessPathParser {
   }
 
   private static Local getLocal(JimpleMethod m, String baseName) {
-    Chain<Local> locals = m.getDelegate().getActiveBody().getLocals();
+    Set<Local> locals = m.getDelegate().getBody().getLocals();
     for (Local l : locals) {
       if (l.getName().equals(baseName)) return l;
     }

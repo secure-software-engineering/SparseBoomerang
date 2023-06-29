@@ -4,19 +4,20 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
-import soot.ArrayType;
-import soot.BooleanType;
-import soot.NullType;
-import soot.PrimType;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
+import boomerang.scene.up.Client;
+import sootup.core.types.ArrayType;
+import sootup.core.types.ClassType;
+import sootup.core.types.NullType;
+import sootup.core.types.PrimitiveType;
+import sootup.java.core.JavaSootClass;
+import sootup.java.core.types.JavaClassType;
+import sun.jvm.hotspot.debugger.cdbg.RefType;
 
 public class JimpleType implements Type {
 
-  private soot.Type delegate;
+  private sootup.core.types.Type delegate;
 
-  public JimpleType(soot.Type type) {
+  public JimpleType(sootup.core.types.Type type) {
     this.delegate = type;
   }
 
@@ -30,7 +31,7 @@ public class JimpleType implements Type {
 
   @Override
   public boolean isBooleanType() {
-    return delegate instanceof BooleanType;
+    return delegate instanceof PrimitiveType.BooleanType;
   }
 
   public boolean isArrayType() {
@@ -38,63 +39,72 @@ public class JimpleType implements Type {
   }
 
   public Type getArrayBaseType() {
-    return new JimpleType(((ArrayType) delegate).baseType);
+    return new JimpleType(((ArrayType) delegate).getBaseType());
   }
 
   public WrappedClass getWrappedClass() {
-    return new JimpleWrappedClass(((RefType) delegate).getSootClass());
+    ClassType ref = (ClassType) this.delegate;
+    JavaSootClass sootClass = Client.getSootClass(ref.getFullyQualifiedName());
+    return new JimpleWrappedClass(sootClass);
   }
 
-  public soot.Type getDelegate() {
+  public sootup.core.types.Type getDelegate() {
     return delegate;
   }
 
   @Override
   public boolean doesCastFail(Type targetVal, Val target) {
-    RefType targetType = (RefType) ((JimpleType) targetVal).getDelegate();
-    RefType sourceType = (RefType) this.getDelegate();
-    if (targetType.getSootClass().isPhantom() || sourceType.getSootClass().isPhantom())
-      return false;
+    JavaClassType targetType = (JavaClassType) ((JimpleType) targetVal).getDelegate();
+    JavaClassType sourceType = (JavaClassType) this.getDelegate();
+    JavaSootClass targetClass = Client.getSootClass(targetType.getFullyQualifiedName());
+    JavaSootClass sourceClass = Client.getSootClass(sourceType.getFullyQualifiedName());
+    if (targetClass.isPhantomClass() || sourceClass.isPhantomClass()) return false;
     if (target instanceof AllocVal && ((AllocVal) target).getAllocVal().isNewExpr()) {
-      boolean castFails = Scene.v().getOrMakeFastHierarchy().canStoreType(targetType, sourceType);
+      boolean castFails = Client.getView().getTypeHierarchy().isSubtype(targetType, sourceType);
       return !castFails;
     }
     // TODO this line is necessary as canStoreType does not properly work for
     // interfaces, see Java doc.
-    if (targetType.getSootClass().isInterface()) {
+    if (targetClass.isInterface()) {
       return false;
     }
     boolean castFails =
-        Scene.v().getOrMakeFastHierarchy().canStoreType(targetType, sourceType)
-            || Scene.v().getOrMakeFastHierarchy().canStoreType(sourceType, targetType);
+        Client.getView().getTypeHierarchy().isSubtype(targetType, sourceType)
+            || Client.getView().getTypeHierarchy().isSubtype(sourceType, targetType);
     return !castFails;
   }
 
   public boolean isSubtypeOf(String type) {
-    SootClass interfaceType = Scene.v().getSootClass(type);
+    JavaSootClass interfaceType = Client.getSootClass(type);
     if (delegate.toString().equals(type)) return true;
     if (!(delegate instanceof RefType)) {
       if (delegate instanceof ArrayType) {
         return true;
       }
-      if (delegate instanceof PrimType) {
+      if (delegate instanceof PrimitiveType) {
         return type.equals(delegate.toString());
       }
       throw new RuntimeException("More");
     }
 
-    RefType allocatedType = (RefType) delegate;
+    JavaClassType allocatedType = (JavaClassType) delegate;
+    JavaSootClass sootClass = Client.getSootClass(allocatedType.getFullyQualifiedName());
     if (!interfaceType.isInterface()) {
-      return Scene.v().getFastHierarchy().isSubclass(allocatedType.getSootClass(), interfaceType);
+      return Client.getView()
+          .getTypeHierarchy()
+          .isSubtype(sootClass.getType(), interfaceType.getType());
     }
-    if (Scene.v()
-        .getActiveHierarchy()
-        .getSubinterfacesOfIncluding(interfaceType)
-        .contains(allocatedType.getSootClass())) return true;
-    return Scene.v()
-        .getActiveHierarchy()
-        .getImplementersOf(interfaceType)
-        .contains(allocatedType.getSootClass());
+
+    if (Client.getView()
+        .getTypeHierarchy()
+        .subclassesOf(interfaceType.getType())
+        .contains(allocatedType)) {
+      return true;
+    }
+    return Client.getView()
+        .getTypeHierarchy()
+        .implementersOf(interfaceType.getType())
+        .contains(allocatedType);
   }
 
   @Override

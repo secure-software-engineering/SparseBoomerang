@@ -6,21 +6,21 @@ import com.google.common.graph.Traverser;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import soot.Unit;
 import soot.jimple.IdentityStmt;
 import soot.jimple.internal.*;
 import soot.toolkits.graph.DirectedGraph;
+import sootup.core.jimple.common.stmt.Stmt;
 
 public class SparseCFGBuilder {
 
   private static final Logger LOGGER = Logger.getLogger(SparseCFGBuilder.class.getName());
 
-  protected Map<Unit, Integer> unitToNumber = new HashMap<>();
+  protected Map<Stmt, Integer> unitToNumber = new HashMap<>();
 
-  protected MutableGraph<Unit> numberStmtsAndConvertToMutableGraph(DirectedGraph<Unit> rawGraph) {
-    MutableGraph<Unit> mGraph = GraphBuilder.directed().build();
-    List<Unit> heads = rawGraph.getHeads();
-    for (Unit head : heads) {
+  protected MutableGraph<Stmt> numberStmtsAndConvertToMutableGraph(DirectedGraph<Stmt> rawGraph) {
+    MutableGraph<Stmt> mGraph = GraphBuilder.directed().build();
+    List<Stmt> heads = rawGraph.getHeads();
+    for (Stmt head : heads) {
       convertToMutableGraph(rawGraph, head, mGraph, 0);
     }
     return mGraph;

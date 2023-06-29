@@ -4,20 +4,22 @@ import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
 import boomerang.scene.Method;
 import boomerang.scene.Val;
+import boomerang.scene.up.Client;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import soot.jimple.InstanceInvokeExpr;
-import soot.jimple.SpecialInvokeExpr;
-import soot.jimple.StaticInvokeExpr;
+import sootup.core.jimple.common.expr.AbstractInstanceInvokeExpr;
+import sootup.core.jimple.common.expr.JSpecialInvokeExpr;
+import sootup.core.jimple.common.expr.JStaticInvokeExpr;
+import sootup.java.core.JavaSootMethod;
 
 public class JimpleInvokeExpr implements InvokeExpr {
 
-  private soot.jimple.InvokeExpr delegate;
+  private sootup.core.jimple.common.expr.AbstractInvokeExpr delegate;
   private Method m;
   private ArrayList<Val> cache;
 
-  public JimpleInvokeExpr(soot.jimple.InvokeExpr ive, Method m) {
+  public JimpleInvokeExpr(sootup.core.jimple.common.expr.AbstractInvokeExpr ive, Method m) {
     this.delegate = ive;
     this.m = m;
   }
@@ -40,24 +42,25 @@ public class JimpleInvokeExpr implements InvokeExpr {
   }
 
   public boolean isInstanceInvokeExpr() {
-    return delegate instanceof InstanceInvokeExpr;
+    return delegate instanceof AbstractInstanceInvokeExpr;
   }
 
   public Val getBase() {
-    InstanceInvokeExpr iie = (InstanceInvokeExpr) delegate;
+    AbstractInstanceInvokeExpr iie = (AbstractInstanceInvokeExpr) delegate;
     return new JimpleVal(iie.getBase(), m);
   }
 
   public DeclaredMethod getMethod() {
-    return new JimpleDeclaredMethod(this, delegate.getMethod());
+    JavaSootMethod sootMethod = Client.getSootMethod(delegate.getMethodSignature());
+    return new JimpleDeclaredMethod(this, sootMethod);
   }
 
   public boolean isSpecialInvokeExpr() {
-    return delegate instanceof SpecialInvokeExpr;
+    return delegate instanceof JSpecialInvokeExpr;
   }
 
   public boolean isStaticInvokeExpr() {
-    return delegate instanceof StaticInvokeExpr;
+    return delegate instanceof JStaticInvokeExpr;
   }
 
   @Override

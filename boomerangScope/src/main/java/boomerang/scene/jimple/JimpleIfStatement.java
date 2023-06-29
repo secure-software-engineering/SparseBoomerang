@@ -4,67 +4,74 @@ import boomerang.scene.IfStatement;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import soot.Value;
-import soot.jimple.ConditionExpr;
-import soot.jimple.EqExpr;
-import soot.jimple.IfStmt;
-import soot.jimple.IntConstant;
-import soot.jimple.NeExpr;
-import soot.jimple.NullConstant;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.constant.IntConstant;
+import sootup.core.jimple.common.constant.NullConstant;
+import sootup.core.jimple.common.expr.AbstractConditionExpr;
+import sootup.core.jimple.common.expr.JEqExpr;
+import sootup.core.jimple.common.expr.JNeExpr;
+import sootup.core.jimple.common.stmt.JIfStmt;
 
 public class JimpleIfStatement implements IfStatement {
 
-  private IfStmt delegate;
+  private JIfStmt delegate;
   private Method method;
 
-  public JimpleIfStatement(IfStmt delegate, Method method) {
+  public JimpleIfStatement(JIfStmt delegate, Method method) {
     this.delegate = delegate;
     this.method = method;
   }
 
   @Override
   public Statement getTarget() {
-    return JimpleStatement.create(delegate.getTarget(), (JimpleMethod) method);
+    JimpleMethod jm = (JimpleMethod) method;
+    // If should have a single target
+    return JimpleStatement.create(
+        delegate.getTargetStmts(jm.getDelegate().getBody()).get(0), method);
   }
 
   @Override
   public Evaluation evaluate(Val val) {
-    if (delegate.getCondition() instanceof EqExpr) {
-      EqExpr eqExpr = (EqExpr) delegate.getCondition();
+    if (delegate.getCondition() instanceof JEqExpr) {
+      JEqExpr eqExpr = (JEqExpr) delegate.getCondition();
       Value op1 = eqExpr.getOp1();
       Value op2 = eqExpr.getOp2();
-      if ((val.equals(new JimpleVal(op1, method)) && op2.equals(NullConstant.v())
-          || (val.equals(new JimpleVal(op2, method)) && op2.equals(NullConstant.v())))) {
+      if ((val.equals(new JimpleVal(op1, method)) && op2.equals(NullConstant.getInstance())
+          || (val.equals(new JimpleVal(op2, method)) && op2.equals(NullConstant.getInstance())))) {
         return Evaluation.TRUE;
       }
-      if ((val.equals(new JimpleVal(IntConstant.v(0), method)) && op2.equals(IntConstant.v(0))
-          || (val.equals(new JimpleVal(IntConstant.v(1), method))
-              && op2.equals(IntConstant.v(1))))) {
+      if ((val.equals(new JimpleVal(IntConstant.getInstance(0), method))
+              && op2.equals(IntConstant.getInstance(0))
+          || (val.equals(new JimpleVal(IntConstant.getInstance(1), method))
+              && op2.equals(IntConstant.getInstance(1))))) {
         return Evaluation.TRUE;
       }
-      if ((val.equals(new JimpleVal(IntConstant.v(1), method)) && op2.equals(IntConstant.v(0))
-          || (val.equals(new JimpleVal(IntConstant.v(0), method))
-              && op2.equals(IntConstant.v(1))))) {
+      if ((val.equals(new JimpleVal(IntConstant.getInstance(1), method))
+              && op2.equals(IntConstant.getInstance(0))
+          || (val.equals(new JimpleVal(IntConstant.getInstance(0), method))
+              && op2.equals(IntConstant.getInstance(1))))) {
         return Evaluation.FALSE;
       }
     }
 
-    if (delegate.getCondition() instanceof NeExpr) {
-      NeExpr eqExpr = (NeExpr) delegate.getCondition();
+    if (delegate.getCondition() instanceof JNeExpr) {
+      JNeExpr eqExpr = (JNeExpr) delegate.getCondition();
       Value op1 = eqExpr.getOp1();
       Value op2 = eqExpr.getOp2();
-      if ((val.equals(new JimpleVal(op1, method)) && op2.equals(NullConstant.v())
-          || (val.equals(new JimpleVal(op2, method)) && op2.equals(NullConstant.v())))) {
+      if ((val.equals(new JimpleVal(op1, method)) && op2.equals(NullConstant.getInstance())
+          || (val.equals(new JimpleVal(op2, method)) && op2.equals(NullConstant.getInstance())))) {
         return Evaluation.FALSE;
       }
-      if ((val.equals(new JimpleVal(IntConstant.v(0), method)) && op2.equals(IntConstant.v(0))
-          || (val.equals(new JimpleVal(IntConstant.v(1), method))
-              && op2.equals(IntConstant.v(1))))) {
+      if ((val.equals(new JimpleVal(IntConstant.getInstance(0), method))
+              && op2.equals(IntConstant.getInstance(0))
+          || (val.equals(new JimpleVal(IntConstant.getInstance(1), method))
+              && op2.equals(IntConstant.getInstance(1))))) {
         return Evaluation.FALSE;
       }
-      if ((val.equals(new JimpleVal(IntConstant.v(1), method)) && op2.equals(IntConstant.v(0))
-          || (val.equals(new JimpleVal(IntConstant.v(0), method))
-              && op2.equals(IntConstant.v(1))))) {
+      if ((val.equals(new JimpleVal(IntConstant.getInstance(1), method))
+              && op2.equals(IntConstant.getInstance(0))
+          || (val.equals(new JimpleVal(IntConstant.getInstance(0), method))
+              && op2.equals(IntConstant.getInstance(1))))) {
         return Evaluation.TRUE;
       }
     }
@@ -73,8 +80,8 @@ public class JimpleIfStatement implements IfStatement {
 
   @Override
   public boolean uses(Val val) {
-    if (delegate.getCondition() instanceof ConditionExpr) {
-      ConditionExpr c = ((ConditionExpr) delegate.getCondition());
+    if (delegate.getCondition() instanceof AbstractConditionExpr) {
+      AbstractConditionExpr c = delegate.getCondition();
       Value op1 = c.getOp1();
       Value op2 = c.getOp2();
       return val.equals(new JimpleVal(op1, method)) || val.equals(new JimpleVal(op2, method));

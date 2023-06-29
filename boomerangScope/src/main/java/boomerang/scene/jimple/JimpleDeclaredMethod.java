@@ -3,13 +3,15 @@ package boomerang.scene.jimple;
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
 import boomerang.scene.WrappedClass;
-import soot.SootMethod;
+import boomerang.scene.up.Client;
+import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootMethod;
 
 public class JimpleDeclaredMethod extends DeclaredMethod {
 
-  private SootMethod delegate;
+  private JavaSootMethod delegate;
 
-  public JimpleDeclaredMethod(InvokeExpr inv, SootMethod method) {
+  public JimpleDeclaredMethod(InvokeExpr inv, JavaSootMethod method) {
     super(inv);
     this.delegate = method;
   }
@@ -21,7 +23,7 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
 
   @Override
   public String getSubSignature() {
-    return delegate.getSubSignature();
+    return delegate.getSignature().getSubSignature().toString();
   }
 
   @Override
@@ -66,12 +68,14 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
 
   @Override
   public String getSignature() {
-    return delegate.getSignature();
+    return delegate.getSignature().toString();
   }
 
   @Override
   public WrappedClass getDeclaringClass() {
-    return new JimpleWrappedClass(delegate.getDeclaringClass());
+    JavaSootClass sootClass =
+        Client.getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
+    return new JimpleWrappedClass(sootClass);
   }
 
   public Object getDelegate() {

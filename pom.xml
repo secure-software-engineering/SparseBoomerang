@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.1.2-Sparse</version>
+    <version>3.1.2-Sparse-Up</version>
     <packaging>pom</packaging>
     <name>SPDS</name>
 
@@ -39,11 +39,11 @@
     <modules>
         <module>WPDS</module>
         <module>SynchronizedPDS</module>
-        <module>testCore</module>
+<!--        <module>testCore</module>-->
         <module>boomerangPDS</module>
-        <module>idealPDS</module>
+<!--        <module>idealPDS</module>-->
         <module>boomerangScope</module>
-        <module>boomerangScope-WALA</module>
+<!--        <module>boomerangScope-WALA</module>-->
         <module>SparseBoomerangCorrectness</module>
     </modules>
     <properties>
@@ -175,6 +175,11 @@
                 <version>1.1.0</version>
             </dependency>
             <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.java.core</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.5</version>
@@ -189,11 +194,11 @@
                 <artifactId>synchronizedPDS</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>de.fraunhofer.iem</groupId>
-                <artifactId>testCore</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>de.fraunhofer.iem</groupId>-->
+<!--                <artifactId>testCore</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>de.fraunhofer.iem</groupId>
                 <artifactId>boomerangPDS</artifactId>

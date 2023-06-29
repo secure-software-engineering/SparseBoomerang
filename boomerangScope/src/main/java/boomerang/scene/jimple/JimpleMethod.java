@@ -5,32 +5,33 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
+import boomerang.scene.up.Client;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
-import soot.Local;
-import soot.SootMethod;
-import soot.util.Chain;
+import sootup.core.jimple.basic.Local;
+import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootMethod;
 
 public class JimpleMethod extends Method {
-  private SootMethod delegate;
+  private JavaSootMethod delegate;
 
   protected static Interner<JimpleMethod> INTERNAL_POOL = Interners.newWeakInterner();
   protected ControlFlowGraph cfg;
   private List<Val> parameterLocalCache;
   private Set<Val> localCache;
 
-  protected JimpleMethod(SootMethod m) {
+  protected JimpleMethod(JavaSootMethod m) {
     this.delegate = m;
-    if (!m.hasActiveBody()) {
+    if (!m.hasBody()) {
       throw new RuntimeException("Building a Jimple method without active body present");
     }
   }
 
-  public static JimpleMethod of(SootMethod m) {
+  public static JimpleMethod of(JavaSootMethod m) {
     return INTERNAL_POOL.intern(new JimpleMethod(m));
   }
 
@@ -65,7 +66,7 @@ public class JimpleMethod extends Method {
 
   public boolean isParameterLocal(Val val) {
     if (val.isStatic()) return false;
-    if (!delegate.hasActiveBody()) {
+    if (!delegate.hasBody()) {
       throw new RuntimeException("Soot Method has no active body");
     }
 
@@ -75,7 +76,7 @@ public class JimpleMethod extends Method {
 
   public boolean isThisLocal(Val val) {
     if (val.isStatic()) return false;
-    if (!delegate.hasActiveBody()) {
+    if (!delegate.hasBody()) {
       throw new RuntimeException("Soot Method has no active body");
     }
     if (delegate.isStatic()) return false;
@@ -86,7 +87,7 @@ public class JimpleMethod extends Method {
   public Set<Val> getLocals() {
     if (localCache == null) {
       localCache = Sets.newHashSet();
-      Chain<Local> locals = delegate.getActiveBody().getLocals();
+      Set<Local> locals = delegate.getBody().getLocals();
       for (Local l : locals) {
         localCache.add(new JimpleVal(l, this));
       }
@@ -95,13 +96,13 @@ public class JimpleMethod extends Method {
   }
 
   public Val getThisLocal() {
-    return new JimpleVal(delegate.getActiveBody().getThisLocal(), this);
+    return new JimpleVal(delegate.getBody().getThisLocal(), this);
   }
 
   public List<Val> getParameterLocals() {
     if (parameterLocalCache == null) {
       parameterLocalCache = Lists.newArrayList();
-      for (Local v : delegate.getActiveBody().getParameterLocals()) {
+      for (Local v : delegate.getBody().getParameterLocals()) {
         parameterLocalCache.add(new JimpleVal(v, this));
       }
     }
@@ -121,7 +122,9 @@ public class JimpleMethod extends Method {
   }
 
   public WrappedClass getDeclaringClass() {
-    return new JimpleWrappedClass(delegate.getDeclaringClass());
+    JavaSootClass sootClass =
+        Client.getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
+    return new JimpleWrappedClass(sootClass);
   }
 
   public ControlFlowGraph getControlFlowGraph() {
@@ -132,10 +135,10 @@ public class JimpleMethod extends Method {
   }
 
   public String getSubSignature() {
-    return delegate.getSubSignature();
+    return delegate.getSignature().getSubSignature().toString();
   }
 
-  public SootMethod getDelegate() {
+  public JavaSootMethod getDelegate() {
     return delegate;
   }
 

@@ -12,7 +12,7 @@
 package boomerang.scene.jimple;
 
 import boomerang.scene.Field;
-import soot.SootField;
+import sootup.core.model.SootField;
 
 public class JimpleField extends Field {
   private final SootField delegate;
