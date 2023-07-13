@@ -5,15 +5,17 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.jimple.*;
-import boomerang.scene.sparse.aliasaware.MStaticFieldRef;
-import soot.*;
-import soot.jimple.StaticFieldRef;
-import soot.jimple.Stmt;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.ref.JStaticFieldRef;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootField;
+import sootup.core.model.SootMethod;
+import sootup.core.types.Type;
 
 public class SootAdapter {
 
-  public static Statement asStatement(Unit unit, Method method) {
-    return JimpleStatement.create((Stmt) unit, method);
+  public static Statement asStatement(Stmt unit, Method method) {
+    return JimpleStatement.create(unit, method);
   }
 
   public static Stmt asStmt(Statement stmt) {
@@ -37,8 +39,7 @@ public class SootAdapter {
       JimpleStaticFieldVal staticVal = (JimpleStaticFieldVal) val;
       Field field = staticVal.field();
       SootField sootField = ((JimpleField) field).getSootField();
-      SootFieldRef sootFieldRef = sootField.makeRef();
-      StaticFieldRef srf = new MStaticFieldRef(sootFieldRef);
+      JStaticFieldRef srf = new JStaticFieldRef(sootField.getSignature());
       return srf;
     }
     return ((JimpleVal) val).getDelegate();

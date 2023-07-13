@@ -7,8 +7,8 @@ import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
 import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
 import java.util.List;
-import soot.SootMethod;
-import soot.jimple.Stmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
 
 public interface SparseCFGCache {
 

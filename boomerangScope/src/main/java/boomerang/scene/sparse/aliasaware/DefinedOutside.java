@@ -1,14 +1,18 @@
 package boomerang.scene.sparse.aliasaware;
 
-import soot.AbstractUnit;
-import soot.UnitPrinter;
-import soot.Value;
+import sootup.core.jimple.basic.JimpleComparator;
+import sootup.core.jimple.basic.StmtPositionInfo;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.jimple.visitor.StmtVisitor;
+import sootup.core.util.printer.StmtPrinter;
 
-public class DefinedOutside extends AbstractUnit {
+public class DefinedOutside extends Stmt {
 
   Value value;
 
   public DefinedOutside(Value value) {
+    super(StmtPositionInfo.createNoStmtPositionInfo());
     this.value = value;
   }
 
@@ -32,5 +36,18 @@ public class DefinedOutside extends AbstractUnit {
   }
 
   @Override
-  public void toString(UnitPrinter unitPrinter) {}
+  public void toString(StmtPrinter stmtPrinter) {}
+
+  @Override
+  public int equivHashCode() {
+    return 0;
+  }
+
+  @Override
+  public boolean equivTo(Object o, JimpleComparator jimpleComparator) {
+    return false;
+  }
+
+  @Override
+  public void accept(StmtVisitor stmtVisitor) {}
 }

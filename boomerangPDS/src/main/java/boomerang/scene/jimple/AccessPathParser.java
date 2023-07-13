@@ -5,15 +5,14 @@ import boomerang.scene.up.Client;
 import boomerang.util.AccessPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import sootup.core.jimple.basic.Local;
 import sootup.core.model.SootClass;
 import sootup.core.model.SootField;
 import sootup.core.types.ClassType;
 import sootup.core.types.Type;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 public class AccessPathParser {
 

@@ -17,7 +17,7 @@ import boomerang.scene.Pair;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
-import javafx.scene.Scene;
+import boomerang.scene.up.Client;
 import sootup.core.IdentifierFactory;
 import sootup.core.jimple.basic.Local;
 import sootup.core.jimple.basic.Value;
@@ -26,12 +26,8 @@ import sootup.core.jimple.common.expr.*;
 import sootup.core.jimple.common.ref.JArrayRef;
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
 import sootup.core.jimple.common.ref.JStaticFieldRef;
-import sootup.core.typehierarchy.TypeHierarchy;
-import sootup.core.typehierarchy.ViewTypeHierarchy;
-import sootup.core.types.ClassType;
 import sootup.core.types.NullType;
 import sootup.java.core.JavaIdentifierFactory;
-import sootup.java.core.JavaProject;
 
 public class JimpleVal extends Val {
   private final Value v;
@@ -118,12 +114,11 @@ public class JimpleVal extends Val {
 
   public boolean isThrowableAllocationType() {
     IdentifierFactory factory = JavaIdentifierFactory.getInstance();
-    ClassType classType = factory.getClassType("java.lang.Throwable");
-    JavaProject project = new JavaProject();
-    TypeHierarchy hierarchy = new ViewTypeHierarchy(View);
-    return Scene.v()
-        .getOrMakeFastHierarchy()
-        .canStoreType(getType().getDelegate(), Scene.v().getType("java.lang.Throwable"));
+    return Client.getView()
+        .getTypeHierarchy()
+        .isSubtype(
+            getType().getDelegate(),
+            Client.getIdentifierFactory().getClassType("java.lang.Throwable"));
   }
 
   public boolean isCast() {
@@ -145,7 +140,8 @@ public class JimpleVal extends Val {
 
   public StaticFieldVal getStaticField() {
     JStaticFieldRef val = (JStaticFieldRef) v;
-    return new JimpleStaticFieldVal(new JimpleField(val.getFieldSignature()), m);
+    return new JimpleStaticFieldVal(
+        new JimpleField(Client.getSootField(val.getFieldSignature())), m);
   }
 
   public boolean isArrayRef() {

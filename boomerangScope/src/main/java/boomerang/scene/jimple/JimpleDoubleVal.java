@@ -3,7 +3,7 @@ package boomerang.scene.jimple;
 import boomerang.scene.Method;
 import boomerang.scene.Val;
 import boomerang.scene.ValWithFalseVariable;
-import soot.Value;
+import sootup.core.jimple.basic.Value;
 
 public class JimpleDoubleVal extends JimpleVal implements ValWithFalseVariable {
   private final Val falseVariable;

@@ -1,28 +1,37 @@
 package boomerang.scene.jimple;
 
 import boomerang.scene.CallGraph;
-import boomerang.scene.Statement;
+import java.util.List;
+import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Scene;
-import soot.SootMethod;
+import sootup.analysis.interprocedural.icfg.CGEdgeUtil;
+import sootup.analysis.interprocedural.icfg.CalleeMethodSignature;
+import sootup.core.signatures.MethodSignature;
+import sootup.java.core.JavaSootMethod;
+import sootup.java.core.views.JavaView;
 
 public class SootCallGraph extends CallGraph {
   Logger LOGGER = LoggerFactory.getLogger(SootCallGraph.class);
 
-  public SootCallGraph() {
-    soot.jimple.toolkits.callgraph.CallGraph callGraph = Scene.v().getCallGraph();
-    for (soot.jimple.toolkits.callgraph.Edge e : callGraph) {
-      if (e.src().hasActiveBody() && e.tgt().hasActiveBody() && e.srcStmt() != null) {
-        Statement callSite = JimpleStatement.create(e.srcStmt(), JimpleMethod.of(e.src()));
-        if (callSite.containsInvokeExpr()) {
-          LOGGER.trace("Call edge from {} to target method {}", callSite, e.tgt());
-          this.addEdge(new Edge(callSite, JimpleMethod.of(e.tgt())));
-        }
-      }
+  public SootCallGraph(
+      JavaView view, sootup.callgraph.CallGraph cg, List<MethodSignature> entryPoints) {
+    Set<Pair<MethodSignature, CalleeMethodSignature>> callEdges = CGEdgeUtil.getCallEdges(view, cg);
+    for (Pair<MethodSignature, CalleeMethodSignature> callEdge : callEdges) {
+      JimpleMethod targetMethod =
+          JimpleMethod.of(
+              (JavaSootMethod) view.getMethod(callEdge.getRight().getMethodSignature()).get());
+      JimpleMethod sourceMethod =
+          JimpleMethod.of((JavaSootMethod) view.getMethod(callEdge.getLeft()).get());
+      this.addEdge(
+          new Edge(
+              JimpleStatement.create(callEdge.getRight().getSourceStmt(), sourceMethod),
+              targetMethod));
     }
-    for (SootMethod m : Scene.v().getEntryPoints()) {
-      if (m.hasActiveBody()) this.addEntryPoint(JimpleMethod.of(m));
+
+    for (MethodSignature m : entryPoints) {
+      this.addEntryPoint(JimpleMethod.of((JavaSootMethod) view.getMethod(m).get()));
     }
   }
 }

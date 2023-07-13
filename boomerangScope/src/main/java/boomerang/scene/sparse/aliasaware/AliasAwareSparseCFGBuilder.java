@@ -10,25 +10,30 @@ import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import soot.*;
-import soot.jimple.InvokeExpr;
-import soot.jimple.StaticFieldRef;
-import soot.jimple.Stmt;
-import soot.jimple.internal.*;
-import soot.toolkits.graph.BriefUnitGraph;
-import soot.toolkits.graph.DirectedGraph;
+import sootup.core.graph.StmtGraph;
+import sootup.core.jimple.basic.Immediate;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.expr.*;
+import sootup.core.jimple.common.ref.JArrayRef;
+import sootup.core.jimple.common.ref.JInstanceFieldRef;
+import sootup.core.jimple.common.ref.JStaticFieldRef;
+import sootup.core.jimple.common.stmt.JAssignStmt;
+import sootup.core.jimple.common.stmt.JIdentityStmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
+import sootup.core.types.Type;
 
 /** Value is the type of DFF */
 public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private Deque<Value> backwardWorklist;
   private Deque<Value> forwardWorklist;
-  private Map<Value, Unit> definitions;
-  private Map<Value, LinkedHashSet<Unit>> valueToUnits;
-  private Map<Value, Pair<Value, Unit>> valueKillebyValuedAt;
+  private Map<Value, Stmt> definitions;
+  private Map<Value, LinkedHashSet<Stmt>> valueToUnits;
+  private Map<Value, Pair<Value, Stmt>> valueKillebyValuedAt;
   private Type queryVarType;
   private SootMethod currentMethod;
-  private Unit queryStmt;
+  private Stmt queryStmt;
   private String activePass;
   private int lastNodeIndex = -1;
 
@@ -52,16 +57,16 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   public SparseAliasingCFG buildSparseCFG(
-      Val initialQueryVar, SootMethod m, Val queryVar, Unit queryStmt, SparseCFGQueryLog queryLog) {
+      Val initialQueryVar, SootMethod m, Val queryVar, Stmt queryStmt, SparseCFGQueryLog queryLog) {
     currentMethod = m;
     this.queryStmt = queryStmt;
     queryVarType = SootAdapter.getTypeOfVal(initialQueryVar);
 
-    DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
+    StmtGraph<?> stmtGraph = m.getBody().getStmtGraph();
 
-    Unit head = getHead(unitGraph);
+    Stmt head = getHead(stmtGraph);
 
-    MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
+    MutableGraph<Stmt> mCFG = numberStmtsAndConvertToMutableGraph(stmtGraph);
 
     int initialStmtCount = mCFG.nodes().size();
     // if (isDebugTarget()) {
@@ -72,8 +77,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
     findStmtsToKeep(mCFG, SootAdapter.asValue(queryVar), queryStmt);
 
-    List<Unit> tails = unitGraph.getTails();
-    for (Unit tail : tails) {
+    List<Stmt> tails = stmtGraph.getTails();
+    for (Stmt tail : tails) {
       sparsify(mCFG, head, tail, queryStmt);
     }
     // if (isDebugTarget()) {
@@ -87,11 +92,11 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, valueToUnits.keySet(), unitToNumber);
   }
 
-  private void sparsify(MutableGraph<Unit> mCFG, Unit head, Unit tail, Unit queryStmt) {
-    Iterator<Unit> iter = getBFSIterator(mCFG, head);
-    Set<Unit> stmsToRemove = new HashSet<>();
+  private void sparsify(MutableGraph<Stmt> mCFG, Stmt head, Stmt tail, Stmt queryStmt) {
+    Iterator<Stmt> iter = getBFSIterator(mCFG, head);
+    Set<Stmt> stmsToRemove = new HashSet<>();
     while (iter.hasNext()) {
-      Unit unit = iter.next();
+      Stmt unit = iter.next();
       if (!isControlStmt(unit)
           && !existInValueToUnits(unit)
           && !unit.equals(queryStmt)
@@ -101,9 +106,9 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
         stmsToRemove.add(unit);
       }
     }
-    for (Unit unit : stmsToRemove) {
-      Set<Unit> preds = mCFG.predecessors(unit);
-      Set<Unit> succs = mCFG.successors(unit);
+    for (Stmt unit : stmsToRemove) {
+      Set<Stmt> preds = mCFG.predecessors(unit);
+      Set<Stmt> succs = mCFG.successors(unit);
       if (preds.size() == 1 && succs.size() == 1) {
         // TODO: revise this
         // if a node has multiple in and out edges, don't remove it
@@ -113,32 +118,29 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private boolean isTargetCallSite(Unit unit) {
-    if (unit instanceof Stmt) {
-      Stmt stmt = (Stmt) unit;
-      if (stmt.containsInvokeExpr()) {
-        InvokeExpr invokeExpr = stmt.getInvokeExpr();
-        List<Value> args = invokeExpr.getArgs();
-        for (Value d : valueToUnits.keySet()) {
-          // v as arg
-          for (Value arg : args) {
-            if (d.equals(arg)) {
-              return true;
-            }
-          }
-          // v as base v.m()
-          if (isInvokeBase(d, invokeExpr)) {
+  private boolean isTargetCallSite(Stmt stmt) {
+    if (stmt.containsInvokeExpr()) {
+      AbstractInvokeExpr invokeExpr = stmt.getInvokeExpr();
+      List<Immediate> args = invokeExpr.getArgs();
+      for (Value d : valueToUnits.keySet()) {
+        // v as arg
+        for (Value arg : args) {
+          if (d.equals(arg)) {
             return true;
           }
+        }
+        // v as base v.m()
+        if (isInvokeBase(d, invokeExpr)) {
+          return true;
         }
       }
     }
     return false;
   }
 
-  private boolean existInValueToUnits(Unit stmt) {
-    for (Set<Unit> units : valueToUnits.values()) {
-      for (Unit unit : units) {
+  private boolean existInValueToUnits(Stmt stmt) {
+    for (Set<Stmt> units : valueToUnits.values()) {
+      for (Stmt unit : units) {
         if (stmt.equals(unit)) {
           return true;
         }
@@ -147,9 +149,9 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return false;
   }
 
-  private void findStmtsToKeep(MutableGraph<Unit> mCFG, Value queryVar, Unit queryStmt) {
+  private void findStmtsToKeep(MutableGraph<Stmt> mCFG, Value queryVar, Stmt queryStmt) {
     activePass = "findBackwardDef";
-    Unit def = findBackwardDefForValue(mCFG, queryStmt, queryVar, new HashSet<>(), false);
+    Stmt def = findBackwardDefForValue(mCFG, queryStmt, queryVar, new HashSet<>(), false);
     putToValueToUnits(queryVar, def);
     activePass = "backwardPass";
     backwardPass(mCFG, def);
@@ -161,7 +163,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     findStmtsAfterKill(mCFG, queryStmt);
   }
 
-  private void findStmtsForFieldBase(MutableGraph<Unit> mCFG, Unit queryStmt) {
+  private void findStmtsForFieldBase(MutableGraph<Stmt> mCFG, Stmt queryStmt) {
     while (!backwardWorklist.isEmpty()) {
       backwardPass(mCFG, queryStmt);
       while (!forwardWorklist.isEmpty()) {
@@ -170,13 +172,13 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private void findStmtsAfterKill(MutableGraph<Unit> mCFG, Unit queryStmt) {
-    Unit def;
+  private void findStmtsAfterKill(MutableGraph<Stmt> mCFG, Stmt queryStmt) {
+    Stmt def;
     while (!backwardWorklist.isEmpty()) {
       Value val = popBackwardStack();
-      Unit killedAt = null;
-      Collection<Pair<Value, Unit>> killers = valueKillebyValuedAt.values();
-      for (Pair<Value, Unit> killer : killers) {
+      Stmt killedAt = null;
+      Collection<Pair<Value, Stmt>> killers = valueKillebyValuedAt.values();
+      for (Pair<Value, Stmt> killer : killers) {
         if (killer.getX().equals(val)) {
           killedAt = killer.getY();
           break;
@@ -192,11 +194,11 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     forwardPass(mCFG, queryStmt);
   }
 
-  private void backwardPass(MutableGraph<Unit> mCFG, Unit def) {
+  private void backwardPass(MutableGraph<Stmt> mCFG, Stmt def) {
     while (!backwardWorklist.isEmpty()) {
       Value val = popBackwardStack();
-      Unit existingDef = definitions.get(val);
-      Unit newDef;
+      Stmt existingDef = definitions.get(val);
+      Stmt newDef;
       if (existingDef != null) {
         newDef = findBackwardDefForValue(mCFG, existingDef, val, new HashSet<>(), true);
       } else {
@@ -209,14 +211,14 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private void forwardPass(MutableGraph<Unit> mCFG, Unit queryStmt) {
+  private void forwardPass(MutableGraph<Stmt> mCFG, Stmt queryStmt) {
     while (!forwardWorklist.isEmpty()) {
       Value val = popForwardStack();
-      Unit defStmt = definitions.get(val);
+      Stmt defStmt = definitions.get(val);
       putToValueToUnits(val, defStmt);
-      Set<Unit> unitsForVal =
+      Set<Stmt> unitsForVal =
           findForwardDefUseForValue(mCFG, defStmt, val, queryStmt, new HashSet<>());
-      for (Unit unit : unitsForVal) {
+      for (Stmt unit : unitsForVal) {
         putToValueToUnits(val, unit);
       }
     }
@@ -256,12 +258,12 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return val;
   }
 
-  private void putToValueToUnits(Value val, Unit stmt) {
+  private void putToValueToUnits(Value val, Stmt stmt) {
     if (valueToUnits.containsKey(val)) {
-      Set<Unit> units = valueToUnits.get(val);
+      Set<Stmt> units = valueToUnits.get(val);
       units.add(stmt);
     } else {
-      LinkedHashSet<Unit> units = new LinkedHashSet<>();
+      LinkedHashSet<Stmt> units = new LinkedHashSet<>();
       units.add(stmt);
       valueToUnits.put(val, units);
     }
@@ -275,8 +277,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private Unit findBackwardDefForValue(
-      MutableGraph<Unit> mCFG, Unit tail, Value queryVar, Set<Unit> visited, boolean existingDef) {
+  private Stmt findBackwardDefForValue(
+      MutableGraph<Stmt> mCFG, Stmt tail, Value queryVar, Set<Stmt> visited, boolean existingDef) {
     if (tail == null) {
       return null;
     }
@@ -284,10 +286,10 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     if (!existingDef && isDefOfValue(tail, queryVar)) {
       return tail;
     }
-    Set<Unit> preds = mCFG.predecessors(tail);
-    for (Unit pred : preds) {
+    Set<Stmt> preds = mCFG.predecessors(tail);
+    for (Stmt pred : preds) {
       if (!visited.contains(pred)) {
-        Unit u = findBackwardDefForValue(mCFG, pred, queryVar, visited, false);
+        Stmt u = findBackwardDefForValue(mCFG, pred, queryVar, visited, false);
         if (u == null) {
           continue;
         } else {
@@ -302,7 +304,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private boolean isDefOfValue(Unit unit, Value queryVar) {
+  private boolean isDefOfValue(Stmt unit, Value queryVar) {
     if (unit instanceof JAssignStmt) {
       JAssignStmt stmt = (JAssignStmt) unit;
       Value leftOp = stmt.getLeftOp();
@@ -361,9 +363,13 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private boolean equalsFieldRef(Value op, Value queryVar) {
     if (op instanceof JInstanceFieldRef && queryVar instanceof JInstanceFieldRef) {
       return ((JInstanceFieldRef) queryVar).getBase().equals(((JInstanceFieldRef) op).getBase())
-          && ((JInstanceFieldRef) queryVar).getField().equals(((JInstanceFieldRef) op).getField());
-    } else if (op instanceof StaticFieldRef && queryVar instanceof StaticFieldRef) {
-      return ((StaticFieldRef) op).getFieldRef().equals(((StaticFieldRef) queryVar).getFieldRef());
+          && ((JInstanceFieldRef) queryVar)
+              .getFieldSignature()
+              .equals(((JInstanceFieldRef) op).getFieldSignature());
+    } else if (op instanceof JStaticFieldRef && queryVar instanceof JStaticFieldRef) {
+      return ((JStaticFieldRef) op)
+          .getFieldSignature()
+          .equals(((JStaticFieldRef) queryVar).getFieldSignature());
     }
     return false;
   }
@@ -393,7 +399,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
    * @param queryStmt
    * @return
    */
-  private boolean shouldStopSearch(Unit currentStmt, Unit queryStmt) {
+  private boolean shouldStopSearch(Stmt currentStmt, Stmt queryStmt) {
     if (ignoreAfterQuery) {
       return unitToNumber.get(currentStmt) >= unitToNumber.get(queryStmt);
     } else {
@@ -401,12 +407,12 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private Set<Unit> findForwardDefUseForValue(
-      MutableGraph<Unit> mCFG, Unit head, Value queryVar, Unit queryStmt, Set<Unit> visited) {
+  private Set<Stmt> findForwardDefUseForValue(
+      MutableGraph<Stmt> mCFG, Stmt head, Value queryVar, Stmt queryStmt, Set<Stmt> visited) {
     visited.add(head);
-    Set<Unit> stmtsToKeep = new HashSet<>();
-    Set<Unit> succs = mCFG.successors(head);
-    for (Unit succ : succs) {
+    Set<Stmt> stmtsToKeep = new HashSet<>();
+    Set<Stmt> succs = mCFG.successors(head);
+    for (Stmt succ : succs) {
       if (shouldStopSearch(succ, queryStmt)) {
         // do not process after queryStmt
         return stmtsToKeep;
@@ -416,7 +422,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
         stmtsToKeep.add(succ);
       }
       if (!visited.contains(succ)) {
-        Set<Unit> ret = findForwardDefUseForValue(mCFG, succ, queryVar, queryStmt, visited);
+        Set<Stmt> ret = findForwardDefUseForValue(mCFG, succ, queryVar, queryStmt, visited);
         stmtsToKeep.addAll(ret);
       }
     }
@@ -428,7 +434,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
    * @param queryVar
    * @return
    */
-  private boolean keepContainingStmtsForward(Unit unit, Value queryVar) {
+  private boolean keepContainingStmtsForward(Stmt unit, Value queryVar) {
     if (unit instanceof JAssignStmt) {
       JAssignStmt stmt = (JAssignStmt) unit;
       Value leftOp = stmt.getLeftOp();
@@ -495,7 +501,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private boolean equalsInitialFieldType(Value op, Value queryVar) {
     if (op instanceof JInstanceFieldRef) {
       Value base = ((JInstanceFieldRef) op).getBase();
-      Type fieldType = ((JInstanceFieldRef) op).getField().getType();
+      Type fieldType = ((JInstanceFieldRef) op).getType();
       if (base.equals(queryVar) && fieldType.equals(queryVarType)) {
         return true;
       }
@@ -514,7 +520,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private boolean equalsFieldType(Value op, Value queryVar) {
     if (op instanceof JInstanceFieldRef) {
       Value base = ((JInstanceFieldRef) op).getBase();
-      Type fieldType = ((JInstanceFieldRef) op).getField().getType();
+      Type fieldType = ((JInstanceFieldRef) op).getType();
       if (base.equals(queryVar) && fieldType.equals(queryVar.getType())) {
         return true;
       }
@@ -544,7 +550,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private Set<Value> getInvokeBaseAndParams(Value invoke, Value d) {
     Set<Value> otherArgs = new HashSet<>();
     if (invoke instanceof AbstractInvokeExpr) {
-      List<Value> args = ((AbstractInvokeExpr) invoke).getArgs();
+      List<Immediate> args = ((AbstractInvokeExpr) invoke).getArgs();
       for (Value arg : args) {
         if (!arg.equals(d) && (arg.getType().equals(d.getType()))
             || arg.getType().equals(queryVarType)) {
@@ -559,12 +565,12 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return otherArgs;
   }
 
-  private boolean keepInvokeForValue(Unit unit, Value d) {
+  private boolean keepInvokeForValue(Stmt unit, Value d) {
     if (unit instanceof Stmt) {
       Stmt stmt = (Stmt) unit;
       if (stmt.containsInvokeExpr()) {
-        InvokeExpr invokeExpr = stmt.getInvokeExpr();
-        List<Value> args = invokeExpr.getArgs();
+        AbstractInvokeExpr invokeExpr = stmt.getInvokeExpr();
+        List<Immediate> args = invokeExpr.getArgs();
         // v as arg
         // TODO: check this looks absurd
         for (Value arg : args) {
@@ -592,7 +598,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     return false;
   }
 
-  private boolean isInvokeBase(Value d, InvokeExpr invokeExpr) {
+  private boolean isInvokeBase(Value d, AbstractInvokeExpr invokeExpr) {
     if (invokeExpr instanceof JVirtualInvokeExpr) {
       Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
       if (d.equals(base)) {
@@ -632,12 +638,12 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
    * @param graph
    * @param cfg
    */
-  private void buildCompleteCFG(Unit curr, DirectedGraph<Unit> graph, SparseAliasingCFG cfg) {
-    List<Unit> succs = graph.getSuccsOf(curr);
+  private void buildCompleteCFG(Stmt curr, StmtGraph<?> graph, SparseAliasingCFG cfg) {
+    List<Stmt> succs = graph.successors(curr);
     if (succs == null || succs.isEmpty()) {
       return;
     }
-    for (Unit succ : succs) {
+    for (Stmt succ : succs) {
       if (cfg.addEdge(curr, succ)) {
         buildCompleteCFG(succ, graph, cfg);
       }

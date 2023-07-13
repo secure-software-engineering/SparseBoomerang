@@ -7,16 +7,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
-import soot.Unit;
-import soot.UnitPatchingChain;
-import soot.jimple.IdentityStmt;
-import soot.jimple.Stmt;
-import soot.toolkits.graph.BriefUnitGraph;
-import soot.toolkits.graph.DirectedGraph;
+import sootup.core.graph.StmtGraph;
+import sootup.core.jimple.common.stmt.JIdentityStmt;
+import sootup.core.jimple.common.stmt.Stmt;
 
 public class JimpleControlFlowGraph implements ControlFlowGraph {
 
-  protected DirectedGraph<Unit> graph;
+  protected StmtGraph<?> graph;
 
   protected boolean cacheBuild = false;
   protected List<Statement> startPointCache = Lists.newArrayList();
@@ -31,7 +28,7 @@ public class JimpleControlFlowGraph implements ControlFlowGraph {
 
   public JimpleControlFlowGraph(JimpleMethod method) {
     this.method = method;
-    this.graph = new BriefUnitGraph(method.getDelegate().getActiveBody());
+    this.graph = method.getDelegate().getBody().getStmtGraph();
   }
 
   public Collection<Statement> getStartPoints() {
@@ -42,33 +39,33 @@ public class JimpleControlFlowGraph implements ControlFlowGraph {
   protected void buildCache() {
     if (cacheBuild) return;
     cacheBuild = true;
-    List<Unit> heads = graph.getHeads();
-    for (Unit u : heads) {
+    Collection<Stmt> heads = graph.getEntrypoints();
+    for (Stmt u : heads) {
       // We add a nop statement to the body and ignore IdentityStmt ($stack14 := @caughtexception)
-      if (u instanceof IdentityStmt) {
+      if (u instanceof JIdentityStmt) {
         continue;
       }
-      Statement stmt = JimpleStatement.create((Stmt) u, method);
+      Statement stmt = JimpleStatement.create(u, method);
       startPointCache.add(stmt);
     }
-    List<Unit> tails = graph.getTails();
-    for (Unit u : tails) {
-      Statement stmt = JimpleStatement.create((Stmt) u, method);
+    List<Stmt> tails = graph.getTails();
+    for (Stmt u : tails) {
+      Statement stmt = JimpleStatement.create(u, method);
       endPointCache.add(stmt);
     }
 
-    UnitPatchingChain units = method.getDelegate().getActiveBody().getUnits();
-    for (Unit u : units) {
-      Statement first = JimpleStatement.create((Stmt) u, method);
+    List<Stmt> units = method.getDelegate().getBody().getStmts();
+    for (Stmt u : units) {
+      Statement first = JimpleStatement.create(u, method);
       statements.add(first);
 
-      for (Unit succ : graph.getSuccsOf(u)) {
-        Statement succStmt = JimpleStatement.create((Stmt) succ, method);
+      for (Stmt succ : graph.successors(u)) {
+        Statement succStmt = JimpleStatement.create(succ, method);
         succsOfCache.put(first, succStmt);
       }
 
-      for (Unit pred : graph.getPredsOf(u)) {
-        Statement predStmt = JimpleStatement.create((Stmt) pred, method);
+      for (Stmt pred : graph.predecessors(u)) {
+        Statement predStmt = JimpleStatement.create(pred, method);
         predsOfCache.put(first, predStmt);
       }
     }

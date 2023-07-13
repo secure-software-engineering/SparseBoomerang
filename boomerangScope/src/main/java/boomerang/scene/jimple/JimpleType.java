@@ -5,13 +5,9 @@ import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
 import boomerang.scene.up.Client;
-import sootup.core.types.ArrayType;
-import sootup.core.types.ClassType;
-import sootup.core.types.NullType;
-import sootup.core.types.PrimitiveType;
+import sootup.core.types.*;
 import sootup.java.core.JavaSootClass;
 import sootup.java.core.types.JavaClassType;
-import sun.jvm.hotspot.debugger.cdbg.RefType;
 
 public class JimpleType implements Type {
 
@@ -26,7 +22,7 @@ public class JimpleType implements Type {
   }
 
   public boolean isRefType() {
-    return delegate instanceof RefType;
+    return delegate instanceof ReferenceType;
   }
 
   @Override
@@ -77,7 +73,7 @@ public class JimpleType implements Type {
   public boolean isSubtypeOf(String type) {
     JavaSootClass interfaceType = Client.getSootClass(type);
     if (delegate.toString().equals(type)) return true;
-    if (!(delegate instanceof RefType)) {
+    if (!(delegate instanceof ReferenceType)) {
       if (delegate instanceof ArrayType) {
         return true;
       }

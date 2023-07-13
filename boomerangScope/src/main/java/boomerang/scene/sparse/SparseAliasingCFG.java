@@ -8,25 +8,25 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Unit;
-import soot.Value;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.stmt.Stmt;
 
 public class SparseAliasingCFG {
 
   private static Logger log = LoggerFactory.getLogger(SparseAliasingCFG.class);
 
-  private MutableGraph<Unit> graph;
+  private MutableGraph<Stmt> graph;
   private Val d; // which dff this SCFG belongs to
-  private Unit queryStmt; // in contrast to sparseCFG queryStmt affects the graph
+  private Stmt queryStmt; // in contrast to sparseCFG queryStmt affects the graph
   private Set<Value> fallbackAliases;
-  private Map<Unit, Integer> unitToNumber;
+  private Map<Stmt, Integer> unitToNumber;
 
   public SparseAliasingCFG(
       Val d,
-      MutableGraph<Unit> graph,
-      Unit queryStmt,
+      MutableGraph<Stmt> graph,
+      Stmt queryStmt,
       Set<Value> fallbackAliases,
-      Map<Unit, Integer> unitToNumber) {
+      Map<Stmt, Integer> unitToNumber) {
     this.d = d;
     this.queryStmt = queryStmt;
     this.graph = graph;
@@ -38,20 +38,20 @@ public class SparseAliasingCFG {
     return fallbackAliases;
   }
 
-  public synchronized boolean addEdge(Unit node, Unit succ) {
+  public synchronized boolean addEdge(Stmt node, Stmt succ) {
     return graph.putEdge(node, succ);
   }
 
-  public Set<Unit> getSuccessors(Unit node) {
+  public Set<Stmt> getSuccessors(Stmt node) {
     return graph.successors(node);
   }
 
-  public List<Unit> getNextUses(Unit node) {
-    Set<Unit> successors = getSuccessors(node);
+  public List<Stmt> getNextUses(Stmt node) {
+    Set<Stmt> successors = getSuccessors(node);
     return new ArrayList<>(successors);
   }
 
-  public MutableGraph<Unit> getGraph() {
+  public MutableGraph<Stmt> getGraph() {
     return this.graph;
   }
 }
