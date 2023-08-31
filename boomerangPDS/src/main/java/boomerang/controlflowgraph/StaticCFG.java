@@ -11,9 +11,8 @@ import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.scene.sparse.eval.PropagationCounter;
 import java.util.*;
-import soot.SootMethod;
-import soot.Unit;
-import soot.jimple.Stmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
@@ -59,8 +58,8 @@ public class StaticCFG implements ObservableControlFlowGraph {
 
   private void propagateSparse(
       SuccessorListener l, Method method, Statement curr, SparseAliasingCFG sparseCFG) {
-    Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
-    for (Unit succ : successors) {
+    Set<Stmt> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
+    for (Stmt succ : successors) {
       PropagationCounter.getInstance(sparsificationStrategy).countForward();
       l.getSuccessor(SootAdapter.asStatement(succ, method));
     }

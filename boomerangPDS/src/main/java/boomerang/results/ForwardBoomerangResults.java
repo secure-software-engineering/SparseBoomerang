@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import soot.jimple.IntConstant;
+import sootup.core.jimple.common.constant.IntConstant;
 import sync.pds.solver.nodes.GeneratedState;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
@@ -320,10 +320,10 @@ public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerang
             Evaluation eval = null;
             if (e.getValue().equals(ConditionDomain.TRUE)) {
               // Map first to JimpleVal
-              eval = ifStmt1.evaluate(new JimpleVal(IntConstant.v(1), e.getKey().m()));
+              eval = ifStmt1.evaluate(new JimpleVal(IntConstant.getInstance(1), e.getKey().m()));
             } else if (e.getValue().equals(ConditionDomain.FALSE)) {
               // Map first to JimpleVal
-              eval = ifStmt1.evaluate(new JimpleVal(IntConstant.v(0), e.getKey().m()));
+              eval = ifStmt1.evaluate(new JimpleVal(IntConstant.getInstance(0), e.getKey().m()));
             }
             if (eval != null) {
               if (mustBeVal.equals(ConditionDomain.FALSE)) {
