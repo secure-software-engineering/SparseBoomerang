@@ -200,10 +200,10 @@ public abstract class WeightedBoomerang<W extends Weight> {
       Val fact = node.fact();
       if (fact instanceof JimpleStaticFieldVal) {
         JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
-          ClassType classType = ((JimpleField) val.field()).getSootField().getDeclaringClassType();
-          JavaSootClass sootClass = Client.getSootClass(classType.getFullyQualifiedName());
-          Set<? extends JavaSootMethod> methods = sootClass.getMethods();
-          for (JavaSootMethod m : methods) {
+        ClassType classType = ((JimpleField) val.field()).getSootField().getDeclaringClassType();
+        JavaSootClass sootClass = Client.getSootClass(classType.getFullyQualifiedName());
+        Set<? extends JavaSootMethod> methods = sootClass.getMethods();
+        for (JavaSootMethod m : methods) {
           if (!m.hasBody()) {
             continue;
           }
