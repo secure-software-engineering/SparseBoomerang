@@ -19,7 +19,7 @@ import boomerang.scene.Pair;
 import boomerang.scene.Statement;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Val;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import com.google.common.base.Joiner;
 import java.util.Collection;
 import sootup.core.jimple.common.constant.StringConstant;
@@ -123,7 +123,7 @@ public class JimpleStatement extends Statement {
     JAssignStmt as = (JAssignStmt) delegate;
     if (as.getLeftOp() instanceof JStaticFieldRef) {
       JStaticFieldRef staticFieldRef = (JStaticFieldRef) as.getLeftOp();
-      JavaSootField sootField = Client.getSootField(staticFieldRef.getFieldSignature());
+      JavaSootField sootField = SootUpClient.getInstance().getSootField(staticFieldRef.getFieldSignature());
       return new JimpleField(sootField);
     }
 
@@ -131,7 +131,7 @@ public class JimpleStatement extends Statement {
       return Field.array(getArrayBase().getY());
     }
     JInstanceFieldRef ifr = (JInstanceFieldRef) as.getLeftOp();
-    JavaSootField sootField = Client.getSootField(ifr.getFieldSignature());
+    JavaSootField sootField = SootUpClient.getInstance().getSootField(ifr.getFieldSignature());
     return new JimpleField(sootField);
   }
 
@@ -150,7 +150,7 @@ public class JimpleStatement extends Statement {
   public Field getLoadedField() {
     JAssignStmt as = (JAssignStmt) delegate;
     JInstanceFieldRef ifr = (JInstanceFieldRef) as.getRightOp();
-    JavaSootField sootField = Client.getSootField(ifr.getFieldSignature());
+    JavaSootField sootField = SootUpClient.getInstance().getSootField(ifr.getFieldSignature());
     return new JimpleField(sootField);
   }
 
@@ -413,7 +413,7 @@ public class JimpleStatement extends Statement {
     JInstanceFieldRef val = (JInstanceFieldRef) ins.getLeftOp();
     return new Pair<Val, Field>(
         new JimpleVal(val.getBase(), method),
-        new JimpleField(Client.getSootField(val.getFieldSignature())));
+        new JimpleField(SootUpClient.getInstance().getSootField(val.getFieldSignature())));
   }
 
   @Override
@@ -422,7 +422,7 @@ public class JimpleStatement extends Statement {
     JInstanceFieldRef val = (JInstanceFieldRef) ins.getRightOp();
     return new Pair<Val, Field>(
         new JimpleVal(val.getBase(), method),
-        new JimpleField(Client.getSootField(val.getFieldSignature())));
+        new JimpleField(SootUpClient.getInstance().getSootField(val.getFieldSignature())));
   }
 
   @Override
@@ -448,7 +448,7 @@ public class JimpleStatement extends Statement {
       throw new RuntimeException("Error");
     }
     return new JimpleStaticFieldVal(
-        new JimpleField(Client.getSootField(v.getFieldSignature())), method);
+        new JimpleField(SootUpClient.getInstance().getSootField(v.getFieldSignature())), method);
   }
 
   @Override

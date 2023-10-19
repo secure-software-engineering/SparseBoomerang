@@ -4,7 +4,7 @@ import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
 import boomerang.scene.Method;
 import boomerang.scene.Val;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class JimpleInvokeExpr implements InvokeExpr {
   }
 
   public DeclaredMethod getMethod() {
-    JavaSootMethod sootMethod = Client.getSootMethod(delegate.getMethodSignature());
+    JavaSootMethod sootMethod = SootUpClient.getInstance().getSootMethod(delegate.getMethodSignature());
     return new JimpleDeclaredMethod(this, sootMethod);
   }
 

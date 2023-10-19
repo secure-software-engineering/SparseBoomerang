@@ -17,7 +17,7 @@ import boomerang.scene.Pair;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import sootup.core.IdentifierFactory;
 import sootup.core.jimple.basic.Local;
 import sootup.core.jimple.basic.Value;
@@ -113,12 +113,11 @@ public class JimpleVal extends Val {
   }
 
   public boolean isThrowableAllocationType() {
-    IdentifierFactory factory = JavaIdentifierFactory.getInstance();
-    return Client.getView()
+    return SootUpClient.getInstance().getView()
         .getTypeHierarchy()
         .isSubtype(
             getType().getDelegate(),
-            Client.getIdentifierFactory().getClassType("java.lang.Throwable"));
+            SootUpClient.getInstance().getIdentifierFactory().getClassType("java.lang.Throwable"));
   }
 
   public boolean isCast() {
@@ -141,7 +140,7 @@ public class JimpleVal extends Val {
   public StaticFieldVal getStaticField() {
     JStaticFieldRef val = (JStaticFieldRef) v;
     return new JimpleStaticFieldVal(
-        new JimpleField(Client.getSootField(val.getFieldSignature())), m);
+        new JimpleField(SootUpClient.getInstance().getSootField(val.getFieldSignature())), m);
   }
 
   public boolean isArrayRef() {

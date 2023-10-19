@@ -1,6 +1,6 @@
 package boomerang.scene.jimple;
 
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +57,7 @@ public class ExplicitNullifyFields {
         Value left = as.getLeftOp();
         if (left instanceof JInstanceFieldRef) {
           JInstanceFieldRef ifr = (JInstanceFieldRef) left;
-          res.add(Client.getSootField(ifr.getFieldSignature()));
+          res.add(SootUpClient.getInstance().getSootField(ifr.getFieldSignature()));
         }
       }
     }

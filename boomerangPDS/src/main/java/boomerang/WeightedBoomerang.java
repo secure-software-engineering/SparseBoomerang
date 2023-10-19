@@ -43,7 +43,7 @@ import boomerang.scene.Val;
 import boomerang.scene.jimple.JimpleField;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStaticFieldVal;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;
@@ -201,7 +201,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       if (fact instanceof JimpleStaticFieldVal) {
         JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
         ClassType classType = ((JimpleField) val.field()).getSootField().getDeclaringClassType();
-        JavaSootClass sootClass = Client.getSootClass(classType.getFullyQualifiedName());
+        JavaSootClass sootClass = SootUpClient.getInstance().getSootClass(classType.getFullyQualifiedName());
         Set<? extends JavaSootMethod> methods = sootClass.getMethods();
         for (JavaSootMethod m : methods) {
           if (!m.hasBody()) {

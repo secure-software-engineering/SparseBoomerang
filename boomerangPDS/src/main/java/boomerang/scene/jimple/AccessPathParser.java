@@ -1,7 +1,7 @@
 package boomerang.scene.jimple;
 
 import boomerang.scene.Field;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import boomerang.util.AccessPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -43,7 +43,7 @@ public class AccessPathParser {
     for (String fieldName : fieldNames) {
       if (type instanceof ClassType) {
         ClassType refType = (ClassType) type;
-        SootClass sootClass = Client.getSootClass(refType.getClassName());
+        SootClass sootClass = SootUpClient.getInstance().getSootClass(refType.getClassName());
         SootField fieldByName = (SootField) sootClass.getField(fieldName).get();
         fields.add(new JimpleField(fieldByName));
         type = fieldByName.getType();

@@ -48,7 +48,7 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sootVersion>4.3.0-SNAPSHOT</sootVersion>
+<!--        <sootVersion>4.3.0-SNAPSHOT</sootVersion>-->
         <fmt-maven-plugin.version>2.9</fmt-maven-plugin.version>
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
@@ -172,17 +172,17 @@
             <dependency>
                 <groupId>org.soot-oss</groupId>
                 <artifactId>sootup.core</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.soot-oss</groupId>
                 <artifactId>sootup.java.core</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.soot-oss</groupId>
                 <artifactId>sootup.analysis</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

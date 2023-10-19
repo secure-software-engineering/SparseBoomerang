@@ -5,7 +5,7 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.Lists;
@@ -123,7 +123,7 @@ public class JimpleMethod extends Method {
 
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        Client.getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
+        SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
     return new JimpleWrappedClass(sootClass);
   }
 

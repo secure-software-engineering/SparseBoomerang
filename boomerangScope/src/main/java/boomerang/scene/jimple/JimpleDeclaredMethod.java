@@ -3,7 +3,7 @@ package boomerang.scene.jimple;
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
 import boomerang.scene.WrappedClass;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import sootup.java.core.JavaSootClass;
 import sootup.java.core.JavaSootMethod;
 
@@ -74,7 +74,7 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        Client.getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
+        SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
     return new JimpleWrappedClass(sootClass);
   }
 

@@ -3,7 +3,7 @@ package boomerang.scene.jimple;
 import boomerang.scene.Method;
 import boomerang.scene.Type;
 import boomerang.scene.WrappedClass;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class JimpleWrappedClass implements WrappedClass {
 
   public WrappedClass getSuperclass() {
     Optional<JavaClassType> superclassType = (Optional<JavaClassType>) delegate.getSuperclass();
-    JavaSootClass superClass = Client.getSootClass(superclassType.get().getFullyQualifiedName());
+    JavaSootClass superClass = SootUpClient.getInstance().getSootClass(superclassType.get().getFullyQualifiedName());
     return new JimpleWrappedClass(superClass);
   }
 

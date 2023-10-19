@@ -3,7 +3,7 @@ package boomerang.scene.jimple;
 import boomerang.scene.Field;
 import boomerang.scene.InstanceFieldRef;
 import boomerang.scene.Val;
-import boomerang.scene.up.Client;
+import boomerang.scene.up.SootUpClient;
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
 
 public class JimpleInstanceFieldRef implements InstanceFieldRef {
@@ -21,6 +21,6 @@ public class JimpleInstanceFieldRef implements InstanceFieldRef {
   }
 
   public Field getField() {
-    return new JimpleField(Client.getSootField(delegate.getFieldSignature()));
+    return new JimpleField(SootUpClient.getInstance().getSootField(delegate.getFieldSignature()));
   }
 }
