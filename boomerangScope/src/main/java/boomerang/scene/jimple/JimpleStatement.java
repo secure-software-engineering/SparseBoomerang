@@ -123,7 +123,8 @@ public class JimpleStatement extends Statement {
     JAssignStmt as = (JAssignStmt) delegate;
     if (as.getLeftOp() instanceof JStaticFieldRef) {
       JStaticFieldRef staticFieldRef = (JStaticFieldRef) as.getLeftOp();
-      JavaSootField sootField = SootUpClient.getInstance().getSootField(staticFieldRef.getFieldSignature());
+      JavaSootField sootField =
+          SootUpClient.getInstance().getSootField(staticFieldRef.getFieldSignature());
       return new JimpleField(sootField);
     }
 

@@ -3,11 +3,11 @@ package boomerang.scene.sparse.aliasaware;
 import sootup.core.jimple.basic.JimpleComparator;
 import sootup.core.jimple.basic.StmtPositionInfo;
 import sootup.core.jimple.basic.Value;
-import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.jimple.common.stmt.AbstractStmt;
 import sootup.core.jimple.visitor.StmtVisitor;
 import sootup.core.util.printer.StmtPrinter;
 
-public class DefinedOutside extends Stmt {
+public class DefinedOutside extends AbstractStmt {
 
   Value value;
 

@@ -4,29 +4,30 @@ import static org.junit.Assert.assertTrue;
 
 import aliasing.SparseAliasManager;
 import boomerang.scene.sparse.SparseCFGCache;
+import boomerang.scene.up.BoomerangPreInterceptor;
 import boomerang.scene.up.SootUpClient;
 import boomerang.util.AccessPath;
 import com.google.common.base.Predicate;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sootup.callgraph.CallGraph;
 import sootup.callgraph.RapidTypeAnalysisAlgorithm;
 import sootup.core.inputlocation.AnalysisInputLocation;
+import sootup.core.inputlocation.ClassLoadingOptions;
 import sootup.core.jimple.basic.Value;
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
 import sootup.core.jimple.common.stmt.JAssignStmt;
 import sootup.core.jimple.common.stmt.Stmt;
 import sootup.core.model.SootMethod;
 import sootup.core.signatures.MethodSignature;
+import sootup.core.transform.BodyInterceptor;
 import sootup.java.bytecode.inputlocation.PathBasedAnalysisInputLocation;
+import sootup.java.bytecode.interceptors.TypeAssigner;
 import sootup.java.core.JavaIdentifierFactory;
 import sootup.java.core.JavaProject;
 import sootup.java.core.JavaSootClass;
@@ -84,7 +85,19 @@ public class AliasingTestSetUp {
             .addInputLocation(rtJarLocation)
             .build();
 
-    this.client = SootUpClient.getInstance(project.createView(), JavaIdentifierFactory.getInstance());
+    ClassLoadingOptions clo =
+        new ClassLoadingOptions() {
+          @Override
+          public List<BodyInterceptor> getBodyInterceptors() {
+            List<BodyInterceptor> interceptors = new ArrayList<>();
+            interceptors.add(new TypeAssigner());
+            interceptors.add(new BoomerangPreInterceptor());
+            return interceptors;
+          }
+        };
+    this.client =
+        SootUpClient.getInstance(
+            project.createView(analysisInputLocation -> clo), JavaIdentifierFactory.getInstance());
 
     /**
      * Options.v().set_soot_classpath(sootCp);
@@ -109,6 +122,7 @@ public class AliasingTestSetUp {
       String queryLHS,
       SparseCFGCache.SparsificationStrategy sparsificationStrategy,
       boolean ignoreAfterQuery) {
+    queryLHS = "$" + queryLHS;
     String[] split = queryLHS.split("\\.");
     Optional<Stmt> unitOp;
     if (split.length > 1) {
@@ -134,7 +148,7 @@ public class AliasingTestSetUp {
         }
         SparseAliasManager sparseAliasManager =
             SparseAliasManager.getInstance(
-                    client.getView(), callGraph, entryPoints, sparsificationStrategy, ignoreAfterQuery);
+                client.getView(), callGraph, entryPoints, sparsificationStrategy, ignoreAfterQuery);
         return sparseAliasManager.getAliases(assignStmt, method, leftOp);
       }
     }
@@ -164,18 +178,18 @@ public class AliasingTestSetUp {
   //  }
 
   protected JavaSootMethod getEntryPointMethod(JavaClassType classType, String targetMethod) {
-      for (JavaSootMethod m : client.getView().getClass(classType).get().getMethods()) {
-        if (!m.hasBody()) {
-          continue;
-        }
-        if (targetMethod != null && m.getName().equals(targetMethod)) {
-          return m;
-        }
-        if (m.getName().equals("entryPoint")
-            || m.toString().contains("void main(java.lang.String[])")) {
-          return m;
-        }
+    for (JavaSootMethod m : client.getView().getClass(classType).get().getMethods()) {
+      if (!m.hasBody()) {
+        continue;
       }
+      if (targetMethod != null && m.getName().equals(targetMethod)) {
+        return m;
+      }
+      if (m.getName().equals("entryPoint")
+          || m.toString().contains("void main(java.lang.String[])")) {
+        return m;
+      }
+    }
 
     throw new IllegalArgumentException("Method does not exist in view!");
   }
@@ -206,26 +220,27 @@ public class AliasingTestSetUp {
     Set<AccessPath> nonSparseAliases =
         getAliasesFirst(
             targetClass, queryLHS, targetMethod, SparseCFGCache.SparsificationStrategy.NONE, true);
-//    Set<AccessPath> typeBasedSparseAliases =
-//        getAliasesFirst(
-//            targetClass,
-//            queryLHS,
-//            targetMethod,
-//            SparseCFGCache.SparsificationStrategy.TYPE_BASED,
-//            true);
-//    Set<AccessPath> aliasAwareSparseAliases =
-//        getAliasesFirst(
-//            targetClass,
-//            queryLHS,
-//            targetMethod,
-//            SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-//            true);
-//    checkResults(
-//        SparseCFGCache.SparsificationStrategy.TYPE_BASED, typeBasedSparseAliases, nonSparseAliases);
-//    checkResults(
-//        SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-//        aliasAwareSparseAliases,
-//        nonSparseAliases);
+    //    Set<AccessPath> typeBasedSparseAliases =
+    //        getAliasesFirst(
+    //            targetClass,
+    //            queryLHS,
+    //            targetMethod,
+    //            SparseCFGCache.SparsificationStrategy.TYPE_BASED,
+    //            true);
+    //    Set<AccessPath> aliasAwareSparseAliases =
+    //        getAliasesFirst(
+    //            targetClass,
+    //            queryLHS,
+    //            targetMethod,
+    //            SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
+    //            true);
+    //    checkResults(
+    //        SparseCFGCache.SparsificationStrategy.TYPE_BASED, typeBasedSparseAliases,
+    // nonSparseAliases);
+    //    checkResults(
+    //        SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
+    //        aliasAwareSparseAliases,
+    //        nonSparseAliases);
     System.out.println(nonSparseAliases);
   }
 

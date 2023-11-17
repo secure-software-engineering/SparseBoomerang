@@ -74,7 +74,8 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
+        SootUpClient.getInstance()
+            .getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
     return new JimpleWrappedClass(sootClass);
   }
 

@@ -123,7 +123,8 @@ public class JimpleMethod extends Method {
 
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
+        SootUpClient.getInstance()
+            .getSootClass(delegate.getDeclaringClassType().getFullyQualifiedName());
     return new JimpleWrappedClass(sootClass);
   }
 

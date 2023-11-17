@@ -37,7 +37,8 @@ public class JimpleWrappedClass implements WrappedClass {
 
   public WrappedClass getSuperclass() {
     Optional<JavaClassType> superclassType = (Optional<JavaClassType>) delegate.getSuperclass();
-    JavaSootClass superClass = SootUpClient.getInstance().getSootClass(superclassType.get().getFullyQualifiedName());
+    JavaSootClass superClass =
+        SootUpClient.getInstance().getSootClass(superclassType.get().getFullyQualifiedName());
     return new JimpleWrappedClass(superClass);
   }
 

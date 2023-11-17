@@ -1,7 +1,6 @@
 package boomerang.scene.up;
 
 import java.util.Optional;
-
 import sootup.core.model.SootField;
 import sootup.core.model.SootMethod;
 import sootup.core.signatures.FieldSignature;
@@ -27,15 +26,15 @@ public class SootUpClient {
 
   private static SootUpClient INSTANCE;
 
-  public static SootUpClient getInstance(JavaView view, JavaIdentifierFactory idFactory){
-    if(INSTANCE == null){
+  public static SootUpClient getInstance(JavaView view, JavaIdentifierFactory idFactory) {
+    if (INSTANCE == null) {
       INSTANCE = new SootUpClient(view, idFactory);
     }
     return INSTANCE;
   }
 
-  public static SootUpClient getInstance(){
-    if(INSTANCE==null){
+  public static SootUpClient getInstance() {
+    if (INSTANCE == null) {
       throw new RuntimeException("Client hasn't been initialized");
     }
     return INSTANCE;

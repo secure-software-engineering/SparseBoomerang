@@ -52,11 +52,14 @@ public class JimpleType implements Type {
   public boolean doesCastFail(Type targetVal, Val target) {
     JavaClassType targetType = (JavaClassType) ((JimpleType) targetVal).getDelegate();
     JavaClassType sourceType = (JavaClassType) this.getDelegate();
-    JavaSootClass targetClass = SootUpClient.getInstance().getSootClass(targetType.getFullyQualifiedName());
-    JavaSootClass sourceClass = SootUpClient.getInstance().getSootClass(sourceType.getFullyQualifiedName());
-    if (targetClass.isPhantomClass() || sourceClass.isPhantomClass()) return false;
+    JavaSootClass targetClass =
+        SootUpClient.getInstance().getSootClass(targetType.getFullyQualifiedName());
+    JavaSootClass sourceClass =
+        SootUpClient.getInstance().getSootClass(sourceType.getFullyQualifiedName());
+    // if (targetClass.isPhantomClass() || sourceClass.isPhantomClass()) return false;
     if (target instanceof AllocVal && ((AllocVal) target).getAllocVal().isNewExpr()) {
-      boolean castFails = SootUpClient.getInstance().getView().getTypeHierarchy().isSubtype(targetType, sourceType);
+      boolean castFails =
+          SootUpClient.getInstance().getView().getTypeHierarchy().isSubtype(targetType, sourceType);
       return !castFails;
     }
     // TODO this line is necessary as canStoreType does not properly work for
@@ -66,7 +69,10 @@ public class JimpleType implements Type {
     }
     boolean castFails =
         SootUpClient.getInstance().getView().getTypeHierarchy().isSubtype(targetType, sourceType)
-            || SootUpClient.getInstance().getView().getTypeHierarchy().isSubtype(sourceType, targetType);
+            || SootUpClient.getInstance()
+                .getView()
+                .getTypeHierarchy()
+                .isSubtype(sourceType, targetType);
     return !castFails;
   }
 
@@ -84,20 +90,24 @@ public class JimpleType implements Type {
     }
 
     JavaClassType allocatedType = (JavaClassType) delegate;
-    JavaSootClass sootClass = SootUpClient.getInstance().getSootClass(allocatedType.getFullyQualifiedName());
+    JavaSootClass sootClass =
+        SootUpClient.getInstance().getSootClass(allocatedType.getFullyQualifiedName());
     if (!interfaceType.isInterface()) {
-      return SootUpClient.getInstance().getView()
+      return SootUpClient.getInstance()
+          .getView()
           .getTypeHierarchy()
           .isSubtype(sootClass.getType(), interfaceType.getType());
     }
 
-    if (SootUpClient.getInstance().getView()
+    if (SootUpClient.getInstance()
+        .getView()
         .getTypeHierarchy()
         .subclassesOf(interfaceType.getType())
         .contains(allocatedType)) {
       return true;
     }
-    return SootUpClient.getInstance().getView()
+    return SootUpClient.getInstance()
+        .getView()
         .getTypeHierarchy()
         .implementersOf(interfaceType.getType())
         .contains(allocatedType);

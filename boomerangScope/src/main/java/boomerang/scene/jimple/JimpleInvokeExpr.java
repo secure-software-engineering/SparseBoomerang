@@ -51,7 +51,8 @@ public class JimpleInvokeExpr implements InvokeExpr {
   }
 
   public DeclaredMethod getMethod() {
-    JavaSootMethod sootMethod = SootUpClient.getInstance().getSootMethod(delegate.getMethodSignature());
+    JavaSootMethod sootMethod =
+        SootUpClient.getInstance().getSootMethod(delegate.getMethodSignature());
     return new JimpleDeclaredMethod(this, sootMethod);
   }
 

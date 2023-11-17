@@ -19,16 +19,16 @@ public class SootCallGraph extends CallGraph {
       JavaView view, sootup.callgraph.CallGraph cg, List<MethodSignature> entryPoints) {
     Set<Pair<MethodSignature, CalleeMethodSignature>> callEdges = CGEdgeUtil.getCallEdges(view, cg);
     for (Pair<MethodSignature, CalleeMethodSignature> callEdge : callEdges) {
-      if(view.getMethod(callEdge.getRight().getMethodSignature()).get().hasBody()){
+      if (view.getMethod(callEdge.getRight().getMethodSignature()).get().hasBody()) {
         JimpleMethod targetMethod =
-                JimpleMethod.of(
-                        (JavaSootMethod) view.getMethod(callEdge.getRight().getMethodSignature()).get());
+            JimpleMethod.of(
+                (JavaSootMethod) view.getMethod(callEdge.getRight().getMethodSignature()).get());
         JimpleMethod sourceMethod =
-                JimpleMethod.of((JavaSootMethod) view.getMethod(callEdge.getLeft()).get());
+            JimpleMethod.of((JavaSootMethod) view.getMethod(callEdge.getLeft()).get());
         this.addEdge(
-                new Edge(
-                        JimpleStatement.create(callEdge.getRight().getSourceStmt(), sourceMethod),
-                        targetMethod));
+            new Edge(
+                JimpleStatement.create(callEdge.getRight().getSourceStmt(), sourceMethod),
+                targetMethod));
       }
     }
 
