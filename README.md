@@ -8,6 +8,8 @@ SparseBoomerang is an extension to SPDS-based Boomerang.
 SparseBoomerang introduces two sparsification strategies to aid the scalability of precise Boomerang pointer analysis.
 [SparseBoomerangCorrectness](SparseBoomerangCorrectness) show how these work and compare them against the default non-sparse Boomerang.
 
+## FlowDroid with SparseBoomerang
+The FlowDroid fork that works with SparseBoomerang is available at: [https://github.com/kadirayk/FlowDroid](https://github.com/kadirayk/FlowDroid)
 
 ## Publications
 Preprint is available:  
