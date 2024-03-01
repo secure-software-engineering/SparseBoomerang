@@ -18,10 +18,11 @@ import sootup.java.core.JavaSootMethod;
 import sootup.java.core.views.JavaView;
 
 public class ExplicitNullifyFields {
+
   public static void apply(JavaView view) {
     for (JavaSootClass c : view.getClasses()) {
       for (JavaSootMethod m : c.getMethods()) {
-        if (m.hasBody() && m.isConstructor()) {
+        if (m.hasBody() && MethodUtil.isConstructor(m)) {
           apply(view, m);
         }
       }
@@ -44,7 +45,7 @@ public class ExplicitNullifyFields {
             new JAssignStmt(
                 new JInstanceFieldRef(cons.getBody().getThisLocal(), f.getSignature()),
                 NullConstant.getInstance(),
-                StmtPositionInfo.createNoStmtPositionInfo()));
+                StmtPositionInfo.getNoStmtPositionInfo()));
       }
     }
   }

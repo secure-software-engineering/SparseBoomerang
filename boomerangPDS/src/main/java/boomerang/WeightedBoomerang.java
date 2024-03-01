@@ -43,6 +43,7 @@ import boomerang.scene.Val;
 import boomerang.scene.jimple.JimpleField;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStaticFieldVal;
+import boomerang.scene.jimple.MethodUtil;
 import boomerang.scene.up.SootUpClient;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
@@ -209,7 +210,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
             continue;
           }
           JimpleMethod jimpleMethod = JimpleMethod.of(m);
-          if (m.isStaticInitializer()) {
+          if (MethodUtil.isStaticInitializer(m)) {
             for (Statement ep : icfg().getEndPointsOf(JimpleMethod.of(m))) {
               StaticFieldVal newVal =
                   new JimpleStaticFieldVal(((JimpleField) val.field()), jimpleMethod);

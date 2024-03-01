@@ -63,7 +63,7 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
 
   @Override
   public boolean isConstructor() {
-    return delegate.isConstructor();
+    return MethodUtil.isConstructor(delegate);
   }
 
   @Override

@@ -61,7 +61,7 @@ public class JimpleMethod extends Method {
   }
 
   public boolean isStaticInitializer() {
-    return delegate.isStaticInitializer();
+    return MethodUtil.isStaticInitializer(delegate);
   }
 
   public boolean isParameterLocal(Val val) {
@@ -149,7 +149,7 @@ public class JimpleMethod extends Method {
 
   @Override
   public boolean isConstructor() {
-    return delegate.isConstructor();
+    return MethodUtil.isConstructor(delegate);
   }
 
   @Override

@@ -17,7 +17,7 @@ import sootup.core.views.View;
 
 public class BoomerangPretransformer implements BodyInterceptor {
   @Override
-  public void interceptBody(Body.BodyBuilder bodyBuilder, View<?> view) {}
+  public void interceptBody(Body.BodyBuilder bodyBuilder, View view) {}
 
   //  public static boolean TRANSFORM_CONSTANTS = true;
   //  public static String UNITIALIZED_FIELD_TAG_NAME = "UnitializedField";

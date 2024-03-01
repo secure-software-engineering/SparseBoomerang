@@ -12,7 +12,7 @@ public class DefinedOutside extends AbstractStmt {
   Value value;
 
   public DefinedOutside(Value value) {
-    super(StmtPositionInfo.createNoStmtPositionInfo());
+    super(StmtPositionInfo.getNoStmtPositionInfo());
     this.value = value;
   }
 

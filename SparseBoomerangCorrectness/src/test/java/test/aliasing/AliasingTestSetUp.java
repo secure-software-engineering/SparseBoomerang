@@ -9,8 +9,6 @@ import boomerang.scene.up.SootUpClient;
 import boomerang.util.AccessPath;
 import com.google.common.base.Predicate;
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -18,22 +16,20 @@ import org.slf4j.LoggerFactory;
 import sootup.callgraph.CallGraph;
 import sootup.callgraph.RapidTypeAnalysisAlgorithm;
 import sootup.core.inputlocation.AnalysisInputLocation;
-import sootup.core.inputlocation.ClassLoadingOptions;
 import sootup.core.jimple.basic.Value;
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
 import sootup.core.jimple.common.stmt.JAssignStmt;
 import sootup.core.jimple.common.stmt.Stmt;
 import sootup.core.model.SootMethod;
+import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.transform.BodyInterceptor;
-import sootup.java.bytecode.inputlocation.PathBasedAnalysisInputLocation;
-import sootup.java.bytecode.interceptors.TypeAssigner;
+import sootup.java.bytecode.inputlocation.JavaClassPathAnalysisInputLocation;
+import sootup.java.bytecode.interceptors.*;
 import sootup.java.core.JavaIdentifierFactory;
-import sootup.java.core.JavaProject;
-import sootup.java.core.JavaSootClass;
 import sootup.java.core.JavaSootMethod;
-import sootup.java.core.language.JavaLanguage;
 import sootup.java.core.types.JavaClassType;
+import sootup.java.core.views.JavaView;
 
 public class AliasingTestSetUp {
 
@@ -55,7 +51,6 @@ public class AliasingTestSetUp {
       boolean ignoreAfterQuery) {
     setupSoot(targetClassName);
     JavaClassType classType = client.getIdentifierFactory().getClassType(targetClassName);
-    JavaSootClass javaSootClass = client.getView().getClass(classType).get();
     JavaSootMethod entryMethod = getEntryPointMethod(classType, targetMethod);
     entryPoints = Collections.singletonList(entryMethod.getSignature());
     callGraph = new RapidTypeAnalysisAlgorithm(client.getView()).initialize(entryPoints);
@@ -68,36 +63,30 @@ public class AliasingTestSetUp {
   protected void setupSoot(String targetTestClassName) {
     String userdir = System.getProperty("user.dir");
     String testClasses = userdir + File.separator + "target" + File.separator + "test-classes";
-
     String rtJar = "lib" + File.separator + "rt.jar";
 
-    Path pathToTestClasses = Paths.get(testClasses);
-    Path pathToRTJar = Paths.get(rtJar);
-    AnalysisInputLocation<JavaSootClass> testClassesLocation =
-        PathBasedAnalysisInputLocation.create(pathToTestClasses, null);
-    AnalysisInputLocation<JavaSootClass> rtJarLocation =
-        PathBasedAnalysisInputLocation.create(pathToRTJar, null);
+    List<BodyInterceptor> bodyInterceptors = new ArrayList<>();
+    // BytecodeBodyInterceptors.Default.getBodyInterceptors();
 
-    // Create a new JavaProject based on the input location
-    JavaProject project =
-        JavaProject.builder(new JavaLanguage(8))
-            .addInputLocation(testClassesLocation)
-            .addInputLocation(rtJarLocation)
-            .build();
+    bodyInterceptors.add(new NopEliminator());
+    bodyInterceptors.add(new EmptySwitchEliminator());
+    bodyInterceptors.add(new CastAndReturnInliner());
+    //bodyInterceptors.add(new LocalSplitter());
+    //bodyInterceptors.add(new Aggregator());
+    //bodyInterceptors.add(new CopyPropagator());
+    //bodyInterceptors.add(new ConstantPropagatorAndFolder());
+    bodyInterceptors.add(new TypeAssigner());
+    bodyInterceptors.add(new BoomerangPreInterceptor());
 
-    ClassLoadingOptions clo =
-        new ClassLoadingOptions() {
-          @Override
-          public List<BodyInterceptor> getBodyInterceptors() {
-            List<BodyInterceptor> interceptors = new ArrayList<>();
-            interceptors.add(new TypeAssigner());
-            interceptors.add(new BoomerangPreInterceptor());
-            return interceptors;
-          }
-        };
-    this.client =
-        SootUpClient.getInstance(
-            project.createView(analysisInputLocation -> clo), JavaIdentifierFactory.getInstance());
+    AnalysisInputLocation testClassesLocation =
+        new JavaClassPathAnalysisInputLocation(
+            testClasses, SourceType.Application, bodyInterceptors);
+
+    AnalysisInputLocation rtJarLocation =
+        new JavaClassPathAnalysisInputLocation(rtJar, SourceType.Application, bodyInterceptors);
+
+    JavaView view = new JavaView(Arrays.asList(testClassesLocation, rtJarLocation));
+    this.client = SootUpClient.getInstance(view, JavaIdentifierFactory.getInstance());
 
     /**
      * Options.v().set_soot_classpath(sootCp);
@@ -122,7 +111,6 @@ public class AliasingTestSetUp {
       String queryLHS,
       SparseCFGCache.SparsificationStrategy sparsificationStrategy,
       boolean ignoreAfterQuery) {
-    queryLHS = "$" + queryLHS;
     String[] split = queryLHS.split("\\.");
     Optional<Stmt> unitOp;
     if (split.length > 1) {
@@ -137,6 +125,7 @@ public class AliasingTestSetUp {
               .findFirst();
     }
 
+    System.out.println(method.getBody());
     if (unitOp.isPresent()) {
       Stmt stmt = unitOp.get();
       if (stmt instanceof JAssignStmt) {
