@@ -71,10 +71,10 @@ public class AliasingTestSetUp {
     bodyInterceptors.add(new NopEliminator());
     bodyInterceptors.add(new EmptySwitchEliminator());
     bodyInterceptors.add(new CastAndReturnInliner());
-    //bodyInterceptors.add(new LocalSplitter());
-    //bodyInterceptors.add(new Aggregator());
-    //bodyInterceptors.add(new CopyPropagator());
-    //bodyInterceptors.add(new ConstantPropagatorAndFolder());
+    bodyInterceptors.add(new LocalSplitter());
+    bodyInterceptors.add(new Aggregator());
+    bodyInterceptors.add(new CopyPropagator());
+    bodyInterceptors.add(new ConstantPropagatorAndFolder());
     bodyInterceptors.add(new TypeAssigner());
     bodyInterceptors.add(new BoomerangPreInterceptor());
 
@@ -125,7 +125,6 @@ public class AliasingTestSetUp {
               .findFirst();
     }
 
-    System.out.println(method.getBody());
     if (unitOp.isPresent()) {
       Stmt stmt = unitOp.get();
       if (stmt instanceof JAssignStmt) {

@@ -2,6 +2,7 @@ package boomerang.scene.jimple;
 
 import boomerang.scene.CallGraph;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -19,12 +20,10 @@ public class SootCallGraph extends CallGraph {
       JavaView view, sootup.callgraph.CallGraph cg, List<MethodSignature> entryPoints) {
     Set<Pair<MethodSignature, CalleeMethodSignature>> callEdges = CGEdgeUtil.getCallEdges(view, cg);
     for (Pair<MethodSignature, CalleeMethodSignature> callEdge : callEdges) {
-      if (view.getMethod(callEdge.getRight().getMethodSignature()).get().hasBody()) {
-        JimpleMethod targetMethod =
-            JimpleMethod.of(
-                (JavaSootMethod) view.getMethod(callEdge.getRight().getMethodSignature()).get());
-        JimpleMethod sourceMethod =
-            JimpleMethod.of((JavaSootMethod) view.getMethod(callEdge.getLeft()).get());
+      Optional<JavaSootMethod> methodOpt = view.getMethod(callEdge.getRight().getMethodSignature());
+      if (methodOpt.isPresent() && methodOpt.get().hasBody()) {
+        JimpleMethod targetMethod = JimpleMethod.of(methodOpt.get());
+        JimpleMethod sourceMethod = JimpleMethod.of(view.getMethod(callEdge.getLeft()).get());
         this.addEdge(
             new Edge(
                 JimpleStatement.create(callEdge.getRight().getSourceStmt(), sourceMethod),
@@ -33,7 +32,7 @@ public class SootCallGraph extends CallGraph {
     }
 
     for (MethodSignature m : entryPoints) {
-      this.addEntryPoint(JimpleMethod.of((JavaSootMethod) view.getMethod(m).get()));
+      this.addEntryPoint(JimpleMethod.of(view.getMethod(m).get()));
     }
   }
 }

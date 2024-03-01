@@ -51,6 +51,9 @@ public class JimpleType implements Type {
   @Override
   public boolean doesCastFail(Type targetVal, Val target) {
     JavaClassType targetType = (JavaClassType) ((JimpleType) targetVal).getDelegate();
+    if (this.getDelegate() instanceof NullType) {
+      return true;
+    }
     JavaClassType sourceType = (JavaClassType) this.getDelegate();
     JavaSootClass targetClass =
         SootUpClient.getInstance().getSootClass(targetType.getFullyQualifiedName());
