@@ -25,10 +25,11 @@ import soot.*;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.options.Options;
+import sootup.java.core.JavaSootMethod;
 
 public abstract class AbstractTestingFramework {
   @Rule public TestName testMethodName = new TestName();
-  protected SootMethod sootTestMethod;
+  protected JavaSootMethod sootTestMethod;
   protected File ideVizFile;
   protected File dotFile;
 

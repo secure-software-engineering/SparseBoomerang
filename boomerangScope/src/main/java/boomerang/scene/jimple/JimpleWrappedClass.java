@@ -3,27 +3,29 @@ package boomerang.scene.jimple;
 import boomerang.scene.Method;
 import boomerang.scene.Type;
 import boomerang.scene.WrappedClass;
+import boomerang.scene.up.SootUpClient;
 import com.google.common.collect.Sets;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import soot.SootClass;
-import soot.SootMethod;
+import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootMethod;
+import sootup.java.core.types.JavaClassType;
 
 public class JimpleWrappedClass implements WrappedClass {
 
-  private SootClass delegate;
+  private JavaSootClass delegate;
   private Set<Method> methods;
 
-  public JimpleWrappedClass(SootClass delegate) {
+  public JimpleWrappedClass(JavaSootClass delegate) {
     this.delegate = delegate;
   }
 
   public Set<Method> getMethods() {
-    List<SootMethod> ms = delegate.getMethods();
+    Set<JavaSootMethod> ms = (Set<JavaSootMethod>) delegate.getMethods();
     if (methods == null) {
       methods = Sets.newHashSet();
-      for (SootMethod m : ms) {
-        if (m.hasActiveBody()) methods.add(JimpleMethod.of(m));
+      for (JavaSootMethod m : ms) {
+        if (m.hasBody()) methods.add(JimpleMethod.of(m));
       }
     }
     return methods;
@@ -34,7 +36,10 @@ public class JimpleWrappedClass implements WrappedClass {
   }
 
   public WrappedClass getSuperclass() {
-    return new JimpleWrappedClass(delegate.getSuperclass());
+    Optional<JavaClassType> superclassType = (Optional<JavaClassType>) delegate.getSuperclass();
+    JavaSootClass superClass =
+        SootUpClient.getInstance().getSootClass(superclassType.get().getFullyQualifiedName());
+    return new JimpleWrappedClass(superClass);
   }
 
   public Type getType() {

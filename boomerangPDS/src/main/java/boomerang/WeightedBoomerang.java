@@ -43,6 +43,8 @@ import boomerang.scene.Val;
 import boomerang.scene.jimple.JimpleField;
 import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.JimpleStaticFieldVal;
+import boomerang.scene.jimple.MethodUtil;
+import boomerang.scene.up.SootUpClient;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;
@@ -66,7 +68,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.SootMethod;
+import sootup.core.types.ClassType;
+import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootMethod;
 import sync.pds.solver.SyncPDSSolver.PDSSystem;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.GeneratedState;
@@ -197,13 +201,16 @@ public abstract class WeightedBoomerang<W extends Weight> {
       Val fact = node.fact();
       if (fact instanceof JimpleStaticFieldVal) {
         JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
-        for (SootMethod m :
-            ((JimpleField) val.field()).getSootField().getDeclaringClass().getMethods()) {
-          if (!m.hasActiveBody()) {
+        ClassType classType = ((JimpleField) val.field()).getSootField().getDeclaringClassType();
+        JavaSootClass sootClass =
+            SootUpClient.getInstance().getSootClass(classType.getFullyQualifiedName());
+        Set<? extends JavaSootMethod> methods = sootClass.getMethods();
+        for (JavaSootMethod m : methods) {
+          if (!m.hasBody()) {
             continue;
           }
           JimpleMethod jimpleMethod = JimpleMethod.of(m);
-          if (m.isStaticInitializer()) {
+          if (MethodUtil.isStaticInitializer(m)) {
             for (Statement ep : icfg().getEndPointsOf(JimpleMethod.of(m))) {
               StaticFieldVal newVal =
                   new JimpleStaticFieldVal(((JimpleField) val.field()), jimpleMethod);

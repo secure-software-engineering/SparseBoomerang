@@ -17,8 +17,13 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.*;
-import soot.jimple.Stmt;
+import sootup.callgraph.CallGraph;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
+import sootup.core.signatures.MethodSignature;
+import sootup.java.core.JavaSootMethod;
+import sootup.java.core.views.JavaView;
 import wpds.impl.Weight;
 
 public class SparseAliasManager {
@@ -37,6 +42,9 @@ public class SparseAliasManager {
   private boolean disableAliasing = false;
   private SparseCFGCache.SparsificationStrategy sparsificationStrategy;
   private boolean ignoreAfterQuery;
+  private JavaView view;
+
+  private CallGraph callGraph;
 
   static class BoomerangOptions extends DefaultBoomerangOptions {
 
@@ -96,12 +104,16 @@ public class SparseAliasManager {
   private static Duration totalAliasingDuration;
 
   private SparseAliasManager(
-      SparseCFGCache.SparsificationStrategy sparsificationStrategy, boolean ignoreAfterQuery) {
+      JavaView view,
+      CallGraph cg,
+      List<MethodSignature> entryPoints,
+      SparseCFGCache.SparsificationStrategy sparsificationStrategy,
+      boolean ignoreAfterQuery) {
     this.sparsificationStrategy = sparsificationStrategy;
     this.ignoreAfterQuery = ignoreAfterQuery;
     totalAliasingDuration = Duration.ZERO;
-    sootCallGraph = new SootCallGraph();
-    dataFlowScope = SootDataFlowScope.make(Scene.v());
+    sootCallGraph = new SootCallGraph(view, cg, entryPoints);
+    dataFlowScope = SootDataFlowScope.make(view, cg);
     setupQueryCache();
   }
 
@@ -110,11 +122,18 @@ public class SparseAliasManager {
   }
 
   public static synchronized SparseAliasManager getInstance(
-      SparseCFGCache.SparsificationStrategy sparsificationStrategy, boolean ignoreAfterQuery) {
+      JavaView view,
+      CallGraph cg,
+      List<MethodSignature> entryPoints,
+      SparseCFGCache.SparsificationStrategy sparsificationStrategy,
+      boolean ignoreAfterQuery) {
     if (INSTANCE == null
+        || INSTANCE.view != view
+        || INSTANCE.callGraph != cg
         || INSTANCE.sparsificationStrategy != sparsificationStrategy
         || INSTANCE.ignoreAfterQuery != ignoreAfterQuery) {
-      INSTANCE = new SparseAliasManager(sparsificationStrategy, ignoreAfterQuery);
+      INSTANCE =
+          new SparseAliasManager(view, cg, entryPoints, sparsificationStrategy, ignoreAfterQuery);
     }
     return INSTANCE;
   }
@@ -172,7 +191,7 @@ public class SparseAliasManager {
   }
 
   private BackwardQuery createQuery(Stmt stmt, SootMethod method, Value value) {
-    JimpleMethod jimpleMethod = JimpleMethod.of(method);
+    JimpleMethod jimpleMethod = JimpleMethod.of((JavaSootMethod) method);
     Statement statement = JimpleStatement.create(stmt, jimpleMethod);
     JimpleVal val = new JimpleVal(value, jimpleMethod);
     Optional<Statement> first =

@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import soot.SootMethod;
-import soot.jimple.Stmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
 
 public class AliasAwareSparseCFGCache implements SparseCFGCache {
 
@@ -43,7 +43,7 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
   // TODO: unify in super
   public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt, Val val) {
     for (String s : cache.keySet()) {
-      if (s.startsWith(m.getSignature())) {
+      if (s.startsWith(m.getSignature().toString())) {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
         if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
           SparseCFGQueryLog queryLog =
@@ -73,7 +73,7 @@ public class AliasAwareSparseCFGCache implements SparseCFGCache {
     // Value sootCurrentQueryVal = SootAdapter.asValue(currentVal);
 
     String key =
-        new StringBuilder(sootSurrentMethod.getSignature())
+        new StringBuilder(sootSurrentMethod.getSignature().toString())
             .append("-")
             .append(initialQueryVal)
             .append("-")

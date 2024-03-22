@@ -2,7 +2,7 @@
   <parent>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.1.2-Sparse</version>
+    <version>3.1.2-Sparse-Up</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -15,7 +15,15 @@
     </dependency>
     <dependency>
       <groupId>org.soot-oss</groupId>
-      <artifactId>soot</artifactId>
+      <artifactId>sootup.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.soot-oss</groupId>
+      <artifactId>sootup.java.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.soot-oss</groupId>
+      <artifactId>sootup.analysis</artifactId>
     </dependency>
     <dependency>
       <groupId>de.fraunhofer.iem</groupId>

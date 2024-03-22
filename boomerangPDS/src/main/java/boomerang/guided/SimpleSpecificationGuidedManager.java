@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import soot.jimple.Stmt;
+import sootup.core.jimple.common.stmt.Stmt;
 
 public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedManager {
 
@@ -90,8 +90,8 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
       Stmt jimpleStmt = ((JimpleStatement) stmt).getDelegate();
       if (jimpleStmt
           .getInvokeExpr()
-          .getMethod()
-          .getSignature()
+          .getMethodSignature()
+          .toString()
           .equals(methodSelector.getSootMethod())) {
         Collection<QuerySelector> on = methodSelector.getOn();
         return isInList(on, direction, stmt, fact);

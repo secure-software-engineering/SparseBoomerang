@@ -9,12 +9,16 @@ import boomerang.scene.sparse.eval.SparseCFGQueryLog;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;
-import soot.*;
-import soot.jimple.InvokeExpr;
-import soot.jimple.Stmt;
-import soot.jimple.internal.*;
-import soot.toolkits.graph.BriefUnitGraph;
-import soot.toolkits.graph.DirectedGraph;
+import sootup.core.graph.StmtGraph;
+import sootup.core.jimple.basic.Immediate;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.expr.*;
+import sootup.core.jimple.common.ref.JInstanceFieldRef;
+import sootup.core.jimple.common.stmt.JAssignStmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
+import sootup.core.types.Type;
+import sootup.java.core.views.JavaView;
 
 public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
@@ -22,20 +26,21 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private boolean enableExceptions;
   private Deque<Type> typeWorklist;
   private Set<Type> containerTypes;
+  private JavaView view; // TODO: wire
 
   public TypeBasedSparseCFGBuilder(boolean enableExceptions) {
     this.enableExceptions = enableExceptions;
   }
 
   public SparseAliasingCFG buildSparseCFG(
-      Val queryVar, SootMethod m, Unit queryStmt, SparseCFGQueryLog queryLog) {
+      Val queryVar, SootMethod m, Stmt queryStmt, SparseCFGQueryLog queryLog) {
     typeWorklist = new ArrayDeque<>();
     containerTypes = new HashSet<>();
-    DirectedGraph<Unit> unitGraph = new BriefUnitGraph(m.getActiveBody());
+    StmtGraph<?> unitGraph = m.getBody().getStmtGraph();
 
-    Unit head = getHead(unitGraph);
+    Stmt head = getHead(unitGraph);
 
-    MutableGraph<Unit> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
+    MutableGraph<Stmt> mCFG = numberStmtsAndConvertToMutableGraph(unitGraph);
 
     int initialStmtCount = mCFG.nodes().size();
 
@@ -44,7 +49,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     // if (m.getName().equals("id")) {
     Type typeOfQueryVar = SootAdapter.getTypeOfVal(queryVar);
 
-    Set<Unit> stmtsToKeep = findStmtsToKeep(mCFG, head, typeOfQueryVar);
+    Set<Stmt> stmtsToKeep = findStmtsToKeep(mCFG, head, typeOfQueryVar);
 
     containerTypes.add(typeOfQueryVar);
     while (!typeWorklist.isEmpty()) {
@@ -52,8 +57,8 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
       stmtsToKeep.addAll(findStmtsToKeep(mCFG, head, containerType));
     }
     stmtsToKeep.add(queryStmt);
-    List<Unit> tails = unitGraph.getTails();
-    for (Unit tail : tails) {
+    List<Stmt> tails = unitGraph.getTails();
+    for (Stmt tail : tails) {
       sparsify(mCFG, stmtsToKeep, head, tail);
     }
 
@@ -67,11 +72,11 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     return new SparseAliasingCFG(queryVar, mCFG, queryStmt, null, unitToNumber);
   }
 
-  private void sparsify(MutableGraph<Unit> mCFG, Set<Unit> stmtsToKeep, Unit head, Unit tail) {
-    Iterator<Unit> iter = getBFSIterator(mCFG, head);
-    Set<Unit> stmsToRemove = new HashSet<>();
+  private void sparsify(MutableGraph<Stmt> mCFG, Set<Stmt> stmtsToKeep, Stmt head, Stmt tail) {
+    Iterator<Stmt> iter = getBFSIterator(mCFG, head);
+    Set<Stmt> stmsToRemove = new HashSet<>();
     while (iter.hasNext()) {
-      Unit unit = iter.next();
+      Stmt unit = iter.next();
       if (!isControlStmt(unit)
           && !stmtsToKeep.contains(unit)
           && !unit.equals(head)
@@ -79,9 +84,9 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
         stmsToRemove.add(unit);
       }
     }
-    for (Unit unit : stmsToRemove) {
-      Set<Unit> preds = mCFG.predecessors(unit);
-      Set<Unit> succs = mCFG.successors(unit);
+    for (Stmt unit : stmsToRemove) {
+      Set<Stmt> preds = mCFG.predecessors(unit);
+      Set<Stmt> succs = mCFG.successors(unit);
       if (preds.size() == 1 && succs.size() == 1) {
         // TODO: revise this
         // if a node has multiple in and out edges, don't remove it
@@ -91,11 +96,11 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     }
   }
 
-  private Set<Unit> findStmtsToKeep(MutableGraph<Unit> mCFG, Unit head, Type queryVarType) {
-    Set<Unit> stmtsToKeep = new HashSet<>();
-    Iterator<Unit> iter = getBFSIterator(mCFG, head);
+  private Set<Stmt> findStmtsToKeep(MutableGraph<Stmt> mCFG, Stmt head, Type queryVarType) {
+    Set<Stmt> stmtsToKeep = new HashSet<>();
+    Iterator<Stmt> iter = getBFSIterator(mCFG, head);
     while (iter.hasNext()) {
-      Unit unit = iter.next();
+      Stmt unit = iter.next();
       if (keepStmt(unit, queryVarType)) {
         stmtsToKeep.add(unit);
       }
@@ -104,19 +109,19 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private boolean isAssignableType(Type targetType, Type sourceType) {
-    return Scene.v().getOrMakeFastHierarchy().canStoreType(targetType, sourceType)
-        || Scene.v().getOrMakeFastHierarchy().canStoreType(sourceType, targetType);
+    return view.getTypeHierarchy().isSubtype(targetType, sourceType)
+        || view.getTypeHierarchy().isSubtype(sourceType, targetType);
   }
 
-  private boolean keepStmt(Unit unit, Type queryVarType) {
+  private boolean keepStmt(Stmt unit, Type queryVarType) {
     boolean keep =
         false; // Incase of Container.f = base.m(f_type), keep both base and Container as container
     // types
     if (unit instanceof Stmt) {
       Stmt stmt = (Stmt) unit;
       if (stmt.containsInvokeExpr()) {
-        InvokeExpr invokeExpr = stmt.getInvokeExpr();
-        List<Value> args = invokeExpr.getArgs();
+        AbstractInvokeExpr invokeExpr = stmt.getInvokeExpr();
+        List<Immediate> args = invokeExpr.getArgs();
         // v as arg
         for (Value arg : args) {
           if (isFieldTypeRelevant(queryVarType, arg)) {
@@ -158,7 +163,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
       if (isAssignableType(leftOp.getType(), queryVarType)
           || isAssignableType(rightOp.getType(), queryVarType)) {
         if (stmt.containsInvokeExpr()) {
-          InvokeExpr invokeExpr = stmt.getInvokeExpr();
+          AbstractInvokeExpr invokeExpr = stmt.getInvokeExpr();
           // always check invoke base if its beign assigned to the type we track, because we need to
           // know how it was allocated
           if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
@@ -177,7 +182,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
    * @param invokeExpr
    * @param queryVarType
    */
-  private void handleInvokeBase(InvokeExpr invokeExpr, Type queryVarType) {
+  private void handleInvokeBase(AbstractInvokeExpr invokeExpr, Type queryVarType) {
     if (invokeExpr instanceof JVirtualInvokeExpr) {
       Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
       handleContainerType(base, queryVarType);
@@ -207,8 +212,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     // left's field is of the same type
     if (value instanceof JInstanceFieldRef) { // TODO: rightOp case?
       JInstanceFieldRef fieldRef = (JInstanceFieldRef) value;
-      SootField field = fieldRef.getField();
-      if (isAssignableType(field.getType(), queryVarType)) {
+      if (isAssignableType(fieldRef.getType(), queryVarType)) {
         Value base = fieldRef.getBase();
         handleContainerType(base, queryVarType);
         return true;
@@ -217,7 +221,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
     return false;
   }
 
-  private boolean isInvokeBase(Type queryVarType, InvokeExpr invokeExpr) {
+  private boolean isInvokeBase(Type queryVarType, AbstractInvokeExpr invokeExpr) {
     if (invokeExpr instanceof JVirtualInvokeExpr) {
       Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
       if (isAssignableType(base.getType(), queryVarType)) {

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.1.2-Sparse</version>
+    <version>3.1.2-Sparse-Up</version>
     <packaging>pom</packaging>
     <name>SPDS</name>
 
@@ -39,16 +39,16 @@
     <modules>
         <module>WPDS</module>
         <module>SynchronizedPDS</module>
-        <module>testCore</module>
+<!--        <module>testCore</module>-->
         <module>boomerangPDS</module>
-        <module>idealPDS</module>
+<!--        <module>idealPDS</module>-->
         <module>boomerangScope</module>
-        <module>boomerangScope-WALA</module>
+<!--        <module>boomerangScope-WALA</module>-->
         <module>SparseBoomerangCorrectness</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sootVersion>4.3.0-SNAPSHOT</sootVersion>
+<!--        <sootVersion>4.3.0-SNAPSHOT</sootVersion>-->
         <fmt-maven-plugin.version>2.9</fmt-maven-plugin.version>
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
@@ -171,8 +171,18 @@
             </dependency>
             <dependency>
                 <groupId>org.soot-oss</groupId>
-                <artifactId>soot</artifactId>
-                <version>4.2.1</version>
+                <artifactId>sootup.core</artifactId>
+                <version>1.2.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.java.core</artifactId>
+                <version>1.2.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.analysis</artifactId>
+                <version>1.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -189,11 +199,11 @@
                 <artifactId>synchronizedPDS</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>de.fraunhofer.iem</groupId>
-                <artifactId>testCore</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>de.fraunhofer.iem</groupId>-->
+<!--                <artifactId>testCore</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>de.fraunhofer.iem</groupId>
                 <artifactId>boomerangPDS</artifactId>

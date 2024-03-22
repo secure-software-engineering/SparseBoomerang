@@ -19,12 +19,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import soot.Scene;
+import sootup.callgraph.CallGraph;
+import sootup.core.signatures.MethodSignature;
+import sootup.java.core.views.JavaView;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight.NoWeight;
 
@@ -42,9 +41,12 @@ public class DemandDrivenGuidedAnalysis {
   public DemandDrivenGuidedAnalysis(
       IDemandDrivenGuidedManager specification,
       BoomerangOptions options,
-      DataFlowScope dataFlowScope) {
+      DataFlowScope dataFlowScope,
+      JavaView view,
+      CallGraph cg,
+      List<MethodSignature> entryPoints) {
     spec = specification;
-    callGraph = new SootCallGraph();
+    callGraph = new SootCallGraph(view, cg, entryPoints);
     scope = dataFlowScope;
     if (!options.allowMultipleQueries()) {
       throw new RuntimeException(
@@ -55,8 +57,12 @@ public class DemandDrivenGuidedAnalysis {
   }
 
   public DemandDrivenGuidedAnalysis(
-      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
-    this(specification, options, SootDataFlowScope.make(Scene.v()));
+      IDemandDrivenGuidedManager specification,
+      BoomerangOptions options,
+      JavaView view,
+      CallGraph cg,
+      List<MethodSignature> entryPoints) {
+    this(specification, options, SootDataFlowScope.make(view, cg), view, cg, entryPoints);
   }
 
   /**

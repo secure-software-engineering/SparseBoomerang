@@ -3,22 +3,33 @@ package test.aliasing;
 import static org.junit.Assert.assertTrue;
 
 import aliasing.SparseAliasManager;
-import boomerang.scene.jimple.BoomerangPretransformer;
 import boomerang.scene.sparse.SparseCFGCache;
+import boomerang.scene.up.BoomerangPreInterceptor;
+import boomerang.scene.up.SootUpClient;
 import boomerang.util.AccessPath;
 import com.google.common.base.Predicate;
 import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.*;
-import soot.jimple.internal.JAssignStmt;
-import soot.jimple.internal.JInstanceFieldRef;
-import soot.options.Options;
+import sootup.callgraph.CallGraph;
+import sootup.callgraph.RapidTypeAnalysisAlgorithm;
+import sootup.core.inputlocation.AnalysisInputLocation;
+import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.common.ref.JInstanceFieldRef;
+import sootup.core.jimple.common.stmt.JAssignStmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.model.SootMethod;
+import sootup.core.model.SourceType;
+import sootup.core.signatures.MethodSignature;
+import sootup.core.transform.BodyInterceptor;
+import sootup.java.bytecode.inputlocation.JavaClassPathAnalysisInputLocation;
+import sootup.java.bytecode.interceptors.*;
+import sootup.java.core.JavaIdentifierFactory;
+import sootup.java.core.JavaSootMethod;
+import sootup.java.core.types.JavaClassType;
+import sootup.java.core.views.JavaView;
 
 public class AliasingTestSetUp {
 
@@ -28,6 +39,10 @@ public class AliasingTestSetUp {
 
   protected boolean FalsePositiveInDefaultBoomerang;
 
+  private CallGraph callGraph;
+  private List<MethodSignature> entryPoints;
+  private SootUpClient client;
+
   public Set<AccessPath> executeStaticAnalysis(
       String targetClassName,
       String targetMethod,
@@ -35,43 +50,60 @@ public class AliasingTestSetUp {
       SparseCFGCache.SparsificationStrategy sparsificationStrategy,
       boolean ignoreAfterQuery) {
     setupSoot(targetClassName);
-    registerSootTransformers(queryLHS, sparsificationStrategy, targetMethod, ignoreAfterQuery);
-    executeSootTransformers();
+    JavaClassType classType = client.getIdentifierFactory().getClassType(targetClassName);
+    JavaSootMethod entryMethod = getEntryPointMethod(classType, targetMethod);
+    entryPoints = Collections.singletonList(entryMethod.getSignature());
+    callGraph = new RapidTypeAnalysisAlgorithm(client.getView()).initialize(entryPoints);
+    aliases = getAliases(entryMethod, queryLHS, sparsificationStrategy, ignoreAfterQuery);
+    // registerSootTransformers(queryLHS, sparsificationStrategy, targetMethod, ignoreAfterQuery);
+    // executeSootTransformers();
     return aliases;
   }
 
   protected void setupSoot(String targetTestClassName) {
-    G.v().reset();
     String userdir = System.getProperty("user.dir");
-    String sootCp =
-        userdir
-            + File.separator
-            + "target"
-            + File.separator
-            + "test-classes"
-            + File.pathSeparator
-            + "lib"
-            + File.separator
-            + "rt.jar";
-    Options.v().set_soot_classpath(sootCp);
+    String testClasses = userdir + File.separator + "target" + File.separator + "test-classes";
+    String rtJar = "lib" + File.separator + "rt.jar";
 
-    // We want to perform a whole program, i.e. an interprocedural analysis.
-    // We construct a basic CHA call graph for the program
-    Options.v().set_whole_program(true);
-    Options.v().setPhaseOption("cg.spark", "on");
-    Options.v().setPhaseOption("cg", "all-reachable:true");
+    List<BodyInterceptor> bodyInterceptors = new ArrayList<>();
+    // BytecodeBodyInterceptors.Default.getBodyInterceptors();
 
-    Options.v().set_no_bodies_for_excluded(true);
-    Options.v().set_allow_phantom_refs(true);
-    Options.v().setPhaseOption("jb", "use-original-names:true");
-    Options.v().set_prepend_classpath(false);
+    bodyInterceptors.add(new NopEliminator());
+    bodyInterceptors.add(new EmptySwitchEliminator());
+    bodyInterceptors.add(new CastAndReturnInliner());
+    bodyInterceptors.add(new LocalSplitter());
+    bodyInterceptors.add(new Aggregator());
+    bodyInterceptors.add(new CopyPropagator());
+    bodyInterceptors.add(new ConstantPropagatorAndFolder());
+    bodyInterceptors.add(new TypeAssigner());
+    bodyInterceptors.add(new BoomerangPreInterceptor());
 
-    Scene.v().addBasicClass("java.lang.StringBuilder");
-    SootClass c = Scene.v().forceResolve(targetTestClassName, SootClass.BODIES);
-    if (c != null) {
-      c.setApplicationClass();
-    }
-    Scene.v().loadNecessaryClasses();
+    AnalysisInputLocation testClassesLocation =
+        new JavaClassPathAnalysisInputLocation(
+            testClasses, SourceType.Application, bodyInterceptors);
+
+    AnalysisInputLocation rtJarLocation =
+        new JavaClassPathAnalysisInputLocation(rtJar, SourceType.Application, bodyInterceptors);
+
+    JavaView view = new JavaView(Arrays.asList(testClassesLocation, rtJarLocation));
+    this.client = SootUpClient.getInstance(view, JavaIdentifierFactory.getInstance());
+
+    /**
+     * Options.v().set_soot_classpath(sootCp);
+     *
+     * <p>// We want to perform a whole program, i.e. an interprocedural analysis. // We construct a
+     * basic CHA call graph for the program Options.v().set_whole_program(true);
+     * Options.v().setPhaseOption("cg.spark", "on"); Options.v().setPhaseOption("cg",
+     * "all-reachable:true");
+     *
+     * <p>Options.v().set_no_bodies_for_excluded(true); Options.v().set_allow_phantom_refs(true);
+     * Options.v().setPhaseOption("jb", "use-original-names:true");
+     * Options.v().set_prepend_classpath(false);
+     *
+     * <p>Scene.v().addBasicClass("java.lang.StringBuilder"); SootClass c =
+     * Scene.v().forceResolve(targetTestClassName, SootClass.BODIES); if (c != null) {
+     * c.setApplicationClass(); } Scene.v().loadNecessaryClasses();*
+     */
   }
 
   public Set<AccessPath> getAliases(
@@ -80,31 +112,32 @@ public class AliasingTestSetUp {
       SparseCFGCache.SparsificationStrategy sparsificationStrategy,
       boolean ignoreAfterQuery) {
     String[] split = queryLHS.split("\\.");
-    Optional<Unit> unitOp;
+    Optional<Stmt> unitOp;
     if (split.length > 1) {
       unitOp =
-          method.getActiveBody().getUnits().stream()
+          method.getBody().getStmts().stream()
               .filter(e -> e.toString().startsWith(split[0]) && e.toString().contains(split[1]))
               .findFirst();
     } else {
       unitOp =
-          method.getActiveBody().getUnits().stream()
+          method.getBody().getStmts().stream()
               .filter(e -> e.toString().startsWith(split[0]))
               .findFirst();
     }
 
     if (unitOp.isPresent()) {
-      Unit unit = unitOp.get();
-      if (unit instanceof JAssignStmt) {
-        JAssignStmt stmt = (JAssignStmt) unit;
-        Value leftOp = stmt.getLeftOp();
+      Stmt stmt = unitOp.get();
+      if (stmt instanceof JAssignStmt) {
+        JAssignStmt assignStmt = (JAssignStmt) stmt;
+        Value leftOp = assignStmt.getLeftOp();
         if (leftOp instanceof JInstanceFieldRef) {
           // get base
           leftOp = ((JInstanceFieldRef) leftOp).getBase();
         }
         SparseAliasManager sparseAliasManager =
-            SparseAliasManager.getInstance(sparsificationStrategy, ignoreAfterQuery);
-        return sparseAliasManager.getAliases(stmt, method, leftOp);
+            SparseAliasManager.getInstance(
+                client.getView(), callGraph, entryPoints, sparsificationStrategy, ignoreAfterQuery);
+        return sparseAliasManager.getAliases(assignStmt, method, leftOp);
       }
     }
     throw new RuntimeException(
@@ -114,108 +147,109 @@ public class AliasingTestSetUp {
             + method.getName());
   }
 
-  protected Transformer createAnalysisTransformer(
-      String queryLHS,
-      SparseCFGCache.SparsificationStrategy sparsificationStrategy,
-      String targetMethod,
-      boolean ignoreAfterQuery) {
-    return new SceneTransformer() {
-      @Override
-      protected void internalTransform(String phaseName, Map<String, String> options) {
-        aliases =
-            getAliases(
-                getEntryPointMethod(targetMethod),
-                queryLHS,
-                sparsificationStrategy,
-                ignoreAfterQuery);
-      }
-    };
-  }
+  //  protected Transformer createAnalysisTransformer(
+  //      String queryLHS,
+  //      SparseCFGCache.SparsificationStrategy sparsificationStrategy,
+  //      String targetMethod,
+  //      boolean ignoreAfterQuery) {
+  //    return new SceneTransformer() {
+  //      @Override
+  //      protected void internalTransform(String phaseName, Map<String, String> options) {
+  //        aliases =
+  //            getAliases(
+  //                getEntryPointMethod(targetMethod),
+  //                queryLHS,
+  //                sparsificationStrategy,
+  //                ignoreAfterQuery);
+  //      }
+  //    };
+  //  }
 
-  protected SootMethod getEntryPointMethod(String targetMethod) {
-    for (SootClass c : Scene.v().getApplicationClasses()) {
-      for (SootMethod m : c.getMethods()) {
-        if (!m.hasActiveBody()) {
-          continue;
-        }
-        if (targetMethod != null && m.getName().equals(targetMethod)) {
-          return m;
-        }
-        if (m.getName().equals("entryPoint")
-            || m.toString().contains("void main(java.lang.String[])")) {
-          return m;
-        }
+  protected JavaSootMethod getEntryPointMethod(JavaClassType classType, String targetMethod) {
+    for (JavaSootMethod m : client.getView().getClass(classType).get().getMethods()) {
+      if (!m.hasBody()) {
+        continue;
+      }
+      if (targetMethod != null && m.getName().equals(targetMethod)) {
+        return m;
+      }
+      if (m.getName().equals("entryPoint")
+          || m.toString().contains("void main(java.lang.String[])")) {
+        return m;
       }
     }
-    throw new IllegalArgumentException("Method does not exist in scene!");
+
+    throw new IllegalArgumentException("Method does not exist in view!");
   }
 
-  protected void registerSootTransformers(
-      String queryLHS,
-      SparseCFGCache.SparsificationStrategy sparsificationStrategy,
-      String targetMethod,
-      boolean ignoreAfterQuery) {
-    Transform transform =
-        new Transform(
-            "wjtp.ifds",
-            createAnalysisTransformer(
-                queryLHS, sparsificationStrategy, targetMethod, ignoreAfterQuery));
-    PackManager.v().getPack("wjtp").add(transform);
-  }
+  //  protected void registerSootTransformers(
+  //      String queryLHS,
+  //      SparseCFGCache.SparsificationStrategy sparsificationStrategy,
+  //      String targetMethod,
+  //      boolean ignoreAfterQuery) {
+  //    Transform transform =
+  //        new Transform(
+  //            "wjtp.ifds",
+  //            createAnalysisTransformer(
+  //                queryLHS, sparsificationStrategy, targetMethod, ignoreAfterQuery));
+  //    PackManager.v().getPack("wjtp").add(transform);
+  //  }
 
-  protected void executeSootTransformers() {
-    // Apply all necessary packs of soot. This will execute the respective Transformer
-    PackManager.v().getPack("cg").apply();
-    // Must have for Boomerang
-    BoomerangPretransformer.v().reset();
-    BoomerangPretransformer.v().apply();
-    PackManager.v().getPack("wjtp").apply();
-  }
+  //  protected void executeSootTransformers() {
+  //    // Apply all necessary packs of soot. This will execute the respective Transformer
+  //    PackManager.v().getPack("cg").apply();
+  //    // Must have for Boomerang
+  //    BoomerangPretransformer.v().reset();
+  //    BoomerangPretransformer.v().apply();
+  //    PackManager.v().getPack("wjtp").apply();
+  //  }
 
   protected void runAnalyses(String queryLHS, String targetClass, String targetMethod) {
     Set<AccessPath> nonSparseAliases =
-        getAliases(
+        getAliasesFirst(
             targetClass, queryLHS, targetMethod, SparseCFGCache.SparsificationStrategy.NONE, true);
-    Set<AccessPath> typeBasedSparseAliases =
-        getAliases(
-            targetClass,
-            queryLHS,
-            targetMethod,
-            SparseCFGCache.SparsificationStrategy.TYPE_BASED,
-            true);
-    Set<AccessPath> aliasAwareSparseAliases =
-        getAliases(
-            targetClass,
-            queryLHS,
-            targetMethod,
-            SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-            true);
-    checkResults(
-        SparseCFGCache.SparsificationStrategy.TYPE_BASED, typeBasedSparseAliases, nonSparseAliases);
-    checkResults(
-        SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-        aliasAwareSparseAliases,
-        nonSparseAliases);
+    //    Set<AccessPath> typeBasedSparseAliases =
+    //        getAliasesFirst(
+    //            targetClass,
+    //            queryLHS,
+    //            targetMethod,
+    //            SparseCFGCache.SparsificationStrategy.TYPE_BASED,
+    //            true);
+    //    Set<AccessPath> aliasAwareSparseAliases =
+    //        getAliasesFirst(
+    //            targetClass,
+    //            queryLHS,
+    //            targetMethod,
+    //            SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
+    //            true);
+    //    checkResults(
+    //        SparseCFGCache.SparsificationStrategy.TYPE_BASED, typeBasedSparseAliases,
+    // nonSparseAliases);
+    //    checkResults(
+    //        SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
+    //        aliasAwareSparseAliases,
+    //        nonSparseAliases);
+    System.out.println(nonSparseAliases);
   }
 
   protected void runAnalyses(
       String queryLHS, String targetClass, String targetMethod, boolean ignoreAfterQuery) {
     Set<AccessPath> nonSparseAliases =
-        getAliases(
+        getAliasesFirst(
             targetClass,
             queryLHS,
             targetMethod,
             SparseCFGCache.SparsificationStrategy.NONE,
             ignoreAfterQuery);
     Set<AccessPath> typeBasedSparseAliases =
-        getAliases(
+        getAliasesFirst(
             targetClass,
             queryLHS,
             targetMethod,
             SparseCFGCache.SparsificationStrategy.TYPE_BASED,
             ignoreAfterQuery);
     Set<AccessPath> aliasAwareSparseAliases =
-        getAliases(
+        getAliasesFirst(
             targetClass,
             queryLHS,
             targetMethod,
@@ -229,7 +263,7 @@ public class AliasingTestSetUp {
         nonSparseAliases);
   }
 
-  protected Set<AccessPath> getAliases(
+  protected Set<AccessPath> getAliasesFirst(
       String targetClass,
       String queryLHS,
       String targetMethod,

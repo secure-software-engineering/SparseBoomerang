@@ -43,8 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Unit;
-import soot.jimple.Stmt;
+import sootup.core.jimple.common.stmt.Stmt;
 import sync.pds.solver.nodes.GeneratedState;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
@@ -203,8 +202,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, propStmt);
     Stmt stmt = SootAdapter.asStmt(propStmt);
     if (sparseCFG.getGraph().nodes().contains(stmt)) {
-      Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
-      for (Unit pred : predecessors) {
+      Set<Stmt> predecessors = sparseCFG.getGraph().predecessors(stmt);
+      for (Stmt pred : predecessors) {
         Collection<State> flow =
             computeNormalFlow(
                 method, new Edge(SootAdapter.asStatement(pred, method), propStmt), value);

@@ -6,35 +6,33 @@ import com.google.common.graph.Traverser;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import soot.Unit;
-import soot.jimple.IdentityStmt;
-import soot.jimple.internal.*;
-import soot.toolkits.graph.DirectedGraph;
+import sootup.core.graph.StmtGraph;
+import sootup.core.jimple.common.stmt.*;
 
 public class SparseCFGBuilder {
 
   private static final Logger LOGGER = Logger.getLogger(SparseCFGBuilder.class.getName());
 
-  protected Map<Unit, Integer> unitToNumber = new HashMap<>();
+  protected Map<Stmt, Integer> unitToNumber = new HashMap<>();
 
-  protected MutableGraph<Unit> numberStmtsAndConvertToMutableGraph(DirectedGraph<Unit> rawGraph) {
-    MutableGraph<Unit> mGraph = GraphBuilder.directed().build();
-    List<Unit> heads = rawGraph.getHeads();
-    for (Unit head : heads) {
+  protected MutableGraph<Stmt> numberStmtsAndConvertToMutableGraph(StmtGraph<?> rawGraph) {
+    MutableGraph<Stmt> mGraph = GraphBuilder.directed().build();
+    List<Stmt> heads = new ArrayList<>(rawGraph.getEntrypoints());
+    for (Stmt head : heads) {
       convertToMutableGraph(rawGraph, head, mGraph, 0);
     }
     return mGraph;
   }
 
   protected void convertToMutableGraph(
-      DirectedGraph<Unit> graph, Unit curr, MutableGraph<Unit> mutableGraph, int depth) {
+      StmtGraph<?> graph, Stmt curr, MutableGraph<Stmt> mutableGraph, int depth) {
     Integer num = unitToNumber.get(curr);
     if (num == null || num < depth) {
       unitToNumber.put(curr, depth);
     }
     depth++;
-    List<Unit> succsOf = graph.getSuccsOf(curr);
-    for (Unit succ : succsOf) {
+    List<Stmt> succsOf = graph.successors(curr);
+    for (Stmt succ : succsOf) {
       if (!mutableGraph.hasEdgeConnecting(curr, succ) && !curr.equals(succ)) {
         mutableGraph.putEdge(curr, succ);
         convertToMutableGraph(graph, succ, mutableGraph, depth);
@@ -48,11 +46,11 @@ public class SparseCFGBuilder {
    * @param graph
    * @return
    */
-  protected Unit getHead(DirectedGraph<Unit> graph) {
-    List<Unit> heads = graph.getHeads();
-    List<Unit> res = new ArrayList<>();
-    for (Unit head : heads) {
-      if (head instanceof IdentityStmt || graph.getSuccsOf(head).isEmpty()) {
+  protected Stmt getHead(StmtGraph<?> graph) {
+    List<Stmt> heads = new ArrayList<>(graph.getEntrypoints());
+    List<Stmt> res = new ArrayList<>();
+    for (Stmt head : heads) {
+      if (head instanceof JIdentityStmt || graph.successors(head).isEmpty()) {
         continue;
       }
       res.add(head);
@@ -63,19 +61,19 @@ public class SparseCFGBuilder {
     return res.get(0);
   }
 
-  protected Iterator<Unit> getBFSIterator(MutableGraph<Unit> graph, Unit head) {
-    Traverser<Unit> traverser = Traverser.forGraph(graph);
+  protected Iterator<Stmt> getBFSIterator(MutableGraph<Stmt> graph, Stmt head) {
+    Traverser<Stmt> traverser = Traverser.forGraph(graph);
     return traverser.breadthFirst(head).iterator();
   }
 
-  protected void logCFG(Logger logger, MutableGraph<Unit> graph) {
+  protected void logCFG(Logger logger, MutableGraph<Stmt> graph) {
     logger.info(
         graph.nodes().stream()
             .map(Objects::toString)
             .collect(Collectors.joining(System.lineSeparator())));
   }
 
-  protected boolean isControlStmt(Unit stmt) {
+  protected boolean isControlStmt(Stmt stmt) {
     if (stmt instanceof JIfStmt
         || stmt instanceof JNopStmt
         || stmt instanceof JGotoStmt

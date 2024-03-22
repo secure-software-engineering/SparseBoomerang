@@ -11,8 +11,8 @@ import boomerang.scene.sparse.SparseAliasingCFG;
 import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.solver.ForwardBoomerangSolver;
 import java.util.Collection;
-import soot.SootMethod;
-import soot.jimple.Stmt;
+import sootup.core.jimple.common.stmt.Stmt;
+import sootup.java.core.JavaSootMethod;
 import sync.pds.solver.nodes.Node;
 import wpds.interfaces.State;
 
@@ -120,7 +120,7 @@ public class ForwardSolverSuccessorListener extends SuccessorListener {
   }
 
   private SparseAliasingCFG getSparseCFG(Method method, Statement stmt, Val currentVal) {
-    SootMethod sootMethod = ((JimpleMethod) method).getDelegate();
+    JavaSootMethod sootMethod = ((JimpleMethod) method).getDelegate();
     Stmt sootStmt = ((JimpleStatement) stmt).getDelegate();
     SparseCFGCache sparseCFGCache =
         SparseCFGCache.getInstance(owner.getOptions().getSparsificationStrategy(), true);
