@@ -25,9 +25,10 @@ import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.transform.BodyInterceptor;
 import sootup.java.bytecode.inputlocation.JavaClassPathAnalysisInputLocation;
-import sootup.java.bytecode.interceptors.*;
+import sootup.java.core.interceptors.*;
 import sootup.java.core.JavaIdentifierFactory;
 import sootup.java.core.JavaSootMethod;
+import sootup.java.core.interceptors.NopEliminator;
 import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
 
@@ -67,7 +68,6 @@ public class AliasingTestSetUp {
 
     List<BodyInterceptor> bodyInterceptors = new ArrayList<>();
     // BytecodeBodyInterceptors.Default.getBodyInterceptors();
-
     bodyInterceptors.add(new NopEliminator());
     bodyInterceptors.add(new EmptySwitchEliminator());
     bodyInterceptors.add(new CastAndReturnInliner());
