@@ -5,6 +5,10 @@ import org.junit.Test;
 import target.aliasing.PointerBench.basic.*;
 import test.aliasing.AliasingTestSetUp;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public class BasicTest extends AliasingTestSetUp {
 
   @Test
@@ -93,6 +97,9 @@ public class BasicTest extends AliasingTestSetUp {
   public void simpleAlias1() {
     String queryLHS = "b_q1";
     String targetClass = SimpleAlias1.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("b_q1", "$stack3"));
+    runAnalyses(queryLHS, targetClass, null, expectedAliases);
   }
+
+
 }

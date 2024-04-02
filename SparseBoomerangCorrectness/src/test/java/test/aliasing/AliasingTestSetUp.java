@@ -1,5 +1,6 @@
 package test.aliasing;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import aliasing.SparseAliasManager;
@@ -210,11 +211,17 @@ public class AliasingTestSetUp {
     //    PackManager.v().getPack("wjtp").apply();
     //  }
 
+    protected void runAnalyses(String queryLHS, String targetClass, String targetMethod, Set<String> expectedAliases) {
+        Set<AccessPath> nonSparseAliases =
+                getAliasesFirst(
+                        targetClass, queryLHS, targetMethod, SparseCFGCache.SparsificationStrategy.NONE, true);
+        checkAliases(nonSparseAliases, expectedAliases);
+    }
+
     protected void runAnalyses(String queryLHS, String targetClass, String targetMethod) {
         Set<AccessPath> nonSparseAliases =
                 getAliasesFirst(
                         targetClass, queryLHS, targetMethod, SparseCFGCache.SparsificationStrategy.NONE, true);
-        System.out.println(nonSparseAliases);
     }
 
     protected void runAnalyses(
@@ -238,6 +245,12 @@ public class AliasingTestSetUp {
                 executeStaticAnalysis(
                         targetClass, targetMethod, queryLHS, sparsificationStrategy, ignoreAfterQuery);
         return aliases;
+    }
+
+
+    protected void checkAliases(Set<AccessPath> foundAliases, Set<String> expectedAliases){
+        Set<String> found = foundAliases.stream().map(a -> a.getBase().getVariableName()).collect(Collectors.toSet());
+        assertEquals(expectedAliases, found);
     }
 
     protected void checkResults(
