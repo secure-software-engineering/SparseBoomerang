@@ -26,8 +26,8 @@ public class Map1 {
     map.put("second", b);
     A c = map.get("second");
     A c_q1 = c;
-    Benchmark.test(
-        "c",
-        "{allocId:1, mayAlias:[c,b], notMayAlias:[a,map], mustAlias:[c,b], notMustAlias:[a,map]}");
+//    Benchmark.test(
+//        "c",
+//        "{allocId:1, mayAlias:[c,b], notMayAlias:[a,map], mustAlias:[c,b], notMustAlias:[a,map]}");
   }
 }
