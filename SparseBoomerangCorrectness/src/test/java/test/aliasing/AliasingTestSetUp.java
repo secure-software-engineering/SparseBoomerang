@@ -214,27 +214,6 @@ public class AliasingTestSetUp {
         Set<AccessPath> nonSparseAliases =
                 getAliasesFirst(
                         targetClass, queryLHS, targetMethod, SparseCFGCache.SparsificationStrategy.NONE, true);
-        //    Set<AccessPath> typeBasedSparseAliases =
-        //        getAliasesFirst(
-        //            targetClass,
-        //            queryLHS,
-        //            targetMethod,
-        //            SparseCFGCache.SparsificationStrategy.TYPE_BASED,
-        //            true);
-        //    Set<AccessPath> aliasAwareSparseAliases =
-        //        getAliasesFirst(
-        //            targetClass,
-        //            queryLHS,
-        //            targetMethod,
-        //            SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-        //            true);
-        //    checkResults(
-        //        SparseCFGCache.SparsificationStrategy.TYPE_BASED, typeBasedSparseAliases,
-        // nonSparseAliases);
-        //    checkResults(
-        //        SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-        //        aliasAwareSparseAliases,
-        //        nonSparseAliases);
         System.out.println(nonSparseAliases);
     }
 
@@ -247,26 +226,6 @@ public class AliasingTestSetUp {
                         targetMethod,
                         SparseCFGCache.SparsificationStrategy.NONE,
                         ignoreAfterQuery);
-        Set<AccessPath> typeBasedSparseAliases =
-                getAliasesFirst(
-                        targetClass,
-                        queryLHS,
-                        targetMethod,
-                        SparseCFGCache.SparsificationStrategy.TYPE_BASED,
-                        ignoreAfterQuery);
-        Set<AccessPath> aliasAwareSparseAliases =
-                getAliasesFirst(
-                        targetClass,
-                        queryLHS,
-                        targetMethod,
-                        SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-                        ignoreAfterQuery);
-        checkResults(
-                SparseCFGCache.SparsificationStrategy.TYPE_BASED, typeBasedSparseAliases, nonSparseAliases);
-        checkResults(
-                SparseCFGCache.SparsificationStrategy.ALIAS_AWARE,
-                aliasAwareSparseAliases,
-                nonSparseAliases);
     }
 
     protected Set<AccessPath> getAliasesFirst(
