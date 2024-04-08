@@ -15,29 +15,33 @@ public class BasicTest extends AliasingTestSetUp {
   public void branching1() {
     String queryLHS = "a_q1";
     String targetClass = Branching1.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("$stack5","a","$stack6","a_q1")); // b ?
+    runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
   @Test
   public void interprocedural1() {
     String queryLHS = "x_q1";
     String targetClass = Interprocedural1.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("x_q1","a","b","y","$stack6","$stack7","$stack8")); // $stack6, $stack7 ?
+    runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
   @Test
   public void interprocedural2() {
     String queryLHS = "y_q1";
     String targetClass = Interprocedural2.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("a","b","x","y_q1","$stack6","$stack7","$stack8")); // $stack6, $stack7 ??
+    runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
-  @Ignore("doesn't work sometimes, non deterministic error for now")
+  @Test
   public void loops1() {
     String queryLHS = "node_q1";
     String targetClass = Loops1.class.getName();
     String targetMetod = "test";
-    runAnalyses(queryLHS, targetClass, targetMetod);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("node", "node_q1", "$stack7")); // o, p , q ?
+    runAnalyses(queryLHS, targetClass, targetMetod, expectedAliases);
   }
 
   @Test
@@ -45,7 +49,8 @@ public class BasicTest extends AliasingTestSetUp {
     String queryLHS = "node_q1";
     String targetClass = Loops2.class.getName();
     String targetMetod = "test";
-    runAnalyses(queryLHS, targetClass, targetMetod);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("node", "node_q1", "$stack7","p","$stack6","o"));
+    runAnalyses(queryLHS, targetClass, targetMetod,expectedAliases);
   }
 
   @Test
@@ -53,7 +58,8 @@ public class BasicTest extends AliasingTestSetUp {
     String queryLHS = "b_q1";
     String targetClass = Parameter1.class.getName();
     String targetMetod = "test";
-    runAnalyses(queryLHS, targetClass, targetMetod);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("x"));
+    runAnalyses(queryLHS, targetClass, targetMetod,expectedAliases);
   }
 
   @Test
@@ -61,7 +67,8 @@ public class BasicTest extends AliasingTestSetUp {
     String queryLHS = "b_q1";
     String targetClass = Parameter2.class.getName();
     String targetMetod = "test";
-    runAnalyses(queryLHS, targetClass, targetMetod);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("x"));
+    runAnalyses(queryLHS, targetClass, targetMetod,expectedAliases);
   }
 
   @Test
@@ -69,28 +76,32 @@ public class BasicTest extends AliasingTestSetUp {
     String queryLHS = "n_q1";
     String targetClass = Recursion1.class.getName();
     String targetMetod = "test";
-    runAnalyses(queryLHS, targetClass, targetMetod);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("node", "n_q1", "$stack8", "n")); // o,p,q ?
+    runAnalyses(queryLHS, targetClass, targetMetod,expectedAliases);
   }
 
   @Test
   public void returnValue1() {
     String queryLHS = "b_q1";
     String targetClass = ReturnValue1.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("b_q1","b", "$stack4"));
+    runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
   @Test
   public void returnValue2() {
     String queryLHS = "b_q1";
     String targetClass = ReturnValue2.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("b_q1","a", "$stack5"));
+    runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
   @Test
   public void returnValue3() {
     String queryLHS = "x_q1";
     String targetClass = ReturnValue3.class.getName();
-    runAnalyses(queryLHS, targetClass, null);
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("x_q1","a","b","y", "$stack6"));
+    runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
   @Test

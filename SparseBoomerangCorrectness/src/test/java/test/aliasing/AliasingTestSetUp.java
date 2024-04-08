@@ -56,6 +56,7 @@ public class AliasingTestSetUp {
         setupSoot(targetClassName);
         JavaClassType classType = client.getIdentifierFactory().getClassType(targetClassName);
         JavaSootMethod entryMethod = getEntryPointMethod(classType, targetMethod);
+        System.out.println(entryMethod.getBody());
         entryPoints = Collections.singletonList(entryMethod.getSignature());
         callGraph = new RapidTypeAnalysisAlgorithm(client.getView()).initialize(entryPoints);
         aliases = getAliases(entryMethod, queryLHS, sparsificationStrategy, ignoreAfterQuery);
