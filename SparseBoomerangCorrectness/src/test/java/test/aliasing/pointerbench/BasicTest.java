@@ -15,7 +15,7 @@ public class BasicTest extends AliasingTestSetUp {
   public void branching1() {
     String queryLHS = "a_q1";
     String targetClass = Branching1.class.getName();
-    Set<String> expectedAliases = new HashSet<>(Arrays.asList("$stack5","a","$stack6","a_q1")); // b ?
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("$stack5","a","$stack6","a_q1"));
     runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
@@ -23,7 +23,7 @@ public class BasicTest extends AliasingTestSetUp {
   public void interprocedural1() {
     String queryLHS = "x_q1";
     String targetClass = Interprocedural1.class.getName();
-    Set<String> expectedAliases = new HashSet<>(Arrays.asList("x_q1","a","b","y","$stack6","$stack7","$stack8")); // $stack6, $stack7 ?
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("x_q1","a","b","y","$stack6","$stack7","$stack8")); // -$stack6, -$stack7 ?
     runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
@@ -31,7 +31,7 @@ public class BasicTest extends AliasingTestSetUp {
   public void interprocedural2() {
     String queryLHS = "y_q1";
     String targetClass = Interprocedural2.class.getName();
-    Set<String> expectedAliases = new HashSet<>(Arrays.asList("a","b","x","y_q1","$stack6","$stack7","$stack8")); // $stack6, $stack7 ??
+    Set<String> expectedAliases = new HashSet<>(Arrays.asList("a","b","x","y_q1","$stack6","$stack7","$stack8")); // -$stack6, -$stack7 ??
     runAnalyses(queryLHS, targetClass, null,expectedAliases);
   }
 
