@@ -2,6 +2,8 @@
 <img src="https://github.com/secure-software-engineering/SparseBoomerang/blob/master/SparseBoomerangLogo.png">
 </p> 
 
+
+
 # SparseBoomerang
 
 SparseBoomerang is an extension to SPDS-based Boomerang. 
