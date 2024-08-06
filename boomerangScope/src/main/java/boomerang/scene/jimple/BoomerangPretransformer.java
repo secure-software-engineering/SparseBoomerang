@@ -12,6 +12,8 @@
 package boomerang.scene.jimple;
 
 import com.google.common.collect.Sets;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,13 +57,13 @@ import soot.util.queue.QueueReader;
 public class BoomerangPretransformer extends BodyTransformer {
 
   public static boolean TRANSFORM_CONSTANTS = true;
-  public static String UNITIALIZED_FIELD_TAG_NAME = "UnitializedField";
+  public static String UNINITIALIZED_FIELD_TAG_NAME = "UninitializedField";
   public static Tag UNITIALIZED_FIELD_TAG =
       new Tag() {
 
         @Override
         public String getName() {
-          return UNITIALIZED_FIELD_TAG_NAME;
+          return UNINITIALIZED_FIELD_TAG_NAME;
         }
 
         @Override
@@ -87,7 +89,7 @@ public class BoomerangPretransformer extends BodyTransformer {
         if (isFieldRef(assignStmt.getLeftOp())
             && assignStmt.getRightOp() instanceof Constant
             && !(assignStmt.getRightOp() instanceof ClassConstant)) {
-          String label = "varReplacer" + new Integer(replaceCounter++).toString();
+          String label = "varReplacer" + replaceCounter++;
           Local paramVal = new JimpleLocal(label, assignStmt.getRightOp().getType());
           AssignStmt newUnit = new JAssignStmt(paramVal, assignStmt.getRightOp());
           body.getLocals().add(paramVal);
@@ -103,33 +105,41 @@ public class BoomerangPretransformer extends BodyTransformer {
           && !u.toString().contains("test.assertions.Assertions:")
           && !u.toString().contains("intQueryFor")) {
         Stmt stmt = (Stmt) u;
-        if (stmt.getInvokeExpr()
-            .getMethod()
-            .getSignature()
-            .equals("<java.math.BigInteger: java.math.BigInteger valueOf(long)>")) {
-          continue;
-        }
+
         List<ValueBox> useBoxes = stmt.getInvokeExpr().getUseBoxes();
-        for (Value v : stmt.getInvokeExpr().getArgs()) {
+        List<Map.Entry<Integer, Value>> newArgs = new ArrayList<>();
+
+        for (int i = 0; i < stmt.getInvokeExpr().getArgs().size(); i++) {
+          Value v = stmt.getInvokeExpr().getArg(i);
+
           if (v instanceof Constant && !(v instanceof ClassConstant)) {
-            String label = "varReplacer" + new Integer(replaceCounter++).toString();
+            String label = "varReplacer" + replaceCounter++;
             Local paramVal = new JimpleLocal(label, v.getType());
             AssignStmt newUnit = new JAssignStmt(paramVal, v);
             newUnit.addAllTagsOf(u);
             body.getLocals().add(paramVal);
             body.getUnits().insertBefore(newUnit, u);
+
             for (ValueBox b : useBoxes) {
               backPropagateSourceLineTags(b, newUnit);
-              if (b.getValue().equals(v)) {
-                b.setValue(paramVal);
-              }
             }
+
+            Map.Entry<Integer, Value> entry = new AbstractMap.SimpleEntry<>(i, paramVal);
+            newArgs.add(entry);
           }
+        }
+
+        // Update the parameters
+        for (Map.Entry<Integer, Value> entry : newArgs) {
+          int position = entry.getKey();
+          Value newArg = entry.getValue();
+
+          stmt.getInvokeExpr().setArg(position, newArg);
         }
       }
       if (u instanceof ReturnStmt) {
         ReturnStmt returnStmt = (ReturnStmt) u;
-        String label = "varReplacer" + new Integer(replaceCounter++).toString();
+        String label = "varReplacer" + replaceCounter++;
         Local paramVal = new JimpleLocal(label, returnStmt.getOp().getType());
         AssignStmt newUnit = new JAssignStmt(paramVal, returnStmt.getOp());
         newUnit.addAllTagsOf(u);
@@ -147,23 +157,23 @@ public class BoomerangPretransformer extends BodyTransformer {
    * AssignStmt, to revert the forward propagation done in {@link
    * soot.jimple.toolkits.scalar.CopyPropagator}
    *
-   * @param valueBox
-   * @param assignStmt
+   * @param valueBox the constant value box
+   * @param assignStmt the newly create AssignStmt
    */
   private void backPropagateSourceLineTags(ValueBox valueBox, AssignStmt assignStmt) {
-    Tag tag = valueBox.getTag(SourceLnPosTag.IDENTIFIER);
+    Tag tag = valueBox.getTag(SourceLnPosTag.NAME);
     if (tag != null) {
       // in case that we copied a line number tag from the original statement, we want to remove
       // that now since the valueBox contains the correct lin number tag for the assign statement as
       // it was before copy propagation
-      assignStmt.removeTag(SourceLnPosTag.IDENTIFIER);
+      assignStmt.removeTag(SourceLnPosTag.NAME);
       assignStmt.addTag(tag);
     }
 
-    tag = valueBox.getTag(LineNumberTag.IDENTIFIER);
+    tag = valueBox.getTag(LineNumberTag.NAME);
     if (tag != null) {
       // same as for the above case
-      assignStmt.removeTag(LineNumberTag.IDENTIFIER);
+      assignStmt.removeTag(LineNumberTag.NAME);
       assignStmt.addTag(tag);
     }
   }
