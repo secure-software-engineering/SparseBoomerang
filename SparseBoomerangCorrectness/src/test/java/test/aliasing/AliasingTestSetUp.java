@@ -63,6 +63,7 @@ public class AliasingTestSetUp {
 
     Options.v().set_no_bodies_for_excluded(true);
     Options.v().set_allow_phantom_refs(true);
+    Options.v().setPhaseOption("jb.sils", "enabled:false");
     Options.v().setPhaseOption("jb", "use-original-names:true");
     Options.v().set_prepend_classpath(false);
 
