@@ -495,6 +495,6 @@ public class JimpleStatement extends Statement {
   }
 
   public boolean isUnitializedFieldStatement() {
-    return delegate.hasTag(BoomerangPretransformer.UNITIALIZED_FIELD_TAG_NAME);
+    return delegate.hasTag(BoomerangPretransformer.UNINITIALIZED_FIELD_TAG_NAME);
   }
 }

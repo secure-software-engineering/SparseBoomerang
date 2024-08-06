@@ -105,6 +105,7 @@ public abstract class AbstractTestingFramework {
 
     Options.v().set_include(getIncludeList());
 
+    Options.v().setPhaseOption("jb.sils", "enabled:false");
     Options.v().setPhaseOption("jb", "use-original-names:true");
 
     Options.v().set_exclude(excludedPackages());
