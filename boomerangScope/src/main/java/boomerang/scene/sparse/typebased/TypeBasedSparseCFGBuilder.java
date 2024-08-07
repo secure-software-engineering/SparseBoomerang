@@ -80,14 +80,7 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
       }
     }
     for (Unit unit : stmsToRemove) {
-      Set<Unit> preds = mCFG.predecessors(unit);
-      Set<Unit> succs = mCFG.successors(unit);
-      if (preds.size() == 1 && succs.size() == 1) {
-        // TODO: revise this
-        // if a node has multiple in and out edges, don't remove it
-        mCFG.removeNode(unit);
-        mCFG.putEdge(preds.iterator().next(), succs.iterator().next());
-      }
+      removeStmt(mCFG, unit);
     }
   }
 
