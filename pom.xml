@@ -18,25 +18,10 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/CodeShield-Security/SPDS.git</connection>
-        <url>git@github.com:CodeShield-Security/SPDS.git</url>
-        <tag>SPDS-3.1.2</tag>
+        <connection>scm:git:git@github.com:secure-software-engineering/SparseBoomerang.git</connection>
+        <developerConnection>scm:git:ssh://github.com:secure-software-engineering/SparseBoomerang.git</developerConnection>
+        <url>https://github.com/secure-software-engineering/SparseBoomerang</url>
     </scm>
-
-    <developers>
-        <developer>
-            <name>Johannes Spaeth</name>
-            <email>johannes.spaeth@codeshield.de</email>
-            <organization>CodeShield GmbH</organization>
-            <organizationUrl>https://codeshield.de/</organizationUrl>
-        </developer>
-        <developer>
-            <name>Manuel Benz</name>
-            <email>manuel.benz@codeshield.de</email>
-            <organization>CodeShield GmbH</organization>
-            <organizationUrl>https://codeshield.de/</organizationUrl>
-        </developer>
-    </developers>
 
     <modules>
         <module>WPDS</module>
