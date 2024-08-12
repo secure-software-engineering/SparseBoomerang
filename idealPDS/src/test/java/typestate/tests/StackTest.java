@@ -22,7 +22,6 @@ import typestate.impl.statemachines.VectorStateMachine;
 @SuppressWarnings("deprecation")
 public class StackTest extends IDEALTestingFramework {
 
-  @Ignore("Broken since refactoring scope")
   @Test
   public void test1() {
     Stack s = new Stack();

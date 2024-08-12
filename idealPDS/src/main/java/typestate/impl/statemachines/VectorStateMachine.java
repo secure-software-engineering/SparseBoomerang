@@ -69,6 +69,9 @@ public class VectorStateMachine extends TypeStateMachineWeightFunctions {
             Parameter.This,
             States.NOT_EMPTY,
             Type.OnCall));
+    addTransition(
+        new MatcherTransition(
+            States.NOT_EMPTY, ADD_ELEMENT_METHODS, Parameter.This, States.NOT_EMPTY, Type.OnCall));
 
     addTransition(
         new MatcherTransition(
