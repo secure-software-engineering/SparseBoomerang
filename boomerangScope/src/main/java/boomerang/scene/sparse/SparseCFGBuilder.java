@@ -95,14 +95,13 @@ public class SparseCFGBuilder {
   protected void removeStmt(MutableGraph<Unit> mCFG, Unit unit) {
     Set<Unit> preds = mCFG.predecessors(unit);
     List<Unit> tmpPreds = new ArrayList<>();
-    preds.forEach(e->tmpPreds.add(e));
+    preds.forEach(e -> tmpPreds.add(e));
     Set<Unit> succs = mCFG.successors(unit);
     List<Unit> tmpSuccs = new ArrayList<>();
-    succs.forEach(e->tmpSuccs.add(e));
+    succs.forEach(e -> tmpSuccs.add(e));
     if (tmpPreds.size() == 1 && tmpSuccs.size() == 1) {
       mCFG.removeNode(unit);
       mCFG.putEdge(tmpPreds.get(0), tmpSuccs.get(0));
     }
   }
-
 }
