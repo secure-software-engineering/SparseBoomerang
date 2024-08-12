@@ -25,6 +25,8 @@ import boomerang.scene.Val;
 import boomerang.scene.wala.WALACallGraph;
 import com.google.common.collect.Lists;
 import com.ibm.wala.classLoader.IMethod;
+import com.ibm.wala.core.util.config.AnalysisScopeReader;
+import com.ibm.wala.core.util.io.FileProvider;
 import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
@@ -39,8 +41,6 @@ import com.ibm.wala.ipa.cha.ClassHierarchyFactory;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.MethodReference;
-import com.ibm.wala.util.config.AnalysisScopeReader;
-import com.ibm.wala.util.io.FileProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +59,7 @@ public class ExampleMain1 {
   private static WALACallGraph setupWALA(String mainClass)
       throws CallGraphBuilderCancelException, IOException, ClassHierarchyException {
     com.ibm.wala.ipa.callgraph.AnalysisScope walaScope =
-        AnalysisScopeReader.readJavaScope(
+        AnalysisScopeReader.instance.readJavaScope(
             "testScope.txt",
             (new FileProvider()).getFile("exclusion.txt"),
             ExampleMain1.class.getClassLoader());
