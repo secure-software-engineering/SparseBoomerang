@@ -23,6 +23,13 @@
         <url>https://github.com/secure-software-engineering/SparseBoomerang</url>
     </scm>
 
+    <developers>
+        <developer>
+            <name>Boomerang development team</name>
+            <email>boomerang@eim.upb.de</email>
+        </developer>
+    </developers>
+
     <modules>
         <module>WPDS</module>
         <module>SynchronizedPDS</module>
