@@ -22,14 +22,28 @@
         <developerConnection>scm:git:ssh://github.com:secure-software-engineering/SparseBoomerang.git</developerConnection>
         <url>https://github.com/secure-software-engineering/SparseBoomerang</url>
     </scm>
-
     <developers>
         <developer>
             <name>Boomerang development team</name>
             <email>boomerang@eim.upb.de</email>
+            <organization>Research Grouup Secure Software Engineering</organization>
+            <organizationUrl>https://www.hni.uni-paderborn.de/sse</organizationUrl>
         </developer>
     </developers>
-
+    <contributors>
+        <contributor>
+            <name>Johannes Spaeth</name>
+            <email>johannes.spaeth@codeshield.de</email>
+            <organization>CodeShield GmbH</organization>
+            <organizationUrl>https://codeshield.de/</organizationUrl>
+        </contributor>
+        <contributor>
+            <name>Manuel Benz</name>
+            <email>manuel.benz@codeshield.de</email>
+            <organization>CodeShield GmbH</organization>
+            <organizationUrl>https://codeshield.de/</organizationUrl>
+        </contributor>
+    </contributors>
     <modules>
         <module>WPDS</module>
         <module>SynchronizedPDS</module>
