@@ -6,7 +6,8 @@
 
 # SparseBoomerang
 
-SparseBoomerang is an extension to SPDS-based Boomerang. 
+SparseBoomerang is an extension to SPDS-based [Boomerang](https://github.com/CodeShield-Security/SPDS).
+This [SparseBoomerang repository](https://github.com/secure-software-engineering/SparseBoomerang) is now the main fork of [CodeShield](https://codeshield.io/)'s [Boomerang](https://github.com/CodeShield-Security/SPDS) which is providing further maintainance and development.
 SparseBoomerang introduces two sparsification strategies to aid the scalability of precise Boomerang pointer analysis.
 [SparseBoomerangCorrectness](SparseBoomerangCorrectness) show how these work and compare them against the default non-sparse Boomerang.
 
@@ -14,7 +15,10 @@ SparseBoomerang introduces two sparsification strategies to aid the scalability 
 The FlowDroid fork that works with SparseBoomerang is available at: [https://github.com/kadirayk/FlowDroid](https://github.com/kadirayk/FlowDroid)
 
 ## Publications
-Preprint is available:  
+The paper is available:
+[Two Sparsification Strategies for Accelerating Demand-Driven Pointer Analysis](https://ieeexplore.ieee.org/document/10132184) (ICST 2023)
+
+Preprint is available: 
 [Two Sparsification Strategies for Accelerating Demand-Driven Pointer Analysis](https://www.bodden.de/pubs/kb23sparsification.pdf) (ICST 2023)
 
 ## Boomerang
