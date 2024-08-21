@@ -17,9 +17,6 @@ The FlowDroid fork that works with SparseBoomerang is available at: [https://git
 Preprint is available:  
 [Two Sparsification Strategies for Accelerating Demand-Driven Pointer Analysis](https://www.bodden.de/pubs/kb23sparsification.pdf) (ICST 2023)
 
-## Dependencies
-To install dependencies run `bash install_dependencies.sh` in dependencies folder.
-
 ## Boomerang
 This repository contains a Java implementation of Synchronized Pushdown Systems.
 Additionally, it contains an implementation of [Boomerang](boomerangPDS) and [IDEal](idealPDS) based on a Weighted Pushdown System.
