@@ -28,19 +28,26 @@ Additionally, it contains an implementation of [Boomerang](boomerangPDS) and [ID
 
 ## Use as Maven dependency
 
-The projects are released on [Maven Central](https://central.sonatype.com/artifact/de.fraunhofer.iem/SPDS) and can be included as a dependency in `.pom` files:
+The projects are released on [Maven Central](https://central.sonatype.com/artifact/de.fraunhofer.iem/SPDS) and can be included as a dependency in `.pom` files (replace `x.y.z` with the latest version).
 
-To include a dependency from this repository to your poject, you first have to add the repository to your pom file:
-
+- Boomerang can be included with the following dependency:
 
 ```.xml
-<dependencies>
-  <dependency>
-    <groupId>de.fraunhofer.iem</groupId>
-    <artifactId>SPDS</artifactId>
-    <version>3.1.2-Sparse</version>
-  </dependency>
-</dependencies>
+<dependency>
+  <groupId>de.fraunhofer.iem</groupId>
+  <artifactId>boomerangPDS</artifactId>
+  <version>x.y.z</version>
+</dependency>
+```
+
+- IDEal can be included with the following dependency:
+
+```.xml
+<dependency>
+  <groupId>de.fraunhofer.iem</groupId>
+  <artifactId>idealPDS</artifactId>
+  <version>x.y.z</version>
+</dependency>
 ```
 
 ## Checkout, Build and Install
