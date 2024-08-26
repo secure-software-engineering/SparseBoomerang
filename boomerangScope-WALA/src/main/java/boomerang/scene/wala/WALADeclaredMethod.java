@@ -13,6 +13,7 @@ package boomerang.scene.wala;
 
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
+import boomerang.scene.Method;
 import boomerang.scene.WrappedClass;
 import com.ibm.wala.types.MethodReference;
 
@@ -29,7 +30,6 @@ public class WALADeclaredMethod extends DeclaredMethod {
 
   @Override
   public boolean isNative() {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -56,6 +56,11 @@ public class WALADeclaredMethod extends DeclaredMethod {
   @Override
   public String getSignature() {
     return delegate.getSignature();
+  }
+
+  @Override
+  public Method getCalledMethod() {
+    throw new RuntimeException("Not implemented");
   }
 
   @Override

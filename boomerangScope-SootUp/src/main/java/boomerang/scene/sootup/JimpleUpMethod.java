@@ -3,6 +3,7 @@ package boomerang.scene.sootup;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
+import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
 import com.google.common.collect.Interner;
@@ -54,6 +55,22 @@ public class JimpleUpMethod extends Method {
 
     List<Val> parameterLocals = getParameterLocals();
     return parameterLocals.contains(val);
+  }
+
+  @Override
+  public List<Type> getParameterTypes() {
+    List<Type> result = new ArrayList<>();
+
+    for (sootup.core.types.Type type : delegate.getParameterTypes()) {
+      result.add(new JimpleUpType(type));
+    }
+
+    return result;
+  }
+
+  @Override
+  public Type getParameterType(int index) {
+    return new JimpleUpType(delegate.getParameterType(index));
   }
 
   @Override

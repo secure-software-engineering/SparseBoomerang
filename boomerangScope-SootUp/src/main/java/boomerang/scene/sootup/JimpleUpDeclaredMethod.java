@@ -1,6 +1,7 @@
 package boomerang.scene.sootup;
 
 import boomerang.scene.DeclaredMethod;
+import boomerang.scene.Method;
 import boomerang.scene.WrappedClass;
 import java.util.Arrays;
 import sootup.java.core.JavaSootClass;
@@ -42,12 +43,17 @@ public class JimpleUpDeclaredMethod extends DeclaredMethod {
 
   @Override
   public boolean isConstructor() {
-    return delegate.getSignature().getName().equals("<init>");
+    return SootUpClient.isConstructor(delegate);
   }
 
   @Override
   public String getSignature() {
     return delegate.getSignature().toString();
+  }
+
+  @Override
+  public Method getCalledMethod() {
+    return JimpleUpMethod.of(delegate);
   }
 
   @Override
