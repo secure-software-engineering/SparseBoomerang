@@ -101,7 +101,8 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
 
               public StaticFieldStrategy getStaticFieldStrategy() {
                 return StaticFieldStrategy.FLOW_SENSITIVE;
-              };
+              }
+              ;
 
               @Override
               public boolean allowMultipleQueries() {

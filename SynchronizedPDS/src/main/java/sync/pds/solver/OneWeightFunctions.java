@@ -41,4 +41,5 @@ public class OneWeightFunctions<Stmt, Fact, Field, W extends Weight>
   public W getOne() {
     return one;
   }
-};
+}
+;

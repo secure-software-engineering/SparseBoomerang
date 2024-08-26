@@ -18,7 +18,8 @@ public class File {
 
   public File close() {
     return this;
-  };
+  }
+  ;
 
   public int hashCode() {
     return 9;

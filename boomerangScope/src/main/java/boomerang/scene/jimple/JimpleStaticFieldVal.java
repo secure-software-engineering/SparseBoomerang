@@ -43,7 +43,8 @@ public class JimpleStaticFieldVal extends StaticFieldVal {
 
   public Field field() {
     return field;
-  };
+  }
+  ;
 
   @Override
   public Val asUnbalanced(Edge stmt) {
