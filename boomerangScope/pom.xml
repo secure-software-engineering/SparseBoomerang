@@ -6,20 +6,15 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>boomerangScope</artifactId>
-
+  <artifactId>boomerangScope-Soot</artifactId>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.soot-oss</groupId>
       <artifactId>soot</artifactId>
     </dependency>
     <dependency>
       <groupId>de.fraunhofer.iem</groupId>
-      <artifactId>synchronizedPDS</artifactId>
+      <artifactId>boomerangScope</artifactId>
     </dependency>
   </dependencies>
 </project>
