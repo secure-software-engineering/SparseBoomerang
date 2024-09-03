@@ -11,10 +11,10 @@
  */
 package wpds.impl;
 
+import de.fraunhofer.iem.Location;
+import de.fraunhofer.iem.wildcard.Wildcard;
 import pathexpression.Edge;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
-import wpds.wildcard.Wildcard;
 
 public class Transition<N extends Location, D extends State> implements Edge<D, N> {
   private final D s1;

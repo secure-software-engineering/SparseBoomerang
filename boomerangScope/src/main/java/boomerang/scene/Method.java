@@ -2,10 +2,10 @@ package boomerang.scene;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import wpds.interfaces.Location;
 
 public abstract class Method implements Location {
   private static Method epsilon;

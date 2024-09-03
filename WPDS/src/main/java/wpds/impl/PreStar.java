@@ -13,12 +13,12 @@ package wpds.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
+import de.fraunhofer.iem.wildcard.Wildcard;
 import java.util.LinkedList;
 import java.util.List;
 import wpds.interfaces.IPushdownSystem;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
-import wpds.wildcard.Wildcard;
 
 public class PreStar<N extends Location, D extends State, W extends Weight> {
   private LinkedList<Transition<N, D>> worklist = Lists.newLinkedList();

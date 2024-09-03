@@ -1238,7 +1238,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
             new ExecuteImportFieldStmtPOI<W>(baseSolver, flowSolver, FieldWritePOI.this) {
               public void activate(INode<Node<Edge, Val>> start) {
                 activateAllPois(new SolverPair(flowSolver, baseSolver), start);
-              };
+              }
+              ;
             };
         registerActivationListener(new SolverPair(flowSolver, baseSolver), exec);
         exec.solve();

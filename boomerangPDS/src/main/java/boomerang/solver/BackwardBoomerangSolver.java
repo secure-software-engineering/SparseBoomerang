@@ -35,6 +35,7 @@ import boomerang.scene.sparse.SparseCFGCache;
 import boomerang.scene.sparse.eval.PropagationCounter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Map;
@@ -54,7 +55,6 @@ import sync.pds.solver.nodes.SingleNode;
 import wpds.impl.NestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public abstract class BackwardBoomerangSolver<W extends Weight> extends AbstractBoomerangSolver<W> {
@@ -140,7 +140,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
             .getPredsOf(curr.stmt().getStart())) {
 
       Set<State> res =
-          flowFunction.callToReturnFlow(new Edge(returnSite, curr.stmt().getStart()), curr.fact())
+          flowFunction
+              .callToReturnFlow(new Edge(returnSite, curr.stmt().getStart()), curr.fact())
               .stream()
               .collect(Collectors.toSet());
       for (State s : res) {

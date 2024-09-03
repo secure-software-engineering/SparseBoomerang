@@ -11,6 +11,7 @@
  */
 package tests;
 
+import de.fraunhofer.iem.Location;
 import wpds.impl.NormalRule;
 import wpds.impl.PAutomaton;
 import wpds.impl.PopRule;
@@ -20,7 +21,6 @@ import wpds.impl.UNormalRule;
 import wpds.impl.UPopRule;
 import wpds.impl.UPushRule;
 import wpds.impl.WeightedPAutomaton;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public class TestHelper {

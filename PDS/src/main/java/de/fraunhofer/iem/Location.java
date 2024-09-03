@@ -9,8 +9,8 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-package wpds.wildcard;
+package de.fraunhofer.iem;
 
-public interface ExclusionWildcard<Location> extends Wildcard {
-  public Location excludes();
+public interface Location {
+  boolean accepts(Location other);
 }

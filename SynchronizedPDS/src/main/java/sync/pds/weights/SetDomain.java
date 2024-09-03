@@ -12,11 +12,11 @@
 package sync.pds.weights;
 
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.Set;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
-import wpds.interfaces.Location;
 
 public class SetDomain<N, Stmt, Fact> extends Weight {
 

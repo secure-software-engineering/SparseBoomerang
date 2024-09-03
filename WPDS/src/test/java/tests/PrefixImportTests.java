@@ -2,11 +2,11 @@ package tests;
 
 import static org.junit.Assert.assertTrue;
 
+import de.fraunhofer.iem.Location;
 import org.junit.Test;
 import wpds.impl.PAutomaton;
 import wpds.impl.PrefixImport;
 import wpds.impl.Transition;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public class PrefixImportTests {

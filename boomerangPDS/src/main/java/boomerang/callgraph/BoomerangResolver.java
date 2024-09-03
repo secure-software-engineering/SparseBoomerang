@@ -53,7 +53,8 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
   private CallGraph precomputedCallGraph;
   private WeightedBoomerang<? extends Weight> solver;
   private Set<Statement> queriedInvokeExprAndAllocationSitesFound = Sets.newHashSet();
-  private Set<Statement> queriedInvokeExpr = Sets.newHashSet();;
+  private Set<Statement> queriedInvokeExpr = Sets.newHashSet();
+  ;
 
   public BoomerangResolver(CallGraph cg, DataFlowScope scope) {
     this.solver = new Boomerang(cg, scope);
@@ -241,7 +242,8 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
                           }
                         }
                       }
-                    };
+                    }
+                    ;
                   });
         }
       }

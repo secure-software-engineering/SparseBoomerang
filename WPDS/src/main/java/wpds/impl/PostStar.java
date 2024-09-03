@@ -11,15 +11,15 @@
  */
 package wpds.impl;
 
-import wpds.interfaces.Empty;
+import de.fraunhofer.iem.Empty;
+import de.fraunhofer.iem.Location;
+import de.fraunhofer.iem.wildcard.ExclusionWildcard;
+import de.fraunhofer.iem.wildcard.Wildcard;
 import wpds.interfaces.IPushdownSystem;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 import wpds.interfaces.WPAUpdateListener;
 import wpds.interfaces.WPDSUpdateListener;
-import wpds.wildcard.ExclusionWildcard;
-import wpds.wildcard.Wildcard;
 
 public abstract class PostStar<N extends Location, D extends State, W extends Weight> {
   private IPushdownSystem<N, D, W> pds;

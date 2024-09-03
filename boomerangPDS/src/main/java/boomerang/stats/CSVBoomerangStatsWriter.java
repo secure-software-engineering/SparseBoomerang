@@ -29,6 +29,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,7 +47,6 @@ import sync.pds.solver.nodes.Node;
 import wpds.impl.Rule;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public class CSVBoomerangStatsWriter<W extends Weight> implements IBoomerangStats<W> {

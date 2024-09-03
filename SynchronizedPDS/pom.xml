@@ -36,5 +36,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>PDS</artifactId>
+            <version>3.1.2-Sparse</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

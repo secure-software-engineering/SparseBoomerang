@@ -12,10 +12,10 @@
 package boomerang.scene;
 
 import com.google.common.base.Objects;
-import wpds.interfaces.Empty;
-import wpds.interfaces.Location;
-import wpds.wildcard.ExclusionWildcard;
-import wpds.wildcard.Wildcard;
+import de.fraunhofer.iem.Empty;
+import de.fraunhofer.iem.Location;
+import de.fraunhofer.iem.wildcard.ExclusionWildcard;
+import de.fraunhofer.iem.wildcard.Wildcard;
 
 public class Field implements Location {
   private final String rep;

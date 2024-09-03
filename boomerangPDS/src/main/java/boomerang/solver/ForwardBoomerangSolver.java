@@ -30,6 +30,7 @@ import boomerang.scene.Type;
 import boomerang.scene.Val;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -47,7 +48,6 @@ import wpds.impl.NestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
 import wpds.impl.WeightedPAutomaton;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 

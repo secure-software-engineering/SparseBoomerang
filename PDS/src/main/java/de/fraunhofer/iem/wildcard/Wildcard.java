@@ -9,6 +9,8 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-package wpds.interfaces;
+package de.fraunhofer.iem.wildcard;
 
-public interface Empty {}
+import de.fraunhofer.iem.Location;
+
+public interface Wildcard extends Location {}

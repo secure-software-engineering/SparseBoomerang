@@ -6,15 +6,23 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>boomerangScope-Soot</artifactId>
+  <artifactId>boomerangScope</artifactId>
   <dependencies>
-    <dependency>
-      <groupId>org.soot-oss</groupId>
-      <artifactId>soot</artifactId>
+
+<!--    <dependency>
+      <groupId>de.fraunhofer.iem</groupId>
+      <artifactId>boomerangPDS</artifactId>
     </dependency>
+    -->
     <dependency>
       <groupId>de.fraunhofer.iem</groupId>
-      <artifactId>boomerangScope</artifactId>
+      <artifactId>PDS</artifactId>
+      <version>3.1.2-Sparse</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
   </dependencies>
 </project>

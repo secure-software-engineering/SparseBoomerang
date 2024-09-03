@@ -7,6 +7,7 @@ import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.util.AccessPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Empty;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,6 @@ import sync.pds.solver.nodes.Node;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
 import wpds.impl.WeightedPAutomaton;
-import wpds.interfaces.Empty;
 import wpds.interfaces.WPAStateListener;
 import wpds.interfaces.WPAUpdateListener;
 

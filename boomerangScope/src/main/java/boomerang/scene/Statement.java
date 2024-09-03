@@ -11,9 +11,9 @@
  */
 package boomerang.scene;
 
+import de.fraunhofer.iem.Empty;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
-import wpds.interfaces.Empty;
-import wpds.interfaces.Location;
 
 public abstract class Statement implements Location {
   // Wrapper for stmt so we know the method

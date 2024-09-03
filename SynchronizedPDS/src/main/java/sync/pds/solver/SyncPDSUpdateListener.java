@@ -11,8 +11,8 @@
  */
 package sync.pds.solver;
 
+import de.fraunhofer.iem.Location;
 import sync.pds.solver.nodes.Node;
-import wpds.interfaces.Location;
 
 public interface SyncPDSUpdateListener<Stmt extends Location, Fact> {
 
