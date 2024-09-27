@@ -51,6 +51,7 @@
         <module>boomerangScope</module>
         <module>boomerangScope-WALA</module>
         <module>SparseBoomerangCorrectness</module>
+        <module>boomerangScope-Opal</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
