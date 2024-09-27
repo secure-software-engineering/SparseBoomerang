@@ -14,6 +14,7 @@ package boomerang.scene.wala;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
+import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
 import com.google.common.collect.Lists;
@@ -24,6 +25,7 @@ import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.IR;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -57,6 +59,22 @@ public class WALAMethod extends Method {
   @Override
   public boolean isParameterLocal(Val val) {
     return getParameterLocals().contains(val);
+  }
+
+  @Override
+  public List<Type> getParameterTypes() {
+    List<Type> types = new ArrayList<>();
+
+    for (Val val : getParameterLocals()) {
+      types.add(val.getType());
+    }
+
+    return types;
+  }
+
+  @Override
+  public Type getParameterType(int index) {
+    return getParameterLocals().get(index).getType();
   }
 
   @Override

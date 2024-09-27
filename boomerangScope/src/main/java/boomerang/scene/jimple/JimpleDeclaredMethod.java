@@ -2,12 +2,13 @@ package boomerang.scene.jimple;
 
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
+import boomerang.scene.Method;
 import boomerang.scene.WrappedClass;
 import soot.SootMethod;
 
 public class JimpleDeclaredMethod extends DeclaredMethod {
 
-  private SootMethod delegate;
+  private final SootMethod delegate;
 
   public JimpleDeclaredMethod(InvokeExpr inv, SootMethod method) {
     super(inv);
@@ -67,6 +68,11 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   @Override
   public String getSignature() {
     return delegate.getSignature();
+  }
+
+  @Override
+  public Method getCalledMethod() {
+    return JimpleMethod.of(delegate);
   }
 
   @Override

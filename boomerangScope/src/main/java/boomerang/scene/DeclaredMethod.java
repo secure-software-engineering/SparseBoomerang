@@ -20,6 +20,8 @@ public abstract class DeclaredMethod {
 
   public abstract String getSignature();
 
+  public abstract Method getCalledMethod();
+
   public abstract WrappedClass getDeclaringClass();
 
   public InvokeExpr getInvokeExpr() {
