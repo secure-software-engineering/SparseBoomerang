@@ -13,6 +13,7 @@
 
     <properties>
         <opal.version>5.0.0</opal.version>
+        <scala.version>2.13.14</scala.version>
     </properties>
 
     <dependencies>

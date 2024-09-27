@@ -140,7 +140,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
             .getPredsOf(curr.stmt().getStart())) {
 
       Set<State> res =
-          flowFunction.callToReturnFlow(new Edge(returnSite, curr.stmt().getStart()), curr.fact())
+          flowFunction
+              .callToReturnFlow(new Edge(returnSite, curr.stmt().getStart()), curr.fact())
               .stream()
               .collect(Collectors.toSet());
       for (State s : res) {
