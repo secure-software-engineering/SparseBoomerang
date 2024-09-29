@@ -27,5 +27,4 @@ public class WeightedForwardQuery<W extends Weight> extends ForwardQuery {
   public W weight() {
     return weight;
   }
-
 }

@@ -1,5 +1,6 @@
 package boomerang.scene.opal
 
+import boomerang.scene
 import boomerang.scene.{DeclaredMethod, InvokeExpr, WrappedClass}
 import org.opalj.br.Method
 import org.opalj.tac.Var
@@ -22,6 +23,8 @@ class OpalDeclaredMethod[+V <: Var[V]](invokeExpr: InvokeExpr, delegate: Method)
     val declaredMethod = OpalClient.getDeclaredMethod(delegate)
     new OpalWrappedClass(OpalClient.getClassFileForType(declaredMethod.declaringClassType))
   }
+
+  override def getCalledMethod: scene.Method = new OpalMethod(delegate)
 
   override def hashCode(): Int = 31 * delegate.hashCode()
 

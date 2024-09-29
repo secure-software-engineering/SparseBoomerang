@@ -1,6 +1,6 @@
 package boomerang.scene.opal
 
-import boomerang.scene.{ControlFlowGraph, Method, Statement, Val, WrappedClass}
+import boomerang.scene.{ControlFlowGraph, Method, Statement, Type, Val, WrappedClass}
 import org.opalj.tac.{DUVar, InstanceFunctionCall, InstanceMethodCall, UVar}
 import org.opalj.value.ValueInformation
 
@@ -26,6 +26,18 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
     val parameterLocals = getParameterLocals
     parameterLocals.contains(value)
   }
+
+  override def getParameterTypes: util.List[Type] = {
+    val result = new util.ArrayList[Type]()
+
+    for (parameterType <- delegate.parameterTypes) {
+      result.add(new OpalType(parameterType))
+    }
+
+    result
+  }
+
+  override def getParameterType(index: Int): Type = getParameterTypes.get(index)
 
   override def isThisLocal(fact: Val): Boolean = {
     if (isStatic) return false
