@@ -45,6 +45,7 @@
         </contributor>
     </contributors>
     <modules>
+        <module>PDS</module>
         <module>WPDS</module>
         <module>SynchronizedPDS</module>
         <module>testCore</module>
@@ -54,7 +55,6 @@
         <module>boomerangScope-WALA</module>
         <module>boomerangScope-SootUp</module>
         <module>SparseBoomerangCorrectness</module>
-        <module>PDS</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -20,10 +20,12 @@
         </plugins>
     </build>
     <dependencies>
+        <!--
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
             <artifactId>testCore</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
             <artifactId>boomerangScope</artifactId>
@@ -49,6 +51,12 @@
     <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>boomerangScope-Soot</artifactId>
+            <version>3.1.2-Sparse</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

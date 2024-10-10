@@ -9,7 +9,7 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-package test.core.selfrunning;
+package boomerang.scene;
 
 import java.io.File;
 import java.io.IOException;

@@ -43,7 +43,7 @@ import soot.Scene;
 import soot.SceneTransformer;
 import sync.pds.solver.WeightFunctions;
 import test.ExpectedResults.InternalState;
-import test.core.selfrunning.AbstractTestingFramework;
+import boomerang.scene.AbstractTestingFramework;
 import test.core.selfrunning.ImprecisionException;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
