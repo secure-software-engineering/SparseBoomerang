@@ -114,6 +114,7 @@ public abstract class Method implements Location {
     return epsilon;
   }
 
+  // TODO: [ms] looks as if this toString() should go into epsilon..
   @Override
   public String toString() {
     return "METHOD EPS";

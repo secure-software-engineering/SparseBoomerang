@@ -1,8 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>de.fraunhofer.iem</groupId>
         <artifactId>SPDS</artifactId>
-        <version>3.1.2-Sparse</version>
+        <version>3.1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -20,16 +21,17 @@
         </plugins>
     </build>
     <dependencies>
-        <!--
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
             <artifactId>testCore</artifactId>
         </dependency>
-        -->
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
             <artifactId>boomerangScope</artifactId>
-            <version>3.1.2-Sparse</version>
+        </dependency>
+        <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>synchronizedPDS</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -43,20 +45,14 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.fraunhofer.iem</groupId>
-            <artifactId>boomerangScope-Soot</artifactId>
-            <version>3.1.2-Sparse</version>
-            <scope>compile</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
         </dependency>
     </dependencies>
 

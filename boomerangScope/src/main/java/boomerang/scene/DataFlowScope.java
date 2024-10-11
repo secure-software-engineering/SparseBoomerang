@@ -15,7 +15,7 @@ public interface DataFlowScope {
         }
       };
 
-  public boolean isExcluded(DeclaredMethod method);
+  boolean isExcluded(DeclaredMethod method);
 
-  public boolean isExcluded(Method method);
+  boolean isExcluded(Method method);
 }

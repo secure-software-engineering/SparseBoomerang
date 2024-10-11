@@ -23,13 +23,9 @@ import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Scene;
-import soot.SootClass;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.Node;
 import typestate.TransitionFunction;
@@ -128,6 +124,8 @@ public abstract class TypeStateMachineWeightFunctions
     return new TransitionFunction(res, Collections.singleton(transitionEdge));
   }
 
+  /*
+  // TODO: [ms] re-enable
   protected List<SootClass> getSubclassesOf(String className) {
     SootClass sootClass = Scene.v().getSootClass(className);
     List<SootClass> list = Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sootClass);
@@ -137,6 +135,7 @@ public abstract class TypeStateMachineWeightFunctions
     }
     return res;
   }
+  */
 
   protected Collection<WeightedForwardQuery<TransitionFunction>> getLeftSideOf(Edge edge) {
     Statement s = edge.getStart();

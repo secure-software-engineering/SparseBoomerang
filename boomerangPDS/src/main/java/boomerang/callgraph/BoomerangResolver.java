@@ -7,16 +7,8 @@ import boomerang.Query;
 import boomerang.SolverCreationListener;
 import boomerang.WeightedBoomerang;
 import boomerang.results.ExtractAllocationSiteStateListener;
-import boomerang.scene.CallGraph;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.DeclaredMethod;
-import boomerang.scene.InvokeExpr;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Type;
-import boomerang.scene.Val;
-import boomerang.scene.WrappedClass;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.ForwardBoomerangSolver;
 import com.google.common.collect.HashMultimap;
@@ -56,8 +48,8 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
   private Set<Statement> queriedInvokeExpr = Sets.newHashSet();
   ;
 
-  public BoomerangResolver(CallGraph cg, DataFlowScope scope) {
-    this.solver = new Boomerang(cg, scope);
+  public BoomerangResolver(CallGraph cg, DataFlowScope scope, ScopeFactory scopeFactory) {
+    this.solver = new Boomerang(cg, scope, scopeFactory);
     this.precomputedCallGraph = cg;
   }
 

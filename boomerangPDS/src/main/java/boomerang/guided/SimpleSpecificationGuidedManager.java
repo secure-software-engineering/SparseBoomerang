@@ -12,13 +12,11 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.JimpleStatement;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import soot.jimple.Stmt;
 
 public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedManager {
 
@@ -85,6 +83,9 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
 
   public boolean isInOnList(
       SootMethodWithSelector methodSelector, Statement stmt, Val fact, QueryDirection direction) {
+
+    /*
+    // TODO: [ms] refactor me
     if (stmt instanceof JimpleStatement) {
       // This only works for Soot propagations
       Stmt jimpleStmt = ((JimpleStatement) stmt).getDelegate();
@@ -97,6 +98,7 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
         return isInList(on, direction, stmt, fact);
       }
     }
+    */
     return false;
   }
 

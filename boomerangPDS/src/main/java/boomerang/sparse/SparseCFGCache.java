@@ -3,26 +3,24 @@ package boomerang.sparse;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.scene.sparse.SparseAliasingCFG;
-import boomerang.scene.sparse.aliasaware.AliasAwareSparseCFGCache;
-import boomerang.scene.sparse.eval.SparseCFGQueryLog;
-import boomerang.scene.sparse.typebased.TypeBasedSparseCFGCache;
+import boomerang.sparse.eval.SparseCFGQueryLog;
 import java.util.List;
 
-public interface SparseCFGCache<M extends Method, S extends Statement>  {
+public interface SparseCFGCache<M extends Method, S extends Statement> {
 
-  /* TODO: mapping
   static SparseCFGCache getInstance(SparsificationStrategy strategy, boolean ignoreAfterQuery) {
+
+    // FIXME: [ms] fix/refactor mapping
+    /*
     switch (strategy) {
       case TYPE_BASED:
         return TypeBasedSparseCFGCache.getInstance();
       case ALIAS_AWARE:
         return AliasAwareSparseCFGCache.getInstance(ignoreAfterQuery);
-      default:
-        throw new RuntimeException("SparsificationStrategy not implemented");
     }
+    */
+    throw new RuntimeException("SparsificationStrategy not implemented");
   }
-   */
 
   /**
    * For retrieving the same {@link SparseAliasingCFG} built by the backward query
@@ -44,11 +42,7 @@ public interface SparseCFGCache<M extends Method, S extends Statement>  {
    * @return
    */
   SparseAliasingCFG getSparseCFGForBackwardPropagation(
-      Val initialQueryVal,
-      S initialQueryStmt,
-      M currentMethod,
-      Val currentVal,
-      S currentStmt);
+      Val initialQueryVal, S initialQueryStmt, M currentMethod, Val currentVal, S currentStmt);
 
   List<SparseCFGQueryLog> getQueryLogs();
 }

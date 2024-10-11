@@ -19,7 +19,7 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.scene.sparse.SparseCFGCache;
+import boomerang.sparse.SparsificationStrategy;
 import boomerang.stats.IBoomerangStats;
 import boomerang.stats.SimpleBoomerangStats;
 import com.google.common.base.Joiner;
@@ -218,9 +218,10 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
   }
 
   @Override
-  public SparseCFGCache.SparsificationStrategy getSparsificationStrategy() {
-    return SparseCFGCache.SparsificationStrategy.NONE;
+  public SparsificationStrategy getSparsificationStrategy() {
+    return new SparsificationStrategy.NoSparsification();
   }
+  ;
 
   @Override
   public boolean handleSpecialInvokeAsNormalPropagation() {

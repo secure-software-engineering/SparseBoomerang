@@ -29,10 +29,6 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
-import boomerang.scene.sparse.SootAdapter;
-import boomerang.scene.sparse.SparseAliasingCFG;
-import boomerang.scene.sparse.SparseCFGCache;
-import boomerang.scene.sparse.eval.PropagationCounter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import de.fraunhofer.iem.Location;
@@ -44,8 +40,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Unit;
-import soot.jimple.Stmt;
 import sync.pds.solver.nodes.GeneratedState;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
@@ -85,12 +79,10 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   }
 
   private boolean notUsedInMethod(Method m, Statement curr, Val value) {
-    if (value.isStatic()) return false;
-    if (!m.getLocals().stream()
-        .filter(e -> e.toString().equals(value.toString()))
-        .findAny()
-        .isPresent()) return true;
-    return false;
+    if (value.isStatic()) {
+      return false;
+    }
+    return m.getLocals().stream().noneMatch(local -> local.toString().equals(value.toString()));
   }
 
   public INode<Node<ControlFlowGraph.Edge, Val>> generateFieldState(
@@ -185,61 +177,62 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   protected void normalFlow(Method method, Node<ControlFlowGraph.Edge, Val> currNode) {
     Edge curr = currNode.stmt();
     Val value = currNode.fact();
-    if (options.getSparsificationStrategy() != SparseCFGCache.SparsificationStrategy.NONE) {
+
+    // TODO: re-enable sparsification
+    /*
+    if (options.getSparsificationStrategy() != SparsificationStrategy.NONE) {
       propagateSparse(method, currNode, curr, value);
-    } else {
+    } else
+    */
+    {
       for (Statement pred :
           curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
         Collection<State> flow = computeNormalFlow(method, new Edge(pred, curr.getStart()), value);
         for (State s : flow) {
-          PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
+          // TODO: [ms] re-enable sparse
+          // PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
           propagate(currNode, s);
         }
       }
     }
   }
 
-  private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {
-    Statement propStmt = curr.getStart();
-    SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, propStmt);
-    Stmt stmt = SootAdapter.asStmt(propStmt);
-    if (sparseCFG.getGraph().nodes().contains(stmt)) {
-      Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
-      for (Unit pred : predecessors) {
-        Collection<State> flow =
-            computeNormalFlow(
-                method, new Edge(SootAdapter.asStatement(pred, method), propStmt), value);
-        for (State s : flow) {
-          PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
-          propagate(currNode, s);
+  /*
+  // TODO: [ms] re-enable sparse
+
+    private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {
+      Statement propStmt = curr.getStart();
+      SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, propStmt);
+      Stmt stmt = SootAdapter.asStmt(propStmt);
+      if (sparseCFG.getGraph().nodes().contains(stmt)) {
+        Set<Unit> predecessors = sparseCFG.getGraph().predecessors(stmt);
+        for (Unit pred : predecessors) {
+          Collection<State> flow =
+              computeNormalFlow(
+                  method, new Edge(SootAdapter.asStatement(pred, method), propStmt), value);
+          for (State s : flow) {
+            PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
+            propagate(currNode, s);
+          }
         }
+      } else {
+        System.out.println("node not in cfg:" + stmt);
       }
-    } else {
-      System.out.println("node not in cfg:" + stmt);
     }
-  }
+  */
 
   /**
-   * BackwardQuery: (b2 (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void
+   * // TODO: [ms] re-enable sparse BackwardQuery: (b2
+   * (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void
    * main(java.lang.String[])>),b2.secret = $stack9 -> return)
    *
-   * @param method
-   * @param val
-   * @param stmt
-   * @return
+   * <p>private SparseAliasingCFG getSparseCFG( BackwardQuery query, Method method, Val val,
+   * Statement stmt) { SparseAliasingCFG sparseCFG; SparseCFGCache sparseCFGCache =
+   * SparseCFGCache.getInstance( options.getSparsificationStrategy(),
+   * options.ignoreSparsificationAfterQuery()); sparseCFG =
+   * sparseCFGCache.getSparseCFGForBackwardPropagation( query.var(),
+   * query.asNode().stmt().getStart(), method, val, stmt); return sparseCFG; }
    */
-  private SparseAliasingCFG getSparseCFG(
-      BackwardQuery query, Method method, Val val, Statement stmt) {
-    SparseAliasingCFG sparseCFG;
-    SparseCFGCache sparseCFGCache =
-        SparseCFGCache.getInstance(
-            options.getSparsificationStrategy(), options.ignoreSparsificationAfterQuery());
-    sparseCFG =
-        sparseCFGCache.getSparseCFGForBackwardPropagation(
-            query.var(), query.asNode().stmt().getStart(), method, val, stmt);
-    return sparseCFG;
-  }
-
   protected Collection<? extends State> computeCallFlow(
       Edge callSiteEdge, Val fact, Method callee, Edge calleeStartEdge) {
     Statement calleeSp = calleeStartEdge.getTarget();

@@ -14,11 +14,8 @@ package boomerang.weights;
 import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.WeightedBoomerang;
-import boomerang.scene.CallGraph;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Field;
-import boomerang.scene.Val;
 import sync.pds.solver.OneWeightFunctions;
 import sync.pds.solver.WeightFunctions;
 
@@ -27,12 +24,13 @@ public abstract class PathTrackingBoomerang extends WeightedBoomerang<DataFlowPa
   private OneWeightFunctions<Edge, Val, Field, DataFlowPathWeight> fieldWeights;
   private PathTrackingWeightFunctions callWeights;
 
-  public PathTrackingBoomerang(CallGraph cg, DataFlowScope scope) {
-    super(cg, scope);
+  public PathTrackingBoomerang(CallGraph cg, DataFlowScope scope, ScopeFactory scopeFactory) {
+    super(cg, scope, scopeFactory);
   }
 
-  public PathTrackingBoomerang(CallGraph cg, DataFlowScope scope, BoomerangOptions opt) {
-    super(cg, scope, opt);
+  public PathTrackingBoomerang(
+      CallGraph cg, DataFlowScope scope, BoomerangOptions opt, ScopeFactory scopeFactory) {
+    super(cg, scope, opt, scopeFactory);
   }
 
   @Override

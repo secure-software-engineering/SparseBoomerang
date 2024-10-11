@@ -38,7 +38,7 @@ To include a dependency from this repository to your poject, you first have to a
   <dependency>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.1.2-Sparse</version>
+    <version>3.1.2-SNAPSHOT</version>
   </dependency>
 </dependencies>
 ```

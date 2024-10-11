@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.1.2-Sparse</version>
+    <version>3.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>SPDS</name>
     <description>Sparsified Synchronized Pushdown Systems for Pointer and Data-Flow Analysis</description>
@@ -54,7 +54,7 @@
         <module>boomerangScope</module>
         <module>boomerangScope-WALA</module>
         <module>boomerangScope-SootUp</module>
-        <module>SparseBoomerangCorrectness</module>
+        <!--<module>SparseBoomerangCorrectness</module>-->
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

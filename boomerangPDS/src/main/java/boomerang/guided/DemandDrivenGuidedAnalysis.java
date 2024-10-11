@@ -10,11 +10,11 @@ import boomerang.guided.Specification.QueryDirection;
 import boomerang.results.AbstractBoomerangResults.Context;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
+import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.SootDataFlowScope;
+import boomerang.scene.ScopeFactory;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.SootCallGraph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import soot.Scene;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight.NoWeight;
 
@@ -33,7 +32,7 @@ public class DemandDrivenGuidedAnalysis {
   private final BoomerangOptions customBoomerangOptions;
   private final IDemandDrivenGuidedManager spec;
   private final DataFlowScope scope;
-  private final SootCallGraph callGraph;
+  private final CallGraph callGraph;
   private final LinkedList<QueryWithContext> queryQueue = Lists.newLinkedList();
   private final Set<Query> visited = Sets.newHashSet();
   private final Boomerang solver;
@@ -42,21 +41,18 @@ public class DemandDrivenGuidedAnalysis {
   public DemandDrivenGuidedAnalysis(
       IDemandDrivenGuidedManager specification,
       BoomerangOptions options,
-      DataFlowScope dataFlowScope) {
+      DataFlowScope dataFlowScope,
+      CallGraph callGraph,
+      ScopeFactory scopeFactory) {
     spec = specification;
-    callGraph = new SootCallGraph();
     scope = dataFlowScope;
+    this.callGraph = callGraph;
     if (!options.allowMultipleQueries()) {
       throw new RuntimeException(
           "Boomerang options allowMultipleQueries is set to false. Please enable it.");
     }
     customBoomerangOptions = options;
-    solver = new Boomerang(callGraph, scope, customBoomerangOptions);
-  }
-
-  public DemandDrivenGuidedAnalysis(
-      IDemandDrivenGuidedManager specification, BoomerangOptions options) {
-    this(specification, options, SootDataFlowScope.make(Scene.v()));
+    solver = new Boomerang(callGraph, scope, customBoomerangOptions, scopeFactory);
   }
 
   /**

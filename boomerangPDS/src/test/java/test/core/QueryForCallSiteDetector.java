@@ -7,7 +7,6 @@ import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Val;
 import boomerang.scene.jimple.AccessPathParser;
-import boomerang.scene.jimple.JimpleMethod;
 import boomerang.util.AccessPath;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +29,7 @@ class QueryForCallSiteDetector extends AnalysisScope {
     Val arg = u.getStart().getInvokeExpr().getArg(1);
     if (arg.isStringConstant()) {
       String value = arg.getStringValue();
-      expectedAccessPaths.addAll(
-          AccessPathParser.parseAllFromString(value, (JimpleMethod) u.getMethod()));
+      expectedAccessPaths.addAll(AccessPathParser.parseAllFromString(value, u.getMethod()));
     }
   }
 
