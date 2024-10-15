@@ -19,16 +19,8 @@ import boomerang.controlflowgraph.ObservableControlFlowGraph;
 import boomerang.controlflowgraph.PredecessorListener;
 import boomerang.controlflowgraph.SuccessorListener;
 import boomerang.flowfunction.IBackwardFlowFunction;
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Field;
-import boomerang.scene.InvokeExpr;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Type;
-import boomerang.scene.Val;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import de.fraunhofer.iem.Location;
@@ -40,12 +32,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sync.pds.solver.nodes.GeneratedState;
-import sync.pds.solver.nodes.INode;
-import sync.pds.solver.nodes.Node;
-import sync.pds.solver.nodes.PopNode;
-import sync.pds.solver.nodes.PushNode;
-import sync.pds.solver.nodes.SingleNode;
+import sparse.SparseAliasingCFG;
+import sparse.SparseCFGCache;
+import sync.pds.solver.nodes.*;
 import wpds.impl.NestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
@@ -178,18 +167,16 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
     Edge curr = currNode.stmt();
     Val value = currNode.fact();
 
-    // TODO: re-enable sparsification
-    /*
+    /* TODO: [ms] re-enable  sparse + refactor if/else into own method!
     if (options.getSparsificationStrategy() != SparsificationStrategy.NONE) {
-      propagateSparse(method, currNode, curr, value);
-    } else
-    */
+        propagateSparse(method, currNode, curr, value);
+    } else */
     {
       for (Statement pred :
           curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
         Collection<State> flow = computeNormalFlow(method, new Edge(pred, curr.getStart()), value);
         for (State s : flow) {
-          options.getSparsificationStrategy().getCounter().countBackward();
+          options.getSparsificationStrategy().getCounter().countBackwardProgragation();
           propagate(currNode, s);
         }
       }
@@ -220,17 +207,18 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
   */
 
   /**
-   * // TODO: [ms] re-enable sparse BackwardQuery: (b2
-   * (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void
+   * sparse BackwardQuery: (b2 (target.aliasing.Aliasing1.<target.aliasing.Aliasing1: void
    * main(java.lang.String[])>),b2.secret = $stack9 -> return)
-   *
-   * <p>private SparseAliasingCFG getSparseCFG( BackwardQuery query, Method method, Val val,
-   * Statement stmt) { SparseAliasingCFG sparseCFG; SparseCFGCache sparseCFGCache =
-   * SparseCFGCache.getInstance( options.getSparsificationStrategy(),
-   * options.ignoreSparsificationAfterQuery()); sparseCFG =
-   * sparseCFGCache.getSparseCFGForBackwardPropagation( query.var(),
-   * query.asNode().stmt().getStart(), method, val, stmt); return sparseCFG; }
    */
+  private SparseAliasingCFG getSparseCFG(
+      BackwardQuery query, Method method, Val val, Statement stmt) {
+    SparseCFGCache sparseCFGCache =
+        SparseCFGCache.getInstance(
+            options.getSparsificationStrategy(), options.ignoreSparsificationAfterQuery());
+    return sparseCFGCache.getSparseCFGForBackwardPropagation(
+        query.var(), query.asNode().stmt().getStart(), method, val, stmt);
+  }
+
   protected Collection<? extends State> computeCallFlow(
       Edge callSiteEdge, Val fact, Method callee, Edge calleeStartEdge) {
     Statement calleeSp = calleeStartEdge.getTarget();

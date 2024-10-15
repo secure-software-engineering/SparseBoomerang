@@ -219,7 +219,7 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
 
   @Override
   public SparsificationStrategy getSparsificationStrategy() {
-    return new SparsificationStrategy.NoSparsification();
+    return new SparsificationStrategy.NoSparsificationStrategy();
   }
 
   @Override

@@ -18,7 +18,8 @@ import boomerang.debugger.Debugger;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.CallGraph.Edge;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
+import boomerang.soot.SootTestFactory;
 import com.google.common.collect.Lists;
 import ideal.IDEALAnalysis;
 import ideal.IDEALAnalysisDefinition;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import sync.pds.solver.WeightFunctions;
 import test.ExpectedResults.InternalState;
 import test.core.selfrunning.ImprecisionException;
@@ -45,8 +45,9 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
   protected CallGraph callGraph;
   protected DataFlowScope dataFlowScope;
 
-  protected IDEALTestingFramework(FrameworkTestFactory ftf) {
-    super(ftf);
+  @Override
+  public FrameworkTestFactory getTestingFramework() {
+    return new SootTestFactory();
   }
 
   protected abstract TypeStateMachineWeightFunctions getStateMachine();
@@ -118,7 +119,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
           @Override
           public FrameworkScopeFactory getFrameworkFactory() {
             // TODO: [ms] make parameterized
-            return new SootFrameworkFactoryFramework();
+            return new SootFrameworkFactory();
           }
         });
   }

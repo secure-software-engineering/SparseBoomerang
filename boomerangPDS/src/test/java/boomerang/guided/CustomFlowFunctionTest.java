@@ -19,7 +19,7 @@ import boomerang.scene.Val;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.JimpleMethod;
 import boomerang.soot.jimple.SootCallGraph;
@@ -56,7 +56,7 @@ public class CustomFlowFunctionTest {
             sootCallGraph,
             SootDataFlowScope.make(Scene.v()),
             new CustomIntAndStringBoomerangOptions(),
-            new SootFrameworkFactoryFramework());
+            new SootFrameworkFactory());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -85,7 +85,7 @@ public class CustomFlowFunctionTest {
             sootCallGraph,
             SootDataFlowScope.make(Scene.v()),
             new CustomBoomerangOptions(),
-            new SootFrameworkFactoryFramework());
+            new SootFrameworkFactory());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -111,7 +111,7 @@ public class CustomFlowFunctionTest {
             sootCallGraph,
             SootDataFlowScope.make(Scene.v()),
             new CustomBoomerangOptions(),
-            new SootFrameworkFactoryFramework());
+            new SootFrameworkFactory());
 
     System.out.println("Solving query: " + query);
     ForwardBoomerangResults<NoWeight> res = solver.solve(query);

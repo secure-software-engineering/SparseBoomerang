@@ -18,7 +18,7 @@ import boomerang.scene.Val;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.solver.ForwardBoomerangSolver;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.SootTestFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
@@ -176,7 +176,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
                 return false;
               }
             },
-            new SootFrameworkFactoryFramework()) {
+            new SootFrameworkFactory()) {
 
           @Override
           protected WeightFunctions<Edge, Val, Field, NoWeight> getForwardFieldWeights() {
@@ -288,8 +288,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     for (final Query query : queries) {
       BoomerangOptions options = createBoomerangOptions();
       Boomerang solver =
-          new Boomerang(
-              callGraph, getDataFlowScope(), options, new SootFrameworkFactoryFramework()) {};
+          new Boomerang(callGraph, getDataFlowScope(), options, new SootFrameworkFactory()) {};
 
       if (query instanceof BackwardQuery) {
         Stopwatch watch = Stopwatch.createStarted();

@@ -28,16 +28,18 @@ import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.JimpleMethod;
 import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
@@ -327,6 +329,7 @@ public class DemandDrivenGuidedAnalysisTest {
 
   public static BackwardQuery selectFirstFileInitArgument(SootMethod m) {
     Method method = JimpleMethod.of(m);
+    // TODO: [ms] this line seems to make no sense?
     method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
     Statement newFileStatement =
         method.getStatements().stream()
@@ -415,7 +418,7 @@ public class DemandDrivenGuidedAnalysisTest {
             },
             SootDataFlowScope.make(Scene.v()),
             new SootCallGraph(),
-            new SootFrameworkFactoryFramework());
+            new SootFrameworkFactory());
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
     demandDrivenGuidedAnalysis.cleanUp();
@@ -427,12 +430,14 @@ public class DemandDrivenGuidedAnalysisTest {
                 x ->
                     x instanceof ForwardQuery
                         && isStringOrIntAllocation(x.asNode().stmt().getStart()));
-    Assert.assertEquals(
-        Sets.newHashSet(expectedValues),
+
+    Set<? extends Serializable> collect =
         res.map(t -> ((AllocVal) t.var()).getAllocVal())
             .filter(x -> x.isStringConstant() || x.isIntConstant())
             .map(x -> (x.isIntConstant() ? x.getIntValue() : x.getStringValue()))
-            .collect(Collectors.toSet()));
+            .collect(Collectors.toSet());
+
+    Assert.assertEquals(Sets.newHashSet(expectedValues), collect);
   }
 
   protected void setupSoot(Class cls) {

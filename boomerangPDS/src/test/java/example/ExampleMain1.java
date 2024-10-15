@@ -21,7 +21,7 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
 import java.io.File;
@@ -138,7 +138,7 @@ public class ExampleMain1 {
                 sootCallGraph,
                 SootDataFlowScope.make(Scene.v()),
                 new DefaultBoomerangOptions(),
-                new SootFrameworkFactoryFramework());
+                new SootFrameworkFactory());
 
         // 2. Submit a query to the solver.
         Collection<Query> seeds = scope.computeSeeds();

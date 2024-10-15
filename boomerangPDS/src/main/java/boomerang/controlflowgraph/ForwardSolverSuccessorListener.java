@@ -11,7 +11,7 @@ import sync.pds.solver.nodes.Node;
 import wpds.interfaces.State;
 
 /**
- * To replace the anonymous impl in ForwardSolver, so that we can access the Edge fiel of the outer
+ * To replace the anonymous impl in ForwardSolver, so that we can access the Edge field of the outer
  * method
  */
 public class ForwardSolverSuccessorListener extends SuccessorListener {

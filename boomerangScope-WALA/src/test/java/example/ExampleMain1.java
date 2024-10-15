@@ -16,13 +16,10 @@ import boomerang.Boomerang;
 import boomerang.DefaultBoomerangOptions;
 import boomerang.Query;
 import boomerang.results.BackwardBoomerangResults;
-import boomerang.scene.AnalysisScope;
-import boomerang.scene.CallGraph;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
 import boomerang.scene.wala.WALACallGraph;
+import boomerang.scene.wala.WalaFrameworkScope;
 import com.google.common.collect.Lists;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.core.util.config.AnalysisScopeReader;
@@ -106,7 +103,9 @@ public class ExampleMain1 {
           }
         };
     // 1. Create a Boomerang solver.
-    Boomerang solver = new Boomerang(cg, DataFlowScope.INCLUDE_ALL, new DefaultBoomerangOptions());
+    Boomerang solver =
+        new Boomerang(
+            cg, DataFlowScope.INCLUDE_ALL, new DefaultBoomerangOptions(), new WalaFrameworkScope());
 
     // 2. Submit a query to the solver.
     Collection<Query> seeds = scope.computeSeeds();

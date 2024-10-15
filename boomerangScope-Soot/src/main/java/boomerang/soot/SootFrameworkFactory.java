@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import soot.SootMethod;
 import soot.jimple.IntConstant;
 
-public class SootFrameworkFactoryFramework implements FrameworkScopeFactory {
+public class SootFrameworkFactory implements FrameworkScopeFactory {
 
   @Override
   public Val getTrueValue(Method m) {

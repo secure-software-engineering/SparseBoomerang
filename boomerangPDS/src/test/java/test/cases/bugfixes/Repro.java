@@ -8,7 +8,7 @@ import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.*;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.JimpleMethod;
 import boomerang.soot.jimple.SootCallGraph;
@@ -91,7 +91,7 @@ public class Repro {
             new SootCallGraph(),
             SootDataFlowScope.make(Scene.v()),
             opts,
-            new SootFrameworkFactoryFramework());
+            new SootFrameworkFactory());
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
     return results.getInvokedMethodOnInstance();
   }

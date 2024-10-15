@@ -3,10 +3,10 @@ package boomerang.guided;
 import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
 import boomerang.Query;
+import boomerang.guided.Specification.MethodWithSelector;
 import boomerang.guided.Specification.Parameter;
 import boomerang.guided.Specification.QueryDirection;
 import boomerang.guided.Specification.QuerySelector;
-import boomerang.guided.Specification.SootMethodWithSelector;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Method;
@@ -31,11 +31,11 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
     Statement stmt = dataFlowEdge.getStart();
     Set<Query> res = Sets.newHashSet();
     if (stmt.containsInvokeExpr()) {
-      Set<SootMethodWithSelector> selectors =
+      Set<MethodWithSelector> selectors =
           spec.getMethodAndQueries().stream()
               .filter(x -> isInOnList(x, stmt, dataFlowVal, QueryDirection.FORWARD))
               .collect(Collectors.toSet());
-      for (SootMethodWithSelector sel : selectors) {
+      for (MethodWithSelector sel : selectors) {
         res.addAll(createNewQueries(sel, stmt));
       }
     }
@@ -47,18 +47,18 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
     Statement stmt = dataFlowEdge.getStart();
     Set<Query> res = Sets.newHashSet();
     if (stmt.containsInvokeExpr()) {
-      Set<SootMethodWithSelector> selectors =
+      Set<MethodWithSelector> selectors =
           spec.getMethodAndQueries().stream()
               .filter(x -> isInOnList(x, stmt, dataFlowVal, QueryDirection.BACKWARD))
               .collect(Collectors.toSet());
-      for (SootMethodWithSelector sel : selectors) {
+      for (MethodWithSelector sel : selectors) {
         res.addAll(createNewQueries(sel, stmt));
       }
     }
     return res;
   }
 
-  private Collection<Query> createNewQueries(SootMethodWithSelector sel, Statement stmt) {
+  private Collection<Query> createNewQueries(MethodWithSelector sel, Statement stmt) {
     Set<Query> results = Sets.newHashSet();
     Method method = stmt.getMethod();
     for (QuerySelector qSel : sel.getGo()) {
@@ -82,23 +82,20 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
   }
 
   public boolean isInOnList(
-      SootMethodWithSelector methodSelector, Statement stmt, Val fact, QueryDirection direction) {
+      MethodWithSelector methodSelector, Statement stmt, Val fact, QueryDirection direction) {
 
-    /*
-    // TODO: [ms] refactor me
-    if (stmt instanceof JimpleStatement) {
-      // This only works for Soot propagations
-      Stmt jimpleStmt = ((JimpleStatement) stmt).getDelegate();
-      if (jimpleStmt
-          .getInvokeExpr()
-          .getMethod()
-          .getSignature()
-          .equals(methodSelector.getSootMethod())) {
-        Collection<QuerySelector> on = methodSelector.getOn();
-        return isInList(on, direction, stmt, fact);
-      }
+    //  [spaeth] This only works for Soot propagations
+    // TODO: [ms] refactored soot checks away.. lets investigate why! maybe it needs just some
+    // translation/mapping for other frameworks
+    if (!stmt.getClass().toString().contains("JimpleStatement")) {
+      // lets notify us in such a case..
+      throw new UnsupportedOperationException("possibly unspported case? investigate!");
     }
-    */
+    if (stmt.getInvokeExpr().getMethod().getSignature().equals(methodSelector.getMethodStr())) {
+      Collection<QuerySelector> on = methodSelector.getOn();
+      return isInList(on, direction, stmt, fact);
+    }
+
     return false;
   }
 

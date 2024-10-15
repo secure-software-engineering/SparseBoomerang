@@ -10,17 +10,18 @@ public interface SparsificationStrategy<M extends Method, S extends Statement> {
 
   PropagationCounter getCounter();
 
-  class NoSparsification<M extends Method, S extends Statement>
-      implements SparsificationStrategy<M, S> {
+  SparsificationStrategy<Method, Statement> NONE = new NoSparsificationStrategy();
+
+  class NoSparsificationStrategy implements SparsificationStrategy<Method, Statement> {
     @Override
-    public SparseCFGCache<M, S> getInstance(boolean ignoreAfterQuery) {
-      // FIXME [ms]
+    public SparseCFGCache<Method, Statement> getInstance(boolean ignoreAfterQuery) {
+      // TODO [ms]: not used in code (when commented code is re-enabled)
       throw new UnsupportedOperationException("not implemented yet.");
     }
 
     @Override
     public PropagationCounter getCounter() {
-      return new PropagationCounter(this);
+      return new PropagationCounter();
     }
   }
 }

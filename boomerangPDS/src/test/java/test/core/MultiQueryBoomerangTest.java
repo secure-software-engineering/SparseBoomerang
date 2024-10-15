@@ -22,7 +22,7 @@ import boomerang.scene.CallGraph;
 import boomerang.scene.DataFlowScope;
 import boomerang.scene.Val;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.SootTestFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
@@ -149,7 +149,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
             return true;
           }
         };
-    solver = new Boomerang(callGraph, dataFlowScope, options, new SootFrameworkFactoryFramework());
+    solver = new Boomerang(callGraph, dataFlowScope, options, new SootFrameworkFactory());
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
         BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);

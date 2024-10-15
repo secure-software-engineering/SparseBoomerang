@@ -22,7 +22,7 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootFrameworkFactory;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.collect.Table;
@@ -154,7 +154,7 @@ public class ExampleMain2 {
                   sootCallGraph,
                   SootDataFlowScope.make(Scene.v()),
                   new DefaultBoomerangOptions(),
-                  new SootFrameworkFactoryFramework());
+                  new SootFrameworkFactory());
           System.out.println("Solving query: " + query);
           // 2. Submit a query to the solver.
           ForwardBoomerangResults<NoWeight> forwardBoomerangResults =
