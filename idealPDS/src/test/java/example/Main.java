@@ -17,7 +17,7 @@ import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactory;
+import boomerang.soot.SootFrameworkFactoryFramework;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.base.Joiner;
@@ -156,8 +156,8 @@ public class Main {
                   }
 
                   @Override
-                  public ScopeFactory getFrameworkFactory() {
-                    return new SootFrameworkFactory();
+                  public FrameworkScopeFactory getFrameworkFactory() {
+                    return new SootFrameworkFactoryFramework();
                   }
                 });
         solver.run();

@@ -20,10 +20,12 @@ import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.AnalysisScope;
 import boomerang.scene.CallGraph;
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.SootDataFlowScope;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
-import boomerang.scene.jimple.SootCallGraph;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootTestFactory;
+import boomerang.soot.jimple.BoomerangPretransformer;
+import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -41,7 +43,8 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.jimple.NewExpr;
-import test.core.selfrunning.AbstractTestingFramework;
+import test.AbstractTestingFramework;
+import test.FrameworkTestFactory;
 import wpds.impl.Weight;
 
 public class MultiQueryBoomerangTest extends AbstractTestingFramework {
@@ -146,7 +149,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
             return true;
           }
         };
-    solver = new Boomerang(callGraph, dataFlowScope, options);
+    solver = new Boomerang(callGraph, dataFlowScope, options, new SootFrameworkFactoryFramework());
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
         BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);
@@ -193,6 +196,11 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
    * analysis.
    */
   protected void unreachable(Object variable) {}
+
+  @Override
+  public FrameworkTestFactory getTestingFramework() {
+    return new SootTestFactory();
+  }
 
   /** This method can be used in test cases to create branching. It is not optimized away. */
   protected boolean staticallyUnknown() {

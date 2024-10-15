@@ -19,9 +19,9 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.sparse.SparsificationStrategy;
 import boomerang.stats.IBoomerangStats;
 import java.util.Optional;
+import sparse.SparsificationStrategy;
 
 public interface BoomerangOptions {
 

@@ -1,18 +1,21 @@
-package boomerang.sparse;
+package sparse;
 
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
-import boomerang.sparse.eval.PropagationCounter;
+import sparse.eval.PropagationCounter;
 
 public interface SparsificationStrategy<M extends Method, S extends Statement> {
+
   SparseCFGCache<M, S> getInstance(boolean ignoreAfterQuery);
 
   PropagationCounter getCounter();
 
-  class NoSparsification implements SparsificationStrategy {
+  class NoSparsification<M extends Method, S extends Statement>
+      implements SparsificationStrategy<M, S> {
     @Override
-    public SparseCFGCache getInstance(boolean ignoreAfterQuery) {
-      return null;
+    public SparseCFGCache<M, S> getInstance(boolean ignoreAfterQuery) {
+      // FIXME [ms]
+      throw new UnsupportedOperationException("not implemented yet.");
     }
 
     @Override

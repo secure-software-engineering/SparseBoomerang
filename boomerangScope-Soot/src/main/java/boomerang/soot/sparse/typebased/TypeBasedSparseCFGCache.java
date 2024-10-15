@@ -3,15 +3,19 @@ package boomerang.soot.sparse.typebased;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
+import boomerang.soot.jimple.JimpleMethod;
 import boomerang.soot.sparse.SootAdapter;
-import boomerang.sparse.SparseAliasingCFG;
-import boomerang.sparse.eval.SparseCFGQueryLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import soot.SootMethod;
+import soot.jimple.Stmt;
+import sparse.SparseAliasingCFG;
+import sparse.SparseCFGCache;
+import sparse.eval.SparseCFGQueryLog;
 
-public class TypeBasedSparseCFGCache implements SparseCFGCache {
+public class TypeBasedSparseCFGCache implements SparseCFGCache<Method, Statement> {
 
   List<SparseCFGQueryLog> logList = new ArrayList<>();
 
@@ -34,9 +38,11 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
     this.sparseCFGBuilder = sparseCFGBuilder;
   }
 
-  public SparseAliasingCFG getSparseCFGForForwardPropagation(SootMethod m, Stmt stmt, Val val) {
+  @Override
+  public SparseAliasingCFG getSparseCFGForForwardPropagation(Method m, Statement stmt, Val val) {
     for (String s : cache.keySet()) {
-      if (s.startsWith(m.getSignature())) {
+      // TODO: [ms] rework casting
+      if (s.startsWith(((JimpleMethod) m).getDelegate().getSignature())) {
         SparseAliasingCFG sparseAliasingCFG = cache.get(s);
         if (sparseAliasingCFG.getGraph().nodes().contains(stmt)) {
           SparseCFGQueryLog queryLog =
@@ -52,6 +58,7 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
     return null;
   }
 
+  @Override
   public synchronized SparseAliasingCFG getSparseCFGForBackwardPropagation(
       Val initialQueryVal,
       Statement initialQueryStmt,
@@ -70,7 +77,7 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache {
             .append("-")
             .append(initialQueryVal)
             .append("-")
-            .append(sootInitialQueryStmt)
+            .append(initialQueryStmt)
             .toString();
 
     // currentStmt must be part of the sparseCFG that was built for the initialQueryStmt

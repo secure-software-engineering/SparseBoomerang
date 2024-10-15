@@ -19,7 +19,6 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.sparse.SparsificationStrategy;
 import boomerang.stats.IBoomerangStats;
 import boomerang.stats.SimpleBoomerangStats;
 import com.google.common.base.Joiner;
@@ -27,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import sparse.SparsificationStrategy;
 
 public class DefaultBoomerangOptions implements BoomerangOptions {
 
@@ -221,7 +221,6 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
   public SparsificationStrategy getSparsificationStrategy() {
     return new SparsificationStrategy.NoSparsification();
   }
-  ;
 
   @Override
   public boolean handleSpecialInvokeAsNormalPropagation() {

@@ -1,6 +1,5 @@
-package boomerang.sparse;
+package sparse;
 
-import boomerang.scene.Statement;
 import boomerang.scene.Val;
 import com.google.common.graph.MutableGraph;
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SparseAliasingCFG<U extends Statement, V extends Val> {
+public class SparseAliasingCFG<U, V> {
 
   private static Logger log = LoggerFactory.getLogger(SparseAliasingCFG.class);
 

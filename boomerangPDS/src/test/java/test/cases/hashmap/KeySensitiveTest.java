@@ -12,7 +12,7 @@
 package test.cases.hashmap;
 
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.SootDataFlowScope;
+import boomerang.soot.SootDataFlowScope;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

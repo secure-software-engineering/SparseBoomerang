@@ -11,13 +11,12 @@ import soot.jimple.IdentityStmt;
 import soot.jimple.internal.*;
 import soot.toolkits.graph.DirectedGraph;
 
-public class SparseCFGBuilder{
+public class SparseCFGBuilder {
 
   private static final Logger LOGGER = Logger.getLogger(SparseCFGBuilder.class.getName());
 
   protected Map<Unit, Integer> unitToNumber = new HashMap<>();
 
-  
   public MutableGraph<Unit> numberStmtsAndConvertToMutableGraph(DirectedGraph<Unit> rawGraph) {
     MutableGraph<Unit> mGraph = GraphBuilder.directed().build();
     List<Unit> heads = rawGraph.getHeads();
@@ -27,9 +26,8 @@ public class SparseCFGBuilder{
     return mGraph;
   }
 
-  
   public void convertToMutableGraph(
-          DirectedGraph<Unit> graph, Unit curr, MutableGraph<Unit> mutableGraph, int depth) {
+      DirectedGraph<Unit> graph, Unit curr, MutableGraph<Unit> mutableGraph, int depth) {
     Integer num = unitToNumber.get(curr);
     if (num == null || num < depth) {
       unitToNumber.put(curr, depth);
@@ -50,7 +48,6 @@ public class SparseCFGBuilder{
    * @param graph
    * @return
    */
-  
   public Unit getHead(DirectedGraph<Unit> graph) {
     List<Unit> heads = graph.getHeads();
     List<Unit> res = new ArrayList<>();
@@ -66,13 +63,11 @@ public class SparseCFGBuilder{
     return res.get(0);
   }
 
-  
   public Iterator<Unit> getBFSIterator(MutableGraph<Unit> graph, Unit head) {
     Traverser<Unit> traverser = Traverser.forGraph(graph);
     return traverser.breadthFirst(head).iterator();
   }
 
-  
   public void logCFG(Logger logger, MutableGraph<Unit> graph) {
     logger.info(
         graph.nodes().stream()
@@ -80,7 +75,6 @@ public class SparseCFGBuilder{
             .collect(Collectors.joining(System.lineSeparator())));
   }
 
-  
   public boolean isControlStmt(Unit stmt) {
     if (stmt instanceof JIfStmt
         || stmt instanceof JNopStmt
@@ -98,7 +92,6 @@ public class SparseCFGBuilder{
     return false;
   }
 
-  
   public void removeStmt(MutableGraph<Unit> mCFG, Unit unit) {
     Set<Unit> preds = mCFG.predecessors(unit);
     List<Unit> tmpPreds = new ArrayList<>();

@@ -7,6 +7,11 @@ import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.*;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.jimple.BoomerangPretransformer;
+import boomerang.soot.jimple.JimpleMethod;
+import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,7 +86,12 @@ public class Repro {
                     .findFirst()
                     .get()),
             var);
-    Boomerang solver = new Boomerang(new SootCallGraph(), SootDataFlowScope.make(Scene.v()), opts);
+    Boomerang solver =
+        new Boomerang(
+            new SootCallGraph(),
+            SootDataFlowScope.make(Scene.v()),
+            opts,
+            new SootFrameworkFactoryFramework());
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
     return results.getInvokedMethodOnInstance();
   }

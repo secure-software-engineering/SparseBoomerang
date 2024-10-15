@@ -18,7 +18,7 @@ import boomerang.debugger.Debugger;
 import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.ScopeFactory;
+import boomerang.scene.FrameworkScopeFactory;
 import boomerang.scene.Val;
 import java.util.Collection;
 import sync.pds.solver.WeightFunctions;
@@ -84,5 +84,5 @@ public abstract class IDEALAnalysisDefinition<W extends Weight> {
 
   protected abstract DataFlowScope getDataFlowScope();
 
-  public abstract ScopeFactory getFrameworkFactory();
+  public abstract FrameworkScopeFactory getFrameworkFactory();
 }

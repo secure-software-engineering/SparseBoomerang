@@ -189,8 +189,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
           curr.getStart().getMethod().getControlFlowGraph().getPredsOf(curr.getStart())) {
         Collection<State> flow = computeNormalFlow(method, new Edge(pred, curr.getStart()), value);
         for (State s : flow) {
-          // TODO: [ms] re-enable sparse
-          // PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
+          options.getSparsificationStrategy().getCounter().countBackward();
           propagate(currNode, s);
         }
       }
@@ -199,7 +198,6 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
 
   /*
   // TODO: [ms] re-enable sparse
-
     private void propagateSparse(Method method, Node<Edge, Val> currNode, Edge curr, Val value) {
       Statement propStmt = curr.getStart();
       SparseAliasingCFG sparseCFG = getSparseCFG(query, method, value, propStmt);
@@ -211,7 +209,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
               computeNormalFlow(
                   method, new Edge(SootAdapter.asStatement(pred, method), propStmt), value);
           for (State s : flow) {
-            PropagationCounter.getInstance(options.getSparsificationStrategy()).countBackward();
+            options.getSparsificationStrategy().getCounter().countBackward();
             propagate(currNode, s);
           }
         }

@@ -14,12 +14,14 @@ import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DataFlowScope;
 import boomerang.scene.Field;
-import boomerang.scene.SootDataFlowScope;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
-import boomerang.scene.jimple.SootCallGraph;
 import boomerang.solver.ForwardBoomerangSolver;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.SootTestFactory;
+import boomerang.soot.jimple.BoomerangPretransformer;
+import boomerang.soot.jimple.SootCallGraph;
 import boomerang.util.AccessPath;
 import boomerang.util.DefaultValueMap;
 import com.google.common.base.Joiner;
@@ -44,7 +46,8 @@ import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
 import sync.pds.solver.nodes.SingleNode;
-import test.core.selfrunning.AbstractTestingFramework;
+import test.AbstractTestingFramework;
+import test.FrameworkTestFactory;
 import wpds.impl.Transition;
 import wpds.impl.Weight.NoWeight;
 import wpds.impl.WeightedPAutomaton;
@@ -92,6 +95,11 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
   public int getIterations() {
     return 1;
+  }
+
+  @Override
+  public FrameworkTestFactory getTestingFramework() {
+    return new SootTestFactory();
   }
 
   @Before
@@ -167,7 +175,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
               public boolean onTheFlyCallGraph() {
                 return false;
               }
-            }) {
+            },
+            new SootFrameworkFactoryFramework()) {
 
           @Override
           protected WeightFunctions<Edge, Val, Field, NoWeight> getForwardFieldWeights() {
@@ -278,7 +287,9 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
     for (final Query query : queries) {
       BoomerangOptions options = createBoomerangOptions();
-      Boomerang solver = new Boomerang(callGraph, getDataFlowScope(), options) {};
+      Boomerang solver =
+          new Boomerang(
+              callGraph, getDataFlowScope(), options, new SootFrameworkFactoryFramework()) {};
 
       if (query instanceof BackwardQuery) {
         Stopwatch watch = Stopwatch.createStarted();

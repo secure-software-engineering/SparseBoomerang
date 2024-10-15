@@ -18,9 +18,10 @@ import boomerang.Query;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.AnalysisScope;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.soot.SootDataFlowScope;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
 import java.io.File;
@@ -134,7 +135,10 @@ public class ExampleMain1 {
         // 1. Create a Boomerang solver.
         Boomerang solver =
             new Boomerang(
-                sootCallGraph, SootDataFlowScope.make(Scene.v()), new DefaultBoomerangOptions());
+                sootCallGraph,
+                SootDataFlowScope.make(Scene.v()),
+                new DefaultBoomerangOptions(),
+                new SootFrameworkFactoryFramework());
 
         // 2. Submit a query to the solver.
         Collection<Query> seeds = scope.computeSeeds();

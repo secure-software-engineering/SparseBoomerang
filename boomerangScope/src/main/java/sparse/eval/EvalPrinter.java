@@ -1,9 +1,9 @@
-package boomerang.sparse.eval;
+package sparse.eval;
 
-import boomerang.sparse.SparseCFGCache;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import sparse.SparseCFGCache;
 
 public class EvalPrinter {
 
@@ -39,7 +39,7 @@ public class EvalPrinter {
     }
   }
 
-  /* TODO: [ms] was unused
+  /* TODO: [ms] was unused - strategy enum does not exist anymore - sparsification currently only soot specific..
   public void printPropagationCount() {
     List<PropagationCounter> counters = new ArrayList<>();
     counters.add(PropagationCounter.getInstance(SparsificationStrategy.NONE));

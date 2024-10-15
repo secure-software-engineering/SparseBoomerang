@@ -14,14 +14,15 @@ import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Method;
-import boomerang.scene.SootDataFlowScope;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
-import boomerang.scene.jimple.JimpleMethod;
-import boomerang.scene.jimple.SootCallGraph;
 import boomerang.solver.BackwardBoomerangSolver;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.jimple.BoomerangPretransformer;
+import boomerang.soot.jimple.JimpleMethod;
+import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.collect.Lists;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +55,8 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             sootCallGraph,
             SootDataFlowScope.make(Scene.v()),
-            new CustomIntAndStringBoomerangOptions());
+            new CustomIntAndStringBoomerangOptions(),
+            new SootFrameworkFactoryFramework());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -80,7 +82,10 @@ public class CustomFlowFunctionTest {
     SootCallGraph sootCallGraph = new SootCallGraph();
     Boomerang solver =
         new Boomerang(
-            sootCallGraph, SootDataFlowScope.make(Scene.v()), new CustomBoomerangOptions());
+            sootCallGraph,
+            SootDataFlowScope.make(Scene.v()),
+            new CustomBoomerangOptions(),
+            new SootFrameworkFactoryFramework());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -103,7 +108,10 @@ public class CustomFlowFunctionTest {
     SootCallGraph sootCallGraph = new SootCallGraph();
     Boomerang solver =
         new Boomerang(
-            sootCallGraph, SootDataFlowScope.make(Scene.v()), new CustomBoomerangOptions());
+            sootCallGraph,
+            SootDataFlowScope.make(Scene.v()),
+            new CustomBoomerangOptions(),
+            new SootFrameworkFactoryFramework());
 
     System.out.println("Solving query: " + query);
     ForwardBoomerangResults<NoWeight> res = solver.solve(query);

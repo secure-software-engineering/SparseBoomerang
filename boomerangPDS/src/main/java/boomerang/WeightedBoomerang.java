@@ -73,7 +73,7 @@ import wpds.impl.WeightedPAutomaton;
 import wpds.interfaces.WPAStateListener;
 
 public abstract class WeightedBoomerang<W extends Weight> {
-  protected final ScopeFactory scopeFactory;
+  protected final FrameworkScopeFactory scopeFactory;
   protected ObservableICFG<Statement, Method> icfg;
   protected ObservableControlFlowGraph cfg;
   private static final Logger LOGGER = LoggerFactory.getLogger(WeightedBoomerang.class);
@@ -396,7 +396,10 @@ public abstract class WeightedBoomerang<W extends Weight> {
   private INode<Val> rootQuery;
 
   public WeightedBoomerang(
-      CallGraph cg, DataFlowScope scope, BoomerangOptions options, ScopeFactory scopeFactory) {
+      CallGraph cg,
+      DataFlowScope scope,
+      BoomerangOptions options,
+      FrameworkScopeFactory scopeFactory) {
     this.scopeFactory = scopeFactory;
     this.options = options;
     this.options.checkValid();
@@ -419,7 +422,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
     this.queryGraph = new QueryGraph<>(this);
   }
 
-  public WeightedBoomerang(CallGraph cg, DataFlowScope scope, ScopeFactory scopeFactory) {
+  public WeightedBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScopeFactory scopeFactory) {
     this(cg, scope, new DefaultBoomerangOptions(), scopeFactory);
   }
 

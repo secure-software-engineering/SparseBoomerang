@@ -2,7 +2,7 @@ package boomerang.scene;
 
 import java.util.stream.Stream;
 
-public interface ScopeFactory {
+public interface FrameworkScopeFactory {
   Val getTrueValue(Method m);
 
   Val getFalseValue(Method m);

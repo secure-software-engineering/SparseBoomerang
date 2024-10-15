@@ -2,10 +2,8 @@ package boomerang.soot.sparse.typebased;
 
 import boomerang.scene.Val;
 import boomerang.soot.sparse.SootAdapter;
-import boomerang.sparse.SparseAliasingCFG;
 import boomerang.soot.sparse.SparseCFGBuilder;
 import boomerang.soot.sparse.aliasaware.AliasAwareSparseCFGBuilder;
-import boomerang.sparse.eval.SparseCFGQueryLog;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;
@@ -15,6 +13,8 @@ import soot.jimple.Stmt;
 import soot.jimple.internal.*;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
+import sparse.SparseAliasingCFG;
+import sparse.eval.SparseCFGQueryLog;
 
 public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());

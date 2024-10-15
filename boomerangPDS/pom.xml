@@ -31,6 +31,12 @@
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>boomerangScope-Soot</artifactId>
+            <version>3.1.2-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
             <artifactId>synchronizedPDS</artifactId>
         </dependency>
         <dependency>
@@ -68,6 +74,11 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.4.0</version>
+                        <executions>
+                            <execution>
+                                <phase>integration-test</phase>
+                            </execution>
+                        </executions>
                         <configuration>
                             <excludes>
                                 <exclude>**/*LongTest.java</exclude>

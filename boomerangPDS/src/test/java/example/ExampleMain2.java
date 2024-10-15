@@ -19,9 +19,10 @@ import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.AllocVal;
 import boomerang.scene.AnalysisScope;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.soot.SootDataFlowScope;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
 import boomerang.soot.jimple.BoomerangPretransformer;
 import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.collect.Table;
@@ -150,7 +151,10 @@ public class ExampleMain2 {
           // 1. Create a Boomerang solver.
           Boomerang solver =
               new Boomerang(
-                  sootCallGraph, SootDataFlowScope.make(Scene.v()), new DefaultBoomerangOptions());
+                  sootCallGraph,
+                  SootDataFlowScope.make(Scene.v()),
+                  new DefaultBoomerangOptions(),
+                  new SootFrameworkFactoryFramework());
           System.out.println("Solving query: " + query);
           // 2. Submit a query to the solver.
           ForwardBoomerangResults<NoWeight> forwardBoomerangResults =

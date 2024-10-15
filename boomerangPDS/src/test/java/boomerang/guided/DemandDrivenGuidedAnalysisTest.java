@@ -26,9 +26,12 @@ import boomerang.guided.targets.WrappedInNewStringTarget;
 import boomerang.guided.targets.WrappedInStringTwiceTest;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.jimple.BoomerangPretransformer;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
-import boomerang.scene.jimple.JimpleMethod;
+import boomerang.soot.SootDataFlowScope;
+import boomerang.soot.SootFrameworkFactoryFramework;
+import boomerang.soot.jimple.BoomerangPretransformer;
+import boomerang.soot.jimple.JimpleMethod;
+import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.nio.file.Path;
@@ -409,7 +412,10 @@ public class DemandDrivenGuidedAnalysisTest {
               public boolean allowMultipleQueries() {
                 return true;
               }
-            });
+            },
+            SootDataFlowScope.make(Scene.v()),
+            new SootCallGraph(),
+            new SootFrameworkFactoryFramework());
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
     demandDrivenGuidedAnalysis.cleanUp();

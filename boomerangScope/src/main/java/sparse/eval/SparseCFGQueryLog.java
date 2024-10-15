@@ -1,4 +1,4 @@
-package boomerang.sparse.eval;
+package sparse.eval;
 
 import com.google.common.base.Stopwatch;
 import java.time.Duration;

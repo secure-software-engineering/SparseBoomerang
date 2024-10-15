@@ -4,9 +4,7 @@ import boomerang.BoomerangOptions;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.sparse.SparsificationStrategy;
-import boomerang.sparse.eval.PropagationCounter;
-import java.util.*;
+import sparse.SparsificationStrategy;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
@@ -59,7 +57,7 @@ public class StaticCFG implements ObservableControlFlowGraph {
       SuccessorListener l, Method method, Statement curr, SparseAliasingCFG sparseCFG) {
     Set<Unit> successors = sparseCFG.getGraph().successors(SootAdapter.asStmt(curr));
     for (Unit succ : successors) {
-      PropagationCounter.getInstance(sparsificationStrategy).countForward();
+      sparsificationStrategy.getCounter().countForward();
       l.getSuccessor(SootAdapter.asStatement(succ, method));
     }
   }
@@ -67,7 +65,7 @@ public class StaticCFG implements ObservableControlFlowGraph {
 
   private void propagateDefault(SuccessorListener l) {
     for (Statement s : l.getCurr().getMethod().getControlFlowGraph().getSuccsOf(l.getCurr())) {
-      PropagationCounter.getInstance(sparsificationStrategy).countForward();
+      sparsificationStrategy.getCounter().countForward();
       l.getSuccessor(s);
     }
   }

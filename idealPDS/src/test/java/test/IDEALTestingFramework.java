@@ -16,18 +16,9 @@ import boomerang.DefaultBoomerangOptions;
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.AbstractTestingFramework;
-import boomerang.scene.CallGraph;
+import boomerang.scene.*;
 import boomerang.scene.CallGraph.Edge;
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Method;
-import boomerang.scene.SootDataFlowScope;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
-import boomerang.scene.jimple.JimpleMethod;
-import boomerang.scene.jimple.SootCallGraph;
+import boomerang.soot.SootFrameworkFactoryFramework;
 import com.google.common.collect.Lists;
 import ideal.IDEALAnalysis;
 import ideal.IDEALAnalysisDefinition;
@@ -40,8 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import soot.Scene;
-import soot.SceneTransformer;
+
 import sync.pds.solver.WeightFunctions;
 import test.ExpectedResults.InternalState;
 import test.core.selfrunning.ImprecisionException;
@@ -54,6 +44,10 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
       new StoreIDEALResultHandler<>();
   protected CallGraph callGraph;
   protected DataFlowScope dataFlowScope;
+
+  protected IDEALTestingFramework(FrameworkTestFactory ftf) {
+    super(ftf);
+  }
 
   protected abstract TypeStateMachineWeightFunctions getStateMachine();
 
@@ -120,21 +114,13 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
           protected DataFlowScope getDataFlowScope() {
             return dataFlowScope;
           }
-        });
-  }
 
-  @Override
-  protected SceneTransformer createAnalysisTransformer() throws ImprecisionException {
-    return new SceneTransformer() {
-      protected void internalTransform(
-          String phaseName, @SuppressWarnings("rawtypes") Map options) {
-        BoomerangPretransformer.v().reset();
-        BoomerangPretransformer.v().apply();
-        callGraph = new SootCallGraph();
-        dataFlowScope = SootDataFlowScope.make(Scene.v());
-        analyze(JimpleMethod.of(sootTestMethod));
-      }
-    };
+          @Override
+          public FrameworkScopeFactory getFrameworkFactory() {
+            // TODO: [ms] make parameterized
+            return new SootFrameworkFactoryFramework();
+          }
+        });
   }
 
   protected void analyze(Method m) {

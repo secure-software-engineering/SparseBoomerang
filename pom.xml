@@ -52,8 +52,9 @@
         <module>boomerangPDS</module>
         <module>idealPDS</module>
         <module>boomerangScope</module>
-        <module>boomerangScope-WALA</module>
+        <module>boomerangScope-Soot</module>
         <module>boomerangScope-SootUp</module>
+        <module>boomerangScope-WALA</module>
         <!--<module>SparseBoomerangCorrectness</module>-->
     </modules>
     <properties>

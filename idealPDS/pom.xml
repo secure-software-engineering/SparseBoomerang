@@ -53,6 +53,11 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.4.0</version>
+                        <executions>
+                            <execution>
+                                <phase>integration-test</phase>
+                            </execution>
+                        </executions>
                         <configuration>
                             <argLine>-Xmx8G -Xss128m</argLine>
                             <excludes>

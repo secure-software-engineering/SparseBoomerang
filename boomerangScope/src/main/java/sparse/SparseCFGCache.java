@@ -1,12 +1,10 @@
-package boomerang.sparse;
+package sparse;
 
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.sparse.eval.SparseCFGQueryLog;
 import java.util.List;
+import sparse.eval.SparseCFGQueryLog;
 
-public interface SparseCFGCache<M extends Method, S extends Statement> {
+public interface SparseCFGCache<M, S> {
 
   static SparseCFGCache getInstance(SparsificationStrategy strategy, boolean ignoreAfterQuery) {
 
