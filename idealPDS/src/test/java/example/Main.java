@@ -13,13 +13,13 @@ package example;
 
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
+import boomerang.framework.soot.SootDataFlowScope;
+import boomerang.framework.soot.SootFrameworkFactory;
+import boomerang.framework.soot.jimple.BoomerangPretransformer;
+import boomerang.framework.soot.jimple.SootCallGraph;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.soot.SootDataFlowScope;
-import boomerang.soot.SootFrameworkFactory;
-import boomerang.soot.jimple.BoomerangPretransformer;
-import boomerang.soot.jimple.SootCallGraph;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Table;
 import ideal.IDEALAnalysis;

@@ -11,7 +11,7 @@
  */
 package typestate.tests;
 
-import boomerang.soot.SootTestFactory;
+import boomerang.framework.soot.SootTestFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.FrameworkTestFactory;
