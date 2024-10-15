@@ -33,9 +33,7 @@
     <contributors>
         <contributor>
             <name>Johannes Spaeth</name>
-            <email>johannes.spaeth@codeshield.de</email>
-            <organization>CodeShield GmbH</organization>
-            <organizationUrl>https://codeshield.de/</organizationUrl>
+            <email>mail@johspaeth.de</email>
         </contributor>
         <contributor>
             <name>Manuel Benz</name>
@@ -71,7 +69,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.1</version>
                 <configuration>
                     <argLine>-Xmx8G -Xss128m</argLine>
                 </configuration>
@@ -133,7 +131,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.10.1</version>
                 <configuration>
                     <source>8</source>
                     <additionalOptions>
@@ -167,7 +165,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.3.0-jre</version>
+                <version>33.3.1-jre</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -178,7 +176,7 @@
             <dependency>
                 <groupId>de.fraunhofer.iem</groupId>
                 <artifactId>pathexpression</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.soot-oss</groupId>
@@ -188,7 +186,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.16.0</version>
+                <version>3.17.0</version>
             </dependency>
             <dependency>
                 <groupId>de.fraunhofer.iem</groupId>
@@ -240,7 +238,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.5</version>
+                        <version>3.2.7</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
