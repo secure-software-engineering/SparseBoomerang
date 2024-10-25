@@ -1,25 +1,45 @@
 package boomerang.scene.opal
 
 import boomerang.scene.{Field, IfStatement, InvokeExpr, Pair, Statement, StaticFieldVal, Val}
-import org.opalj.tac.{PrimitiveTypecastExpr, Stmt, Var}
+import com.google.common.base.Joiner
+import org.opalj.tac.{DUVar, PrimitiveTypecastExpr, Stmt}
+import org.opalj.value.ValueInformation
 
 import java.util
 
-class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Statement(m) {
+class OpalStatement(val delegate: Stmt[DUVar[ValueInformation]], m: OpalMethod) extends Statement(m) {
 
   override def containsStaticFieldAccess(): Boolean = isStaticFieldLoad || isStaticFieldStore
 
-  override def containsInvokeExpr(): Boolean = isAssign && delegate.asAssignment.expr.isFunctionCall || delegate.isMethodCall
+  override def containsInvokeExpr(): Boolean = {
+    if (delegate.isMethodCall) return true
+    if (isAssign && delegate.asAssignment.expr.isFunctionCall) return true
+    if (delegate.isExprStmt && delegate.asExprStmt.isMethodCall) return true
+    if (delegate.isExprStmt && delegate.asExprStmt.expr.isFunctionCall) return true
+
+    false
+  }
+
+  override def getInvokeExpr: InvokeExpr = {
+    if (containsInvokeExpr()) {
+      if (delegate.isMethodCall) return new OpalMethodInvokeExpr(delegate.asMethodCall, m, delegate.pc)
+      if (isAssign && delegate.asAssignment.expr.isFunctionCall) return new OpalFunctionInvokeExpr(delegate.asAssignment.expr.asFunctionCall, m, delegate.pc)
+      if (delegate.isExprStmt && delegate.asExprStmt.isMethodCall) return new OpalMethodInvokeExpr(delegate.asExprStmt.asMethodCall, m, delegate.pc)
+      if (delegate.isExprStmt && delegate.asExprStmt.expr.isFunctionCall) return new OpalFunctionInvokeExpr(delegate.asExprStmt.expr.asFunctionCall, m, delegate.pc)
+    }
+
+    throw new RuntimeException("Statement does not contain an invoke expression")
+  }
 
   override def getWrittenField: Field = {
     if (isFieldStore) {
       val resolvedField = OpalClient.resolveFieldStore(delegate.asPutField)
-      return new OpalField(resolvedField.get)
+      return OpalField(resolvedField.get)
     }
 
     if (isStaticFieldStore) {
       val resolvedField = OpalClient.resolveFieldStore(delegate.asPutStatic)
-      return new OpalField(resolvedField.get)
+      return OpalField(resolvedField.get)
     }
 
     if (isArrayStore) {
@@ -47,7 +67,7 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
     // TODO Also array?
     if (isFieldLoad) {
       val resolvedField = OpalClient.resolveFieldLoad(delegate.asAssignment.expr.asFieldRead)
-      return new OpalField(resolvedField.get)
+      return OpalField(resolvedField.get)
     }
 
     throw new RuntimeException("Statement is not a field load operation")
@@ -66,7 +86,7 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
 
   override def getLeftOp: Val = {
     if (isAssign) {
-      return new OpalVal[V](delegate.asAssignment.targetVar, m)
+      return new OpalVal(delegate.asAssignment.targetVar, m)
     }
 
     throw new RuntimeException("Statement is not an assignment")
@@ -74,7 +94,7 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
 
   override def getRightOp: Val = {
     if (isAssign) {
-      return new OpalVal[V](delegate.asAssignment.expr, m)
+      return new OpalVal(delegate.asAssignment.expr, m)
     }
 
     throw new RuntimeException("Statement is not an assignment")
@@ -108,18 +128,6 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
 
   override def isPhiStatement: Boolean = false
 
-  override def getInvokeExpr: InvokeExpr = {
-    if (containsInvokeExpr()) {
-      if (isAssign) {
-        return new OpalFunctionInvokeExpr[V](delegate.asAssignment.expr.asFunctionCall, m)
-      } else {
-        return new OpalMethodInvokeExpr[V](delegate.asMethodCall, m)
-      }
-    }
-
-    throw new RuntimeException("Statement does not contain an invoke expression")
-  }
-
   override def isReturnStmt: Boolean = delegate.isReturnValue
 
   override def isThrowStmt: Boolean = delegate.isThrow
@@ -128,7 +136,7 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
 
   override def getIfStmt: IfStatement = {
     if (isIfStmt) {
-      return new OpalIfStatement[V](delegate.asIf, m)
+      return new OpalIfStatement(delegate.asIf, m)
     }
 
     throw new RuntimeException("Statement is not an if-statement")
@@ -136,13 +144,13 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
 
   override def getReturnOp: Val = {
     if (isReturnStmt) {
-      return new OpalVal[V](delegate.asReturnValue.expr, m)
+      return new OpalVal(delegate.asReturnValue.expr, m)
     }
 
     throw new RuntimeException("Statement is not a return statement")
   }
 
-  override def isMultiArrayAllocation: Boolean = ???
+  override def isMultiArrayAllocation: Boolean = false
 
   override def isStringAllocation: Boolean = {
     if (isAssign) {
@@ -191,7 +199,7 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
       val resolvedField = OpalClient.resolveFieldStore(delegate.asPutField).get
       val ref = delegate.asPutField.objRef
 
-      return new Pair(new OpalVal[V](ref, m), new OpalField(resolvedField))
+      return new Pair(new OpalVal(ref, m), OpalField(resolvedField))
     }
 
     throw new RuntimeException("Statement is not a field store operation")
@@ -202,7 +210,7 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
       val resolvedField = OpalClient.resolveFieldLoad(delegate.asAssignment.expr.asFieldRead).get
       val ref = delegate.asAssignment.expr.asGetField.objRef
 
-      return new Pair(new OpalVal[V](ref, m), new OpalField(resolvedField))
+      return new Pair(new OpalVal(ref, m), OpalField(resolvedField))
     }
 
     throw new RuntimeException("Statement is not a field load operation")
@@ -233,19 +241,19 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
   override def getStaticField: StaticFieldVal = {
     if (isStaticFieldLoad) {
       val resolvedField = OpalClient.resolveFieldLoad(delegate.asAssignment.expr.asGetStatic)
-      val staticField = new OpalField(resolvedField.get)
+      val staticField = OpalField(resolvedField.get)
 
       return new OpalStaticFieldVal(staticField, m)
     }
 
     if (isStaticFieldStore) {
       val resolvedField = OpalClient.resolveFieldStore(delegate.asPutStatic)
-      val staticField = new OpalField(resolvedField.get)
+      val staticField = OpalField(resolvedField.get)
 
       return new OpalStaticFieldVal(staticField, m)
     }
 
-    throw new RuntimeException("Statement is neither a static field load or store operation")
+    throw new RuntimeException("Statement is neither a static field load nor store operation")
   }
 
   override def killAtIfStmt(fact: Val, successor: Statement): Boolean = false
@@ -265,24 +273,47 @@ class OpalStatement[+V <: Var[V]](delegate: Stmt[V], m: OpalMethod) extends Stat
     throw new RuntimeException("Statement has no array base")
   }
 
-  override def getStartLineNumber: Int = m.getDelegate.body.get.lineNumber(delegate.pc).getOrElse(-1)
+  override def getStartLineNumber: Int = m.delegate.body.get.lineNumber(delegate.pc).getOrElse(-1)
 
-  override def getStartColumnNumber: Int = getStartLineNumber()
+  override def getStartColumnNumber: Int = -1
 
-  override def getEndLineNumber: Int = getStartLineNumber()
+  override def getEndLineNumber: Int = -1
 
-  override def getEndColumnNumber: Int = getStartLineNumber()
+  override def getEndColumnNumber: Int = -1
 
   override def isCatchStmt: Boolean = delegate.isCaughtException
 
   override def hashCode(): Int = 31 + delegate.hashCode()
 
+  private def canEqual(a: Any): Boolean = a.isInstanceOf[OpalStatement]
+
   override def equals(obj: Any): Boolean = obj match {
-    case other: OpalStatement[_] => this.delegate == other.getDelegate
+    case other: OpalStatement => other.canEqual(this) && this.delegate.pc == other.delegate.pc
     case _ => false
   }
 
-  override def toString: String = delegate.toString
+  override def toString: String = {
+    if (containsInvokeExpr()) {
+      var base = ""
+      if (getInvokeExpr.isInstanceInvokeExpr) {
+        base = getInvokeExpr.getBase.toString + "."
+      }
+      var assign = ""
+      if (isAssign) {
+        assign = getLeftOp.toString + " = "
+      }
 
-  def getDelegate: Stmt[V] = delegate
+      return assign + base + getInvokeExpr.getMethod.getName + "(" + Joiner.on(",").join(getInvokeExpr.getArgs) + ")"
+    }
+
+    if (isAssign) {
+      if (getRightOp.isNewExpr) {
+        return getLeftOp.toString + " = new " + getRightOp.getNewExprType.toString
+      } else {
+        return  getLeftOp.toString + " = " + getRightOp.toString
+      }
+    }
+
+    delegate.toString
+  }
 }

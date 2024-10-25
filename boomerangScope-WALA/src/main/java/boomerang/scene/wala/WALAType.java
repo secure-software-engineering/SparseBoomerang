@@ -80,6 +80,10 @@ public class WALAType implements Type {
     return meet.equals(typeAbstraction);
   }
 
+  public boolean isSupertypeOf(String subType) {
+    throw new RuntimeException("Not implemented");
+  }
+
   private TypeAbstraction getDelegate() {
     return typeAbstraction;
   }

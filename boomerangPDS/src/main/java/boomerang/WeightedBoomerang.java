@@ -1142,28 +1142,28 @@ public abstract class WeightedBoomerang<W extends Weight> {
             solver.getFieldAutomaton(), new Transition<>(genState, Field.empty(), fieldTarget));
       }
     }
-    if (stmt.isStringAllocation()) {
-      // Scene.v().forceResolve("java.lang.String",
-      // SootClass.BODIES);
-      //        	throw new RuntimeException("Not properly implemented String allocation site");
-      //            SootClass stringClass = Scene.v().getSootClass("java.lang.String");
-      //            if (stringClass.declaresField("char[] value")) {
-      //                SootField valueField = stringClass.getField("char[] value");
-      //                SingleNode<Node<Statement, Val>> s = new SingleNode<Node<Statement,
-      // Val>>(query.asNode());
-      //                INode<Node<Statement, Val>> irState =
-      // solver.getFieldAutomaton().createState(s,
-      //                        new Field(valueField));
-      //                insertTransition(solver.getFieldAutomaton(), new Transition<Field,
-      // INode<Node<Statement, Val>>>(
-      //                        new SingleNode<Node<Statement, Val>>(query.asNode()), new
-      // Field(valueField), irState));
-      //                insertTransition(solver.getFieldAutomaton(), new Transition<Field,
-      // INode<Node<Statement, Val>>>(
-      //                        irState, Field.empty(),
-      // solver.getFieldAutomaton().getInitialState()));
-      //            }
-    }
+    // if (stmt.isStringAllocation()) {
+    // Scene.v().forceResolve("java.lang.String",
+    // SootClass.BODIES);
+    //        	throw new RuntimeException("Not properly implemented String allocation site");
+    //            SootClass stringClass = Scene.v().getSootClass("java.lang.String");
+    //            if (stringClass.declaresField("char[] value")) {
+    //                SootField valueField = stringClass.getField("char[] value");
+    //                SingleNode<Node<Statement, Val>> s = new SingleNode<Node<Statement,
+    // Val>>(query.asNode());
+    //                INode<Node<Statement, Val>> irState =
+    // solver.getFieldAutomaton().createState(s,
+    //                        new Field(valueField));
+    //                insertTransition(solver.getFieldAutomaton(), new Transition<Field,
+    // INode<Node<Statement, Val>>>(
+    //                        new SingleNode<Node<Statement, Val>>(query.asNode()), new
+    // Field(valueField), irState));
+    //                insertTransition(solver.getFieldAutomaton(), new Transition<Field,
+    // INode<Node<Statement, Val>>>(
+    //                        irState, Field.empty(),
+    // solver.getFieldAutomaton().getInitialState()));
+    //            }
+    // }
     Val var;
     Field field;
     if (stmt.isFieldStore()) {

@@ -73,6 +73,11 @@ public class WALAStaticFieldVal extends StaticFieldVal {
   }
 
   @Override
+  public Val getArrayAllocationSize() {
+    throw new RuntimeException("Fault!");
+  }
+
+  @Override
   public boolean isNull() {
     return false;
   }

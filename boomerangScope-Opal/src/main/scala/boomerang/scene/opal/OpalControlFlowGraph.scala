@@ -43,35 +43,45 @@ class OpalControlFlowGraph(method: OpalMethod) extends ControlFlowGraph {
   private def buildCache(): Unit = {
     if (cacheBuilt) return
 
-    val tac = OpalClient.getTacForMethod(method.getDelegate)
+    val tac = OpalClient.getTacForMethod(method.delegate)
 
-    val headPc = tac.cfg.startBlock.startPC
-    val head = tac.stmts(headPc)
-    val headStatement = new OpalStatement(head, method)
-    startPointCache.add(headStatement)
+    // val entryPoint = tac.stmts(tac.cfg.startBlock.startPC)
+    // startPointCache.add(new OpalStatement(entryPoint, method))
 
-    // TODO Deal with tails
-    val tail = tac.cfg.normalReturnNode.predecessors.tail
-
-    for (stmt <- tac.stmts) {
+    tac.stmts.foreach(stmt => {
       val statement = new OpalStatement(stmt, method)
       statements.add(statement)
 
       val stmtPc = tac.pcToIndex(stmt.pc)
-      for (successorPc <- tac.cfg.successors(stmtPc)) {
-        val successor = tac.stmts(successorPc)
-        val successorStatement = new OpalStatement(successor, method)
 
-        succsOfCache.put(statement, successorStatement)
+      val predecessors = tac.cfg.predecessors(stmtPc)
+      if (predecessors.isEmpty) {
+        // No predecessors => Head statement
+        val headStatement = new OpalStatement(stmt, method)
+        startPointCache.add(headStatement)
+      } else {
+        predecessors.foreach(predecessorPc => {
+          val predecessor = tac.stmts(predecessorPc)
+          val predecessorStatement = new OpalStatement(predecessor, method)
+
+          predsOfCache.put(statement, predecessorStatement)
+        })
       }
 
-      for (predecessorPc <- tac.cfg.predecessors(stmtPc)) {
-        val predecessor = tac.stmts(predecessorPc)
-        val predecessorStatement = new OpalStatement(predecessor, method)
+      val successors = tac.cfg.successors(stmtPc)
+      if (successors.isEmpty) {
+        // No successors => Tail statement
+        val tailStmt = new OpalStatement(stmt, method)
+        endPointCache.add(tailStmt)
+      } else {
+        successors.foreach(successorPc => {
+          val successor = tac.stmts(successorPc)
+          val successorStatement = new OpalStatement(successor, method)
 
-        predsOfCache.put(statement, predecessorStatement)
+          succsOfCache.put(statement, successorStatement)
+        })
       }
-    }
+    })
 
     cacheBuilt = true
   }

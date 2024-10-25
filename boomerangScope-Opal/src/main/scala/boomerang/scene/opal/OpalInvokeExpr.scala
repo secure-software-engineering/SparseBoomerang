@@ -1,20 +1,22 @@
 package boomerang.scene.opal
 
 import boomerang.scene.{DeclaredMethod, InvokeExpr, Val}
-import org.opalj.tac.{FunctionCall, InstanceFunctionCall, InstanceMethodCall, MethodCall, NonVirtualFunctionCall, NonVirtualMethodCall, Var}
+import org.opalj.UShort
+import org.opalj.tac.{DUVar, FunctionCall, InstanceFunctionCall, InstanceMethodCall, MethodCall, NonVirtualFunctionCall, NonVirtualMethodCall}
+import org.opalj.value.ValueInformation
 
 import java.util
 
-class OpalMethodInvokeExpr[+V <: Var[V]](delegate: MethodCall[V], method: OpalMethod) extends InvokeExpr {
+class OpalMethodInvokeExpr(val delegate: MethodCall[DUVar[ValueInformation]], method: OpalMethod, pc: UShort) extends InvokeExpr {
 
   override def getArg(index: Int): Val = getArgs.get(index)
 
   override def getArgs: util.List[Val] = {
     val result = new util.ArrayList[Val]
 
-    for (param <- delegate.params) {
-      result.add(new OpalVal[V](param, method))
-    }
+    delegate.params.foreach(param => {
+      result.add(new OpalVal(param, method))
+    })
 
     result
   }
@@ -23,7 +25,7 @@ class OpalMethodInvokeExpr[+V <: Var[V]](delegate: MethodCall[V], method: OpalMe
 
   override def getBase: Val = {
     if (isInstanceInvokeExpr) {
-      return new OpalVal[V](delegate.asInstanceMethodCall.receiver, method)
+      return new OpalVal(delegate.asInstanceMethodCall.receiver, method)
     }
 
     throw new RuntimeException("Method call is not an instance invoke expression")
@@ -33,27 +35,38 @@ class OpalMethodInvokeExpr[+V <: Var[V]](delegate: MethodCall[V], method: OpalMe
     val resolvedMethod = OpalClient.resolveMethodRef(delegate.declaringClass, delegate.name, delegate.descriptor)
 
     if (resolvedMethod.isDefined) {
-      return new OpalDeclaredMethod[V](this, resolvedMethod.get)
+      OpalDeclaredMethod(this, resolvedMethod.get)
+    } else {
+      OpalPhantomDeclaredMethod(this, delegate.declaringClass, delegate.name, delegate.descriptor, delegate.isStaticMethodCall)
     }
-
-    throw new RuntimeException("Cannot resolve method " + delegate.name + " from invoke expression")
   }
 
   override def isSpecialInvokeExpr: Boolean = delegate.astID == NonVirtualMethodCall.ASTID
 
   override def isStaticInvokeExpr: Boolean = delegate.isStaticMethodCall
+
+  override def hashCode(): Int = 31 + delegate.hashCode()
+
+  private def canEqual(a: Any): Boolean = a.isInstanceOf[OpalMethodInvokeExpr]
+
+  override def equals(obj: Any): Boolean = obj match {
+    case other: OpalMethodInvokeExpr => other.canEqual(this) && this.delegate == other.delegate
+    case _ => false
+  }
+
+  override def toString: String = delegate.toString
 }
 
-class OpalFunctionInvokeExpr[+V <: Var[V]](delegate: FunctionCall[V], method: OpalMethod) extends InvokeExpr {
+class OpalFunctionInvokeExpr(val delegate: FunctionCall[DUVar[ValueInformation]], method: OpalMethod, pc: UShort) extends InvokeExpr {
 
   override def getArg(index: Int): Val = getArgs.get(index)
 
   override def getArgs: util.List[Val] = {
     val result = new util.ArrayList[Val]
 
-    for (param <- delegate.params) {
-      result.add(new OpalVal[V](param, method))
-    }
+    delegate.params.foreach(param => {
+      result.add(new OpalVal(param, method))
+    })
 
     result
   }
@@ -62,7 +75,7 @@ class OpalFunctionInvokeExpr[+V <: Var[V]](delegate: FunctionCall[V], method: Op
 
   override def getBase: Val = {
     if (isInstanceInvokeExpr) {
-      return new OpalVal[V](delegate.asInstanceFunctionCall.receiver, method)
+      return new OpalVal(delegate.asInstanceFunctionCall.receiver, method)
     }
 
     throw new RuntimeException("Function call is not an instance invoke expression")
@@ -72,14 +85,24 @@ class OpalFunctionInvokeExpr[+V <: Var[V]](delegate: FunctionCall[V], method: Op
     val resolvedMethod = OpalClient.resolveMethodRef(delegate.declaringClass, delegate.name, delegate.descriptor)
 
     if (resolvedMethod.isDefined) {
-      new OpalDeclaredMethod[V](this, resolvedMethod.get)
+      OpalDeclaredMethod(this, resolvedMethod.get)
+    } else {
+      OpalPhantomDeclaredMethod(this, delegate.declaringClass, delegate.name, delegate.descriptor, delegate.isStaticFunctionCall)
     }
-
-    throw new RuntimeException("Cannot resolve method " + delegate.name + " from invoke expression")
   }
 
   override def isSpecialInvokeExpr: Boolean = delegate.astID == NonVirtualFunctionCall.ASTID
 
   override def isStaticInvokeExpr: Boolean = delegate.isStaticFunctionCall
 
+  override def hashCode(): Int = 31 + delegate.hashCode()
+
+  private def canEqual(a: Any): Boolean = a.isInstanceOf[OpalFunctionInvokeExpr]
+
+  override def equals(obj: Any): Boolean = obj match {
+    case other: OpalFunctionInvokeExpr => other.canEqual(this) && this.delegate == other.delegate
+    case _ => false
+  }
+
+  override def toString: String = delegate.toString
 }

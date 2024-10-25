@@ -2,17 +2,29 @@ package boomerang.scene.opal
 import boomerang.scene.{AllocVal, Type, Val, WrappedClass}
 import org.opalj.br.ObjectType
 
-class OpalType(delegate: org.opalj.br.Type) extends Type {
+case class OpalType(delegate: org.opalj.br.Type, isNull: Boolean = false) extends Type {
 
-  override def isNullType: Boolean = false
+  override def isNullType: Boolean = isNull
 
-  override def isRefType: Boolean = delegate.isReferenceType
+  override def isRefType: Boolean = delegate.isObjectType
 
   override def isArrayType: Boolean = delegate.isArrayType
 
-  override def getArrayBaseType: Type = new OpalType(delegate.asArrayType)
+  override def getArrayBaseType: Type = OpalType(delegate.asArrayType)
 
-  override def getWrappedClass: WrappedClass = new OpalWrappedClass(OpalClient.getClassFileForType(delegate.asObjectType))
+  override def getWrappedClass: WrappedClass = {
+    if (isRefType) {
+      val declaringClass = OpalClient.getClassFileForType(delegate.asObjectType)
+
+      if (declaringClass.isDefined) {
+        OpalWrappedClass(declaringClass.get)
+      } else {
+        OpalPhantomWrappedClass(delegate.asReferenceType)
+      }
+    }
+
+    throw new RuntimeException("Cannot compute declaring class because type is not a RefType")
+  }
 
   override def doesCastFail(targetValType: Type, target: Val): Boolean = {
     if (!isRefType || !targetValType.isRefType) {
@@ -20,7 +32,7 @@ class OpalType(delegate: org.opalj.br.Type) extends Type {
     }
 
     val sourceType = delegate.asReferenceType
-    val targetType = targetValType.asInstanceOf[OpalType].getDelegate.asReferenceType
+    val targetType = targetValType.asInstanceOf[OpalType].delegate.asReferenceType
 
     target match {
       case allocVal: AllocVal if allocVal.getAllocVal.isNewExpr => OpalClient.getClassHierarchy.isSubtypeOf(sourceType, targetType)
@@ -29,18 +41,23 @@ class OpalType(delegate: org.opalj.br.Type) extends Type {
     }
   }
 
-  override def isSubtypeOf(otherType: String): Boolean = OpalClient.getClassHierarchy.isSubtypeOf(delegate.asObjectType, ObjectType(otherType))
+  override def isSubtypeOf(otherType: String): Boolean = {
+    if (!delegate.isObjectType) {
+      return false
+    }
+
+    OpalClient.getClassHierarchy.isSubtypeOf(delegate.asObjectType, ObjectType(otherType))
+  }
+
+  override def isSupertypeOf(subType: String): Boolean = {
+    if (!delegate.isObjectType) {
+      return false
+    }
+
+    OpalClient.getClassHierarchy.isSubtypeOf(ObjectType(subType), delegate.asObjectType)
+  }
 
   override def isBooleanType: Boolean = delegate.isBooleanType
 
-  override def hashCode(): Int = 31 * delegate.hashCode()
-
-  override def equals(obj: Any): Boolean = obj match {
-    case other: OpalType => this.delegate == other.getDelegate
-    case _ => false
-  }
-
   override def toString: String = delegate.toJava
-
-  def getDelegate: org.opalj.br.Type = delegate
 }

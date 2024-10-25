@@ -1,40 +1,76 @@
 package boomerang.scene.opal
 
-import boomerang.scene
-import boomerang.scene.{DeclaredMethod, InvokeExpr, WrappedClass}
-import org.opalj.br.Method
-import org.opalj.tac.Var
+import boomerang.scene.{DeclaredMethod, InvokeExpr, Type, WrappedClass}
+import org.opalj.br.{DefinedMethod, MethodDescriptor, MethodSignature, ReferenceType}
 
-class OpalDeclaredMethod[+V <: Var[V]](invokeExpr: InvokeExpr, delegate: Method) extends DeclaredMethod(invokeExpr) {
+import java.util
 
-  override def isNative: Boolean = delegate.isNative
+case class OpalDeclaredMethod(invokeExpr: InvokeExpr, delegate: DefinedMethod) extends DeclaredMethod(invokeExpr) {
 
-  override def getSubSignature: String = delegate.signature.toString
+  override def isNative: Boolean = delegate.definedMethod.isNative
+
+  override def getSubSignature: String = delegate.definedMethod.signature.toString
 
   override def getName: String = delegate.name
 
-  override def isStatic: Boolean = delegate.isStatic
+  override def isStatic: Boolean = delegate.definedMethod.isStatic
 
-  override def isConstructor: Boolean = delegate.isStatic
+  override def isConstructor: Boolean = delegate.definedMethod.isConstructor
 
-  override def getSignature: String = delegate.fullyQualifiedSignature
+  override def getSignature: String = delegate.definedMethod.fullyQualifiedSignature
+
+  override def getDeclaringClass: WrappedClass = OpalWrappedClass(delegate.definedMethod.classFile)
+
+  override def getParameterTypes: util.List[Type] = {
+    val result = new util.ArrayList[Type]()
+
+    delegate.definedMethod.parameterTypes.foreach(paramType => {
+      result.add(OpalType(paramType))
+    })
+
+    result
+  }
+
+  override def getParameterType(index: Int): Type = getParameterTypes.get(index)
+
+  override def toString: String = getSignature
+}
+
+case class OpalPhantomDeclaredMethod(invokeExpr: InvokeExpr, declaringClass: ReferenceType, name: String, descriptor: MethodDescriptor, static: Boolean) extends DeclaredMethod(invokeExpr) {
+
+  override def isNative: Boolean = false
+
+  override def getSubSignature: String = MethodSignature(name, descriptor).toJava
+
+  override def getName: String = name
+
+  override def isStatic: Boolean = static
+
+  override def isConstructor: Boolean = name == "<init>"
+
+  override def getSignature: String = descriptor.toJava(s"${declaringClass.toJava}.$name")
 
   override def getDeclaringClass: WrappedClass = {
-    val declaredMethod = OpalClient.getDeclaredMethod(delegate)
-    new OpalWrappedClass(OpalClient.getClassFileForType(declaredMethod.declaringClassType))
+    val decClass = OpalClient.getClassFileForType(declaringClass.asObjectType)
+
+    if (decClass.isDefined) {
+      OpalWrappedClass(decClass.get)
+    } else {
+      OpalPhantomWrappedClass(declaringClass)
+    }
   }
 
-  override def getCalledMethod: scene.Method = new OpalMethod(delegate)
+  override def getParameterTypes: util.List[Type] = {
+    val result = new util.ArrayList[Type]()
 
-  override def hashCode(): Int = 31 * delegate.hashCode()
+    descriptor.parameterTypes.foreach(paramType => {
+      result.add(OpalType(paramType))
+    })
 
-  override def equals(obj: Any): Boolean = obj match {
-    case other: OpalDeclaredMethod[_] => this.delegate == other.getDelegate
-    case _ => false
+    result
   }
 
-  override def toString: String = delegate.toJava
+  override def getParameterType(index: Int): Type = getParameterTypes.get(index)
 
-  def getDelegate: Method = delegate
-
+  override def toString: String = getSignature
 }

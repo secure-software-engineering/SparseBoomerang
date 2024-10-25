@@ -78,6 +78,11 @@ public class JimpleUpType implements Type {
   }
 
   @Override
+  public boolean isSupertypeOf(String subType) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  @Override
   public boolean isSubtypeOf(String type) {
     if (delegate.toString().equals(type)) return true;
     if (!(delegate instanceof ReferenceType)) {

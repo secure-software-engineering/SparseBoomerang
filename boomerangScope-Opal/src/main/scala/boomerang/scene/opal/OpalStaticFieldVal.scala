@@ -8,7 +8,7 @@ class OpalStaticFieldVal(field: OpalField, method: Method, unbalanced: ControlFl
 
   override def asUnbalanced(stmt: ControlFlowGraph.Edge): Val = new OpalStaticFieldVal(field, method, stmt)
 
-  override def getType: Type = new OpalType(field.getDelegate.fieldType)
+  override def getType: Type = OpalType(field.delegate.fieldType)
 
   override def isStatic: Boolean = true
 
@@ -19,6 +19,8 @@ class OpalStaticFieldVal(field: OpalField, method: Method, unbalanced: ControlFl
   override def isLocal: Boolean = false
 
   override def isArrayAllocationVal: Boolean = false
+
+  override def getArrayAllocationSize: Val = throw new RuntimeException("Static field is not an array allocation expression")
 
   override def isNull: Boolean = false
 

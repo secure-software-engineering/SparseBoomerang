@@ -1,17 +1,13 @@
 package boomerang.scene.opal
 
 import boomerang.scene.{ControlFlowGraph, Method, Statement, Type, Val, WrappedClass}
-import org.opalj.tac.{DUVar, InstanceFunctionCall, InstanceMethodCall, UVar}
-import org.opalj.value.ValueInformation
+import org.opalj.br.{MethodDescriptor, MethodSignature, ObjectType}
+import org.opalj.tac.{InstanceFunctionCall, InstanceMethodCall, UVar}
 
 import scala.jdk.CollectionConverters._
 import java.util
 
-class OpalMethod(delegate: org.opalj.br.Method) extends Method {
-
-  if (delegate.body.isEmpty) {
-    throw new RuntimeException("Trying to build Opal method without body present")
-  }
+case class OpalMethod(delegate: org.opalj.br.Method) extends Method {
 
   private var localCache: Option[util.Set[Val]] = None
   private var parameterLocalCache: Option[util.List[Val]] = None
@@ -30,9 +26,9 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
   override def getParameterTypes: util.List[Type] = {
     val result = new util.ArrayList[Type]()
 
-    for (parameterType <- delegate.parameterTypes) {
-      result.add(new OpalType(parameterType))
-    }
+    delegate.parameterTypes.foreach(paramType => {
+      result.add(OpalType(paramType))
+    })
 
     result
   }
@@ -68,8 +64,8 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
   private def isThisLocalDefined: Option[Val] = {
     val locals = getLocals
     for (local <- locals.asScala) {
-      val opalVal = local.asInstanceOf[OpalVal[DUVar[ValueInformation]]]
-      val valDelegate = opalVal.getDelegate
+      val opalVal = local.asInstanceOf[OpalVal]
+      val valDelegate = opalVal.delegate
 
       if (valDelegate.isInstanceOf[UVar[_]]) {
         if (valDelegate.asVar.definedBy.head == -1) {
@@ -91,14 +87,14 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
         if (stmt.isMethodCall) {
           // Extract the base
           if (stmt.isInstanceOf[InstanceMethodCall[_]]) {
-            val opalVal = new OpalVal[DUVar[ValueInformation]](stmt.asInstanceMethodCall.receiver, this)
+            val opalVal = new OpalVal(stmt.asInstanceMethodCall.receiver, this)
             localCache.get.add(opalVal)
           }
 
           // Parameters of method calls
           for (param <- stmt.asMethodCall.params) {
             if (param.isVar) {
-              localCache.get.add(new OpalVal[DUVar[ValueInformation]](param.asVar, this))
+              localCache.get.add(new OpalVal(param.asVar, this))
             }
           }
         }
@@ -106,19 +102,19 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
         if (stmt.isAssignment) {
           // Target variable
           val targetVar = stmt.asAssignment.targetVar
-          localCache.get.add(new OpalVal[DUVar[ValueInformation]](targetVar, this))
+          localCache.get.add(new OpalVal(targetVar, this))
 
           if (stmt.asAssignment.expr.isFunctionCall) {
             // Extract the base
             if (stmt.asAssignment.expr.isInstanceOf[InstanceFunctionCall[_]]) {
-              val opalVal = new OpalVal[DUVar[ValueInformation]](stmt.asAssignment.expr.asInstanceFunctionCall.receiver, this)
+              val opalVal = new OpalVal(stmt.asAssignment.expr.asInstanceFunctionCall.receiver, this)
               localCache.get.add(opalVal)
             }
 
             // Parameters of function call
             for (param <- stmt.asAssignment.expr.asFunctionCall.params) {
               if (param.isVar) {
-                localCache.get.add(new OpalVal[DUVar[ValueInformation]](param.asVar, this))
+                localCache.get.add(new OpalVal(param.asVar, this))
               }
             }
           }
@@ -136,8 +132,8 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
       val locals = getLocals
       for (local <- locals.asScala) {
         if (local.isLocal) {
-          val opalVal = local.asInstanceOf[OpalVal[DUVar[ValueInformation]]]
-          val valDelegate = opalVal.getDelegate
+          val opalVal = local.asInstanceOf[OpalVal]
+          val valDelegate = opalVal.delegate
 
           if (valDelegate.isInstanceOf[UVar[_]]) {
             if (valDelegate.asVar.definedBy.head < 0) {
@@ -157,14 +153,11 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
 
   override def getStatements: util.List[Statement] = cfg.getStatements
 
-  override def getDeclaringClass: WrappedClass = {
-    val declaredMethod = OpalClient.getDeclaredMethod(delegate)
-    new OpalWrappedClass(OpalClient.getClassFileForType(declaredMethod.declaringClassType))
-  }
+  override def getDeclaringClass: WrappedClass = OpalWrappedClass(delegate.classFile)
 
   override def getControlFlowGraph: ControlFlowGraph = cfg
 
-  override def getSubSignature: String = delegate.signature.toString
+  override def getSubSignature: String = delegate.signature.toJava
 
   override def getName: String = delegate.name
 
@@ -172,15 +165,50 @@ class OpalMethod(delegate: org.opalj.br.Method) extends Method {
 
   override def isPublic: Boolean = delegate.isPublic
 
-  override def hashCode(): Int = 31 + delegate.hashCode()
+  override def toString: String = delegate.toJava
+}
 
-  override def equals(obj: Any): Boolean = obj match {
-    case other: OpalMethod => this.delegate == other.getDelegate
-    case _ => false
+case class OpalPhantomMethod(declaringClassType: ObjectType, name: String, descriptor: MethodDescriptor, isStatic: Boolean) extends Method {
+
+  override def isStaticInitializer: Boolean = name == "<clinit>"
+
+  override def isParameterLocal(value: Val): Boolean = false
+
+  override def getParameterTypes: util.List[Type] = {
+    val result = new util.ArrayList[Type]()
+
+    descriptor.parameterTypes.foreach(paramType => {
+      result.add(OpalType(paramType))
+    })
+
+    result
   }
 
-  override def toString: String = delegate.toJava
+  override def getParameterType(index: Int): Type = OpalType(descriptor.parameterType(index))
 
-  def getDelegate: org.opalj.br.Method = delegate
+  override def isThisLocal(value: Val): Boolean = false
 
+  override def getLocals: util.Set[Val] = throw new RuntimeException("Locals of phantom method are not available")
+
+  override def getThisLocal: Val = throw new RuntimeException("this local of phantom method is not available")
+
+  override def getParameterLocals: util.List[Val] = throw new RuntimeException("Parameter locals of phantom method are not available")
+
+  override def isNative: Boolean = false
+
+  override def getStatements: util.List[Statement] = new util.ArrayList[Statement]()
+
+  override def getDeclaringClass: WrappedClass = OpalPhantomWrappedClass(declaringClassType)
+
+  override def getControlFlowGraph: ControlFlowGraph = throw new RuntimeException("CFG of phantom method is not available")
+
+  override def getSubSignature: String = MethodSignature(name, descriptor).toJava
+
+  override def getName: String = name
+
+  override def isConstructor: Boolean = name == "<init>"
+
+  override def isPublic: Boolean = true
+
+  override def toString: String = "PHANTOM: " + getSubSignature
 }

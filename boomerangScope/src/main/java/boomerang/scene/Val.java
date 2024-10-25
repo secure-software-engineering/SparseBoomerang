@@ -60,133 +60,116 @@ public abstract class Val {
 
             @Override
             public Type getType() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isStatic() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isNewExpr() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Type getNewExprType() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public Val asUnbalanced(ControlFlowGraph.Edge stmt) {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isLocal() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isArrayAllocationVal() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
+            public Val getArrayAllocationSize() {
+              return null;
+            }
+
+            @Override
             public boolean isNull() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isStringConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public String getStringValue() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isStringBufferOrBuilder() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isThrowableAllocationType() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isCast() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Val getCastOp() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isArrayRef() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isInstanceOfExpr() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Val getInstanceOfOp() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isLengthExpr() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Val getLengthOp() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isIntConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isClassConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Type getClassConstantType() {
-              // TODO Auto-generated method stub
               return null;
             }
 
@@ -197,25 +180,21 @@ public abstract class Val {
 
             @Override
             public boolean isLongConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public int getIntValue() {
-              // TODO Auto-generated method stub
               return 0;
             }
 
             @Override
             public long getLongValue() {
-              // TODO Auto-generated method stub
               return 0;
             }
 
             @Override
             public Pair<Val, Integer> getArrayBase() {
-              // TODO Auto-generated method stub
               return null;
             }
 
@@ -241,7 +220,10 @@ public abstract class Val {
 
   public abstract boolean isLocal();
 
+  // TODO Distinguish between single arrays and multi arrays
   public abstract boolean isArrayAllocationVal();
+
+  public abstract Val getArrayAllocationSize();
 
   public abstract boolean isNull();
 

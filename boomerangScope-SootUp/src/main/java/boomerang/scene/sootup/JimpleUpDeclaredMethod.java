@@ -1,9 +1,11 @@
 package boomerang.scene.sootup;
 
 import boomerang.scene.DeclaredMethod;
-import boomerang.scene.Method;
+import boomerang.scene.Type;
 import boomerang.scene.WrappedClass;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import sootup.java.core.JavaSootClass;
 import sootup.java.core.JavaSootMethod;
 
@@ -52,15 +54,26 @@ public class JimpleUpDeclaredMethod extends DeclaredMethod {
   }
 
   @Override
-  public Method getCalledMethod() {
-    return JimpleUpMethod.of(delegate);
-  }
-
-  @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
         SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType());
     return new JimpleUpWrappedClass(sootClass);
+  }
+
+  @Override
+  public List<Type> getParameterTypes() {
+    List<Type> result = new ArrayList<>();
+
+    for (sootup.core.types.Type type : delegate.getParameterTypes()) {
+      result.add(new JimpleUpType(type));
+    }
+
+    return result;
+  }
+
+  @Override
+  public Type getParameterType(int index) {
+    return new JimpleUpType(delegate.getParameterType(index));
   }
 
   @Override

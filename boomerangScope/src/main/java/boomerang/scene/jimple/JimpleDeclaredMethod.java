@@ -2,8 +2,10 @@ package boomerang.scene.jimple;
 
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
-import boomerang.scene.Method;
+import boomerang.scene.Type;
 import boomerang.scene.WrappedClass;
+import java.util.ArrayList;
+import java.util.List;
 import soot.SootMethod;
 
 public class JimpleDeclaredMethod extends DeclaredMethod {
@@ -71,13 +73,23 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   }
 
   @Override
-  public Method getCalledMethod() {
-    return JimpleMethod.of(delegate);
+  public WrappedClass getDeclaringClass() {
+    return new JimpleWrappedClass(delegate.getDeclaringClass());
   }
 
   @Override
-  public WrappedClass getDeclaringClass() {
-    return new JimpleWrappedClass(delegate.getDeclaringClass());
+  public List<Type> getParameterTypes() {
+    List<Type> types = new ArrayList<>();
+
+    for (soot.Type type : delegate.getParameterTypes()) {
+      types.add(new JimpleType(type));
+    }
+    return types;
+  }
+
+  @Override
+  public Type getParameterType(int index) {
+    return new JimpleType(delegate.getParameterType(index));
   }
 
   public Object getDelegate() {

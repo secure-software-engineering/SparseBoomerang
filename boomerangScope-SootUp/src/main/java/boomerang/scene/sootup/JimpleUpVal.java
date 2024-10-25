@@ -82,6 +82,17 @@ public class JimpleUpVal extends Val {
   }
 
   @Override
+  public Val getArrayAllocationSize() {
+    if (delegate instanceof JNewArrayExpr) {
+      JNewArrayExpr expr = (JNewArrayExpr) delegate;
+
+      return new JimpleUpVal(expr.getSize(), method);
+    }
+
+    throw new RuntimeException("Val is not an array allocation expression");
+  }
+
+  @Override
   public boolean isNull() {
     return delegate instanceof NullConstant;
   }

@@ -1,16 +1,24 @@
 package boomerang.scene.opal
 
-import boomerang.scene.{Method, Val, ValWithFalseVariable}
-import org.opalj.tac.{Expr, Var}
+import boomerang.scene.{Val, ValWithFalseVariable}
+import org.opalj.tac.{DUVar, Expr}
+import org.opalj.value.ValueInformation
 
-class OpalDoubleVal[+V <: Var[V]](delegate: Expr[V], method: Method, falseVal: Val) extends OpalVal(delegate, method) with ValWithFalseVariable{
+class OpalDoubleVal(delegate: Expr[DUVar[ValueInformation]], method: OpalMethod, falseVal: Val) extends OpalVal(delegate, method) with ValWithFalseVariable {
 
   override def getFalseVariable: Val = falseVal
 
-  override def hashCode(): Int = 31 * super.hashCode() + 31 * falseVal.hashCode()
+  override def hashCode(): Int = {
+    var result = 31 + super.hashCode()
+    result = result * 31 + falseVal.hashCode()
+    result
+  }
+
+  private def canEqual(a: Any): Boolean = a.isInstanceOf[OpalDoubleVal]
 
   override def equals(obj: Any): Boolean = obj match {
-    case other: OpalDoubleVal[_] => super.equals(other) && falseVal.equals(other.getFalseVariable)
+    case other: OpalDoubleVal =>
+      other.canEqual(this) && super.equals(other) && falseVal.equals(other.getFalseVariable)
     case _ => false
   }
 

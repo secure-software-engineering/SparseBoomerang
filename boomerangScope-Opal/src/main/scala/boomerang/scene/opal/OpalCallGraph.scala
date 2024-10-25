@@ -1,50 +1,56 @@
 package boomerang.scene.opal
 
 import boomerang.scene.CallGraph.Edge
-import org.opalj.br.Method
+import org.opalj.br.{DefinedMethod, Method, MultipleDefinedMethods, VirtualDeclaredMethod}
 import org.opalj.tac.cg.CallGraph
 
 class OpalCallGraph(callGraph: CallGraph, entryPoints: Set[Method]) extends boomerang.scene.CallGraph {
 
-  for (reachableMethod <- callGraph.reachableMethods()) {
-    if (reachableMethod.method.hasSingleDefinedMethod) {
-      val method = reachableMethod.method.definedMethod
+  callGraph.reachableMethods().foreach(method => {
+    method.method match {
+      case definedMethod: DefinedMethod => addEdgesFromMethod(definedMethod)
+      // TODO Should this case be considered?
+      // case definedMethods: MultipleDefinedMethods =>
+      //   definedMethods.foreachDefinedMethod(m => addEdgesFromMethod(m))
+      case _ =>
+    }
+  })
 
-      if (method.body.isDefined) {
-        val tacCode = OpalClient.getTacForMethod(method)
-        val calleeMap = callGraph.calleesOf(reachableMethod.method).toMap
+  private def addEdgesFromMethod(method: DefinedMethod): Unit = {
+    // TODO move TAC to parameters or use method wrappers with TAC
+    val tacCode = OpalClient.getTacForMethod(method.definedMethod)
 
-        for (stmt <- tacCode.stmts) {
-          val srcStatement = new OpalStatement(stmt, new OpalMethod(reachableMethod.method.definedMethod))
+    tacCode.stmts.foreach(stmt => {
+      val srcStatement = new OpalStatement(stmt, OpalMethod(method.definedMethod))
 
-          if (srcStatement.containsInvokeExpr()) {
-            val callees = calleeMap(stmt.pc)
+      if (srcStatement.containsInvokeExpr()) {
+        val callees = callGraph.directCalleesOf(method, stmt.pc)
 
-            for (callee <- callees) {
-              if (callee.method.hasSingleDefinedMethod) {
-                val target = callee.method
+        callees.foreach(callee => {
+          callee.method match {
+            case definedMethod: DefinedMethod =>
+              val targetMethod = OpalMethod(definedMethod.definedMethod)
 
-                if (target.definedMethod.body.isDefined) {
-                  val targetMethod = new OpalMethod(target.definedMethod)
+              addEdge(new Edge(srcStatement, targetMethod))
+            case virtualMethod: VirtualDeclaredMethod =>
+              val targetMethod = OpalPhantomMethod(virtualMethod.declaringClassType, virtualMethod.name, virtualMethod.descriptor, srcStatement.getInvokeExpr.isStaticInvokeExpr)
 
-                  val edge = new Edge(srcStatement, targetMethod)
-                  addEdge(edge)
-                  // TODO Test for multiple edges
-                  println("Added edge " + srcStatement + " -> " + targetMethod)
-                }
-              }
-            }
+              addEdge(new Edge(srcStatement, targetMethod))
+            case definedMethods: MultipleDefinedMethods =>
+              definedMethods.foreachDefinedMethod(method => {
+                val targetMethod = OpalMethod(method)
+
+                addEdge(new Edge(srcStatement, targetMethod))
+              })
           }
-        }
+        })
       }
-    }
+    })
   }
 
-  for (entryPoint <- entryPoints) {
+  entryPoints.foreach(entryPoint => {
     if (entryPoint.body.isDefined) {
-      val method = new OpalMethod(entryPoint)
-
-      addEntryPoint(method)
+      addEntryPoint(OpalMethod(entryPoint))
     }
-  }
+  })
 }

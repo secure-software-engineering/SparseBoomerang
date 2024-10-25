@@ -13,9 +13,10 @@ package boomerang.scene.wala;
 
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
-import boomerang.scene.Method;
+import boomerang.scene.Type;
 import boomerang.scene.WrappedClass;
 import com.ibm.wala.types.MethodReference;
+import java.util.List;
 
 public class WALADeclaredMethod extends DeclaredMethod {
 
@@ -59,13 +60,18 @@ public class WALADeclaredMethod extends DeclaredMethod {
   }
 
   @Override
-  public Method getCalledMethod() {
+  public WrappedClass getDeclaringClass() {
+    return new WALAClass(delegate.getDeclaringClass());
+  }
+
+  @Override
+  public List<Type> getParameterTypes() {
     throw new RuntimeException("Not implemented");
   }
 
   @Override
-  public WrappedClass getDeclaringClass() {
-    return new WALAClass(delegate.getDeclaringClass());
+  public Type getParameterType(int index) {
+    throw new RuntimeException("Not implemented");
   }
 
   @Override

@@ -1,6 +1,6 @@
 package boomerang.scene.opal
 
-import org.opalj.br.{ClassFile, ClassHierarchy, DeclaredMethod, Field, Method, MethodDescriptor, ObjectType, ReferenceType}
+import org.opalj.br.{ClassFile, ClassHierarchy, DeclaredMethod, DefinedMethod, Field, Method, MethodDescriptor, ObjectType, ReferenceType}
 import org.opalj.br.analyses.{DeclaredMethods, DeclaredMethodsKey, Project}
 import org.opalj.tac.{AITACode, ComputeTACAIKey, FieldRead, FieldWriteAccessStmt, TACMethodParameter}
 import org.opalj.value.ValueInformation
@@ -17,13 +17,13 @@ object OpalClient {
     tacCodes = Some(p.get(ComputeTACAIKey))
   }
 
+  def getDeclaredMethod(method: Method): DeclaredMethod = declaredMethods.get(method)
+
   def getClassHierarchy: ClassHierarchy = project.get.classHierarchy
 
-  def getClassFileForType(objectType: ObjectType): ClassFile = project.get.classFile(objectType).get
+  def getClassFileForType(objectType: ObjectType): Option[ClassFile] = project.get.classFile(objectType)
 
   def isApplicationClass(classFile: ClassFile): Boolean = project.get.allProjectClassFiles.toSet.contains(classFile)
-
-  def getDeclaredMethod(method: Method): DeclaredMethod = declaredMethods.get(method)
 
   def getTacForMethod(method: Method): AITACode[TACMethodParameter, ValueInformation] = tacCodes.get(method)
 
@@ -31,6 +31,16 @@ object OpalClient {
 
   def resolveFieldLoad(expr: FieldRead[_]): Option[Field] = expr.resolveField(project.get)
 
-  def resolveMethodRef(declaringClass: ReferenceType, name: String, methodDescriptor: MethodDescriptor): Option[Method] = project.get.resolveMethodReference(declaringClass, name, methodDescriptor)
+  def resolveMethodRef(declaringClass: ReferenceType, name: String, methodDescriptor: MethodDescriptor): Option[DefinedMethod] = {
+    val method = project.get.resolveMethodReference(declaringClass, name, methodDescriptor, forceLookupInSuperinterfacesOnFailure = true)
+
+    if (method.isDefined) {
+      val declaredMethod = declaredMethods.get(method.get)
+
+      return Some(declaredMethod)
+    }
+
+    None
+  }
 
 }
