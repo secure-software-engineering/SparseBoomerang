@@ -144,7 +144,7 @@ public class WeightedPushdownSystem<N extends Location, D extends State, W exten
       @Override
       public WeightedPAutomaton<N, D, W> getSummaryAutomaton(D target) {
         return summaries.getSummaryAutomaton(target);
-      };
+      }
     }.poststar(this, initialAutomaton);
   }
 
