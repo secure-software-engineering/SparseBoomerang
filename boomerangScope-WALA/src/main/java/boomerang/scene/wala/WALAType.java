@@ -114,6 +114,11 @@ public class WALAType implements Type {
     return false;
   }
 
+  @Override
+  public boolean isSupertypeOf(String subType) {
+    throw new RuntimeException("Not implemented yet");
+  }
+
   private boolean hasClassInterface(IClass next, String t) {
     if (next.getName().toString().equals(t)) {
       return true;

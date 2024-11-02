@@ -3,12 +3,14 @@ package boomerang.scene.jimple;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
+import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import soot.Local;
@@ -71,6 +73,19 @@ public class JimpleMethod extends Method {
 
     List<Val> parameterLocals = getParameterLocals();
     return parameterLocals.contains(val);
+  }
+
+  public List<Type> getParameterTypes() {
+    List<Type> types = new ArrayList<>();
+
+    for (soot.Type type : delegate.getParameterTypes()) {
+      types.add(new JimpleType(type));
+    }
+    return types;
+  }
+
+  public Type getParameterType(int index) {
+    return new JimpleType(delegate.getParameterType(index));
   }
 
   public boolean isThisLocal(Val val) {

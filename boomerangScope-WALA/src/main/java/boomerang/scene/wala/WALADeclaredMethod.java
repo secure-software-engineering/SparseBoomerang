@@ -13,8 +13,10 @@ package boomerang.scene.wala;
 
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
+import boomerang.scene.Type;
 import boomerang.scene.WrappedClass;
 import com.ibm.wala.types.MethodReference;
+import java.util.List;
 
 public class WALADeclaredMethod extends DeclaredMethod {
 
@@ -29,7 +31,6 @@ public class WALADeclaredMethod extends DeclaredMethod {
 
   @Override
   public boolean isNative() {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -61,6 +62,16 @@ public class WALADeclaredMethod extends DeclaredMethod {
   @Override
   public WrappedClass getDeclaringClass() {
     return new WALAClass(delegate.getDeclaringClass());
+  }
+
+  @Override
+  public List<Type> getParameterTypes() {
+    throw new RuntimeException("Not implemented yet");
+  }
+
+  @Override
+  public Type getParameterType(int index) {
+    throw new RuntimeException("Not implemented yet");
   }
 
   @Override

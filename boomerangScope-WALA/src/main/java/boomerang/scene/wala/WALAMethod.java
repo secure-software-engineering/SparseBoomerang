@@ -14,6 +14,7 @@ package boomerang.scene.wala;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
+import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
 import com.google.common.collect.Lists;
@@ -57,6 +58,16 @@ public class WALAMethod extends Method {
   @Override
   public boolean isParameterLocal(Val val) {
     return getParameterLocals().contains(val);
+  }
+
+  @Override
+  public List<Type> getParameterTypes() {
+    throw new RuntimeException("Not implemented yet");
+  }
+
+  @Override
+  public Type getParameterType(int index) {
+    throw new RuntimeException("Not implemented yet");
   }
 
   @Override

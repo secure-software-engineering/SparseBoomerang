@@ -76,6 +76,11 @@ public class JimpleStaticFieldVal extends StaticFieldVal {
   }
 
   @Override
+  public Val getArrayAllocationSize() {
+    throw new RuntimeException("Static Val is not an array allocation val");
+  }
+
+  @Override
   public boolean isNull() {
     return false;
   }

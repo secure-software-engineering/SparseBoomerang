@@ -147,6 +147,11 @@ public class WALAVal extends Val {
   }
 
   @Override
+  public Val getArrayAllocationSize() {
+    throw new RuntimeException("Not implemented yet");
+  }
+
+  @Override
   public boolean isNull() {
     return symbolTable != null
         && symbolTable.getValue(programCounter) != null
