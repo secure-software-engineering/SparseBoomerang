@@ -148,7 +148,7 @@ public class WALAVal extends Val {
 
   @Override
   public Val getArrayAllocationSize() {
-    throw new RuntimeException("Not implemented yet");
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override

@@ -47,9 +47,8 @@ public class AccessPath {
   }
 
   /**
-   * Return the AccessPath as a compact representation. For example, a path with
-   * a base 'x' and no fields becomes 'x', a base 'y' and the fields [f,g] becomes
-   * 'y.f.g'
+   * Return the AccessPath as a compact representation. For example, a path with a base 'x' and no
+   * fields becomes 'x', a base 'y' and the fields [f,g] becomes 'y.f.g'
    *
    * @return the formatted AccessPath
    */

@@ -66,12 +66,12 @@ public class WALADeclaredMethod extends DeclaredMethod {
 
   @Override
   public List<Type> getParameterTypes() {
-    throw new RuntimeException("Not implemented yet");
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public Type getParameterType(int index) {
-    throw new RuntimeException("Not implemented yet");
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
