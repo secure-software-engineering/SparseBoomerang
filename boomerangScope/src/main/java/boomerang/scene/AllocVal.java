@@ -64,6 +64,10 @@ public class AllocVal extends Val {
     return delegate.isArrayAllocationVal();
   }
 
+  public Val getArrayAllocationSize() {
+    return delegate.getArrayAllocationSize();
+  }
+
   public boolean isNull() {
     return allocationVal.isNull();
   }

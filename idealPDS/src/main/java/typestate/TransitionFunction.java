@@ -112,7 +112,7 @@ public class TransitionFunction extends Weight {
     HashSet<Edge> newStateChangeStmts = Sets.newHashSet(stateChangeStatements);
     newStateChangeStmts.addAll(func.stateChangeStatements);
     return new TransitionFunction(transitions, newStateChangeStmts);
-  };
+  }
 
   public static TransitionFunction one() {
     if (one == null) one = new TransitionFunction("ONE");

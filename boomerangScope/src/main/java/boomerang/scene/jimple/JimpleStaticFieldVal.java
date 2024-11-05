@@ -43,7 +43,7 @@ public class JimpleStaticFieldVal extends StaticFieldVal {
 
   public Field field() {
     return field;
-  };
+  }
 
   @Override
   public Val asUnbalanced(Edge stmt) {
@@ -73,6 +73,11 @@ public class JimpleStaticFieldVal extends StaticFieldVal {
   @Override
   public boolean isArrayAllocationVal() {
     return false;
+  }
+
+  @Override
+  public Val getArrayAllocationSize() {
+    throw new RuntimeException("Static Val is not an array allocation val");
   }
 
   @Override

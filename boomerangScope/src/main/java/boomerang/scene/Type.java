@@ -16,5 +16,7 @@ public interface Type {
 
   boolean isSubtypeOf(String type);
 
+  boolean isSupertypeOf(String subType);
+
   boolean isBooleanType();
 }

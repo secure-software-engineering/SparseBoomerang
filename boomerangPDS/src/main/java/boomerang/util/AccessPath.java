@@ -5,6 +5,7 @@ import boomerang.scene.Val;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Set;
+import java.util.StringJoiner;
 
 public class AccessPath {
   private final Val val;
@@ -43,6 +44,19 @@ public class AccessPath {
 
   public Collection<Field> getFields() {
     return fieldChain;
+  }
+
+  /**
+   * Return the AccessPath as a compact representation. For example, a path with a base 'x' and no
+   * fields becomes 'x', a base 'y' and the fields [f,g] becomes 'y.f.g'
+   *
+   * @return the formatted AccessPath
+   */
+  public String toCompactString() {
+    StringJoiner fieldJoiner = new StringJoiner(".");
+    fieldChain.forEach(field -> fieldJoiner.add(field.toString()));
+
+    return val.getVariableName() + (fieldJoiner.toString().isEmpty() ? "" : ".") + fieldJoiner;
   }
 
   @Override
