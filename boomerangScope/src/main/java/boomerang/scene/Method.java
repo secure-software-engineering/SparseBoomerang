@@ -28,91 +28,84 @@ public abstract class Method implements Location {
 
             @Override
             public boolean isStaticInitializer() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isParameterLocal(Val val) {
-              // TODO Auto-generated method stub
               return false;
+            }
+
+            public List<Type> getParameterTypes() {
+              return Lists.newArrayList();
+            }
+
+            public Type getParameterType(int index) {
+              return null;
             }
 
             @Override
             public boolean isThisLocal(Val val) {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Set<Val> getLocals() {
-              // TODO Auto-generated method stub
               return Sets.newHashSet();
             }
 
             @Override
             public Val getThisLocal() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public List<Val> getParameterLocals() {
-              // TODO Auto-generated method stub
               return Lists.newArrayList();
             }
 
             @Override
             public boolean isStatic() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isNative() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public List<Statement> getStatements() {
-              // TODO Auto-generated method stub
               return Lists.newArrayList();
             }
 
             @Override
             public WrappedClass getDeclaringClass() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public ControlFlowGraph getControlFlowGraph() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public String getSubSignature() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public String getName() {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isConstructor() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isPublic() {
-              // TODO Auto-generated method stub
               return false;
             }
           };
@@ -127,6 +120,10 @@ public abstract class Method implements Location {
   public abstract boolean isStaticInitializer();
 
   public abstract boolean isParameterLocal(Val val);
+
+  public abstract List<Type> getParameterTypes();
+
+  public abstract Type getParameterType(int index);
 
   public abstract boolean isThisLocal(Val val);
 

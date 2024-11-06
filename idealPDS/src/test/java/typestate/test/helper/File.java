@@ -12,13 +12,14 @@
 package typestate.test.helper;
 
 public class File {
+
   public File open() {
     return this;
   }
 
   public File close() {
     return this;
-  };
+  }
 
   public int hashCode() {
     return 9;

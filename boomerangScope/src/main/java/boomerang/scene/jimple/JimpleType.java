@@ -4,6 +4,9 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import soot.ArrayType;
 import soot.BooleanType;
 import soot.NullType;
@@ -14,7 +17,7 @@ import soot.SootClass;
 
 public class JimpleType implements Type {
 
-  private soot.Type delegate;
+  private final soot.Type delegate;
 
   public JimpleType(soot.Type type) {
     this.delegate = type;
@@ -70,6 +73,7 @@ public class JimpleType implements Type {
     return !castFails;
   }
 
+  // TODO Use FullHierarchy
   public boolean isSubtypeOf(String type) {
     SootClass interfaceType = Scene.v().getSootClass(type);
     if (delegate.toString().equals(type)) return true;
@@ -98,6 +102,31 @@ public class JimpleType implements Type {
   }
 
   @Override
+  public boolean isSupertypeOf(String subType) {
+    if (!(delegate instanceof RefType)) {
+      if (delegate instanceof PrimType) {
+        return subType.equals(delegate.toString());
+      }
+      return false;
+    }
+
+    if (!Scene.v().containsClass(subType)) {
+      return false;
+    }
+
+    RefType thisType = (RefType) delegate;
+    if (!thisType.hasSootClass()) {
+      return false;
+    }
+
+    SootClass thisClass = thisType.getSootClass();
+    SootClass subClass = Scene.v().getSootClass(subType);
+
+    Collection<SootClass> hierarchy = getFullHierarchy(subClass, new HashSet<>());
+    return hierarchy.contains(thisClass);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -120,5 +149,42 @@ public class JimpleType implements Type {
   @Override
   public String toString() {
     return delegate.toString();
+  }
+
+  private Collection<SootClass> getFullHierarchy(SootClass sourceClass, Set<SootClass> visited) {
+    Set<SootClass> result = new HashSet<>();
+
+    if (visited.contains(sourceClass)) {
+      return result;
+    }
+
+    result.add(sourceClass);
+    visited.add(sourceClass);
+
+    // Super interfaces
+    Collection<SootClass> interfaces = sourceClass.getInterfaces();
+    for (SootClass intFace : interfaces) {
+      result.addAll(getFullHierarchy(intFace, visited));
+    }
+
+    if (sourceClass.isInterface()) {
+      // Super interfaces
+      Collection<SootClass> superInterfaces =
+          Scene.v().getActiveHierarchy().getSuperinterfacesOf(sourceClass);
+
+      for (SootClass superInterface : superInterfaces) {
+        result.addAll(getFullHierarchy(superInterface, visited));
+      }
+    } else {
+      // Super classes
+      Collection<SootClass> superClasses =
+          Scene.v().getActiveHierarchy().getSuperclassesOf(sourceClass);
+
+      for (SootClass superClass : superClasses) {
+        result.addAll(getFullHierarchy(superClass, visited));
+      }
+    }
+
+    return result;
   }
 }

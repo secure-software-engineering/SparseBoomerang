@@ -99,6 +99,16 @@ public class JimpleVal extends Val {
     return false;
   }
 
+  public Val getArrayAllocationSize() {
+    if (v instanceof NewArrayExpr) {
+      NewArrayExpr newArrayExpr = (NewArrayExpr) v;
+
+      return new JimpleVal(newArrayExpr.getSize(), m);
+    }
+
+    throw new RuntimeException("Val is not an array allocation val");
+  }
+
   public boolean isNull() {
     return v instanceof NullConstant;
   }

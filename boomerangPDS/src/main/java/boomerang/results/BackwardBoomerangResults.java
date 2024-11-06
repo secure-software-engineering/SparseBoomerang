@@ -105,7 +105,6 @@ public class BackwardBoomerangResults<W extends Weight> extends AbstractBoomeran
     return false;
   }
 
-  @Deprecated
   public Set<AccessPath> getAllAliases(Edge stmt) {
     final Set<AccessPath> results = Sets.newHashSet();
     for (final ForwardQuery fw : getAllocationSites().keySet()) {
@@ -117,7 +116,11 @@ public class BackwardBoomerangResults<W extends Weight> extends AbstractBoomeran
     return results;
   }
 
-  @Deprecated
+  /**
+   * Return an {@link AccessPath} for each aliasing object of the original query.
+   *
+   * @return all access paths aliasing with the query variable
+   */
   public Set<AccessPath> getAllAliases() {
     return getAllAliases(query.cfgEdge());
   }
