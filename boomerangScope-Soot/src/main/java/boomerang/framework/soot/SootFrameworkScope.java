@@ -2,7 +2,6 @@ package boomerang.framework.soot;
 
 import boomerang.framework.soot.jimple.*;
 import boomerang.scene.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +12,7 @@ import soot.jimple.IntConstant;
 
 public class SootFrameworkScope implements FrameworkScope {
 
-    @Override
+  @Override
   public List<Method> getEntrypoints() {
     return Scene.v().getEntryPoints().stream().map(JimpleMethod::of).collect(Collectors.toList());
   }

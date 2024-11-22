@@ -26,7 +26,7 @@ public class SootCallGraph extends CallGraph {
       if (m.hasActiveBody()) this.addEntryPoint(JimpleMethod.of(m));
     }
 
-    if( getEdges().isEmpty() ) {
+    if (getEdges().isEmpty()) {
       throw new IllegalStateException("CallGraph is empty!");
     }
   }

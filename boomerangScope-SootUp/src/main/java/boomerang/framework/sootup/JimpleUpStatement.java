@@ -65,11 +65,10 @@ public class JimpleUpStatement extends Statement {
     assert isAssign();
 
     JAssignStmt assignStmt = (JAssignStmt) delegate;
+    SootUpFrameworkScope scopeInstance = SootUpFrameworkScope.getInstance();
     if (assignStmt.getLeftOp() instanceof JStaticFieldRef) {
       JStaticFieldRef staticFieldRef = (JStaticFieldRef) assignStmt.getLeftOp();
-
-      JavaSootField sootField =
-          SootUpFrameworkScope.getInstance().getSootField(staticFieldRef.getFieldSignature());
+      JavaSootField sootField = scopeInstance.getSootField(staticFieldRef.getFieldSignature());
       return new JimpleUpField(sootField);
     }
 
@@ -78,8 +77,7 @@ public class JimpleUpStatement extends Statement {
     }
 
     JInstanceFieldRef ifr = (JInstanceFieldRef) assignStmt.getLeftOp();
-    JavaSootField sootField =
-        SootUpFrameworkScope.getInstance().getSootField(ifr.getFieldSignature());
+    JavaSootField sootField = scopeInstance.getSootField(ifr.getFieldSignature());
     return new JimpleUpField(sootField);
   }
 

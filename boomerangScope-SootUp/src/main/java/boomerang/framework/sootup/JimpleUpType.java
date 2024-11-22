@@ -5,7 +5,6 @@ import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
 import java.util.stream.Collectors;
-
 import sootup.core.typehierarchy.TypeHierarchy;
 import sootup.core.types.ArrayType;
 import sootup.core.types.ClassType;
@@ -103,8 +102,7 @@ public class JimpleUpType implements Type {
     JavaSootClass sootClass = scopeInstance.getSootClass(allocatedType);
     TypeHierarchy typeHierarchy = scopeInstance.getView().getTypeHierarchy();
     if (!superClass.isInterface()) {
-      return typeHierarchy
-          .isSubtype(sootClass.getType(), superClass.getType());
+      return typeHierarchy.isSubtype(sootClass.getType(), superClass.getType());
     }
 
     if (typeHierarchy
