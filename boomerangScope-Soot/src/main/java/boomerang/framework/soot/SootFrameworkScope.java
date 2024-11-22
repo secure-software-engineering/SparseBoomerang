@@ -83,6 +83,6 @@ public class SootFrameworkScope implements FrameworkScope {
 
   @Override
   public DataFlowScope createDataFlowScopeWithoutComplex() {
-    return SootDataFlowScopeUtil.excludeComplex(Scene.v());
+    return SootDataFlowScopeUtil.excludeComplex();
   }
 }

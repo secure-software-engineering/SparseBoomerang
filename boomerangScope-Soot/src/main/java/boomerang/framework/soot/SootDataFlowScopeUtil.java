@@ -52,7 +52,7 @@ public class SootDataFlowScopeUtil {
    * Excludes hashCode, toString, equals methods and the implementors of java.util.Collection,
    * java.util.Maps and com.google.common.collect.Multimap
    */
-  public static DataFlowScope excludeComplex(Scene scene) {
+  public static DataFlowScope excludeComplex() {
     reset();
     return new DataFlowScope() {
       @Override

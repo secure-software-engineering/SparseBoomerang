@@ -53,45 +53,38 @@ public class FrameworkScopeFactory {
 
     G.v().reset();
 
-    String CG = "cha"; // sometimes the test used "spark"
+    String CG = "cha"; // [ms] some tests used "spark"
     Options.v().set_whole_program(true);
     Options.v().setPhaseOption("cg." + CG, "on");
     Options.v().setPhaseOption("cg." + CG, "verbose:true");
     Options.v().set_output_format(Options.output_format_none);
     Options.v().set_no_bodies_for_excluded(true);
     Options.v().set_allow_phantom_refs(true);
-    if(!includedPackages.isEmpty()) {
+
+    if (!includedPackages.isEmpty()) {
       Options.v().set_include(includedPackages); // [ms] not all tests had this option
     }
+
     Options.v().setPhaseOption("jb", "use-original-names:true");
     Options.v().set_keep_line_number(true);
 
-    // JAVA VERSION 8
+    // which runtime library needs to be configured
     if (getJavaVersion() < 9) {
       Options.v().set_prepend_classpath(true);
       Options.v().set_soot_classpath(pathStr);
-
-      System.out.println("ms: setup <= java8: " + pathStr);
-
-    }
-    // JAVA VERSION 9
-    else if (getJavaVersion() >= 9) {
-      System.out.println("ms: setup >= java9: " + pathStr);
+    } else if (getJavaVersion() >= 9) {
+      Options.v().set_prepend_classpath(true);
       Options.v().set_soot_classpath("VIRTUAL_FS_FOR_JDK" + File.pathSeparator + pathStr);
     }
 
-    Options.v()
-        .set_process_dir(
-            Lists.newArrayList(
-                Paths.get(pathStr)
-                    .toAbsolutePath()
-                    .toString())); // some have: Arrays.asList(classPath.split(":")) - sometimes not
-                                   // even set (AbstractTestingFramework.java)
+    ArrayList<String> processdir = Lists.newArrayList(Paths.get(pathStr).toAbsolutePath().toString());
+    Options.v().set_process_dir(processdir); // some have: Arrays.asList(classPath.split(":")) - sometimes not
+    // even set (AbstractTestingFramework.java)
 
     Options.v().setPhaseOption("jb.sils", "enabled:false");
     Options.v().setPhaseOption("jb", "use-original-names:true");
 
-    if(!excludedPackages.isEmpty()) {
+    if (!excludedPackages.isEmpty()) {
       Options.v().set_exclude(excludedPackages);
     }
 
