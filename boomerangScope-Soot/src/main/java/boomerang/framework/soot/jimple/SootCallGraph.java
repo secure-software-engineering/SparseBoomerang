@@ -11,6 +11,7 @@ public class SootCallGraph extends CallGraph {
   Logger LOGGER = LoggerFactory.getLogger(SootCallGraph.class);
 
   public SootCallGraph() {
+
     soot.jimple.toolkits.callgraph.CallGraph callGraph = Scene.v().getCallGraph();
     for (soot.jimple.toolkits.callgraph.Edge e : callGraph) {
       if (e.src().hasActiveBody() && e.tgt().hasActiveBody() && e.srcStmt() != null) {
@@ -23,6 +24,10 @@ public class SootCallGraph extends CallGraph {
     }
     for (SootMethod m : Scene.v().getEntryPoints()) {
       if (m.hasActiveBody()) this.addEntryPoint(JimpleMethod.of(m));
+    }
+
+    if( getEdges().isEmpty() ) {
+      throw new IllegalStateException("CallGraph is empty!");
     }
   }
 }

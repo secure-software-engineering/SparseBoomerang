@@ -1,21 +1,10 @@
 package boomerang.framework.soot;
 
 import soot.SootMethod;
-import test.FrameworkTestFactory;
 
-public class SootTestFactory implements FrameworkTestFactory {
+public class SootTestFactory {
 
   protected SootMethod sootTestMethod;
-
-  @Override
-  public void initializeWithEntryPoint() {
-    // TODO: implement me
-  }
-
-  @Override
-  public void analyze() {
-    // TODO: implement me
-  }
 
   /* FIXME
         protected abstract SceneTransformer createAnalysisTransformer();
@@ -50,18 +39,6 @@ public class SootTestFactory implements FrameworkTestFactory {
             return sootCp;
         }
 
-        protected List<String> getIncludeList() {
-            List<String> includeList = new LinkedList<>();
-            includeList.add("java.lang.*");
-            includeList.add("java.util.*");
-            includeList.add("java.io.*");
-            includeList.add("sun.misc.*");
-            includeList.add("java.net.*");
-            includeList.add("sun.nio.*");
-            includeList.add("javax.servlet.*");
-            return includeList;
-        }
-
         private String getTargetClass() {
             SootClass sootClass = new SootClass("dummyClass");
             Type paramType = ArrayType.v(RefType.v("java.lang.String"), 1);
@@ -94,18 +71,6 @@ public class SootTestFactory implements FrameworkTestFactory {
             return sootClass.toString();
         }
 
-        public List<String> excludedPackages() {
-            List<String> excludedPackages = new LinkedList<>();
-            excludedPackages.add("sun.*");
-            excludedPackages.add("javax.*");
-            excludedPackages.add("com.sun.*");
-            excludedPackages.add("com.ibm.*");
-            excludedPackages.add("org.xml.*");
-            excludedPackages.add("org.w3c.*");
-            excludedPackages.add("apple.awt.*");
-            excludedPackages.add("com.apple.*");
-            return excludedPackages;
-        }
 
     */
 

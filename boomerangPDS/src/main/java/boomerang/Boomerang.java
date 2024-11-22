@@ -22,15 +22,12 @@ public class Boomerang extends WeightedBoomerang<Weight.NoWeight> {
   private OneWeightFunctions<Edge, Val, Field, Weight.NoWeight> fieldWeights;
   private OneWeightFunctions<Edge, Val, Edge, Weight.NoWeight> callWeights;
 
-  public Boomerang(CallGraph callGraph, DataFlowScope scope, FrameworkScopeFactory scopeFactory) {
+  public Boomerang(CallGraph callGraph, DataFlowScope scope, FrameworkScope scopeFactory) {
     super(callGraph, scope, scopeFactory);
   }
 
   public Boomerang(
-      CallGraph callGraph,
-      DataFlowScope scope,
-      BoomerangOptions opt,
-      FrameworkScopeFactory scopeFactory) {
+      CallGraph callGraph, DataFlowScope scope, BoomerangOptions opt, FrameworkScope scopeFactory) {
     super(callGraph, scope, opt, scopeFactory);
   }
 

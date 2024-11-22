@@ -36,7 +36,7 @@ import wpds.interfaces.State;
 
 public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerangResults<W> {
 
-  private final FrameworkScopeFactory scopeFactory;
+  private final FrameworkScope scopeFactory;
   private final ForwardQuery query;
   private final boolean timedout;
   private final IBoomerangStats<W> stats;
@@ -50,7 +50,7 @@ public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerang
   private boolean pruneImplictFlows;
 
   public ForwardBoomerangResults(
-      FrameworkScopeFactory scopeFactory,
+      FrameworkScope scopeFactory,
       ForwardQuery query,
       ObservableICFG<Statement, Method> icfg,
       ObservableControlFlowGraph cfg,

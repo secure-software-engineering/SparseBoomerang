@@ -16,85 +16,73 @@ import boomerang.Boomerang;
 import boomerang.DefaultBoomerangOptions;
 import boomerang.Query;
 import boomerang.WeightedBoomerang;
-import boomerang.framework.soot.SootDataFlowScope;
-import boomerang.framework.soot.SootFrameworkFactory;
-import boomerang.framework.soot.SootTestFactory;
-import boomerang.framework.soot.jimple.BoomerangPretransformer;
-import boomerang.framework.soot.jimple.SootCallGraph;
 import boomerang.results.BackwardBoomerangResults;
-import boomerang.scene.AnalysisScope;
-import boomerang.scene.CallGraph;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Val;
+import boomerang.scene.*;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
-import soot.RefType;
-import soot.Scene;
-import soot.SceneTransformer;
-import soot.SootClass;
-import soot.jimple.NewExpr;
 import test.AbstractTestingFramework;
-import test.FrameworkTestFactory;
+import test.FrameworkScopeFactory;
 import wpds.impl.Weight;
 
 public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 
   private static final boolean FAIL_ON_IMPRECISE = false;
-
   @Rule public Timeout timeout = new Timeout(10000000, TimeUnit.MILLISECONDS);
   private Collection<? extends Query> allocationSites;
   protected Collection<? extends Query> queryForCallSites;
   protected Multimap<Query, Query> expectedAllocsForQuery = HashMultimap.create();
   protected Collection<Error> unsoundErrors = Sets.newHashSet();
   protected Collection<Error> imprecisionErrors = Sets.newHashSet();
-  private CallGraph callGraph;
-  private DataFlowScope dataFlowScope;
 
   protected int analysisTimeout = 300 * 1000;
+  private final String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
 
   private WeightedBoomerang<Weight.NoWeight> solver;
 
-  protected SceneTransformer createAnalysisTransformer() {
-    return new SceneTransformer() {
+  @Override
+  protected void initializeWithEntryPoint() {
+    scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, getTestCaseClassName(), getIncludedList(), getExludedPackageList());
+  }
 
-      protected void internalTransform(
-          String phaseName, @SuppressWarnings("rawtypes") Map options) {
-        BoomerangPretransformer.v().reset();
-        BoomerangPretransformer.v().apply();
-        callGraph = new SootCallGraph();
-        dataFlowScope = SootDataFlowScope.make(Scene.v());
-        AnalysisScope analysisScope = new Preanalysis(callGraph, new FirstArgumentOf("queryFor.*"));
+  @Override
+  protected void analyze() {
+    scopeFactory.executeFramework();
+    assertResults();
+  }
 
-        queryForCallSites = analysisScope.computeSeeds();
+  private void assertResults() {
+    AnalysisScope analysisScope =
+        new Preanalysis(scopeFactory.buildCallGraph(), new FirstArgumentOf("queryFor.*"));
+    queryForCallSites = analysisScope.computeSeeds();
 
-        for (Query q : queryForCallSites) {
-          Val arg2 = q.cfgEdge().getStart().getInvokeExpr().getArg(1);
-          if (arg2.isClassConstant()) {
-            Preanalysis analysis =
-                new Preanalysis(
-                    callGraph, new AllocationSiteOf(arg2.getClassConstantType().toString()));
-            expectedAllocsForQuery.putAll(q, analysis.computeSeeds());
-          }
-        }
-        runDemandDrivenBackward();
-        if (!unsoundErrors.isEmpty()) {
-          throw new RuntimeException(Joiner.on("\n").join(unsoundErrors));
-        }
-        if (!imprecisionErrors.isEmpty() && FAIL_ON_IMPRECISE) {
-          throw new AssertionError(Joiner.on("\n").join(imprecisionErrors));
-        }
+    for (Query q : queryForCallSites) {
+      Val arg2 = q.cfgEdge().getStart().getInvokeExpr().getArg(1);
+      if (arg2.isClassConstant()) {
+        Preanalysis analysis =
+            new Preanalysis(
+                scopeFactory.buildCallGraph(),
+                new AllocationSiteOf(arg2.getClassConstantType().toString()));
+        expectedAllocsForQuery.putAll(q, analysis.computeSeeds());
       }
-    };
+    }
+    runDemandDrivenBackward();
+    if (!unsoundErrors.isEmpty()) {
+      throw new RuntimeException(Joiner.on("\n").join(unsoundErrors));
+    }
+    if (!imprecisionErrors.isEmpty() && FAIL_ON_IMPRECISE) {
+      throw new AssertionError(Joiner.on("\n").join(imprecisionErrors));
+    }
   }
 
   private void compareQuery(Query query, Collection<? extends Query> results) {
@@ -149,7 +137,9 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
             return true;
           }
         };
-    solver = new Boomerang(callGraph, dataFlowScope, options, new SootFrameworkFactory());
+    solver =
+        new Boomerang(
+            scopeFactory.buildCallGraph(), scopeFactory.getDataFlowScope(), options, scopeFactory);
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
         BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);
@@ -159,6 +149,8 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
     solver.unregisterAllListeners();
   }
 
+  /*
+  // TODO: is it really not used?
   private boolean allocatesObjectOfInterest(NewExpr rightOp, String type) {
     SootClass interfaceType = Scene.v().getSootClass(type);
     if (!interfaceType.isInterface()) return false;
@@ -167,7 +159,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
         .getActiveHierarchy()
         .getImplementersOf(interfaceType)
         .contains(allocatedType.getSootClass());
-  }
+  }*/
 
   protected Collection<String> errorOnVisitMethod() {
     return Lists.newLinkedList();
@@ -196,11 +188,6 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
    * analysis.
    */
   protected void unreachable(Object variable) {}
-
-  @Override
-  public FrameworkTestFactory getTestingFramework() {
-    return new SootTestFactory();
-  }
 
   /** This method can be used in test cases to create branching. It is not optimized away. */
   protected boolean staticallyUnknown() {

@@ -13,7 +13,7 @@ import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.FrameworkScopeFactory;
+import boomerang.scene.FrameworkScope;
 import boomerang.scene.Val;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -43,7 +43,7 @@ public class DemandDrivenGuidedAnalysis {
       BoomerangOptions options,
       DataFlowScope dataFlowScope,
       CallGraph callGraph,
-      FrameworkScopeFactory scopeFactory) {
+      FrameworkScope scopeFactory) {
     spec = specification;
     scope = dataFlowScope;
     this.callGraph = callGraph;

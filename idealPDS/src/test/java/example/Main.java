@@ -13,8 +13,8 @@ package example;
 
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
-import boomerang.framework.soot.SootDataFlowScope;
-import boomerang.framework.soot.SootFrameworkFactory;
+import boomerang.framework.soot.SootDataFlowScopeUtil;
+import boomerang.framework.soot.SootFrameworkScope;
 import boomerang.framework.soot.jimple.BoomerangPretransformer;
 import boomerang.framework.soot.jimple.SootCallGraph;
 import boomerang.results.ForwardBoomerangResults;
@@ -152,12 +152,12 @@ public class Main {
 
                   @Override
                   protected DataFlowScope getDataFlowScope() {
-                    return SootDataFlowScope.make(Scene.v());
+                    return SootDataFlowScopeUtil.make(Scene.v());
                   }
 
                   @Override
-                  public FrameworkScopeFactory getFrameworkFactory() {
-                    return new SootFrameworkFactory();
+                  public FrameworkScope getFrameworkFactory() {
+                    return new SootFrameworkScope();
                   }
                 });
         solver.run();

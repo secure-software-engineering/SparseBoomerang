@@ -107,12 +107,14 @@ public class JimpleUpVal extends Val {
 
   @Override
   public boolean isThrowableAllocationType() {
-    return SootUpClient.getInstance()
+    return SootUpFrameworkScope.getInstance()
         .getView()
         .getTypeHierarchy()
         .isSubtype(
             ((JimpleUpType) getType()).getDelegate(),
-            SootUpClient.getInstance().getIdentifierFactory().getClassType("java.lang.Throwable"));
+            SootUpFrameworkScope.getInstance()
+                .getIdentifierFactory()
+                .getClassType("java.lang.Throwable"));
   }
 
   @Override

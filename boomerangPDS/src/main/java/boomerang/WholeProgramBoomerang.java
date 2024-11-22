@@ -23,16 +23,12 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
   private CallGraph callGraph;
 
   public WholeProgramBoomerang(
-      CallGraph cg,
-      DataFlowScope scope,
-      BoomerangOptions opts,
-      FrameworkScopeFactory scopeFactory) {
+      CallGraph cg, DataFlowScope scope, BoomerangOptions opts, FrameworkScope scopeFactory) {
     super(cg, scope, opts, scopeFactory);
     this.callGraph = cg;
   }
 
-  public WholeProgramBoomerang(
-      CallGraph cg, DataFlowScope scope, FrameworkScopeFactory scopeFactory) {
+  public WholeProgramBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
     this(cg, scope, new DefaultBoomerangOptions(), scopeFactory);
   }
 

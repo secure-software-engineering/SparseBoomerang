@@ -143,6 +143,7 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
         }
 
         // Update the invoke expression with new arguments
+        // TODO: [ms] make use of new ReplaceUseExprVisitor()
         AbstractInvokeExpr newInvokeExpr;
         if (stmt.getInvokeExpr() instanceof JStaticInvokeExpr) {
           JStaticInvokeExpr staticInvokeExpr = (JStaticInvokeExpr) stmt.getInvokeExpr();
@@ -158,7 +159,6 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
           newInvokeExpr = stmt.getInvokeExpr();
         }
 
-        // TODO Are there other statements that contain an invoke expression
         if (stmt instanceof JInvokeStmt) {
           JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
           JInvokeStmt newStmt = invokeStmt.withInvokeExpr(newInvokeExpr);

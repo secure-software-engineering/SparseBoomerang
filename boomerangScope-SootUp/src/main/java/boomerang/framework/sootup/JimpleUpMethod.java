@@ -1,11 +1,6 @@
 package boomerang.framework.sootup;
 
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Type;
-import boomerang.scene.Val;
-import boomerang.scene.WrappedClass;
+import boomerang.scene.*;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import java.util.ArrayList;
@@ -46,7 +41,7 @@ public class JimpleUpMethod extends Method {
 
   @Override
   public boolean isStaticInitializer() {
-    return SootUpClient.isStaticInitializer(delegate);
+    return SootUpFrameworkScope.isStaticInitializer(delegate);
   }
 
   @Override
@@ -129,7 +124,7 @@ public class JimpleUpMethod extends Method {
   @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType());
+        SootUpFrameworkScope.getInstance().getSootClass(delegate.getDeclaringClassType());
     return new JimpleUpWrappedClass(sootClass);
   }
 
@@ -150,7 +145,7 @@ public class JimpleUpMethod extends Method {
 
   @Override
   public boolean isConstructor() {
-    return SootUpClient.isConstructor(delegate);
+    return SootUpFrameworkScope.isConstructor(delegate);
   }
 
   @Override

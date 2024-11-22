@@ -43,7 +43,7 @@ public class JimpleUpDeclaredMethod extends DeclaredMethod {
 
   @Override
   public boolean isConstructor() {
-    return SootUpClient.isConstructor(delegate);
+    return SootUpFrameworkScope.isConstructor(delegate);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class JimpleUpDeclaredMethod extends DeclaredMethod {
   @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        SootUpClient.getInstance().getSootClass(delegate.getDeclaringClassType());
+        SootUpFrameworkScope.getInstance().getSootClass(delegate.getDeclaringClassType());
     return new JimpleUpWrappedClass(sootClass);
   }
 

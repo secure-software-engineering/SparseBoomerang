@@ -6,7 +6,6 @@ import boomerang.scene.Field;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
-import boomerang.soot.jimple.*;
 import soot.*;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;

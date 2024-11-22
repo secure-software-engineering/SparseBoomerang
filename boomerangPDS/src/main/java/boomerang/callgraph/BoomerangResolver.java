@@ -48,7 +48,7 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
   private Set<Statement> queriedInvokeExpr = Sets.newHashSet();
   ;
 
-  public BoomerangResolver(CallGraph cg, DataFlowScope scope, FrameworkScopeFactory scopeFactory) {
+  public BoomerangResolver(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
     this.solver = new Boomerang(cg, scope, scopeFactory);
     this.precomputedCallGraph = cg;
   }

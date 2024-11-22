@@ -69,7 +69,7 @@ public class JimpleUpStatement extends Statement {
       JStaticFieldRef staticFieldRef = (JStaticFieldRef) assignStmt.getLeftOp();
 
       JavaSootField sootField =
-          SootUpClient.getInstance().getSootField(staticFieldRef.getFieldSignature());
+          SootUpFrameworkScope.getInstance().getSootField(staticFieldRef.getFieldSignature());
       return new JimpleUpField(sootField);
     }
 
@@ -78,7 +78,8 @@ public class JimpleUpStatement extends Statement {
     }
 
     JInstanceFieldRef ifr = (JInstanceFieldRef) assignStmt.getLeftOp();
-    JavaSootField sootField = SootUpClient.getInstance().getSootField(ifr.getFieldSignature());
+    JavaSootField sootField =
+        SootUpFrameworkScope.getInstance().getSootField(ifr.getFieldSignature());
     return new JimpleUpField(sootField);
   }
 
@@ -102,7 +103,8 @@ public class JimpleUpStatement extends Statement {
     JAssignStmt as = (JAssignStmt) delegate;
     JInstanceFieldRef ifr = (JInstanceFieldRef) as.getRightOp();
 
-    JavaSootField sootField = SootUpClient.getInstance().getSootField(ifr.getFieldSignature());
+    JavaSootField sootField =
+        SootUpFrameworkScope.getInstance().getSootField(ifr.getFieldSignature());
     return new JimpleUpField(sootField);
   }
 
@@ -246,7 +248,8 @@ public class JimpleUpStatement extends Statement {
     JInstanceFieldRef val = (JInstanceFieldRef) assignStmt.getLeftOp();
     return new Pair<>(
         new JimpleUpVal(val.getBase(), method),
-        new JimpleUpField(SootUpClient.getInstance().getSootField(val.getFieldSignature())));
+        new JimpleUpField(
+            SootUpFrameworkScope.getInstance().getSootField(val.getFieldSignature())));
   }
 
   @Override
@@ -255,7 +258,8 @@ public class JimpleUpStatement extends Statement {
     JInstanceFieldRef val = (JInstanceFieldRef) assignStmt.getRightOp();
     return new Pair<>(
         new JimpleUpVal(val.getBase(), method),
-        new JimpleUpField(SootUpClient.getInstance().getSootField(val.getFieldSignature())));
+        new JimpleUpField(
+            SootUpFrameworkScope.getInstance().getSootField(val.getFieldSignature())));
   }
 
   @Override
@@ -281,7 +285,8 @@ public class JimpleUpStatement extends Statement {
       throw new RuntimeException("Statement does not have a static field");
     }
     return new JimpleUpStaticFieldVal(
-        new JimpleUpField(SootUpClient.getInstance().getSootField(v.getFieldSignature())), method);
+        new JimpleUpField(SootUpFrameworkScope.getInstance().getSootField(v.getFieldSignature())),
+        method);
   }
 
   @Override

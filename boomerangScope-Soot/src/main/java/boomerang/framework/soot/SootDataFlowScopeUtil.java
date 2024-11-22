@@ -17,8 +17,8 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.util.queue.QueueReader;
 
-public class SootDataFlowScope {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SootDataFlowScope.class);
+public class SootDataFlowScopeUtil {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SootDataFlowScopeUtil.class);
   private static final String HASH_CODE_SUB_SIG = "int hashCode()";
   private static final String TO_STRING_SUB_SIG = "java.lang.String toString()";
   private static final String EQUALS_SUB_SIG = "boolean equals(java.lang.Object)";

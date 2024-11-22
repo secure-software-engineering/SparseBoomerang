@@ -11,12 +11,10 @@
  */
 package test.cases.hashmap;
 
-import boomerang.framework.soot.SootDataFlowScope;
 import boomerang.scene.DataFlowScope;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
-import soot.Scene;
 import test.cases.array.ArrayTest.NoAllocation;
 import test.cases.basic.Allocation;
 import test.cases.fields.Alloc;
@@ -98,6 +96,6 @@ public class KeySensitiveTest extends AbstractBoomerangTest {
 
   @Override
   protected DataFlowScope getDataFlowScope() {
-    return SootDataFlowScope.excludeComplex(Scene.v());
+    return getDataFlowScope(); // FIXME: exclude complex!!
   }
 }

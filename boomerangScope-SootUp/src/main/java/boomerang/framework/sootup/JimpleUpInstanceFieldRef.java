@@ -24,7 +24,8 @@ public class JimpleUpInstanceFieldRef implements InstanceFieldRef {
 
   @Override
   public Field getField() {
-    JavaSootField field = SootUpClient.getInstance().getSootField(delegate.getFieldSignature());
+    JavaSootField field =
+        SootUpFrameworkScope.getInstance().getSootField(delegate.getFieldSignature());
     return new JimpleUpField(field);
   }
 

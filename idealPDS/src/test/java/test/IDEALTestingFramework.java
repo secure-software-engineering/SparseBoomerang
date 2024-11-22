@@ -15,8 +15,7 @@ import boomerang.BoomerangOptions;
 import boomerang.DefaultBoomerangOptions;
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
-import boomerang.framework.soot.SootFrameworkFactory;
-import boomerang.framework.soot.SootTestFactory;
+import boomerang.framework.soot.SootFrameworkScope;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.CallGraph.Edge;
@@ -38,19 +37,26 @@ import test.core.selfrunning.ImprecisionException;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
-public abstract class IDEALTestingFramework extends AbstractTestingFramework {
+public  class IDEALTestingFramework extends AbstractTestingFramework {
   private static final boolean FAIL_ON_IMPRECISE = false;
   protected StoreIDEALResultHandler<TransitionFunction> resultHandler =
       new StoreIDEALResultHandler<>();
   protected CallGraph callGraph;
   protected DataFlowScope dataFlowScope;
 
-  @Override
-  public FrameworkTestFactory getTestingFramework() {
-    return new SootTestFactory();
+    @Override
+    protected void initializeWithEntryPoint() {
+        scopeFactory =
+                FrameworkScopeFactory.init(buildClassPath(), getIncludedList(), getExludedPackageList());
+    }
+
+    @Override
+  protected void analyze() {
+    // FIXME: [ms] implement me
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  protected abstract TypeStateMachineWeightFunctions getStateMachine();
+  protected TypeStateMachineWeightFunctions getStateMachine();
 
   protected IDEALAnalysis<TransitionFunction> createAnalysis() {
     return new IDEALAnalysis<>(
@@ -117,9 +123,9 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
           }
 
           @Override
-          public FrameworkScopeFactory getFrameworkFactory() {
+          public FrameworkScope getFrameworkFactory() {
             // TODO: [ms] make parameterized
-            return new SootFrameworkFactory();
+            return new SootFrameworkScope();
           }
         });
   }

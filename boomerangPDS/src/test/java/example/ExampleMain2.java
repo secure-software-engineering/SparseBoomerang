@@ -9,6 +9,10 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
+
+/*
+  sven said this example did not work before refactoring
+
 package example;
 
 import boomerang.Boomerang;
@@ -179,3 +183,4 @@ public class ExampleMain2 {
     };
   }
 }
+ */

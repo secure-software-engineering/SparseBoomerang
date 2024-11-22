@@ -24,17 +24,13 @@ public abstract class PathTrackingBoomerang extends WeightedBoomerang<DataFlowPa
   private OneWeightFunctions<Edge, Val, Field, DataFlowPathWeight> fieldWeights;
   private PathTrackingWeightFunctions callWeights;
 
-  public PathTrackingBoomerang(
-      CallGraph cg, DataFlowScope scope, FrameworkScopeFactory frameworkScopeFactory) {
-    super(cg, scope, frameworkScopeFactory);
+  public PathTrackingBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope frameworkScope) {
+    super(cg, scope, frameworkScope);
   }
 
   public PathTrackingBoomerang(
-      CallGraph cg,
-      DataFlowScope scope,
-      BoomerangOptions opt,
-      FrameworkScopeFactory frameworkScopeFactory) {
-    super(cg, scope, opt, frameworkScopeFactory);
+      CallGraph cg, DataFlowScope scope, BoomerangOptions opt, FrameworkScope frameworkScope) {
+    super(cg, scope, opt, frameworkScope);
   }
 
   @Override

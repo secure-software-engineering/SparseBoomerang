@@ -9,16 +9,15 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
+/*
+  sven said this example did not work before refactoring
+
 package example;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
 import boomerang.DefaultBoomerangOptions;
 import boomerang.Query;
-import boomerang.framework.soot.SootDataFlowScope;
-import boomerang.framework.soot.SootFrameworkFactory;
-import boomerang.framework.soot.jimple.BoomerangPretransformer;
-import boomerang.framework.soot.jimple.SootCallGraph;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.AnalysisScope;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -30,22 +29,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import soot.G;
-import soot.PackManager;
-import soot.Scene;
-import soot.SceneTransformer;
-import soot.SootClass;
-import soot.SootMethod;
-import soot.Transform;
-import soot.Transformer;
-import soot.options.Options;
 import wpds.impl.Weight;
 
 public class ExampleMain1 {
   public static void main(String... args) {
     String sootClassPath = getSootClassPath();
-    String mainClass = "boomerang.example.BoomerangExampleTarget1";
-    setupSoot(sootClassPath, mainClass);
+    setupSoot(sootClassPath, "boomerang.example.BoomerangExampleTarget1");
     analyze();
   }
 
@@ -156,3 +145,5 @@ public class ExampleMain1 {
     };
   }
 }
+
+ */

@@ -11,10 +11,8 @@
  */
 package typestate.tests;
 
-import boomerang.framework.soot.SootTestFactory;
 import org.junit.Ignore;
 import org.junit.Test;
-import test.FrameworkTestFactory;
 import test.IDEALTestingFramework;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 import typestate.impl.statemachines.FileMustBeClosedStateMachine;
@@ -44,11 +42,6 @@ public class FileMustBeClosedInterfaceTest extends IDEALTestingFramework {
     }
     mayBeInAcceptingState(file);
     mayBeInErrorState(file);
-  }
-
-  @Override
-  public FrameworkTestFactory getTestingFramework() {
-    return new SootTestFactory();
   }
 
   public static class ImplFlow1 implements Flow {
