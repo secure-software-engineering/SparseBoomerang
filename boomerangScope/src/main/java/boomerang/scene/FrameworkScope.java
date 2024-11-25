@@ -27,8 +27,5 @@ public interface FrameworkScope {
   DataFlowScope getDataFlowScope();
 
   // TODO: [ms] maybe refactor it - currently its only used in testcases
-  void executeFramework();
-
-  // TODO: [ms] maybe refactor it - currently its only used in testcases
   DataFlowScope createDataFlowScopeWithoutComplex();
 }

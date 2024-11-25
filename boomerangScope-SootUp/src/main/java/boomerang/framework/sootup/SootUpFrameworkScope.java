@@ -102,11 +102,6 @@ public class SootUpFrameworkScope implements FrameworkScope {
   }
 
   @Override
-  public void executeFramework() {
-    // TODO: implement me?
-  }
-
-  @Override
   public DataFlowScope createDataFlowScopeWithoutComplex() {
     return excludeComplex(this);
   }

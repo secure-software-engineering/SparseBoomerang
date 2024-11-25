@@ -96,6 +96,6 @@ public class KeySensitiveTest extends AbstractBoomerangTest {
 
   @Override
   protected DataFlowScope getDataFlowScope() {
-    return getDataFlowScope(); // FIXME: exclude complex!!
+    return scopeFactory.createDataFlowScopeWithoutComplex();
   }
 }

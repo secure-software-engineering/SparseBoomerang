@@ -3,7 +3,6 @@ package boomerang.framework.soot;
 import boomerang.framework.soot.jimple.*;
 import boomerang.scene.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -57,28 +56,6 @@ public class SootFrameworkScope implements FrameworkScope {
   @Override
   public DataFlowScope getDataFlowScope() {
     return SootDataFlowScopeUtil.make(Scene.v());
-  }
-
-  @Override
-  public void executeFramework() {
-
-    SceneTransformer sceneTransformer =
-        new SceneTransformer() {
-          protected void internalTransform(
-              String phaseName, @SuppressWarnings("rawtypes") Map options) {
-            BoomerangPretransformer.v().reset();
-            BoomerangPretransformer.v().apply();
-          }
-        };
-
-    Transform transform =
-        new Transform("wjtp.ifds", sceneTransformer); // TODO: maybe adapt the phaseName
-    PackManager.v()
-        .getPack("wjtp")
-        .add(transform); // whole programm, jimple, user-defined transformations
-
-    PackManager.v().getPack("cg").apply(); // call graph package
-    PackManager.v().getPack("wjtp").apply();
   }
 
   @Override

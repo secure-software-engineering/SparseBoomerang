@@ -62,7 +62,6 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 
   @Override
   protected void analyze() {
-    scopeFactory.executeFramework();
     assertResults();
   }
 

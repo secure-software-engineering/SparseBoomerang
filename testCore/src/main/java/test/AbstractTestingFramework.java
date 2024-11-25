@@ -73,24 +73,14 @@ public abstract class AbstractTestingFramework {
     return excludedPackages;
   }
 
-  protected void cleanup() {
-    // implement me in subclass if necessary
-  }
-
   @Before
   public void beforeTestCaseExecution() {
-
-    initializeWithEntryPoint();
-    System.out.println("ms: initialized");
-    createDebugFiles();
     try {
+      initializeWithEntryPoint();
+      createDebugFiles();
       analyze();
-      System.out.println("ms: analyzed");
     } catch (ImprecisionException e) {
       Assert.fail(e.getMessage());
-    } finally {
-      cleanup();
-      System.out.println("ms: cleanupped.");
     }
     // To never execute the @Test method...
     org.junit.Assume.assumeTrue(false);
