@@ -29,7 +29,8 @@ public class JimpleMethod extends Method {
   protected JimpleMethod(SootMethod m) {
     this.delegate = m;
     if (!m.hasActiveBody()) {
-      throw new RuntimeException("Building a Jimple method without active body present");
+      throw new RuntimeException(
+          "Building a Jimple method for " + m + " without active body present");
     }
   }
 

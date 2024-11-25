@@ -53,7 +53,11 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
   protected void initializeWithEntryPoint() {
     scopeFactory =
         FrameworkScopeFactory.init(
-            classPathStr, getTestCaseClassName(), getIncludedList(), getExludedPackageList());
+            classPathStr,
+            getTestCaseClassName(),
+            testMethodName.getMethodName(),
+            getIncludedList(),
+            getExludedPackageList());
   }
 
   @Override

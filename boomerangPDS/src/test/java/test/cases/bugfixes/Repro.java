@@ -42,25 +42,12 @@ public class Repro extends AbstractTestingFramework {
   }
 
   private FrameworkScope setup(List<String> excluded) {
-
-    /*
-    G.reset();
-
-    Options.v().set_whole_program(true);
-    Options.v().setPhaseOption("cg.spark", "on");
-    Options.v().set_no_bodies_for_excluded(true);
-    Options.v().set_allow_phantom_refs(true);
-    Options.v().set_keep_line_number(true);
-
-    Options.v().setPhaseOption("jb", "use-original-names:true");
-    Options.v().set_soot_classpath(classPath);
-    Options.v().set_prepend_classpath(true);
-    Options.v().set_process_dir(Arrays.asList(classPath.split(":")));
-    Scene.v().loadNecessaryClasses();
-    */
-
     return FrameworkScopeFactory.init(
-        "src/test/resources/Test.jar", getTestCaseClassName(), Collections.emptyList(), excluded);
+        "src/test/resources/Test.jar",
+        getTestCaseClassName(),
+        testMethodName.getMethodName(),
+        Collections.emptyList(),
+        excluded);
   }
 
   @Override

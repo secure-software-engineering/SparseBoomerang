@@ -36,8 +36,9 @@ public abstract class AbstractTestingFramework {
   protected String buildClassPath() {
     String userdir = System.getProperty("user.dir");
     String javaHome = System.getProperty("java.home");
-    if (javaHome == null || javaHome.equals(""))
+    if (javaHome == null || javaHome.equals("")) {
       throw new RuntimeException("Could not get property java.home!");
+    }
 
     String sootCp = userdir + "/target/test-classes";
     if (getJavaVersion() < 9) {

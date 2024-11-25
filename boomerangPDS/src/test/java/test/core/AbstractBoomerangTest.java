@@ -87,7 +87,11 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   protected void initializeWithEntryPoint() {
     scopeFactory =
         FrameworkScopeFactory.init(
-            buildClassPath(), getTestCaseClassName(), getIncludedList(), getExludedPackageList());
+            buildClassPath(),
+            getTestCaseClassName(),
+            testMethodName.getMethodName(),
+            getIncludedList(),
+            getExludedPackageList());
   }
 
   @Override
