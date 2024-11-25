@@ -37,20 +37,20 @@ import test.core.selfrunning.ImprecisionException;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
-public  class IDEALTestingFramework extends AbstractTestingFramework {
+public class IDEALTestingFramework extends AbstractTestingFramework {
   private static final boolean FAIL_ON_IMPRECISE = false;
   protected StoreIDEALResultHandler<TransitionFunction> resultHandler =
       new StoreIDEALResultHandler<>();
   protected CallGraph callGraph;
   protected DataFlowScope dataFlowScope;
 
-    @Override
-    protected void initializeWithEntryPoint() {
-        scopeFactory =
-                FrameworkScopeFactory.init(buildClassPath(), getIncludedList(), getExludedPackageList());
-    }
+  @Override
+  protected void initializeWithEntryPoint() {
+    scopeFactory =
+        FrameworkScopeFactory.init(buildClassPath(), getIncludedList(), getExludedPackageList());
+  }
 
-    @Override
+  @Override
   protected void analyze() {
     // FIXME: [ms] implement me
     throw new UnsupportedOperationException("Not supported yet.");

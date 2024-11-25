@@ -19,6 +19,7 @@ import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.options.Options;
 import sootup.ScopedAnalysisInputLocation;
+import sootup.callgraph.CallGraphAlgorithm;
 import sootup.callgraph.ClassHierarchyAnalysisAlgorithm;
 import sootup.core.inputlocation.AnalysisInputLocation;
 import sootup.core.model.SootClassMember;
@@ -239,26 +240,25 @@ public class FrameworkScopeFactory {
     return sootClass.toString();
   }
 
+
   /** SootUp Framework setup TODO: [ms] refactor me! */
   private static FrameworkScope getSootUpFrameworkScope(
       String pathStr,
       String className,
-      String methodName,
-      String applicationDir,
+      String customEntrypointMethodName,
       List<String> includedPackages,
       List<String> excludedPackages) {
 
     // configure interceptors
+    // TODO: check if the interceptor needs a reset in between runs
     List<BodyInterceptor> bodyInterceptors =
         new ArrayList<>(BytecodeBodyInterceptors.Default.getBodyInterceptors());
-    bodyInterceptors.add(
-        new BoomerangPreInterceptor()); // TODO: check if the interceptor needs a reset in between
-    // runs?
+    bodyInterceptors.add(new BoomerangPreInterceptor());
 
     // configure AnalysisInputLocations
     List<AnalysisInputLocation> inputLocations = new ArrayList<>();
 
-    if (applicationDir != null) {
+    if (customEntrypointMethodName != null) {
       JavaClassPathAnalysisInputLocation processDirInputLocation =
           new JavaClassPathAnalysisInputLocation(pathStr, SourceType.Application, bodyInterceptors);
     }
@@ -279,30 +279,42 @@ public class FrameworkScopeFactory {
     List<MethodSignature> entypointSignatures;
     List<JavaSootMethod> eps = Lists.newArrayList();
 
-    if (methodName != null) {
-      // build entrypoint
-
-      /*
-      String targetClassAsJimpleStr = ""; print jimple via soot and adapt to a template
-      new JimpleStringAnalysisInputLocation() // currently in sootup:develop  branch
-      */
-      throw new UnsupportedOperationException("implement me!");
-
-    } else {
-      // collect entrypoints
-      for (JavaSootClass sootClass : javaView.getClasses()) {
-        String scStr = sootClass.toString();
-        if (scStr.equals(className) || (scStr.contains(className + "$"))) {
-          eps.addAll(sootClass.getMethods());
+      if (customEntrypointMethodName == null) {
+        // collect entrypoints
+        for (JavaSootClass sootClass : javaView.getClasses()) {
+          String scStr = sootClass.toString();
+          if (scStr.equals(className) || (scStr.contains(className + "$"))) {
+            eps.addAll(sootClass.getMethods());
+          }
         }
-      }
-    }
 
-    // initialize CallGraphAlgorithm
+      } else {
+        // build entrypoint
+        String jimpleClassStr = "class dummyClass\n" +
+                "{\n" +
+                "    public static void main(java.lang.String[])\n" +
+                "    {\n" +
+                "        "+ className +" dummyObj;\n" +
+                "        java.lang.String[] l0;\n" +
+                "        l0 := @parameter0: java.lang.String[];\n" +
+                "        dummyObj = new "+ className +";\n" +
+                "        virtualinvoke dummyObj.<"+ className +": void "+customEntrypointMethodName+"()>();\n" +
+                "        return;\n" +
+                "    }\n" +
+                "}";
+        
+        // new JimpleStringAnalysisInputLocation(jimpleClassStr) // currently in sootup:develop  branch
+
+        throw new UnsupportedOperationException("implement me!");
+      }
+
+      // initialize CallGraphAlgorithm
     entypointSignatures =
         eps.stream().map(SootClassMember::getSignature).collect(Collectors.toList());
-    ClassHierarchyAnalysisAlgorithm cha = new ClassHierarchyAnalysisAlgorithm(javaView);
-    cg = cha.initialize(entypointSignatures);
+
+    // TODO: adapt if: --> use spark when available
+    CallGraphAlgorithm cga = customEntrypointMethodName == null? new ClassHierarchyAnalysisAlgorithm(javaView) :  new ClassHierarchyAnalysisAlgorithm(javaView);
+    cg = cga.initialize(entypointSignatures);
 
     return new SootUpFrameworkScope(javaView, cg, entypointSignatures);
   }
