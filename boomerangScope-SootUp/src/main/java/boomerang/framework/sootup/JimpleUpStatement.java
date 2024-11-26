@@ -57,7 +57,7 @@ public class JimpleUpStatement extends Statement {
 
   @Override
   public boolean containsInvokeExpr() {
-    return delegate.containsInvokeExpr();
+    return delegate.isInvokableStmt();
   }
 
   @Override
@@ -165,7 +165,7 @@ public class JimpleUpStatement extends Statement {
   public InvokeExpr getInvokeExpr() {
     assert containsInvokeExpr();
 
-    return new JimpleUpInvokeExpr(delegate.getInvokeExpr(), method);
+    return new JimpleUpInvokeExpr(delegate.asInvokableStmt().getInvokeExpr().get(), method);
   }
 
   @Override

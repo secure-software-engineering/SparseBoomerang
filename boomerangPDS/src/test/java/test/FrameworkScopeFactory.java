@@ -26,12 +26,12 @@ import sootup.core.model.SootClassMember;
 import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.transform.BodyInterceptor;
-import sootup.java.bytecode.inputlocation.JavaClassPathAnalysisInputLocation;
-import sootup.java.bytecode.inputlocation.JrtFileSystemAnalysisInputLocation;
+import sootup.interceptors.BytecodeBodyInterceptors;
+import sootup.java.bytecode.frontend.inputlocation.JavaClassPathAnalysisInputLocation;
+import sootup.java.bytecode.frontend.inputlocation.JrtFileSystemAnalysisInputLocation;
 import sootup.java.core.JavaSootClass;
-import sootup.java.core.JavaSootMethod;
-import sootup.java.core.interceptors.BytecodeBodyInterceptors;
 import sootup.java.core.views.JavaView;
+import sootup.jimple.frontend.JimpleStringAnalysisInputLocation;
 
 // TODO: refactor as parameterized test -> update to junit 5
 public class FrameworkScopeFactory {
@@ -156,25 +156,30 @@ public class FrameworkScopeFactory {
       }
 
       SootMethod methodByName = c.getMethodByName("main");
+      eps.add(methodByName);
+
       for (SootMethod m : sootTestCaseClass.getMethods()) {
         if (m.isStaticInitializer()) {
           eps.add(m);
         }
       }
 
-      // collect entrypoints
-      for (SootClass inner : Scene.v().getClasses()) {
-        classCount++;
-        if (inner.getName().contains(sootTestCaseClass.getName())) {
-          inner.setApplicationClass();
-          for (SootMethod m : inner.getMethods()) {
-            if (m.isStaticInitializer()) {
-              eps.add(m);
-            }
-          }
-        }
-      }
-      eps.add(methodByName);
+      // TODO: check if the following block is needed / correct in this branch
+      /*
+           // collect entrypoints
+           for (SootClass inner : Scene.v().getClasses()) {
+             classCount++;
+             if (inner.getName().contains(sootTestCaseClass.getName())) {
+               inner.setApplicationClass();
+               for (SootMethod m : inner.getMethods()) {
+                 if (m.isStaticInitializer()) {
+                   eps.add(m);
+                 }
+               }
+             }
+           }
+
+      */
 
       if (eps.isEmpty()) {
         throw new IllegalStateException(
@@ -240,7 +245,6 @@ public class FrameworkScopeFactory {
     return sootClass.toString();
   }
 
-
   /** SootUp Framework setup TODO: [ms] refactor me! */
   private static FrameworkScope getSootUpFrameworkScope(
       String pathStr,
@@ -273,47 +277,70 @@ public class FrameworkScopeFactory {
                 classPathInputLocation, includedPackages),
             new ScopedAnalysisInputLocation.DenylistingScopedAnalysisInputLocation(
                 classPathInputLocation, excludedPackages)));
-    JavaView javaView = new JavaView(inputLocations);
 
+    JavaView javaView;
     sootup.callgraph.CallGraph cg;
-    List<MethodSignature> entypointSignatures;
-    List<JavaSootMethod> eps = Lists.newArrayList();
+    List<MethodSignature> entypointSignatures = Lists.newArrayList();
 
-      if (customEntrypointMethodName == null) {
-        // collect entrypoints
-        for (JavaSootClass sootClass : javaView.getClasses()) {
-          String scStr = sootClass.toString();
-          if (scStr.equals(className) || (scStr.contains(className + "$"))) {
-            eps.addAll(sootClass.getMethods());
-          }
+    if (customEntrypointMethodName == null) {
+
+      javaView = new JavaView(inputLocations);
+      // collect entrypoints
+      for (JavaSootClass sootClass : javaView.getClasses().collect(Collectors.toList())) {
+        String scStr = sootClass.toString();
+        if (scStr.equals(className) || (scStr.contains(className + "$"))) {
+          sootClass.getMethods().stream()
+              .map(SootClassMember::getSignature)
+              .forEach(entypointSignatures::add);
         }
-
-      } else {
-        // build entrypoint
-        String jimpleClassStr = "class dummyClass\n" +
-                "{\n" +
-                "    public static void main(java.lang.String[])\n" +
-                "    {\n" +
-                "        "+ className +" dummyObj;\n" +
-                "        java.lang.String[] l0;\n" +
-                "        l0 := @parameter0: java.lang.String[];\n" +
-                "        dummyObj = new "+ className +";\n" +
-                "        virtualinvoke dummyObj.<"+ className +": void "+customEntrypointMethodName+"()>();\n" +
-                "        return;\n" +
-                "    }\n" +
-                "}";
-        
-        // new JimpleStringAnalysisInputLocation(jimpleClassStr) // currently in sootup:develop  branch
-
-        throw new UnsupportedOperationException("implement me!");
       }
 
-      // initialize CallGraphAlgorithm
-    entypointSignatures =
-        eps.stream().map(SootClassMember::getSignature).collect(Collectors.toList());
+    } else {
 
-    // TODO: adapt if: --> use spark when available
-    CallGraphAlgorithm cga = customEntrypointMethodName == null? new ClassHierarchyAnalysisAlgorithm(javaView) :  new ClassHierarchyAnalysisAlgorithm(javaView);
+      // build dummy entrypoint class
+      String jimpleClassStr =
+          "class dummyClass\n"
+              + "{\n"
+              + "    public static void main(java.lang.String[])\n"
+              + "    {\n"
+              + "        "
+              + className
+              + " dummyObj;\n"
+              + "        java.lang.String[] l0;\n"
+              + "        l0 := @parameter0: java.lang.String[];\n"
+              + "        dummyObj = new "
+              + className
+              + ";\n"
+              + "        virtualinvoke dummyObj.<"
+              + className
+              + ": void "
+              + customEntrypointMethodName
+              + "()>();\n"
+              + "        return;\n"
+              + "    }\n"
+              + "}";
+
+      JimpleStringAnalysisInputLocation jimpleStringAnalysisInputLocation =
+          new JimpleStringAnalysisInputLocation(
+              jimpleClassStr); // currently in sootup:develop  branch
+      inputLocations.add(jimpleStringAnalysisInputLocation);
+      javaView = new JavaView(inputLocations);
+
+      MethodSignature dummyEntrypoint =
+          javaView
+              .getIdentifierFactory()
+              .parseMethodSignature("<dummyClass: void main(java.lang.String[])>");
+      assert javaView.getMethod(dummyEntrypoint).isPresent();
+
+      entypointSignatures.add(dummyEntrypoint);
+    }
+
+    // initialize CallGraphAlgorithm
+    // TODO: use spark when available
+    CallGraphAlgorithm cga =
+        customEntrypointMethodName == null
+            ? new ClassHierarchyAnalysisAlgorithm(javaView)
+            : new ClassHierarchyAnalysisAlgorithm(javaView);
     cg = cga.initialize(entypointSignatures);
 
     return new SootUpFrameworkScope(javaView, cg, entypointSignatures);

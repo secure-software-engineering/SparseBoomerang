@@ -20,12 +20,7 @@ import sootup.core.jimple.common.expr.JStaticInvokeExpr;
 import sootup.core.jimple.common.ref.JArrayRef;
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
 import sootup.core.jimple.common.ref.JStaticFieldRef;
-import sootup.core.jimple.common.stmt.JAssignStmt;
-import sootup.core.jimple.common.stmt.JIfStmt;
-import sootup.core.jimple.common.stmt.JInvokeStmt;
-import sootup.core.jimple.common.stmt.JNopStmt;
-import sootup.core.jimple.common.stmt.JReturnStmt;
-import sootup.core.jimple.common.stmt.Stmt;
+import sootup.core.jimple.common.stmt.*;
 import sootup.core.model.Body;
 import sootup.core.transform.BodyInterceptor;
 import sootup.core.views.View;
@@ -116,7 +111,7 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
         }
       }
 
-      if (stmt.containsInvokeExpr()) {
+      if (stmt.isInvokableStmt()) {
         /* Extract constant arguments to new assignments
          * - method(10)
          * becomes
@@ -125,8 +120,11 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
          */
         List<Immediate> newArgs = new ArrayList<>();
 
-        for (int i = 0; i < stmt.getInvokeExpr().getArgCount(); i++) {
-          Immediate arg = stmt.getInvokeExpr().getArg(i);
+        InvokableStmt invStmt = stmt.asInvokableStmt();
+
+        AbstractInvokeExpr invokeExpr = invStmt.getInvokeExpr().get();
+        for (int i = 0; i < invokeExpr.getArgCount(); i++) {
+          Immediate arg = invokeExpr.getArg(i);
 
           if (arg instanceof Constant && !(arg instanceof ClassConstant)) {
             String label = LABEL + replaceCounter++;
@@ -145,18 +143,17 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
         // Update the invoke expression with new arguments
         // TODO: [ms] make use of new ReplaceUseExprVisitor()
         AbstractInvokeExpr newInvokeExpr;
-        if (stmt.getInvokeExpr() instanceof JStaticInvokeExpr) {
-          JStaticInvokeExpr staticInvokeExpr = (JStaticInvokeExpr) stmt.getInvokeExpr();
+        if (invokeExpr instanceof JStaticInvokeExpr) {
+          JStaticInvokeExpr staticInvokeExpr = (JStaticInvokeExpr) invokeExpr;
 
           newInvokeExpr = staticInvokeExpr.withArgs(newArgs);
-        } else if (stmt.getInvokeExpr() instanceof AbstractInstanceInvokeExpr) {
-          AbstractInstanceInvokeExpr instanceInvokeExpr =
-              (AbstractInstanceInvokeExpr) stmt.getInvokeExpr();
+        } else if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
+          AbstractInstanceInvokeExpr instanceInvokeExpr = (AbstractInstanceInvokeExpr) invokeExpr;
 
           newInvokeExpr = instanceInvokeExpr.withArgs(newArgs);
         } else {
           // TODO Are there other relevant cases?
-          newInvokeExpr = stmt.getInvokeExpr();
+          newInvokeExpr = invokeExpr;
         }
 
         if (stmt instanceof JInvokeStmt) {
@@ -209,8 +206,8 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
       }
 
       // Consider arguments of invoke expressions
-      if (stmt.containsInvokeExpr()) {
-        for (Value arg : stmt.getInvokeExpr().getArgs()) {
+      if (stmt.isInvokableStmt()) {
+        for (Value arg : stmt.asInvokableStmt().getInvokeExpr().get().getArgs()) {
           if (arg instanceof Constant) {
             result.add(stmt);
           }

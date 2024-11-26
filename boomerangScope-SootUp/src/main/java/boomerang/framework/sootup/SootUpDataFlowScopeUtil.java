@@ -113,11 +113,13 @@ public class SootUpDataFlowScopeUtil {
           view.getTypeHierarchy().implementersOf(guavaMapType).forEach(excludes::add);
         }
       }
-      for (JavaSootClass c : view.getClasses()) {
-        if (c.hasOuterClass() && excludes.contains(c.getOuterClass().get())) {
-          excludes.add(guavaMapType);
-        }
-      }
+      view.getClasses()
+          .filter(c -> c.hasOuterClass() && excludes.contains(c.getOuterClass().get()))
+          .forEach(
+              c -> {
+                excludes.add(guavaMapType);
+              });
+
       if (excludes.isEmpty()) {
         LOGGER.debug("Excludes empty for {}", MAP);
       }
@@ -137,11 +139,14 @@ public class SootUpDataFlowScopeUtil {
       JavaClassType iterableClassType = view.getIdentifierFactory().getClassType(ITERABLE);
 
       view.getTypeHierarchy().implementersOf(iterableClassType).forEach(excludes::add);
-      for (JavaSootClass c : view.getClasses()) {
-        if (c.hasOuterClass() && excludes.contains(c.getOuterClass().get())) {
-          excludes.add(iterableClassType);
-        }
-      }
+
+      view.getClasses()
+          .filter(c -> c.hasOuterClass() && excludes.contains(c.getOuterClass().get()))
+          .forEach(
+              c -> {
+                excludes.add(iterableClassType);
+              });
+
       if (excludes.isEmpty()) {
         LOGGER.debug("Excludes empty for {}", ITERABLE);
       }

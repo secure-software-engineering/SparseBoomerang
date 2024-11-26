@@ -5,11 +5,8 @@ import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import java.util.Collection;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sootup.analysis.interprocedural.icfg.CGEdgeUtil;
-import sootup.analysis.interprocedural.icfg.CalleeMethodSignature;
 import sootup.core.signatures.MethodSignature;
 import sootup.java.core.JavaSootMethod;
 
@@ -19,32 +16,33 @@ public class SootUpCallGraph extends CallGraph {
 
   public SootUpCallGraph(sootup.callgraph.CallGraph callGraph, Collection<Method> entryPoints) {
 
-    Collection<Pair<MethodSignature, CalleeMethodSignature>> edges =
-        CGEdgeUtil.getCallEdges(SootUpFrameworkScope.getInstance().getView(), callGraph);
+    // TODO: add a convenience method for this(edge collecting) to sootup
+    callGraph.getMethodSignatures().stream()
+        .flatMap((MethodSignature methodSignature) -> callGraph.callsTo(methodSignature).stream())
+        .forEach(
+            call -> {
+              Optional<JavaSootMethod> sourceOpt =
+                  SootUpFrameworkScope.getInstance().getSootMethod(call.getSourceMethodSignature());
+              Optional<JavaSootMethod> targetOpt =
+                  SootUpFrameworkScope.getInstance().getSootMethod(call.getTargetMethodSignature());
 
-    for (Pair<MethodSignature, CalleeMethodSignature> edge : edges) {
-      Optional<JavaSootMethod> sourceOpt =
-          SootUpFrameworkScope.getInstance().getSootMethod(edge.getLeft());
-      Optional<JavaSootMethod> targetOpt =
-          SootUpFrameworkScope.getInstance().getSootMethod(edge.getRight().getMethodSignature());
+              if (sourceOpt.isEmpty() || targetOpt.isEmpty()) {
+                return;
+              }
 
-      if (sourceOpt.isEmpty() || targetOpt.isEmpty()) {
-        continue;
-      }
+              JavaSootMethod sourceMethod = sourceOpt.get();
+              JavaSootMethod targetMethod = targetOpt.get();
+              if (!sourceMethod.hasBody() || !targetMethod.hasBody()) {
+                return;
+              }
 
-      JavaSootMethod sourceMethod = sourceOpt.get();
-      JavaSootMethod targetMethod = targetOpt.get();
-      if (!sourceMethod.hasBody() || !targetMethod.hasBody()) {
-        continue;
-      }
+              Statement callSite =
+                  JimpleUpStatement.create(
+                      call.getInvokableStmt(), JimpleUpMethod.of(sourceMethod));
+              this.addEdge(new Edge(callSite, JimpleUpMethod.of(targetMethod)));
 
-      Statement callSite =
-          JimpleUpStatement.create(
-              edge.getRight().getSourceStmt(), JimpleUpMethod.of(sourceMethod));
-      this.addEdge(new Edge(callSite, JimpleUpMethod.of(targetMethod)));
-
-      LOGGER.trace("Added edge {} -> {}", callSite, targetMethod);
-    }
+              LOGGER.trace("Added edge {} -> {}", callSite, targetMethod);
+            });
 
     for (Method em : entryPoints) {
       this.addEntryPoint(em);
