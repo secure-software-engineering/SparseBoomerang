@@ -11,6 +11,7 @@ import java.util.Set;
 import sootup.core.jimple.basic.Local;
 import sootup.java.core.JavaSootClass;
 import sootup.java.core.JavaSootMethod;
+import sootup.java.core.types.JavaClassType;
 
 public class JimpleUpMethod extends Method {
 
@@ -124,7 +125,8 @@ public class JimpleUpMethod extends Method {
   @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        SootUpFrameworkScope.getInstance().getSootClass(delegate.getDeclaringClassType());
+        SootUpFrameworkScope.getInstance()
+            .getSootClass((JavaClassType) delegate.getDeclaringClassType());
     return new JimpleUpWrappedClass(sootClass);
   }
 

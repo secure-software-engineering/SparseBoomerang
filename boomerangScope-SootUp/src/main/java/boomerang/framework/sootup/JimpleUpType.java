@@ -7,7 +7,6 @@ import boomerang.scene.WrappedClass;
 import java.util.stream.Collectors;
 import sootup.core.typehierarchy.TypeHierarchy;
 import sootup.core.types.ArrayType;
-import sootup.core.types.ClassType;
 import sootup.core.types.NullType;
 import sootup.core.types.PrimitiveType;
 import sootup.core.types.ReferenceType;
@@ -44,7 +43,7 @@ public class JimpleUpType implements Type {
 
   @Override
   public WrappedClass getWrappedClass() {
-    ClassType classType = (ClassType) delegate;
+    JavaClassType classType = (JavaClassType) delegate;
     JavaSootClass sootClass = SootUpFrameworkScope.getInstance().getSootClass(classType);
     return new JimpleUpWrappedClass(sootClass);
   }

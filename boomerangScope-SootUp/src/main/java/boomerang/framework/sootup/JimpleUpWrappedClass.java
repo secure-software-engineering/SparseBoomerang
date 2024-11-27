@@ -45,7 +45,6 @@ public class JimpleUpWrappedClass implements WrappedClass {
     if (superClassType.isEmpty()) {
       throw new RuntimeException("Super class type of " + superClassType + " is not present");
     }
-
     JavaSootClass superClass =
         SootUpFrameworkScope.getInstance().getSootClass(superClassType.get());
     return new JimpleUpWrappedClass(superClass);

@@ -1,17 +1,10 @@
 package boomerang.framework.sootup;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import javax.annotation.Nonnull;
 import sootup.core.graph.MutableStmtGraph;
 import sootup.core.jimple.Jimple;
-import sootup.core.jimple.basic.Immediate;
-import sootup.core.jimple.basic.LValue;
-import sootup.core.jimple.basic.Local;
-import sootup.core.jimple.basic.StmtPositionInfo;
-import sootup.core.jimple.basic.Value;
+import sootup.core.jimple.basic.*;
 import sootup.core.jimple.common.constant.ClassConstant;
 import sootup.core.jimple.common.constant.Constant;
 import sootup.core.jimple.common.expr.AbstractInstanceInvokeExpr;
@@ -207,9 +200,12 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
 
       // Consider arguments of invoke expressions
       if (stmt.isInvokableStmt()) {
-        for (Value arg : stmt.asInvokableStmt().getInvokeExpr().get().getArgs()) {
-          if (arg instanceof Constant) {
-            result.add(stmt);
+        Optional<AbstractInvokeExpr> invokeExpr = stmt.asInvokableStmt().getInvokeExpr();
+        if (invokeExpr.isPresent()) {
+          for (Value arg : invokeExpr.get().getArgs()) {
+            if (arg instanceof Constant) {
+              result.add(stmt);
+            }
           }
         }
       }

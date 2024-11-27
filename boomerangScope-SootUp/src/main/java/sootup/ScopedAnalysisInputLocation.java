@@ -63,6 +63,11 @@ public abstract class ScopedAnalysisInputLocation implements AnalysisInputLocati
     private final Collection<String> allowlist;
 
     protected String mapStr(String s) {
+
+      // TODO: adapt from soots: isIncluded()
+      //       if (className.equals(pkg)
+      //          || ((pkg.endsWith(".*") || pkg.endsWith("$*")) &&
+      // className.startsWith(pkg.substring(0, pkg.length() - 1)))) {
       if (!s.endsWith(".*")) {
         throw new IllegalStateException("filter method is not implemented for a specific class!");
       }
@@ -86,6 +91,10 @@ public abstract class ScopedAnalysisInputLocation implements AnalysisInputLocati
     private final Collection<String> denylist;
 
     protected String mapStr(String s) {
+      // TODO: adapt from soots: isIncluded()
+      //       if (className.equals(pkg)
+      //          || ((pkg.endsWith(".*") || pkg.endsWith("$*")) &&
+      // className.startsWith(pkg.substring(0, pkg.length() - 1)))) {
       if (!s.endsWith(".*")) {
         throw new IllegalStateException("filter method is not implemented for a specific class!");
       }

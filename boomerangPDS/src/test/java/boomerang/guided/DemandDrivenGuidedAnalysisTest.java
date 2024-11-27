@@ -307,6 +307,7 @@ public class DemandDrivenGuidedAnalysisTest {
   public static BackwardQuery selectFirstFileInitArgument(Method method) {
     // TODO: [ms] this line seems to make no sense?
     method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+
     Statement newFileStatement =
         method.getStatements().stream()
             .filter(x -> x.containsInvokeExpr())

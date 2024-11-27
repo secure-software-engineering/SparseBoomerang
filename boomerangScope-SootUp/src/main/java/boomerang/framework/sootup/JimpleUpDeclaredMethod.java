@@ -6,6 +6,7 @@ import boomerang.scene.WrappedClass;
 import java.util.Arrays;
 import sootup.java.core.JavaSootClass;
 import sootup.java.core.JavaSootMethod;
+import sootup.java.core.types.JavaClassType;
 
 public class JimpleUpDeclaredMethod extends DeclaredMethod {
 
@@ -59,7 +60,8 @@ public class JimpleUpDeclaredMethod extends DeclaredMethod {
   @Override
   public WrappedClass getDeclaringClass() {
     JavaSootClass sootClass =
-        SootUpFrameworkScope.getInstance().getSootClass(delegate.getDeclaringClassType());
+        SootUpFrameworkScope.getInstance()
+            .getSootClass((JavaClassType) delegate.getDeclaringClassType());
     return new JimpleUpWrappedClass(sootClass);
   }
 

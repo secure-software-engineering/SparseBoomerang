@@ -9,29 +9,41 @@ import boomerang.framework.sootup.SootUpFrameworkScope;
 import boomerang.scene.FrameworkScope;
 import com.google.common.collect.Lists;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import soot.*;
+import soot.SootClass;
+import soot.SootMethod;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.options.Options;
-import sootup.ScopedAnalysisInputLocation;
+import sootup.SourceTypeIncludeExcludeAnalysisInputLocation;
 import sootup.callgraph.CallGraphAlgorithm;
 import sootup.callgraph.ClassHierarchyAnalysisAlgorithm;
+import sootup.core.frontend.BodySource;
+import sootup.core.frontend.ResolveException;
+import sootup.core.graph.MutableBlockStmtGraph;
 import sootup.core.inputlocation.AnalysisInputLocation;
-import sootup.core.model.SootClassMember;
-import sootup.core.model.SourceType;
+import sootup.core.inputlocation.EagerInputLocation;
+import sootup.core.jimple.basic.NoPositionInformation;
+import sootup.core.model.*;
+import sootup.core.model.Body;
 import sootup.core.signatures.MethodSignature;
+import sootup.core.signatures.PackageName;
 import sootup.core.transform.BodyInterceptor;
 import sootup.interceptors.BytecodeBodyInterceptors;
+import sootup.java.bytecode.frontend.inputlocation.DefaultRuntimeAnalysisInputLocation;
 import sootup.java.bytecode.frontend.inputlocation.JavaClassPathAnalysisInputLocation;
-import sootup.java.bytecode.frontend.inputlocation.JrtFileSystemAnalysisInputLocation;
 import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootMethod;
+import sootup.java.core.OverridingJavaClassSource;
+import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
 import sootup.jimple.frontend.JimpleStringAnalysisInputLocation;
+import sootup.jimple.frontend.JimpleView;
 
 // TODO: refactor as parameterized test -> update to junit 5
 public class FrameworkScopeFactory {
@@ -63,6 +75,8 @@ public class FrameworkScopeFactory {
       String customEntrypointMethodName,
       List<String> includedPackages,
       List<String> excludedPackages) {
+
+    System.out.println("framework:soot");
 
     List<SootMethod> eps = Lists.newArrayList();
     SootMethod sootTestMethod = null;
@@ -164,22 +178,18 @@ public class FrameworkScopeFactory {
         }
       }
 
-      // TODO: check if the following block is needed / correct in this branch
-      /*
-           // collect entrypoints
-           for (SootClass inner : Scene.v().getClasses()) {
-             classCount++;
-             if (inner.getName().contains(sootTestCaseClass.getName())) {
-               inner.setApplicationClass();
-               for (SootMethod m : inner.getMethods()) {
-                 if (m.isStaticInitializer()) {
-                   eps.add(m);
-                 }
-               }
-             }
-           }
-
-      */
+      // collect entrypoints
+      for (SootClass inner : Scene.v().getClasses()) {
+        classCount++;
+        if (inner.getName().contains(sootTestCaseClass.getName())) {
+          inner.setApplicationClass();
+          for (SootMethod m : inner.getMethods()) {
+            if (m.isStaticInitializer()) {
+              eps.add(m);
+            }
+          }
+        }
+      }
 
       if (eps.isEmpty()) {
         throw new IllegalStateException(
@@ -209,6 +219,8 @@ public class FrameworkScopeFactory {
       PackManager.v().getPack("cg").apply(); // call graph package
       PackManager.v().getPack("wjtp").apply();
     }
+
+    System.out.println("classes: " + Scene.v().getClasses().size());
 
     return new SootFrameworkScope();
   }
@@ -253,6 +265,8 @@ public class FrameworkScopeFactory {
       List<String> includedPackages,
       List<String> excludedPackages) {
 
+    System.out.println("framework:sootup");
+
     // configure interceptors
     // TODO: check if the interceptor needs a reset in between runs
     List<BodyInterceptor> bodyInterceptors =
@@ -262,21 +276,53 @@ public class FrameworkScopeFactory {
     // configure AnalysisInputLocations
     List<AnalysisInputLocation> inputLocations = new ArrayList<>();
 
-    if (customEntrypointMethodName != null) {
-      JavaClassPathAnalysisInputLocation processDirInputLocation =
-          new JavaClassPathAnalysisInputLocation(pathStr, SourceType.Application, bodyInterceptors);
+    DefaultRuntimeAnalysisInputLocation runtimeInputLocation =
+        new DefaultRuntimeAnalysisInputLocation();
+    if (includedPackages.isEmpty() && excludedPackages.isEmpty()) {
+      inputLocations.add(runtimeInputLocation);
+    } else {
+      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeApplicationAnalysisInputLocation
+          sourceTypeApplicationAnalysisInputLocationRuntime =
+              new SourceTypeIncludeExcludeAnalysisInputLocation
+                  .SourceTypeApplicationAnalysisInputLocation(
+                  runtimeInputLocation, includedPackages);
+      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeLibraryAnalysisInputLocation
+          sourceTypeLibraryAnalysisInputLocationRuntime =
+              new SourceTypeIncludeExcludeAnalysisInputLocation
+                  .SourceTypeLibraryAnalysisInputLocation(
+                  sourceTypeApplicationAnalysisInputLocationRuntime, excludedPackages);
+      inputLocations.add(sourceTypeApplicationAnalysisInputLocationRuntime);
+      inputLocations.add(sourceTypeLibraryAnalysisInputLocationRuntime);
     }
 
     JavaClassPathAnalysisInputLocation classPathInputLocation =
         new JavaClassPathAnalysisInputLocation(pathStr, SourceType.Application, bodyInterceptors);
-    inputLocations.addAll(
-        List.of(
-            new JrtFileSystemAnalysisInputLocation(),
-            // FIXME: figure out if included/excluded was intended as: && or ||
-            new ScopedAnalysisInputLocation.AllowlistingScopedAnalysisInputLocation(
-                classPathInputLocation, includedPackages),
-            new ScopedAnalysisInputLocation.DenylistingScopedAnalysisInputLocation(
-                classPathInputLocation, excludedPackages)));
+
+    if (true /*includedPackages.isEmpty() && excludedPackages.isEmpty() */) {
+      inputLocations.add(classPathInputLocation);
+    } else {
+      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeApplicationAnalysisInputLocation
+          sourceTypeApplicationAnalysisInputLocation =
+              new SourceTypeIncludeExcludeAnalysisInputLocation
+                  .SourceTypeApplicationAnalysisInputLocation(
+                  classPathInputLocation, includedPackages);
+
+      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeLibraryAnalysisInputLocation
+          sourceTypeLibraryAnalysisInputLocation =
+              new SourceTypeIncludeExcludeAnalysisInputLocation
+                  .SourceTypeLibraryAnalysisInputLocation(
+                  sourceTypeApplicationAnalysisInputLocation, excludedPackages);
+      inputLocations.add(sourceTypeApplicationAnalysisInputLocation);
+      inputLocations.add(sourceTypeLibraryAnalysisInputLocation);
+    }
+
+    /*
+    // before: figure out if included/excluded was intended as: && or ||
+                new ScopedAnalysisInputLocation.AllowlistingScopedAnalysisInputLocation(
+                    classPathInputLocation, includedPackages),
+                new ScopedAnalysisInputLocation.DenylistingScopedAnalysisInputLocation(
+                    classPathInputLocation, excludedPackages))
+     */
 
     JavaView javaView;
     sootup.callgraph.CallGraph cg;
@@ -320,10 +366,76 @@ public class FrameworkScopeFactory {
               + "    }\n"
               + "}";
 
+      JavaClassType dummyClassType = new JavaClassType("dummyClass", new PackageName(""));
       JimpleStringAnalysisInputLocation jimpleStringAnalysisInputLocation =
           new JimpleStringAnalysisInputLocation(
-              jimpleClassStr); // currently in sootup:develop  branch
-      inputLocations.add(jimpleStringAnalysisInputLocation);
+              jimpleClassStr, SourceType.Application, Collections.emptyList());
+      JimpleView jimpleView = new JimpleView(jimpleStringAnalysisInputLocation);
+      Optional<sootup.core.model.SootClass> aClass = jimpleView.getClass(dummyClassType);
+
+      assert aClass.isPresent();
+      sootup.core.model.SootClass sootClass = aClass.get();
+
+      MethodSignature methodSignature =
+          jimpleView
+              .getIdentifierFactory()
+              .parseMethodSignature("<dummyClass: void main(java.lang.String[])>");
+      BodySource bodySource =
+          new BodySource() {
+            @Nonnull
+            @Override
+            public Body resolveBody(@Nonnull Iterable<MethodModifier> iterable)
+                throws ResolveException, IOException {
+              return Body.builder(
+                      new MutableBlockStmtGraph(
+                          sootClass
+                              .getMethod(methodSignature.getSubSignature())
+                              .get()
+                              .getBody()
+                              .getStmtGraph()))
+                  .setMethodSignature(methodSignature)
+                  .build();
+            }
+
+            @Override
+            public Object resolveAnnotationsDefaultValue() {
+              return null;
+            }
+
+            @Nonnull
+            @Override
+            public MethodSignature getSignature() {
+              return methodSignature;
+            }
+          };
+      JavaSootMethod method =
+          new JavaSootMethod(
+              bodySource,
+              methodSignature,
+              EnumSet.of(MethodModifier.PUBLIC, MethodModifier.STATIC),
+              Collections.emptySet(),
+              Collections.emptyList(),
+              NoPositionInformation.getInstance());
+
+      OverridingJavaClassSource dummyClassSource =
+          new OverridingJavaClassSource(
+              new EagerInputLocation(),
+              Paths.get("/in-memory"),
+              dummyClassType,
+              null,
+              Collections.emptySet(),
+              null,
+              Collections.emptySet(),
+              Collections.singleton(method),
+              NoPositionInformation.getInstance(),
+              EnumSet.of(ClassModifier.PUBLIC),
+              Collections.emptyList(),
+              Collections.emptyList(),
+              Collections.emptyList());
+
+      inputLocations.add(
+          new EagerInputLocation(
+              Collections.singletonMap(dummyClassType, dummyClassSource), SourceType.Application));
       javaView = new JavaView(inputLocations);
 
       MethodSignature dummyEntrypoint =
@@ -334,6 +446,12 @@ public class FrameworkScopeFactory {
 
       entypointSignatures.add(dummyEntrypoint);
     }
+
+    System.out.println(
+        "classes: "
+            + javaView
+                .getClasses()
+                .count()); // should be 1911 for boomerang.guided.DemandDrivenGuidedAnalysisTest
 
     // initialize CallGraphAlgorithm
     // TODO: use spark when available

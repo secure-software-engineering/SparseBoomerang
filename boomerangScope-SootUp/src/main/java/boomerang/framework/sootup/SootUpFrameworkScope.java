@@ -3,18 +3,23 @@ package boomerang.framework.sootup;
 import static boomerang.framework.sootup.SootUpDataFlowScopeUtil.excludeComplex;
 
 import boomerang.scene.*;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
+import sootup.core.inputlocation.EagerInputLocation;
+import sootup.core.jimple.basic.NoPositionInformation;
+import sootup.core.model.ClassModifier;
+import sootup.core.model.SourceType;
 import sootup.core.signatures.FieldSignature;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.types.ClassType;
-import sootup.java.core.JavaIdentifierFactory;
-import sootup.java.core.JavaSootClass;
-import sootup.java.core.JavaSootField;
-import sootup.java.core.JavaSootMethod;
+import sootup.java.core.*;
+import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
 
 public class SootUpFrameworkScope implements FrameworkScope {
@@ -119,12 +124,31 @@ public class SootUpFrameworkScope implements FrameworkScope {
     return view.getIdentifierFactory();
   }
 
-  public JavaSootClass getSootClass(ClassType classType) {
+  public JavaSootClass getSootClass(JavaClassType classType) {
     Optional<JavaSootClass> sootClass = view.getClass(classType);
     if (sootClass.isPresent()) {
       return sootClass.get();
     }
-    throw new RuntimeException("Class not found: " + classType.getFullyQualifiedName());
+
+    // FIXME! this is bad
+
+    OverridingJavaClassSource phantomClassSource =
+        new OverridingJavaClassSource(
+            new EagerInputLocation(),
+            Paths.get("/in-memory"),
+            classType,
+            null,
+            Collections.emptySet(),
+            null,
+            Collections.emptySet(),
+            Collections.emptySet(),
+            NoPositionInformation.getInstance(),
+            EnumSet.of(ClassModifier.PUBLIC),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList());
+
+    return new JavaSootClass(phantomClassSource, SourceType.Application);
   }
 
   public Optional<JavaSootMethod> getSootMethod(MethodSignature methodSignature) {
@@ -133,14 +157,14 @@ public class SootUpFrameworkScope implements FrameworkScope {
       return method;
     }
 
-    System.out.println("get" + methodSignature);
+ //   System.out.println("get" + methodSignature);
 
     Optional<ClassType> declaredClassOfMethod =
         view.getTypeHierarchy()
             .superClassesOf(methodSignature.getDeclClassType())
             .filter(
                 type -> {
-                  System.out.println("is it in? " + type);
+      //            System.out.println("is it in? " + type);
                   Optional<JavaSootClass> aClass = view.getClass(type);
                   return aClass
                       .map(

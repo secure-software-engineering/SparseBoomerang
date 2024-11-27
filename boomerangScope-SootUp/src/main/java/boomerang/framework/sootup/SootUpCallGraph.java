@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sootup.core.jimple.common.stmt.InvokableStmt;
 import sootup.core.signatures.MethodSignature;
 import sootup.java.core.JavaSootMethod;
 
@@ -15,6 +16,9 @@ public class SootUpCallGraph extends CallGraph {
   private static final Logger LOGGER = LoggerFactory.getLogger(SootUpCallGraph.class);
 
   public SootUpCallGraph(sootup.callgraph.CallGraph callGraph, Collection<Method> entryPoints) {
+
+    assert !entryPoints.isEmpty();
+    assert !callGraph.getMethodSignatures().isEmpty();
 
     // TODO: add a convenience method for this(edge collecting) to sootup
     callGraph.getMethodSignatures().stream()
@@ -36,9 +40,13 @@ public class SootUpCallGraph extends CallGraph {
                 return;
               }
 
+              InvokableStmt invokableStmt = call.getInvokableStmt();
+              if (!invokableStmt.containsInvokeExpr()) {
+                return;
+              }
+
               Statement callSite =
-                  JimpleUpStatement.create(
-                      call.getInvokableStmt(), JimpleUpMethod.of(sourceMethod));
+                  JimpleUpStatement.create(invokableStmt, JimpleUpMethod.of(sourceMethod));
               this.addEdge(new Edge(callSite, JimpleUpMethod.of(targetMethod)));
 
               LOGGER.trace("Added edge {} -> {}", callSite, targetMethod);
