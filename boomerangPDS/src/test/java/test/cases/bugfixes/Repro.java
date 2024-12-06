@@ -54,7 +54,7 @@ public class Repro extends AbstractTestingFramework {
   public void analyze() {}
 
   private void assertResults(String... expectedCalledMethodsOnFoo) {
-    Method method = scopeFactory.getMethod("<Test: java.util.List foos()>");
+    Method method = frameworkScope.getMethod("<Test: java.util.List foos()>");
     System.out.println("All method units:");
     for (Statement s : method.getControlFlowGraph().getStatements()) {
       System.out.println("\t" + s.toString());
@@ -69,7 +69,7 @@ public class Repro extends AbstractTestingFramework {
     // This will only show results if set_exclude above gets uncommented
     System.out.println("\nFoo invoked methods:");
     Set<Entry<Edge, DeclaredMethod>> entries =
-        getMethodsInvokedFromInstanceInStatement(scopeFactory, newFoo).entrySet();
+        getMethodsInvokedFromInstanceInStatement(frameworkScope, newFoo).entrySet();
     Set<String> methodCalledOnFoo = Sets.newHashSet();
     for (Entry<Edge, DeclaredMethod> e : entries) {
       System.out.println("\t" + e.getKey().toString());

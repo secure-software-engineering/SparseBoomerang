@@ -27,7 +27,7 @@ public abstract class AbstractTestingFramework {
   @Rule public TestName testMethodName = new TestName();
   protected File ideVizFile;
   protected File dotFile;
-  protected FrameworkScope scopeFactory;
+  protected FrameworkScope frameworkScope;
 
   protected abstract void initializeWithEntryPoint();
 
@@ -48,7 +48,7 @@ public abstract class AbstractTestingFramework {
     return sootCp;
   }
 
-  protected List<String> getIncludedList() {
+  protected List<String> getIncludedPackagesList() {
     List<String> includeList = new ArrayList<>();
     includeList.add("java.lang.*");
     includeList.add("java.util.*");

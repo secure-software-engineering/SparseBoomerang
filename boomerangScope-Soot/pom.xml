@@ -22,14 +22,5 @@
             <groupId>de.fraunhofer.iem</groupId>
             <artifactId>boomerangScope</artifactId>
         </dependency>
-        <dependency>
-            <groupId>de.fraunhofer.iem</groupId>
-            <artifactId>testCore</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.fraunhofer.iem</groupId>
-            <artifactId>testCore</artifactId>
-        </dependency>
     </dependencies>
 </project>

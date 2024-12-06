@@ -15,48 +15,43 @@ import boomerang.BoomerangOptions;
 import boomerang.DefaultBoomerangOptions;
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
-import boomerang.framework.soot.SootFrameworkScope;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.CallGraph.Edge;
 import com.google.common.collect.Lists;
-import ideal.IDEALAnalysis;
-import ideal.IDEALAnalysisDefinition;
-import ideal.IDEALResultHandler;
-import ideal.IDEALSeedSolver;
-import ideal.StoreIDEALResultHandler;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import ideal.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import sync.pds.solver.WeightFunctions;
 import test.ExpectedResults.InternalState;
 import test.core.selfrunning.ImprecisionException;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
-public class IDEALTestingFramework extends AbstractTestingFramework {
+public abstract class IDEALTestingFramework extends AbstractTestingFramework {
   private static final boolean FAIL_ON_IMPRECISE = false;
   protected StoreIDEALResultHandler<TransitionFunction> resultHandler =
       new StoreIDEALResultHandler<>();
-  protected CallGraph callGraph;
-  protected DataFlowScope dataFlowScope;
 
   @Override
   protected void initializeWithEntryPoint() {
-    scopeFactory =
-        FrameworkScopeFactory.init(buildClassPath(), getIncludedList(), getExludedPackageList());
+    frameworkScope =
+        FrameworkScopeFactory.init(
+            buildClassPath(),
+            getTestCaseClassName(),
+            testMethodName.getMethodName(),
+            getIncludedPackagesList(),
+            getExludedPackageList());
   }
 
   @Override
   protected void analyze() {
-    // FIXME: [ms] implement me
-    throw new UnsupportedOperationException("Not supported yet.");
+    analyze(
+        frameworkScope.getMethod(
+            "<" + getTestCaseClassName() + ": void " + testMethodName.getMethodName() + "()>"));
   }
 
-  protected TypeStateMachineWeightFunctions getStateMachine();
+  protected abstract TypeStateMachineWeightFunctions getStateMachine();
 
   protected IDEALAnalysis<TransitionFunction> createAnalysis() {
     return new IDEALAnalysis<>(
@@ -78,7 +73,7 @@ public class IDEALTestingFramework extends AbstractTestingFramework {
           @Override
           public Debugger<TransitionFunction> debugger(IDEALSeedSolver<TransitionFunction> solver) {
             return
-            /**
+            /*
              * VISUALIZATION ? new IDEVizDebugger<>(new File(
              * ideVizFile.getAbsolutePath().replace(".json", " " + solver.getSeed() + ".json")),
              * callGraph) :
@@ -103,7 +98,6 @@ public class IDEALTestingFramework extends AbstractTestingFramework {
               public StaticFieldStrategy getStaticFieldStrategy() {
                 return StaticFieldStrategy.FLOW_SENSITIVE;
               }
-              ;
 
               @Override
               public boolean allowMultipleQueries() {
@@ -112,10 +106,14 @@ public class IDEALTestingFramework extends AbstractTestingFramework {
             };
           }
 
+          private final CallGraph callGraph = frameworkScope.buildCallGraph();
+
           @Override
           public CallGraph callGraph() {
             return callGraph;
           }
+
+          private final DataFlowScope dataFlowScope = frameworkScope.getDataFlowScope();
 
           @Override
           protected DataFlowScope getDataFlowScope() {
@@ -124,8 +122,7 @@ public class IDEALTestingFramework extends AbstractTestingFramework {
 
           @Override
           public FrameworkScope getFrameworkFactory() {
-            // TODO: [ms] make parameterized
-            return new SootFrameworkScope();
+            return frameworkScope;
           }
         });
   }
@@ -183,7 +180,7 @@ public class IDEALTestingFramework extends AbstractTestingFramework {
 
     for (Statement stmt : m.getStatements()) {
       if (!(stmt.containsInvokeExpr())) continue;
-      for (Edge callSite : callGraph.edgesOutOf(stmt)) {
+      for (Edge callSite : frameworkScope.buildCallGraph().edgesOutOf(stmt)) {
         parseExpectedQueryResults(callSite.tgt(), queries, visited);
       }
       boomerang.scene.InvokeExpr invokeExpr = stmt.getInvokeExpr();

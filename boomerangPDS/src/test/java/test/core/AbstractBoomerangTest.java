@@ -85,12 +85,12 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
   @Override
   protected void initializeWithEntryPoint() {
-    scopeFactory =
+    frameworkScope =
         FrameworkScopeFactory.init(
             buildClassPath(),
             getTestCaseClassName(),
             testMethodName.getMethodName(),
-            getIncludedList(),
+            getIncludedPackagesList(),
             getExludedPackageList());
   }
 
@@ -105,7 +105,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   }
 
   private void analyzeWithCallGraph() {
-    CallGraph callGraph = scopeFactory.buildCallGraph();
+    CallGraph callGraph = frameworkScope.buildCallGraph();
     queryDetector = new QueryForCallSiteDetector(callGraph);
     queryForCallSites = queryDetector.computeSeeds();
 
@@ -147,8 +147,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     final Set<Node<Edge, Val>> results = Sets.newHashSet();
     WholeProgramBoomerang<NoWeight> solver =
         new WholeProgramBoomerang<NoWeight>(
-            scopeFactory.buildCallGraph(),
-            scopeFactory.getDataFlowScope(),
+            frameworkScope.buildCallGraph(),
+            frameworkScope.getDataFlowScope(),
             new DefaultBoomerangOptions() {
               @Override
               public int analysisTimeoutMS() {
@@ -160,7 +160,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
                 return false;
               }
             },
-            scopeFactory) {
+            frameworkScope) {
 
           @Override
           protected WeightFunctions<Edge, Val, Field, NoWeight> getForwardFieldWeights() {
@@ -272,7 +272,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     for (final Query query : queries) {
       BoomerangOptions options = createBoomerangOptions();
       Boomerang solver =
-          new Boomerang(scopeFactory.buildCallGraph(), getDataFlowScope(), options, scopeFactory);
+          new Boomerang(
+              frameworkScope.buildCallGraph(), getDataFlowScope(), options, frameworkScope);
 
       if (query instanceof BackwardQuery) {
         Stopwatch watch = Stopwatch.createStarted();
@@ -299,7 +300,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   }
 
   protected DataFlowScope getDataFlowScope() {
-    return scopeFactory.getDataFlowScope();
+    return frameworkScope.getDataFlowScope();
   }
 
   protected BoomerangOptions createBoomerangOptions() {

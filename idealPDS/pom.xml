@@ -18,12 +18,6 @@
             <artifactId>boomerangPDS</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.fraunhofer.iem</groupId>
-            <artifactId>boomerangScope-Soot</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>

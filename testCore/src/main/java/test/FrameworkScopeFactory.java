@@ -8,15 +8,13 @@ import boomerang.framework.sootup.BoomerangPreInterceptor;
 import boomerang.framework.sootup.SootUpFrameworkScope;
 import boomerang.scene.FrameworkScope;
 import com.google.common.collect.Lists;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import soot.*;
-import soot.SootClass;
-import soot.SootMethod;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.options.Options;
@@ -29,8 +27,10 @@ import sootup.core.graph.MutableBlockStmtGraph;
 import sootup.core.inputlocation.AnalysisInputLocation;
 import sootup.core.inputlocation.EagerInputLocation;
 import sootup.core.jimple.basic.NoPositionInformation;
-import sootup.core.model.*;
-import sootup.core.model.Body;
+import sootup.core.model.ClassModifier;
+import sootup.core.model.MethodModifier;
+import sootup.core.model.SootClassMember;
+import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.signatures.PackageName;
 import sootup.core.transform.BodyInterceptor;
@@ -384,9 +384,9 @@ public class FrameworkScopeFactory {
           new BodySource() {
             @Nonnull
             @Override
-            public Body resolveBody(@Nonnull Iterable<MethodModifier> iterable)
+            public sootup.core.model.Body resolveBody(@Nonnull Iterable<MethodModifier> iterable)
                 throws ResolveException, IOException {
-              return Body.builder(
+              return sootup.core.model.Body.builder(
                       new MutableBlockStmtGraph(
                           sootClass
                               .getMethod(methodSignature.getSubSignature())

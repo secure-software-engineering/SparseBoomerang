@@ -31,12 +31,6 @@
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iem</groupId>
-            <artifactId>boomerangScope-Soot</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.fraunhofer.iem</groupId>
             <artifactId>synchronizedPDS</artifactId>
         </dependency>
         <dependency>
@@ -59,12 +53,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.fraunhofer.iem</groupId>
-            <artifactId>boomerangScope-SootUp</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

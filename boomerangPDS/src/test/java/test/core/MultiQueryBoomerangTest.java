@@ -51,12 +51,12 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 
   @Override
   protected void initializeWithEntryPoint() {
-    scopeFactory =
+    frameworkScope =
         FrameworkScopeFactory.init(
             classPathStr,
             getTestCaseClassName(),
             testMethodName.getMethodName(),
-            getIncludedList(),
+            getIncludedPackagesList(),
             getExludedPackageList());
   }
 
@@ -67,7 +67,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 
   private void assertResults() {
     AnalysisScope analysisScope =
-        new Preanalysis(scopeFactory.buildCallGraph(), new FirstArgumentOf("queryFor.*"));
+        new Preanalysis(frameworkScope.buildCallGraph(), new FirstArgumentOf("queryFor.*"));
     queryForCallSites = analysisScope.computeSeeds();
 
     for (Query q : queryForCallSites) {
@@ -75,7 +75,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
       if (arg2.isClassConstant()) {
         Preanalysis analysis =
             new Preanalysis(
-                scopeFactory.buildCallGraph(),
+                frameworkScope.buildCallGraph(),
                 new AllocationSiteOf(arg2.getClassConstantType().toString()));
         expectedAllocsForQuery.putAll(q, analysis.computeSeeds());
       }
@@ -143,7 +143,10 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
         };
     solver =
         new Boomerang(
-            scopeFactory.buildCallGraph(), scopeFactory.getDataFlowScope(), options, scopeFactory);
+            frameworkScope.buildCallGraph(),
+            frameworkScope.getDataFlowScope(),
+            options,
+            frameworkScope);
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
         BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);

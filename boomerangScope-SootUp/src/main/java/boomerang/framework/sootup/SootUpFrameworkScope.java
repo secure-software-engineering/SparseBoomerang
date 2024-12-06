@@ -130,12 +130,11 @@ public class SootUpFrameworkScope implements FrameworkScope {
       return sootClass.get();
     }
 
-    // FIXME! this is bad
-
+    // FIXME!
     OverridingJavaClassSource phantomClassSource =
         new OverridingJavaClassSource(
             new EagerInputLocation(),
-            Paths.get("/in-memory"),
+            Paths.get("/phantom-class-in-memory"),
             classType,
             null,
             Collections.emptySet(),
@@ -143,7 +142,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
             Collections.emptySet(),
             Collections.emptySet(),
             NoPositionInformation.getInstance(),
-            EnumSet.of(ClassModifier.PUBLIC),
+            EnumSet.noneOf(ClassModifier.class),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
@@ -157,14 +156,14 @@ public class SootUpFrameworkScope implements FrameworkScope {
       return method;
     }
 
- //   System.out.println("get" + methodSignature);
+    //   System.out.println("get" + methodSignature);
 
     Optional<ClassType> declaredClassOfMethod =
         view.getTypeHierarchy()
             .superClassesOf(methodSignature.getDeclClassType())
             .filter(
                 type -> {
-      //            System.out.println("is it in? " + type);
+                  //            System.out.println("is it in? " + type);
                   Optional<JavaSootClass> aClass = view.getClass(type);
                   return aClass
                       .map(

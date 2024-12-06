@@ -5,6 +5,9 @@
         <version>3.1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>testCore</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -15,7 +18,17 @@
             <groupId>de.fraunhofer.iem</groupId>
             <artifactId>boomerangScope</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>boomerangScope-SootUp</artifactId>
+            <version>3.1.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>boomerangScope-Soot</artifactId>
+            <version>3.1.2-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>testCore</artifactId>
 </project>
