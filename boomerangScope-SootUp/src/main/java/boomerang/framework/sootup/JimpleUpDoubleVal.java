@@ -1,5 +1,6 @@
 package boomerang.framework.sootup;
 
+import boomerang.scene.Method;
 import boomerang.scene.Val;
 import boomerang.scene.ValWithFalseVariable;
 import java.util.Arrays;
@@ -9,7 +10,7 @@ public class JimpleUpDoubleVal extends JimpleUpVal implements ValWithFalseVariab
 
   private final Val falseVal;
 
-  public JimpleUpDoubleVal(Value value, JimpleUpMethod method, Val falseVal) {
+  public JimpleUpDoubleVal(Value value, Method method, Val falseVal) {
     super(value, method);
 
     this.falseVal = falseVal;

@@ -181,11 +181,6 @@
                 <version>1.0.5</version>
             </dependency>
             <dependency>
-                <groupId>org.soot-oss</groupId>
-                <artifactId>soot</artifactId>
-                <version>4.6.0</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.17.0</version>
@@ -193,6 +188,11 @@
             <dependency>
                 <groupId>de.fraunhofer.iem</groupId>
                 <artifactId>WPDS</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fraunhofer.iem</groupId>
+                <artifactId>PDS</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -215,6 +215,26 @@
                 <groupId>de.fraunhofer.iem</groupId>
                 <artifactId>boomerangScope</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fraunhofer.iem</groupId>
+                <artifactId>boomerangScope-Soot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fraunhofer.iem</groupId>
+                <artifactId>boomerangScope-SootUp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fraunhofer.iem</groupId>
+                <artifactId>boomerangScope-WALA</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>soot</artifactId>
+                <version>4.6.0</version>
             </dependency>
 
             <dependency>

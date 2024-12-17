@@ -25,13 +25,13 @@ import sootup.core.types.NullType;
 public class JimpleUpVal extends Val {
 
   private final Value delegate;
-  private final JimpleUpMethod method;
+  private final Method method;
 
-  public JimpleUpVal(Value delegate, JimpleUpMethod method) {
+  public JimpleUpVal(Value delegate, Method method) {
     this(delegate, method, null);
   }
 
-  protected JimpleUpVal(Value delegate, JimpleUpMethod method, ControlFlowGraph.Edge unbalanced) {
+  protected JimpleUpVal(Value delegate, Method method, ControlFlowGraph.Edge unbalanced) {
     super(method, unbalanced);
 
     if (delegate == null) {
@@ -79,6 +79,17 @@ public class JimpleUpVal extends Val {
   @Override
   public boolean isArrayAllocationVal() {
     return delegate instanceof JNewArrayExpr || delegate instanceof JNewMultiArrayExpr;
+  }
+
+  @Override
+  public Val getArrayAllocationSize() {
+    if (delegate instanceof JNewArrayExpr) {
+      JNewArrayExpr newArrayExpr = (JNewArrayExpr) delegate;
+
+      return new JimpleUpVal(newArrayExpr.getSize(), m);
+    }
+
+    throw new RuntimeException("Val is not an array allocation val");
   }
 
   @Override

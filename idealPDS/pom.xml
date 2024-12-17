@@ -51,7 +51,7 @@
                             <execution>
                                 <phase>integration-test</phase>
                             </execution>
-                        </executions>                        <configuration>
+                        </executions>
                         <configuration>
                             <argLine>-Xmx8G -Xss128m</argLine>
                             <excludes>

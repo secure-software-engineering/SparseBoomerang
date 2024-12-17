@@ -36,14 +36,6 @@ public abstract class Method implements Location {
               return false;
             }
 
-            public List<Type> getParameterTypes() {
-              return Lists.newArrayList();
-            }
-
-            public Type getParameterType(int index) {
-              return null;
-            }
-
             @Override
             public List<Type> getParameterTypes() {
               return Lists.newArrayList();

@@ -12,6 +12,7 @@ import sootup.core.types.PrimitiveType;
 import sootup.core.types.ReferenceType;
 import sootup.java.core.JavaSootClass;
 import sootup.java.core.types.JavaClassType;
+import sootup.java.core.views.JavaView;
 
 public class JimpleUpType implements Type {
 
@@ -103,17 +104,36 @@ public class JimpleUpType implements Type {
     if (!superClass.isInterface()) {
       return typeHierarchy.isSubtype(sootClass.getType(), superClass.getType());
     }
-
-    if (typeHierarchy
-        .subclassesOf(superClass.getType())
-        .collect(Collectors.toSet())
-        .contains(allocatedType)) {
+    // TODO: [ms] check if seperation of interface/class is necessary
+    if (typeHierarchy.subclassesOf(superClass.getType()).anyMatch( t -> t == allocatedType)) {
       return true;
     }
-    return typeHierarchy
-        .implementersOf(superClass.getType())
-        .collect(Collectors.toSet())
-        .contains(allocatedType);
+    return typeHierarchy.implementersOf(superClass.getType()).anyMatch(t -> t == allocatedType);
+  }
+
+  @Override
+  public boolean isSupertypeOf(String subTypeStr) {
+    if (!(delegate instanceof ReferenceType)) {
+      if (delegate instanceof PrimitiveType) {
+        return subTypeStr.equals(delegate.toString());
+      }
+      return false;
+    }
+
+    JavaView view = SootUpFrameworkScope.getInstance().getView();
+    TypeHierarchy typeHierarchy = view.getTypeHierarchy();
+
+    JavaClassType subType = view.getIdentifierFactory().getClassType(subTypeStr);
+    if (!typeHierarchy.contains(subType)) {
+      return false;
+    }
+
+    JavaClassType thisType = view.getIdentifierFactory().getClassType(delegate.toString());
+    if (!typeHierarchy.contains(thisType)) {
+      return false;
+    }
+
+    return typeHierarchy.isSubtype(subType, thisType);
   }
 
   @Override
