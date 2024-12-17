@@ -26,7 +26,6 @@ public class OutputStreamStateMachine extends TypeStateMachineWeightFunctions {
   private static final String CLOSE_METHODS = ".* close.*";
   private static final String WRITE_METHODS = ".* write.*";
   private static final String TYPE = "java.io.OutputStream";
-  ;
 
   public static enum States implements State {
     NONE,

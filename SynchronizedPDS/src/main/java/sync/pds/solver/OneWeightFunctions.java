@@ -42,4 +42,3 @@ public class OneWeightFunctions<Stmt, Fact, Field, W extends Weight>
     return one;
   }
 }
-;

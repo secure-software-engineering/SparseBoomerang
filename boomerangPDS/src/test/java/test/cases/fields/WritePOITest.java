@@ -274,7 +274,6 @@ public class WritePOITest extends AbstractBoomerangTest {
   }
 
   public static class Alloc implements AllocatedObject {}
-  ;
 
   private static class A1 {
     B1 b = new B1();

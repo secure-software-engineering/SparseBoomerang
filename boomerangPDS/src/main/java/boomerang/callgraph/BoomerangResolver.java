@@ -33,7 +33,7 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
   public enum NoCalleeFoundFallbackOptions {
     PRECOMPUTED,
     BYPASS
-  };
+  }
 
   private static final String THREAD_CLASS = "java.lang.Thread";
   private static final String THREAD_START_SIGNATURE = "<java.lang.Thread: void start()>";
@@ -46,7 +46,6 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
   private WeightedBoomerang<? extends Weight> solver;
   private Set<Statement> queriedInvokeExprAndAllocationSitesFound = Sets.newHashSet();
   private Set<Statement> queriedInvokeExpr = Sets.newHashSet();
-  ;
 
   public BoomerangResolver(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
     this.solver = new Boomerang(cg, scope, scopeFactory);
@@ -235,7 +234,6 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
                         }
                       }
                     }
-                    ;
                   });
         }
       }

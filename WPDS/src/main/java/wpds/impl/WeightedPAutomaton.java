@@ -284,12 +284,10 @@ public abstract class WeightedPAutomaton<N extends Location, D extends State, W 
     }
     return trans;
   }
-  ;
 
   public Set<D> getNodes() {
     return getStates();
   }
-  ;
 
   public boolean addWeightForTransition(Transition<N, D> trans, W weight) {
     if (weight == null) throw new IllegalArgumentException("Weight must not be null!");

@@ -113,7 +113,6 @@ public class TransitionFunction extends Weight {
     newStateChangeStmts.addAll(func.stateChangeStatements);
     return new TransitionFunction(transitions, newStateChangeStmts);
   }
-  ;
 
   public static TransitionFunction one() {
     if (one == null) one = new TransitionFunction("ONE");

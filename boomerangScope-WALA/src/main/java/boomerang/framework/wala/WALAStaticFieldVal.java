@@ -73,6 +73,11 @@ public class WALAStaticFieldVal extends StaticFieldVal {
   }
 
   @Override
+  public Val getArrayAllocationSize() {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  @Override
   public boolean isNull() {
     return false;
   }

@@ -28,5 +28,4 @@ public class ConsoleDebugger<W extends Weight> extends Debugger<W> {
       queryToSolvers.get(q).debugOutput();
     }
   }
-  ;
 }

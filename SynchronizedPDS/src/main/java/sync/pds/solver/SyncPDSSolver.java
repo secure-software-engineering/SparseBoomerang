@@ -63,14 +63,12 @@ public abstract class SyncPDSSolver<
         public String toString() {
           return "Call " + SyncPDSSolver.this.toString();
         }
-        ;
       };
   protected final WeightedPushdownSystem<Field, INode<Node<Stmt, Fact>>, W> fieldPDS =
       new WeightedPushdownSystem<Field, INode<Node<Stmt, Fact>>, W>() {
         public String toString() {
           return "Field " + SyncPDSSolver.this.toString();
         }
-        ;
       };
   private final Set<Node<Stmt, Fact>> reachedStates = Sets.newHashSet();
   private final Set<Node<Stmt, Fact>> callingContextReachable = Sets.newHashSet();
@@ -115,7 +113,6 @@ public abstract class SyncPDSSolver<
           public boolean nested() {
             return useFieldSummaries;
           }
-          ;
 
           @Override
           public W getOne() {
@@ -133,7 +130,6 @@ public abstract class SyncPDSSolver<
             logger.trace("Adding field transition {} with weight {}", trans, weight);
             return super.addWeightForTransition(trans, weight);
           }
-          ;
 
           @Override
           public boolean isGeneratedState(INode<Node<Stmt, Fact>> d) {
@@ -157,7 +153,6 @@ public abstract class SyncPDSSolver<
           public boolean nested() {
             return useCallSummaries;
           }
-          ;
 
           @Override
           public W getOne() {
@@ -169,7 +164,6 @@ public abstract class SyncPDSSolver<
             logger.trace("Adding call transition {} with weight {}", trans, weight);
             return super.addWeightForTransition(trans, weight);
           }
-          ;
 
           @Override
           public boolean isGeneratedState(INode<Fact> d) {

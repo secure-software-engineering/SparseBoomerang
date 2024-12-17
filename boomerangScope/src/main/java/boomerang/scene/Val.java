@@ -60,134 +60,117 @@ public abstract class Val {
 
             @Override
             public Type getType() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val has no type");
             }
 
             @Override
             public boolean isStatic() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isNewExpr() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Type getNewExprType() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val is not a new expression");
             }
 
             @Override
             public Val asUnbalanced(ControlFlowGraph.Edge stmt) {
-              // TODO Auto-generated method stub
               return null;
             }
 
             @Override
             public boolean isLocal() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isArrayAllocationVal() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
+            public Val getArrayAllocationSize() {
+              throw new RuntimeException("ZERO Val is not an array allocation val");
+            }
+
+            @Override
             public boolean isNull() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isStringConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public String getStringValue() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val is not a String constant");
             }
 
             @Override
             public boolean isStringBufferOrBuilder() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isThrowableAllocationType() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isCast() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Val getCastOp() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val is not a cast expression");
             }
 
             @Override
             public boolean isArrayRef() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isInstanceOfExpr() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Val getInstanceOfOp() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val is not an instanceOf expression");
             }
 
             @Override
             public boolean isLengthExpr() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Val getLengthOp() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val is not a length expression");
             }
 
             @Override
             public boolean isIntConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public boolean isClassConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public Type getClassConstantType() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val is not a class constant");
             }
 
             @Override
@@ -197,26 +180,22 @@ public abstract class Val {
 
             @Override
             public boolean isLongConstant() {
-              // TODO Auto-generated method stub
               return false;
             }
 
             @Override
             public int getIntValue() {
-              // TODO Auto-generated method stub
-              return 0;
+              throw new RuntimeException("ZERO Val is not an int constant");
             }
 
             @Override
             public long getLongValue() {
-              // TODO Auto-generated method stub
-              return 0;
+              throw new RuntimeException("ZERO Val is not a long constant");
             }
 
             @Override
             public Pair<Val, Integer> getArrayBase() {
-              // TODO Auto-generated method stub
-              return null;
+              throw new RuntimeException("ZERO Val has no array base");
             }
 
             @Override
@@ -242,6 +221,8 @@ public abstract class Val {
   public abstract boolean isLocal();
 
   public abstract boolean isArrayAllocationVal();
+
+  public abstract Val getArrayAllocationSize();
 
   public abstract boolean isNull();
 

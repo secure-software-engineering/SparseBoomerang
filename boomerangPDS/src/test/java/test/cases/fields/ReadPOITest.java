@@ -142,5 +142,4 @@ public class ReadPOITest extends AbstractBoomerangTest {
   private static class AllocNode extends Node implements AllocatedObject {}
 
   private static class Alloc implements AllocatedObject {}
-  ;
 }
