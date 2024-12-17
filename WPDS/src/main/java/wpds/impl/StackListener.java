@@ -1,8 +1,8 @@
 package wpds.impl;
 
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Set;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 

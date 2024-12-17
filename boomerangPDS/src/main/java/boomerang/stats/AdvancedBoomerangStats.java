@@ -27,6 +27,7 @@ import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ForwardBoomerangSolver;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -37,7 +38,6 @@ import sync.pds.solver.nodes.Node;
 import wpds.impl.Rule;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public class AdvancedBoomerangStats<W extends Weight> implements IBoomerangStats<W> {

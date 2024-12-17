@@ -11,7 +11,6 @@
  */
 package typestate.tests;
 
-import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.IDEALTestingFramework;
@@ -44,10 +43,13 @@ public class SootSceneSetupTest extends IDEALTestingFramework {
     return new FileMustBeClosedStateMachineCallToReturn();
   }
 
+  /*
+  // TODO: [ms] re-enable?
   @Override
   public List<String> excludedPackages() {
     List<String> exlcuded = super.excludedPackages();
     exlcuded.add("typestate.test.helper.File");
     return exlcuded;
   }
+  */
 }

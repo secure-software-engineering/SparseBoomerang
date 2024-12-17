@@ -11,7 +11,7 @@
  */
 package wpds.impl;
 
-import wpds.interfaces.Location;
+import de.fraunhofer.iem.Location;
 import wpds.interfaces.State;
 
 public class Configuration<N extends Location, D extends State> {

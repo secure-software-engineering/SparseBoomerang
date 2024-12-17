@@ -1,6 +1,6 @@
 package wpds.impl;
 
-import wpds.interfaces.Location;
+import de.fraunhofer.iem.Location;
 import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 

@@ -16,6 +16,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.fraunhofer.iem.Location;
+import de.fraunhofer.iem.wildcard.ExclusionWildcard;
+import de.fraunhofer.iem.wildcard.Wildcard;
 import java.util.Collection;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -32,10 +35,7 @@ import sync.pds.solver.nodes.PushNode;
 import sync.pds.solver.nodes.SingleNode;
 import wpds.impl.SummaryNestedWeightedPAutomatons;
 import wpds.impl.Weight.NoWeight;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
-import wpds.wildcard.ExclusionWildcard;
-import wpds.wildcard.Wildcard;
 
 public class DoublePDSTest {
   private static Logger LOGGER = LoggerFactory.getLogger(DoublePDSTest.class);

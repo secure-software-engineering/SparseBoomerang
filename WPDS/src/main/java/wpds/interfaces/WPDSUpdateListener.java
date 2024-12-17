@@ -11,6 +11,7 @@
  */
 package wpds.interfaces;
 
+import de.fraunhofer.iem.Location;
 import wpds.impl.Rule;
 import wpds.impl.Weight;
 

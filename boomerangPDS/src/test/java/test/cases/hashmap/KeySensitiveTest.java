@@ -12,11 +12,9 @@
 package test.cases.hashmap;
 
 import boomerang.scene.DataFlowScope;
-import boomerang.scene.SootDataFlowScope;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
-import soot.Scene;
 import test.cases.array.ArrayTest.NoAllocation;
 import test.cases.basic.Allocation;
 import test.cases.fields.Alloc;
@@ -66,6 +64,20 @@ public class KeySensitiveTest extends AbstractBoomerangTest {
     queryFor(t);
   }
 
+  /*
+    classes: 3413
+  [main] INFO boomerang.scene.AnalysisScope - Computing seeds starting at 1 entry method(s).
+  [main] INFO boomerang.scene.AnalysisScope - Found 1 seeds in 35.17 ms in 3588 LOC .
+  [main] INFO boomerang.scene.AnalysisScope - Computing seeds starting at 1 entry method(s).
+  [main] INFO boomerang.scene.AnalysisScope - Found 1 seeds in 24.64 ms in 3588 LOC .
+  [main] INFO boomerang.scene.AnalysisScope - Computing seeds starting at 1 entry method(s).
+  [main] INFO boomerang.scene.AnalysisScope - Found 1 seeds in 5.280 ms in 3588 LOC .
+  [main] INFO test.core.AbstractBoomerangTest - Solving query took: 168.5 ms
+  [main] INFO test.core.AbstractBoomerangTest - Expected results: PT0.168372811S
+  [main] INFO test.core.AbstractBoomerangTest - Boomerang Results: [($stack4 (test.cases.hashmap.KeySensitiveTest.<test.cases.hashmap.KeySensitiveTest: void accessWithKeyFromReturn()>),$stack4 = new Alloc -> $stack4.<init>())]
+  [main] INFO test.core.AbstractBoomerangTest - Expected Results: [ForwardQuery: ($stack4 (test.cases.hashmap.KeySensitiveTest.<test.cases.hashmap.KeySensitiveTest: void accessWithKeyFromReturn()>),$stack4 = new Alloc -> $stack4.<init>())]
+
+     */
   @Test
   public void accessWithKeyFromReturn() {
     AllocatedObject someValue = new Alloc();
@@ -98,6 +110,6 @@ public class KeySensitiveTest extends AbstractBoomerangTest {
 
   @Override
   protected DataFlowScope getDataFlowScope() {
-    return SootDataFlowScope.excludeComplex(Scene.v());
+    return frameworkScope.createDataFlowScopeWithoutComplex();
   }
 }

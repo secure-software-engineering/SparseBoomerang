@@ -12,8 +12,8 @@
 package wpds.impl;
 
 import com.google.common.collect.Maps;
+import de.fraunhofer.iem.Location;
 import java.util.Map;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 
 public class SummaryNestedWeightedPAutomatons<N extends Location, D extends State, W extends Weight>

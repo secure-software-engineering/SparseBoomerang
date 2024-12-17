@@ -2,10 +2,10 @@ package boomerang.scene;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import wpds.interfaces.Location;
 
 public abstract class Method implements Location {
   private static Method epsilon;
@@ -36,10 +36,12 @@ public abstract class Method implements Location {
               return false;
             }
 
+            @Override
             public List<Type> getParameterTypes() {
               return Lists.newArrayList();
             }
 
+            @Override
             public Type getParameterType(int index) {
               return null;
             }
@@ -112,6 +114,7 @@ public abstract class Method implements Location {
     return epsilon;
   }
 
+  // TODO: [ms] looks as if this toString() should go into epsilon..
   @Override
   public String toString() {
     return "METHOD EPS";

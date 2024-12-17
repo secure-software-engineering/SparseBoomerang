@@ -7,19 +7,18 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>boomerangScope</artifactId>
-
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.soot-oss</groupId>
-      <artifactId>soot</artifactId>
-    </dependency>
-    <dependency>
       <groupId>de.fraunhofer.iem</groupId>
-      <artifactId>synchronizedPDS</artifactId>
+      <artifactId>PDS</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+      </dependency>
   </dependencies>
 </project>

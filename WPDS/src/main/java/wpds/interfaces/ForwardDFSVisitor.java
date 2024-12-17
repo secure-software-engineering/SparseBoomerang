@@ -16,6 +16,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
+import de.fraunhofer.iem.Location;
 import java.util.LinkedList;
 import wpds.impl.Transition;
 import wpds.impl.Weight;

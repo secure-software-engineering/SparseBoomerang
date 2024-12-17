@@ -11,8 +11,8 @@
  */
 package tests;
 
+import de.fraunhofer.iem.Location;
 import wpds.impl.Weight;
-import wpds.interfaces.Location;
 
 public class MinSemiring extends Weight {
   int i;
