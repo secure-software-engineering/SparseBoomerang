@@ -59,19 +59,21 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sootVersion>4.3.0-SNAPSHOT</sootVersion>
+        <soot.version>4.3.0-SNAPSHOT</soot.version>
         <fmt-maven-plugin.version>2.13</fmt-maven-plugin.version>
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
-        <enforced-maven-version>3.6.1</enforced-maven-version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-        <skipFormatPlugin>true</skipFormatPlugin>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <maven-deploy-plugin.version>3.5.2</maven-deploy-plugin.version>
+        <enforced-maven-version>3.6.1</enforced-maven-version>
+        <skipFormat>true</skipFormat>
     </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>-Xmx8G -Xss128m</argLine>
                 </configuration>
@@ -347,7 +349,7 @@
                         <artifactId>fmt-maven-plugin</artifactId>
                         <configuration>
                             <!-- pretty sure this has to work nicer. dont wanna waste more time into it, though -->
-                            <skip>${skipFormatPlugin}</skip>
+                            <skip>${skipFormat}</skip>
                         </configuration>
                     </plugin>
                 </plugins>
