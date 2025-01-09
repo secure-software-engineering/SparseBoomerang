@@ -130,9 +130,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
       return sootClass.get();
     }
 
-    // FIXME!
-    OverridingJavaClassSource phantomClassSource =
-        new OverridingJavaClassSource(
+    OverridingJavaClassSource phantomClassSource = new OverridingJavaClassSource(
             new EagerInputLocation(),
             Paths.get("/phantom-class-in-memory"),
             classType,
@@ -146,8 +144,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
-
-    return new JavaSootClass(phantomClassSource, SourceType.Application);
+    return new PhantomClass(phantomClassSource, SourceType.Application);
   }
 
   public Optional<JavaSootMethod> getSootMethod(MethodSignature methodSignature) {
@@ -179,7 +176,6 @@ public class SootUpFrameworkScope implements FrameworkScope {
     if (declaredClassOfMethod.isEmpty()) {
       return Optional.empty();
     }
-    ;
     ClassType declClassType = declaredClassOfMethod.get();
 
     Optional<JavaSootClass> aClass = view.getClass(declClassType);
@@ -203,4 +199,15 @@ public class SootUpFrameworkScope implements FrameworkScope {
   public static boolean isStaticInitializer(JavaSootMethod sootMethod) {
     return sootMethod.getSignature().getName().equals(STATIC_INITIALIZER_NAME);
   }
+
+
+  /**
+   * Dummy Phantom Class representation
+   * */
+  public class PhantomClass extends JavaSootClass{
+    public PhantomClass(JavaSootClassSource classSource, SourceType sourceType) {
+      super(classSource, sourceType);
+    }
+  }
+
 }

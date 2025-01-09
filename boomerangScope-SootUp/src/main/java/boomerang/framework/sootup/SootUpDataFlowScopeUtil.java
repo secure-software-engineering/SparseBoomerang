@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sootup.core.types.ClassType;
 import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootClassSource;
 import sootup.java.core.JavaSootMethod;
 import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
@@ -35,18 +36,13 @@ public class SootUpDataFlowScopeUtil {
       @Override
       public boolean isExcluded(DeclaredMethod method) {
         JimpleUpDeclaredMethod m = (JimpleUpDeclaredMethod) method;
-        // FIXME: see below
-        return /*((JavaSootClass) m.getDeclaringClass().getDelegate()).isPhantom() ||*/ m
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m
             .isNative();
       }
 
       public boolean isExcluded(Method method) {
         JimpleUpMethod m = (JimpleUpMethod) method;
-        // FIXME: sootup does not have the concept of phantom class.. its basically a
-        // MethodSignature that can not be found in the view.. maybe we need to adapt
-        // Method/DeclaredMethod
-        return /* ((JavaSootClass) m.getDeclaringClass().getDelegate()).isPhantom() || */ m
-            .isNative();
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m.isNative();
       }
     };
   }
@@ -67,11 +63,11 @@ public class SootUpDataFlowScopeUtil {
           }
         }
         for (Predicate<JavaSootMethod> f : methodFilters) {
-          if (f.apply((JavaSootMethod) m.getDelegate())) {
+          if (f.apply(m.getDelegate())) {
             return true;
           }
         }
-        return /*((JavaSootClass) m.getDeclaringClass().getDelegate()).isPhantom() ||*/ m
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m
             .isNative();
       }
 
@@ -87,8 +83,7 @@ public class SootUpDataFlowScopeUtil {
             return true;
           }
         }
-        return /* ((JavaSootClass) m.getDeclaringClass().getDelegate()).isPhantom() || */ m
-            .isNative();
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m.isNative();
       }
     };
   }
@@ -96,7 +91,7 @@ public class SootUpDataFlowScopeUtil {
   private static class MapFilter implements Predicate<JavaSootClass> {
     private static final String MAP = "java.util.Map";
     private static final String GUAVA_MAP = "com.google.common.collect.Multimap";
-    private Set<ClassType> excludes = Sets.newHashSet();
+    private final Set<ClassType> excludes = Sets.newHashSet();
 
     public MapFilter(JavaView view) {
       JavaClassType mapClassType = view.getIdentifierFactory().getClassType(MAP);

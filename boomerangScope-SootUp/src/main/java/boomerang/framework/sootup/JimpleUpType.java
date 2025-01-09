@@ -4,7 +4,6 @@ import boomerang.scene.AllocVal;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.scene.WrappedClass;
-import java.util.stream.Collectors;
 import sootup.core.typehierarchy.TypeHierarchy;
 import sootup.core.types.ArrayType;
 import sootup.core.types.NullType;
@@ -55,10 +54,15 @@ public class JimpleUpType implements Type {
     if (this.getDelegate() instanceof NullType) {
       return true;
     }
+
     JavaClassType sourceType = (JavaClassType) this.getDelegate();
     JavaSootClass targetClass = SootUpFrameworkScope.getInstance().getSootClass(targetType);
     JavaSootClass sourceClass = SootUpFrameworkScope.getInstance().getSootClass(sourceType);
-    // if (targetClass.isPhantomClass() || sourceClass.isPhantomClass()) return false;
+
+    if (targetClass instanceof  SootUpFrameworkScope.PhantomClass || sourceClass instanceof SootUpFrameworkScope.PhantomClass ) {
+        return false;
+    }
+
     if (target instanceof AllocVal && ((AllocVal) target).getAllocVal().isNewExpr()) {
       boolean castFails =
           SootUpFrameworkScope.getInstance()
@@ -105,7 +109,7 @@ public class JimpleUpType implements Type {
       return typeHierarchy.isSubtype(sootClass.getType(), superClass.getType());
     }
     // TODO: [ms] check if seperation of interface/class is necessary
-    if (typeHierarchy.subclassesOf(superClass.getType()).anyMatch( t -> t == allocatedType)) {
+    if (typeHierarchy.subclassesOf(superClass.getType()).anyMatch(t -> t == allocatedType)) {
       return true;
     }
     return typeHierarchy.implementersOf(superClass.getType()).anyMatch(t -> t == allocatedType);

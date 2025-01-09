@@ -205,10 +205,6 @@ public class FrameworkScopeFactory {
                 protected void internalTransform(String phaseName, Map<String, String> options) {
                   BoomerangPretransformer.v().reset();
                   BoomerangPretransformer.v().apply();
-                  /* TODO: [ms] still needed?
-                  callGraph = new SootCallGraph();
-                  dataFlowScope = getDataFlowScope();
-                  analyzeWithCallGraph();*/
                 }
               });
 
@@ -221,6 +217,9 @@ public class FrameworkScopeFactory {
     }
 
     System.out.println("classes: " + Scene.v().getClasses().size());
+    Scene.v().getClasses().stream()
+        .sorted(Comparator.comparing(SootClass::toString))
+        .forEach(System.out::println);
 
     return new SootFrameworkScope();
   }
@@ -451,7 +450,13 @@ public class FrameworkScopeFactory {
         "classes: "
             + javaView
                 .getClasses()
-                .count()); // should be 1911 for boomerang.guided.DemandDrivenGuidedAnalysisTest
+                .count()); // soot has 1911 for boomerang.guided.DemandDrivenGuidedAnalysisTest
+
+    javaView
+        .getClasses()
+        .sorted(Comparator.comparing(sootup.core.model.SootClass::toString))
+        .forEach(System.out::println);
+    System.out.println();
 
     // initialize CallGraphAlgorithm
     // TODO: use spark when available
