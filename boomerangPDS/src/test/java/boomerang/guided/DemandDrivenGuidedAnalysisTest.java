@@ -401,7 +401,7 @@ public class DemandDrivenGuidedAnalysisTest {
               }
             },
             scopeFactory.getDataFlowScope(),
-            scopeFactory.buildCallGraph(),
+            scopeFactory.getCallGraph(),
             scopeFactory);
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);

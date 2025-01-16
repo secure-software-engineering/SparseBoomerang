@@ -35,10 +35,10 @@ public class CustomFlowFunctionTest {
     Method m = scopeFactory.getMethod(s);
     BackwardQuery query = selectQueryForStatement(m);
 
-    CallGraph CallGraph = scopeFactory.buildCallGraph();
+    CallGraph CallGraph = scopeFactory.getCallGraph();
     Boomerang solver =
         new Boomerang(
-            scopeFactory.buildCallGraph(),
+            scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
             new CustomIntAndStringBoomerangOptions(),
             scopeFactory);
@@ -65,7 +65,7 @@ public class CustomFlowFunctionTest {
 
     Boomerang solver =
         new Boomerang(
-            scopeFactory.buildCallGraph(),
+            scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
             new CustomBoomerangOptions(),
             scopeFactory);
@@ -89,7 +89,7 @@ public class CustomFlowFunctionTest {
 
     Boomerang solver =
         new Boomerang(
-            scopeFactory.buildCallGraph(),
+            scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
             new CustomBoomerangOptions(),
             scopeFactory);

@@ -21,7 +21,7 @@ public interface FrameworkScope {
   Method getMethod(String signatureStr);
 
   // TODO: [ms] maybe refactor it - currently its only used in testcases
-  CallGraph buildCallGraph();
+  CallGraph getCallGraph();
 
   // TODO: [ms] maybe refactor it - currently its only used in testcases
   DataFlowScope getDataFlowScope();

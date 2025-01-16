@@ -59,8 +59,9 @@ public class JimpleUpType implements Type {
     JavaSootClass targetClass = SootUpFrameworkScope.getInstance().getSootClass(targetType);
     JavaSootClass sourceClass = SootUpFrameworkScope.getInstance().getSootClass(sourceType);
 
-    if (targetClass instanceof  SootUpFrameworkScope.PhantomClass || sourceClass instanceof SootUpFrameworkScope.PhantomClass ) {
-        return false;
+    if (targetClass instanceof SootUpFrameworkScope.PhantomClass
+        || sourceClass instanceof SootUpFrameworkScope.PhantomClass) {
+      return false;
     }
 
     if (target instanceof AllocVal && ((AllocVal) target).getAllocVal().isNewExpr()) {

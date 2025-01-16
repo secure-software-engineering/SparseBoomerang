@@ -106,7 +106,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
             };
           }
 
-          private final CallGraph callGraph = frameworkScope.buildCallGraph();
+          private final CallGraph callGraph = frameworkScope.getCallGraph();
 
           @Override
           public CallGraph callGraph() {
@@ -180,7 +180,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
 
     for (Statement stmt : m.getStatements()) {
       if (!(stmt.containsInvokeExpr())) continue;
-      for (Edge callSite : frameworkScope.buildCallGraph().edgesOutOf(stmt)) {
+      for (Edge callSite : frameworkScope.getCallGraph().edgesOutOf(stmt)) {
         parseExpectedQueryResults(callSite.tgt(), queries, visited);
       }
       boomerang.scene.InvokeExpr invokeExpr = stmt.getInvokeExpr();

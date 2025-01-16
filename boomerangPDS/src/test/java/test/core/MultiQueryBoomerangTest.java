@@ -67,7 +67,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 
   private void assertResults() {
     AnalysisScope analysisScope =
-        new Preanalysis(frameworkScope.buildCallGraph(), new FirstArgumentOf("queryFor.*"));
+        new Preanalysis(frameworkScope.getCallGraph(), new FirstArgumentOf("queryFor.*"));
     queryForCallSites = analysisScope.computeSeeds();
 
     for (Query q : queryForCallSites) {
@@ -75,7 +75,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
       if (arg2.isClassConstant()) {
         Preanalysis analysis =
             new Preanalysis(
-                frameworkScope.buildCallGraph(),
+                frameworkScope.getCallGraph(),
                 new AllocationSiteOf(arg2.getClassConstantType().toString()));
         expectedAllocsForQuery.putAll(q, analysis.computeSeeds());
       }
@@ -143,7 +143,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
         };
     solver =
         new Boomerang(
-            frameworkScope.buildCallGraph(),
+            frameworkScope.getCallGraph(),
             frameworkScope.getDataFlowScope(),
             options,
             frameworkScope);

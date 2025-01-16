@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import sootup.core.inputlocation.EagerInputLocation;
 import sootup.core.jimple.basic.NoPositionInformation;
+import sootup.core.jimple.common.constant.IntConstant;
 import sootup.core.model.ClassModifier;
 import sootup.core.model.SourceType;
 import sootup.core.signatures.FieldSignature;
@@ -60,15 +61,13 @@ public class SootUpFrameworkScope implements FrameworkScope {
   @Override
   @Nonnull
   public Val getTrueValue(Method m) {
-    return new JimpleUpVal(
-        sootup.core.jimple.common.constant.IntConstant.getInstance(1), (JimpleUpMethod) m);
+    return new JimpleUpVal(IntConstant.getInstance(1), m);
   }
 
   @Override
   @Nonnull
   public Val getFalseValue(Method m) {
-    return new JimpleUpVal(
-        sootup.core.jimple.common.constant.IntConstant.getInstance(0), (JimpleUpMethod) m);
+    return new JimpleUpVal(IntConstant.getInstance(0), m);
   }
 
   @Override
@@ -97,7 +96,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
   }
 
   @Override
-  public CallGraph buildCallGraph() {
+  public CallGraph getCallGraph() {
     return cg;
   }
 
@@ -130,7 +129,8 @@ public class SootUpFrameworkScope implements FrameworkScope {
       return sootClass.get();
     }
 
-    OverridingJavaClassSource phantomClassSource = new OverridingJavaClassSource(
+    OverridingJavaClassSource phantomClassSource =
+        new OverridingJavaClassSource(
             new EagerInputLocation(),
             Paths.get("/phantom-class-in-memory"),
             classType,
@@ -200,14 +200,10 @@ public class SootUpFrameworkScope implements FrameworkScope {
     return sootMethod.getSignature().getName().equals(STATIC_INITIALIZER_NAME);
   }
 
-
-  /**
-   * Dummy Phantom Class representation
-   * */
-  public class PhantomClass extends JavaSootClass{
+  /** Dummy Phantom Class representation */
+  public static class PhantomClass extends JavaSootClass {
     public PhantomClass(JavaSootClassSource classSource, SourceType sourceType) {
       super(classSource, sourceType);
     }
   }
-
 }

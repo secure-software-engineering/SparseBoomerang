@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sootup.core.types.ClassType;
 import sootup.java.core.JavaSootClass;
-import sootup.java.core.JavaSootClassSource;
 import sootup.java.core.JavaSootMethod;
 import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
@@ -36,13 +35,14 @@ public class SootUpDataFlowScopeUtil {
       @Override
       public boolean isExcluded(DeclaredMethod method) {
         JimpleUpDeclaredMethod m = (JimpleUpDeclaredMethod) method;
-        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m
-            .isNative();
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass
+            || m.isNative();
       }
 
       public boolean isExcluded(Method method) {
         JimpleUpMethod m = (JimpleUpMethod) method;
-        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m.isNative();
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass
+            || m.isNative();
       }
     };
   }
@@ -67,8 +67,8 @@ public class SootUpDataFlowScopeUtil {
             return true;
           }
         }
-        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m
-            .isNative();
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass
+            || m.isNative();
       }
 
       public boolean isExcluded(Method method) {
@@ -83,7 +83,8 @@ public class SootUpDataFlowScopeUtil {
             return true;
           }
         }
-        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass || m.isNative();
+        return m.getDeclaringClass().getDelegate() instanceof SootUpFrameworkScope.PhantomClass
+            || m.isNative();
       }
     };
   }
@@ -157,7 +158,7 @@ public class SootUpDataFlowScopeUtil {
     private Set<String> excludes = Sets.newHashSet();
 
     public SubSignatureFilter(SootUpFrameworkScope scope, String subSig) {
-      scope.buildCallGraph().getReachableMethods().stream()
+      scope.getCallGraph().getReachableMethods().stream()
           .map(Method::getSubSignature)
           .filter(methodSig -> methodSig.equals(subSig))
           .forEach(excludes::add);

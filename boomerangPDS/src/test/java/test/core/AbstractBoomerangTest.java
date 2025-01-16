@@ -105,7 +105,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   }
 
   private void analyzeWithCallGraph() {
-    CallGraph callGraph = frameworkScope.buildCallGraph();
+    CallGraph callGraph = frameworkScope.getCallGraph();
     queryDetector = new QueryForCallSiteDetector(callGraph);
     queryForCallSites = queryDetector.computeSeeds();
 
@@ -147,7 +147,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     final Set<Node<Edge, Val>> results = Sets.newHashSet();
     WholeProgramBoomerang<NoWeight> solver =
         new WholeProgramBoomerang<NoWeight>(
-            frameworkScope.buildCallGraph(),
+            frameworkScope.getCallGraph(),
             frameworkScope.getDataFlowScope(),
             new DefaultBoomerangOptions() {
               @Override
@@ -272,8 +272,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     for (final Query query : queries) {
       BoomerangOptions options = createBoomerangOptions();
       Boomerang solver =
-          new Boomerang(
-              frameworkScope.buildCallGraph(), getDataFlowScope(), options, frameworkScope);
+          new Boomerang(frameworkScope.getCallGraph(), getDataFlowScope(), options, frameworkScope);
 
       if (query instanceof BackwardQuery) {
         Stopwatch watch = Stopwatch.createStarted();

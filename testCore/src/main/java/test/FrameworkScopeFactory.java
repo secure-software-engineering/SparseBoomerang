@@ -21,6 +21,7 @@ import soot.options.Options;
 import sootup.SourceTypeIncludeExcludeAnalysisInputLocation;
 import sootup.callgraph.CallGraphAlgorithm;
 import sootup.callgraph.ClassHierarchyAnalysisAlgorithm;
+import sootup.callgraph.RapidTypeAnalysisAlgorithm;
 import sootup.core.frontend.BodySource;
 import sootup.core.frontend.ResolveException;
 import sootup.core.graph.MutableBlockStmtGraph;
@@ -297,6 +298,7 @@ public class FrameworkScopeFactory {
     JavaClassPathAnalysisInputLocation classPathInputLocation =
         new JavaClassPathAnalysisInputLocation(pathStr, SourceType.Application, bodyInterceptors);
 
+    // FIXME!
     if (true /*includedPackages.isEmpty() && excludedPackages.isEmpty() */) {
       inputLocations.add(classPathInputLocation);
     } else {
@@ -463,7 +465,7 @@ public class FrameworkScopeFactory {
     CallGraphAlgorithm cga =
         customEntrypointMethodName == null
             ? new ClassHierarchyAnalysisAlgorithm(javaView)
-            : new ClassHierarchyAnalysisAlgorithm(javaView);
+            : new RapidTypeAnalysisAlgorithm(javaView);
     cg = cga.initialize(entypointSignatures);
 
     return new SootUpFrameworkScope(javaView, cg, entypointSignatures);

@@ -34,7 +34,7 @@ public class WalaFrameworkScope implements FrameworkScope {
   }
 
   @Override
-  public CallGraph buildCallGraph() {
+  public CallGraph getCallGraph() {
     throw new UnsupportedOperationException("implement me!");
   }
 

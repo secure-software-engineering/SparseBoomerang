@@ -93,7 +93,7 @@ public class Repro extends AbstractTestingFramework {
             var);
     Boomerang solver =
         new Boomerang(
-            scopeFactory.buildCallGraph(),
+            scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
             new IntAndStringBoomerangOptions(),
             scopeFactory);

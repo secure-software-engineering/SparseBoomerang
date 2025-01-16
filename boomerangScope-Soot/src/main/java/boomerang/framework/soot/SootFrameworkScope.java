@@ -11,6 +11,13 @@ import soot.jimple.IntConstant;
 
 public class SootFrameworkScope implements FrameworkScope {
 
+  @Nonnull private final SootCallGraph sootCallGraph;
+
+  public SootFrameworkScope() {
+    sootCallGraph = new SootCallGraph();
+    getEntrypoints().forEach(sootCallGraph::addEntryPoint);
+  }
+
   @Override
   public List<Method> getEntrypoints() {
     return Scene.v().getEntryPoints().stream().map(JimpleMethod::of).collect(Collectors.toList());
@@ -47,9 +54,7 @@ public class SootFrameworkScope implements FrameworkScope {
   }
 
   @Override
-  public CallGraph buildCallGraph() {
-    SootCallGraph sootCallGraph = new SootCallGraph();
-    getEntrypoints().forEach(sootCallGraph::addEntryPoint);
+  public CallGraph getCallGraph() {
     return sootCallGraph;
   }
 
