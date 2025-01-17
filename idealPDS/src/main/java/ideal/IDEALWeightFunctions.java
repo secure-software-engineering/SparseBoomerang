@@ -69,7 +69,7 @@ public class IDEALWeightFunctions<W extends Weight> implements WeightFunctions<E
   public W normal(Node<Edge, Val> curr, Node<Edge, Val> succ) {
     W weight = delegate.normal(curr, succ);
     if (isObjectFlowPhase()
-        && succ.stmt().getTarget().containsInvokeExpr()
+        && succ.stmt().getStart().containsInvokeExpr()
         && !weight.equals(getOne())) {
       addOtherThanOneWeight(succ);
     }

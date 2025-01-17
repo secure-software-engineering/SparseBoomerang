@@ -162,7 +162,7 @@ public class Main {
             resultHandler.getResults();
         for (Entry<WeightedForwardQuery<InferenceWeight>, ForwardBoomerangResults<InferenceWeight>>
             e : res.entrySet()) {
-          Table<Edge, Val, InferenceWeight> results = e.getValue().asStatementValWeightTable();
+          Table<Edge, Val, InferenceWeight> results = e.getValue().asEdgeValWeightTable();
           logger.info(Joiner.on("\n").join(results.cellSet()));
         }
       }
