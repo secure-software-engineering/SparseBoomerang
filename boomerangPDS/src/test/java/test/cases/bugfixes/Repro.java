@@ -9,9 +9,9 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.*;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
 import soot.*;
@@ -70,7 +70,7 @@ public class Repro {
     PackManager.v().getPack("wjtp").apply();
   }
 
-  private static Map<Edge, DeclaredMethod> getMethodsInvokedFromInstanceInStatement(
+  private static Collection<Statement> getMethodsInvokedFromInstanceInStatement(
       Statement queryStatement) {
     Val var = new AllocVal(queryStatement.getLeftOp(), queryStatement, queryStatement.getRightOp());
     ForwardQuery fwq =
@@ -83,7 +83,7 @@ public class Repro {
             var);
     Boomerang solver = new Boomerang(new SootCallGraph(), SootDataFlowScope.make(Scene.v()), opts);
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
-    return results.getInvokedMethodOnInstance();
+    return results.getInvokeStatementsOnInstance();
   }
 
   static class ReproTransformer extends SceneTransformer {
@@ -115,13 +115,14 @@ public class Repro {
 
       // This will only show results if set_exclude above gets uncommented
       System.out.println("\nFoo invoked methods:");
-      Set<Entry<Edge, DeclaredMethod>> entries =
-          getMethodsInvokedFromInstanceInStatement(newFoo).entrySet();
+      Collection<Statement> statements = getMethodsInvokedFromInstanceInStatement(newFoo);
       Set<String> methodCalledOnFoo = Sets.newHashSet();
-      for (Map.Entry<Edge, DeclaredMethod> e : entries) {
-        System.out.println("\t" + e.getKey().toString());
-        System.out.println("\t\t" + e.getValue().toString());
-        methodCalledOnFoo.add(e.getValue().toString());
+      for (Statement s : statements) {
+        System.out.println("\t" + s);
+
+        DeclaredMethod calledMethod = s.getInvokeExpr().getMethod();
+        System.out.println("\t\t" + calledMethod);
+        methodCalledOnFoo.add(calledMethod.toString());
       }
 
       assert methodCalledOnFoo.equals(Sets.newHashSet(expectedCalledMethodsOnFoo));
