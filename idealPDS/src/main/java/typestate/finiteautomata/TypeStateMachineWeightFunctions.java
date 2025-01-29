@@ -71,8 +71,9 @@ public abstract class TypeStateMachineWeightFunctions
 
   @Override
   public TransitionFunction normal(Node<Edge, Val> curr, Node<Edge, Val> succ) {
-    if (succ.stmt().getTarget().containsInvokeExpr()) {
-      return callToReturn(curr, succ, succ.stmt().getTarget().getInvokeExpr());
+    Statement successor = succ.stmt().getStart();
+    if (successor.containsInvokeExpr()) {
+      return callToReturn(curr, succ, successor.getInvokeExpr());
     }
     return getOne();
   }
