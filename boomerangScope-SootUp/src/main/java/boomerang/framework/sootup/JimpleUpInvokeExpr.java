@@ -10,6 +10,7 @@ import sootup.core.jimple.common.expr.AbstractInstanceInvokeExpr;
 import sootup.core.jimple.common.expr.AbstractInvokeExpr;
 import sootup.core.jimple.common.expr.JSpecialInvokeExpr;
 import sootup.core.jimple.common.expr.JStaticInvokeExpr;
+import sootup.java.core.JavaSootMethod;
 
 public class JimpleUpInvokeExpr implements InvokeExpr {
 
@@ -58,11 +59,8 @@ public class JimpleUpInvokeExpr implements InvokeExpr {
 
   @Override
   public DeclaredMethod getMethod() {
-    //    JavaSootMethod sootMethod
-    // =SootUpFrameworkScope.getInstance().getSootMethod(delegate.getMethodSignature()).orElseThrow(
-    // () -> new IllegalStateException("Can't find Method Declaration! " +
-    // delegate.getMethodSignature()));
-    return new JimpleUpDeclaredMethod(this, method.getDelegate());
+    JavaSootMethod sootMethod = SootUpFrameworkScope.getInstance().getSootMethod(delegate.getMethodSignature()).orElseThrow(() -> new IllegalStateException("Can't find Method Declaration! " + delegate.getMethodSignature()));
+    return new JimpleUpDeclaredMethod(this, sootMethod);
   }
 
   @Override

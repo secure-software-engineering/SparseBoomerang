@@ -25,9 +25,10 @@ import sootup.java.core.views.JavaView;
 
 public class SootUpFrameworkScope implements FrameworkScope {
 
-  @Nonnull private final JavaView view;
-  private final CallGraph cg;
-  @Nonnull private final List<Method> entrypoints;
+  @Nonnull protected final JavaView view;
+  @Nonnull protected final CallGraph cg;
+  @Nonnull protected final List<Method> entrypoints;
+  @Nonnull protected final DataFlowScope dataflowScope;
 
   public SootUpFrameworkScope(
       @Nonnull JavaView view,
@@ -42,6 +43,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
             .collect(Collectors.toList());
 
     this.cg = new SootUpCallGraph(cg, getEntrypoints());
+    dataflowScope = SootUpDataFlowScope.make();
   }
 
   private static SootUpFrameworkScope INSTANCE;
@@ -102,7 +104,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
 
   @Override
   public DataFlowScope getDataFlowScope() {
-    return SootUpDataFlowScope.make();
+    return dataflowScope;
   }
 
   @Override
@@ -200,7 +202,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
     return sootMethod.getSignature().getName().equals(STATIC_INITIALIZER_NAME);
   }
 
-  /** Dummy Phantom Class representation */
+  /** Dummy Phantom Class representation to mimic what Soot would do */
   public static class PhantomClass extends JavaSootClass {
     public PhantomClass(JavaSootClassSource classSource, SourceType sourceType) {
       super(classSource, sourceType);

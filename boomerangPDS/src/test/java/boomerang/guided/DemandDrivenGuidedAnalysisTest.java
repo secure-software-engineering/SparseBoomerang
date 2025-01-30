@@ -23,7 +23,7 @@ import wpds.impl.Weight.NoWeight;
 
 public class DemandDrivenGuidedAnalysisTest {
 
-  private String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
+  private final String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
 
   @Test
   public void integerCastTest() {

@@ -110,7 +110,11 @@ public class SootUpDataFlowScopeUtil {
         }
       }
       view.getClasses()
-          .filter(c -> c.hasOuterClass() && excludes.contains(c.getOuterClass().get()))
+          .filter(
+              c -> {
+                Optional<JavaClassType> outerClass = c.getOuterClass();
+                return outerClass.isPresent() && excludes.contains(outerClass.get());
+              })
           .forEach(
               c -> {
                 excludes.add(guavaMapType);

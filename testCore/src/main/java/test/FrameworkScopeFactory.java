@@ -11,6 +11,8 @@ import com.google.common.collect.Lists;
 import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,9 +20,8 @@ import soot.*;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.options.Options;
-import sootup.SourceTypeIncludeExcludeAnalysisInputLocation;
+import sootup.SourceTypeSplittingAnalysisInputLocation;
 import sootup.callgraph.CallGraphAlgorithm;
-import sootup.callgraph.ClassHierarchyAnalysisAlgorithm;
 import sootup.callgraph.RapidTypeAnalysisAlgorithm;
 import sootup.core.frontend.BodySource;
 import sootup.core.frontend.ResolveException;
@@ -54,7 +55,7 @@ public class FrameworkScopeFactory {
   // see
   // https://github.com/secure-software-engineering/SparseBoomerang/blob/4c491929237d869f6efdd9fcadbd065c1729610a/boomerangPDS/src/test/java/boomerang/guided/DemandDrivenGuidedAnalysisTest.java#L463
   public static FrameworkScope init(String classPath, String fqClassName) {
-    return init(classPath, fqClassName, null, Collections.emptyList(), Collections.emptyList());
+    return init(classPath, fqClassName, null, new ArrayList<>(), Collections.emptyList());
   }
 
   public static FrameworkScope init(
@@ -66,7 +67,7 @@ public class FrameworkScopeFactory {
 
     // TODO: ms: currently: switch here to test desired framework - refactor e.g. into parameterized
     // tests!
-    return getSootFrameworkScope(
+    return getSootUpFrameworkScope(
         classPath, fqClassName, customEntrypointMethodName, includedPackages, excludedPackages);
   }
 
@@ -196,6 +197,7 @@ public class FrameworkScopeFactory {
         throw new IllegalStateException(
             "No entrypoints given/found in " + classCount + " classes.");
       }
+      System.out.println("classes: "+ classCount);
       Scene.v().setEntryPoints(eps);
 
       Transform transform =
@@ -267,6 +269,22 @@ public class FrameworkScopeFactory {
 
     System.out.println("framework:sootup");
 
+    // FIXME add dependent classs from entrypoint
+    Path testClassesBinRoot = Paths.get(System.getProperty("user.dir") + "/target/test-classes/");
+    try {
+      Files.walk(testClassesBinRoot)
+          .filter(f -> f.toFile().isDirectory())
+          .forEach(
+              x -> {
+                if (x != testClassesBinRoot) {
+                  Path relativize = testClassesBinRoot.relativize(x);
+                  includedPackages.add(relativize.toString().replace("/", ".") + ".*");
+                }
+              });
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+
     // configure interceptors
     // TODO: check if the interceptor needs a reset in between runs
     List<BodyInterceptor> bodyInterceptors =
@@ -278,42 +296,44 @@ public class FrameworkScopeFactory {
 
     DefaultRuntimeAnalysisInputLocation runtimeInputLocation =
         new DefaultRuntimeAnalysisInputLocation();
-    if (includedPackages.isEmpty() && excludedPackages.isEmpty()) {
+
+
+    System.out.println("incl"+ includedPackages);
+    System.out.println("ex"+ excludedPackages);
+
+    if (true || includedPackages.isEmpty() && excludedPackages.isEmpty()) {
       inputLocations.add(runtimeInputLocation);
     } else {
-      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeApplicationAnalysisInputLocation
-          sourceTypeApplicationAnalysisInputLocationRuntime =
-              new SourceTypeIncludeExcludeAnalysisInputLocation
-                  .SourceTypeApplicationAnalysisInputLocation(
+      SourceTypeSplittingAnalysisInputLocation.ApplicationAnalysisInputLocation
+          applicationAnalysisInputLocationRuntime =
+              new SourceTypeSplittingAnalysisInputLocation.ApplicationAnalysisInputLocation(
                   runtimeInputLocation, includedPackages);
-      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeLibraryAnalysisInputLocation
+
+      SourceTypeSplittingAnalysisInputLocation.LibraryAnalysisInputLocation
           sourceTypeLibraryAnalysisInputLocationRuntime =
-              new SourceTypeIncludeExcludeAnalysisInputLocation
-                  .SourceTypeLibraryAnalysisInputLocation(
-                  sourceTypeApplicationAnalysisInputLocationRuntime, excludedPackages);
-      inputLocations.add(sourceTypeApplicationAnalysisInputLocationRuntime);
+              new SourceTypeSplittingAnalysisInputLocation.LibraryAnalysisInputLocation(
+                  applicationAnalysisInputLocationRuntime, excludedPackages);
+
+      inputLocations.add(applicationAnalysisInputLocationRuntime);
       inputLocations.add(sourceTypeLibraryAnalysisInputLocationRuntime);
     }
 
     JavaClassPathAnalysisInputLocation classPathInputLocation =
         new JavaClassPathAnalysisInputLocation(pathStr, SourceType.Application, bodyInterceptors);
 
-    // FIXME!
-    if (true /*includedPackages.isEmpty() && excludedPackages.isEmpty() */) {
+    if (includedPackages.isEmpty() && excludedPackages.isEmpty()) {
       inputLocations.add(classPathInputLocation);
     } else {
-      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeApplicationAnalysisInputLocation
-          sourceTypeApplicationAnalysisInputLocation =
-              new SourceTypeIncludeExcludeAnalysisInputLocation
-                  .SourceTypeApplicationAnalysisInputLocation(
+      SourceTypeSplittingAnalysisInputLocation.ApplicationAnalysisInputLocation
+          applicationAnalysisInputLocation =
+              new SourceTypeSplittingAnalysisInputLocation.ApplicationAnalysisInputLocation(
                   classPathInputLocation, includedPackages);
 
-      SourceTypeIncludeExcludeAnalysisInputLocation.SourceTypeLibraryAnalysisInputLocation
+      SourceTypeSplittingAnalysisInputLocation.LibraryAnalysisInputLocation
           sourceTypeLibraryAnalysisInputLocation =
-              new SourceTypeIncludeExcludeAnalysisInputLocation
-                  .SourceTypeLibraryAnalysisInputLocation(
-                  sourceTypeApplicationAnalysisInputLocation, excludedPackages);
-      inputLocations.add(sourceTypeApplicationAnalysisInputLocation);
+              new SourceTypeSplittingAnalysisInputLocation.LibraryAnalysisInputLocation(
+                  applicationAnalysisInputLocation, excludedPackages);
+      inputLocations.add(applicationAnalysisInputLocation);
       inputLocations.add(sourceTypeLibraryAnalysisInputLocation);
     }
 
@@ -326,14 +346,28 @@ public class FrameworkScopeFactory {
      */
 
     JavaView javaView;
+    Collection<JavaSootClass> classes;
     sootup.callgraph.CallGraph cg;
     List<MethodSignature> entypointSignatures = Lists.newArrayList();
 
     if (customEntrypointMethodName == null) {
-
+      System.out.println(inputLocations);
       javaView = new JavaView(inputLocations);
+      System.out.println(inputLocations.get(0).getSourceType());
+      inputLocations.get(0).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      System.out.println("-----");
+      System.out.println(inputLocations.get(1).getSourceType());
+      inputLocations.get(1).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      System.out.println("-----");
+      System.out.println(inputLocations.get(2).getSourceType());
+      inputLocations.get(2).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      System.out.println("-----");
+     // System.out.println(inputLocations.get(3).getSourceType());
+ //     inputLocations.get(3).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+
+      classes = javaView.getClasses().collect(Collectors.toList());
       // collect entrypoints
-      for (JavaSootClass sootClass : javaView.getClasses().collect(Collectors.toList())) {
+      for (JavaSootClass sootClass : classes) {
         String scStr = sootClass.toString();
         if (scStr.equals(className) || (scStr.contains(className + "$"))) {
           sootClass.getMethods().stream()
@@ -437,7 +471,9 @@ public class FrameworkScopeFactory {
       inputLocations.add(
           new EagerInputLocation(
               Collections.singletonMap(dummyClassType, dummyClassSource), SourceType.Application));
+
       javaView = new JavaView(inputLocations);
+      classes = javaView.getClasses().collect(Collectors.toList());
 
       MethodSignature dummyEntrypoint =
           javaView
@@ -450,21 +486,17 @@ public class FrameworkScopeFactory {
 
     System.out.println(
         "classes: "
-            + javaView
-                .getClasses()
-                .count()); // soot has 1911 for boomerang.guided.DemandDrivenGuidedAnalysisTest
+            + classes.size()); // soot has 1911 for boomerang.guided.DemandDrivenGuidedAnalysisTest
 
-    javaView
-        .getClasses()
-        .sorted(Comparator.comparing(sootup.core.model.SootClass::toString))
-        .forEach(System.out::println);
-    System.out.println();
+        classes.stream()
+           .sorted(Comparator.comparing(sootup.core.model.SootClass::toString))
+           .forEach(System.out::println);
 
     // initialize CallGraphAlgorithm
     // TODO: use spark when available
     CallGraphAlgorithm cga =
         customEntrypointMethodName == null
-            ? new ClassHierarchyAnalysisAlgorithm(javaView)
+            ? new RapidTypeAnalysisAlgorithm(javaView)
             : new RapidTypeAnalysisAlgorithm(javaView);
     cg = cga.initialize(entypointSignatures);
 

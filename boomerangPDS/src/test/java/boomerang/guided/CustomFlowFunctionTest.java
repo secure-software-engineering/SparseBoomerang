@@ -55,6 +55,14 @@ public class CustomFlowFunctionTest {
     Assert.assertEquals(true, backwardQueryResults.isEmpty());
   }
 
+  /*
+  soot uses 1829 classes here:
+  methodname: <init>
+  methodname: exit
+  methodname: queryFor
+  Solving query: BackwardQuery: (z (boomerang.guided.targets.CustomFlowFunctionTarget.<boomerang.guided.targets.CustomFlowFunctionTarget: void main(java.lang.String[])>),exit(y) -> queryFor(z))
+  {}
+  * */
   @Test
   public void killOnSystemExitBackwardTest() {
     FrameworkScope scopeFactory =
@@ -76,7 +84,7 @@ public class CustomFlowFunctionTest {
 
     // For the query no allocation site is found, as between queryFor and the allocation site there
     // exists a System.exit call.
-    Assert.assertEquals(true, backwardQueryResults.isEmpty());
+    Assert.assertTrue(backwardQueryResults.isEmpty());
   }
 
   @Test
@@ -109,11 +117,14 @@ public class CustomFlowFunctionTest {
   }
 
   public static BackwardQuery selectQueryForStatement(Method method) {
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
     Statement queryStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
-            .filter(x -> x.getInvokeExpr().getMethod().getName().equals("queryFor"))
+            .filter(Statement::containsInvokeExpr)
+            .filter(
+                x -> {
+                  System.out.println("methodname: " + x.getInvokeExpr().getMethod().getName());
+                  return x.getInvokeExpr().getMethod().getName().equals("queryFor");
+                })
             .findFirst()
             .get();
     Val arg = queryStatement.getInvokeExpr().getArg(0);
@@ -125,7 +136,7 @@ public class CustomFlowFunctionTest {
   }
 
   public static ForwardQuery selectFirstIntAssignment(Method method) {
-    method.getStatements().stream().forEach(x -> System.out.println(x.toString()));
+    method.getStatements().forEach(x -> System.out.println(x.toString()));
     Statement intAssignStmt =
         method.getStatements().stream()
             .filter(x -> x.isAssign() && !x.getLeftOp().getType().isRefType())
@@ -139,7 +150,7 @@ public class CustomFlowFunctionTest {
     return new ForwardQuery(cfgEdge, arg);
   }
 
-  private class CustomBoomerangOptions extends DefaultBoomerangOptions {
+  private static class CustomBoomerangOptions extends DefaultBoomerangOptions {
 
     @Override
     public IForwardFlowFunction getForwardFlowFunctions() {
@@ -152,7 +163,7 @@ public class CustomFlowFunctionTest {
     }
   }
 
-  private class CustomIntAndStringBoomerangOptions extends IntAndStringBoomerangOptions {
+  private static class CustomIntAndStringBoomerangOptions extends IntAndStringBoomerangOptions {
 
     @Override
     public IForwardFlowFunction getForwardFlowFunctions() {

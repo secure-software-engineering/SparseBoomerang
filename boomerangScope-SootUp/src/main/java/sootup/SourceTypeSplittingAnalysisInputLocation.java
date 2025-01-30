@@ -1,9 +1,10 @@
 package sootup;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import sootup.core.frontend.SootClassSource;
 import sootup.core.inputlocation.AnalysisInputLocation;
@@ -12,16 +13,27 @@ import sootup.core.transform.BodyInterceptor;
 import sootup.core.types.ClassType;
 import sootup.core.views.View;
 
-public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
-    implements AnalysisInputLocation {
+/** Mimics Soots includePackage / excludePackage behaviour */
+public abstract class SourceTypeSplittingAnalysisInputLocation implements AnalysisInputLocation {
 
-  protected abstract boolean filter(@Nonnull ClassType type);
-
+  @Nonnull
   protected abstract AnalysisInputLocation getInputLocation();
 
   @Nonnull
   @Override
   public abstract SourceType getSourceType();
+
+  protected abstract boolean filter(@Nonnull ClassType type);
+
+  private static boolean filterConditionCheck(String pkg, String className) {
+      if (className.equals(pkg)) {
+          return true;
+      }
+      if (pkg.endsWith(".*") || pkg.endsWith("$*")) {
+          return className.startsWith(pkg.substring(0, pkg.length() - 1));
+      }
+      return false;
+  }
 
   @Nonnull
   @Override
@@ -35,10 +47,8 @@ public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
 
   @Nonnull
   @Override
-  public Collection<? extends SootClassSource> getClassSources(@Nonnull View view) {
-    return getInputLocation().getClassSources(view).stream()
-        .filter(type -> filter(type.getClassType()))
-        .collect(Collectors.toList());
+  public Stream<? extends SootClassSource> getClassSources(@Nonnull View view) {
+    return getInputLocation().getClassSources(view).filter(type -> filter(type.getClassType()));
   }
 
   @Nonnull
@@ -47,14 +57,14 @@ public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
     return getInputLocation().getBodyInterceptors();
   }
 
-  public static class SourceTypeLibraryAnalysisInputLocation
-      extends SourceTypeIncludeExcludeAnalysisInputLocation {
+  public static class LibraryAnalysisInputLocation
+      extends SourceTypeSplittingAnalysisInputLocation {
 
-    @Nonnull private final SourceTypeIncludeExcludeAnalysisInputLocation inputLocation;
+    @Nonnull private final SourceTypeSplittingAnalysisInputLocation inputLocation;
     private final Collection<String> excludes;
 
-    public SourceTypeLibraryAnalysisInputLocation(
-        @Nonnull SourceTypeIncludeExcludeAnalysisInputLocation inputLocation,
+    public LibraryAnalysisInputLocation(
+        @Nonnull SourceTypeSplittingAnalysisInputLocation inputLocation,
         Collection<String> excludes) {
       this.inputLocation = inputLocation;
       this.excludes = excludes;
@@ -68,9 +78,7 @@ public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
     protected boolean filter(@Nonnull ClassType type) {
       String className = type.getFullyQualifiedName();
       for (String pkg : excludes) {
-        if (className.equals(pkg)
-            || ((pkg.endsWith(".*") || pkg.endsWith("$*"))
-                && className.startsWith(pkg.substring(0, pkg.length() - 1)))) {
+        if (filterConditionCheck(pkg, className)) {
           return !inputLocation.filter(type);
         }
       }
@@ -84,8 +92,8 @@ public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
     }
   }
 
-  public static class SourceTypeApplicationAnalysisInputLocation
-      extends SourceTypeIncludeExcludeAnalysisInputLocation {
+  public static class ApplicationAnalysisInputLocation
+      extends SourceTypeSplittingAnalysisInputLocation {
     private final Collection<String> includes;
     @Nonnull private final AnalysisInputLocation inputLocation;
 
@@ -94,9 +102,8 @@ public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
       return inputLocation;
     }
 
-    public SourceTypeApplicationAnalysisInputLocation(
+    public ApplicationAnalysisInputLocation(
         @Nonnull AnalysisInputLocation inputLocation, Collection<String> includes) {
-      super();
       this.inputLocation = inputLocation;
       this.includes = includes;
     }
@@ -104,9 +111,7 @@ public abstract class SourceTypeIncludeExcludeAnalysisInputLocation
     protected boolean filter(@Nonnull ClassType type) {
       String className = type.getFullyQualifiedName();
       for (String pkg : includes) {
-        if (className.equals(pkg)
-            || ((pkg.endsWith(".*") || pkg.endsWith("$*"))
-                && className.startsWith(pkg.substring(0, pkg.length() - 1)))) {
+        if (filterConditionCheck(pkg, className)) {
           return true;
         }
       }

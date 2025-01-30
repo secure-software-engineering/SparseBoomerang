@@ -111,54 +111,57 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
          * - varReplacer = 10
          * - method(varReplacer)
          */
-        List<Immediate> newArgs = new ArrayList<>();
 
         InvokableStmt invStmt = stmt.asInvokableStmt();
+        Optional<AbstractInvokeExpr> InvokeExprOpt = invStmt.getInvokeExpr();
 
-        AbstractInvokeExpr invokeExpr = invStmt.getInvokeExpr().get();
-        for (int i = 0; i < invokeExpr.getArgCount(); i++) {
-          Immediate arg = invokeExpr.getArg(i);
+        if (InvokeExprOpt.isPresent()) {
+          List<Immediate> newArgs = new ArrayList<>();
+          AbstractInvokeExpr invokeExpr = InvokeExprOpt.get();
+          for (int i = 0; i < invokeExpr.getArgCount(); i++) {
+            Immediate arg = invokeExpr.getArg(i);
 
-          if (arg instanceof Constant && !(arg instanceof ClassConstant)) {
-            String label = LABEL + replaceCounter++;
-            Local local = Jimple.newLocal(label, arg.getType());
-            JAssignStmt newAssignStmt = Jimple.newAssignStmt(local, arg, stmt.getPositionInfo());
+            if (arg instanceof Constant && !(arg instanceof ClassConstant)) {
+              String label = LABEL + replaceCounter++;
+              Local local = Jimple.newLocal(label, arg.getType());
+              JAssignStmt newAssignStmt = Jimple.newAssignStmt(local, arg, stmt.getPositionInfo());
 
-            body.addLocal(local);
-            body.getStmtGraph().insertBefore(stmt, newAssignStmt);
+              body.addLocal(local);
+              body.getStmtGraph().insertBefore(stmt, newAssignStmt);
 
-            newArgs.add(local);
-          } else {
-            newArgs.add(arg);
+              newArgs.add(local);
+            } else {
+              newArgs.add(arg);
+            }
           }
-        }
 
-        // Update the invoke expression with new arguments
-        // TODO: [ms] make use of new ReplaceUseExprVisitor()
-        AbstractInvokeExpr newInvokeExpr;
-        if (invokeExpr instanceof JStaticInvokeExpr) {
-          JStaticInvokeExpr staticInvokeExpr = (JStaticInvokeExpr) invokeExpr;
+          // Update the invoke expression with new arguments
+          // TODO: [ms] make use of new ReplaceUseExprVisitor()
+          AbstractInvokeExpr newInvokeExpr;
+          if (invokeExpr instanceof JStaticInvokeExpr) {
+            JStaticInvokeExpr staticInvokeExpr = (JStaticInvokeExpr) invokeExpr;
 
-          newInvokeExpr = staticInvokeExpr.withArgs(newArgs);
-        } else if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
-          AbstractInstanceInvokeExpr instanceInvokeExpr = (AbstractInstanceInvokeExpr) invokeExpr;
+            newInvokeExpr = staticInvokeExpr.withArgs(newArgs);
+          } else if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
+            AbstractInstanceInvokeExpr instanceInvokeExpr = (AbstractInstanceInvokeExpr) invokeExpr;
 
-          newInvokeExpr = instanceInvokeExpr.withArgs(newArgs);
-        } else {
-          // TODO Are there other relevant cases?
-          newInvokeExpr = invokeExpr;
-        }
+            newInvokeExpr = instanceInvokeExpr.withArgs(newArgs);
+          } else {
+            // TODO Are there other relevant cases?
+            newInvokeExpr = invokeExpr;
+          }
 
-        if (stmt instanceof JInvokeStmt) {
-          JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
-          JInvokeStmt newStmt = invokeStmt.withInvokeExpr(newInvokeExpr);
+          if (stmt instanceof JInvokeStmt) {
+            JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
+            JInvokeStmt newStmt = invokeStmt.withInvokeExpr(newInvokeExpr);
 
-          body.getStmtGraph().replaceNode(stmt, newStmt);
-        } else if (stmt instanceof JAssignStmt) {
-          JAssignStmt assignStmt = (JAssignStmt) stmt;
-          JAssignStmt newStmt = assignStmt.withRValue(newInvokeExpr);
+            body.getStmtGraph().replaceNode(stmt, newStmt);
+          } else if (stmt instanceof JAssignStmt) {
+            JAssignStmt assignStmt = (JAssignStmt) stmt;
+            JAssignStmt newStmt = assignStmt.withRValue(newInvokeExpr);
 
-          body.getStmtGraph().replaceNode(stmt, newStmt);
+            body.getStmtGraph().replaceNode(stmt, newStmt);
+          }
         }
       }
 
