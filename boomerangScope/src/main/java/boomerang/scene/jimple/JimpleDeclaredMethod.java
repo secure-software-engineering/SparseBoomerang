@@ -92,6 +92,11 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
     return new JimpleType(delegate.getParameterType(index));
   }
 
+  @Override
+  public Type getReturnType() {
+    return new JimpleType(delegate.getReturnType());
+  }
+
   public Object getDelegate() {
     return delegate;
   }

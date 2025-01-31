@@ -75,6 +75,11 @@ public class WALADeclaredMethod extends DeclaredMethod {
   }
 
   @Override
+  public Type getReturnType() {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

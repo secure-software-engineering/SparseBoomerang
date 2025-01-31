@@ -88,6 +88,10 @@ public class JimpleMethod extends Method {
     return new JimpleType(delegate.getParameterType(index));
   }
 
+  public Type getReturnType() {
+    return new JimpleType(delegate.getReturnType());
+  }
+
   public boolean isThisLocal(Val val) {
     if (val.isStatic()) return false;
     if (!delegate.hasActiveBody()) {
