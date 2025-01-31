@@ -9,7 +9,7 @@
     <artifactId>boomerangScope-WALA</artifactId>
 
     <properties>
-        <wala.version>1.6.7</wala.version>
+        <wala.version>1.6.9</wala.version>
     </properties>
     <dependencies>
         <dependency>
