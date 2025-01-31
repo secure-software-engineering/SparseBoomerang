@@ -23,6 +23,7 @@ import boomerang.scene.jimple.JimpleMethod;
 import boomerang.scene.jimple.SootCallGraph;
 import boomerang.solver.BackwardBoomerangSolver;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -107,11 +108,11 @@ public class CustomFlowFunctionTest {
 
     System.out.println("Solving query: " + query);
     ForwardBoomerangResults<NoWeight> res = solver.solve(query);
-    System.out.println(res.asStatementValWeightTable());
+    System.out.println(res.asEdgeValWeightTable());
 
     boolean t =
         res.asStatementValWeightTable().cellSet().stream()
-            .map(c -> c.getRowKey().getTarget())
+            .map(Table.Cell::getRowKey)
             .anyMatch(
                 statement ->
                     statement.containsInvokeExpr()

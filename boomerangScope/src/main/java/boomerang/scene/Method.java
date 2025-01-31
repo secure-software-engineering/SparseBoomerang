@@ -36,11 +36,18 @@ public abstract class Method implements Location {
               return false;
             }
 
+            @Override
             public List<Type> getParameterTypes() {
               return Lists.newArrayList();
             }
 
+            @Override
             public Type getParameterType(int index) {
+              return null;
+            }
+
+            @Override
+            public Type getReturnType() {
               return null;
             }
 
@@ -124,6 +131,8 @@ public abstract class Method implements Location {
   public abstract List<Type> getParameterTypes();
 
   public abstract Type getParameterType(int index);
+
+  public abstract Type getReturnType();
 
   public abstract boolean isThisLocal(Val val);
 

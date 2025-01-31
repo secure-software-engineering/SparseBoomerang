@@ -27,6 +27,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +97,7 @@ public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerang
     if (solver == null) {
       return HashBasedTable.create();
     }
-    Table<Edge, Val, W> res = asStatementValWeightTable();
+    Table<Edge, Val, W> res = asEdgeValWeightTable();
     Set<Method> visitedMethods = Sets.newHashSet();
     for (Edge s : res.rowKeySet()) {
       visitedMethods.add(s.getMethod());
@@ -138,7 +140,11 @@ public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerang
     return destructingStatement;
   }
 
-  public Table<Edge, Val, W> asStatementValWeightTable() {
+  public Table<Edge, Val, W> asEdgeValWeightTable() {
+    return asEdgeValWeightTable(query);
+  }
+
+  public Table<Statement, Val, W> asStatementValWeightTable() {
     return asStatementValWeightTable(query);
   }
 
@@ -210,6 +216,22 @@ public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerang
               }
             });
     return invokedMethodsOnInstance;
+  }
+
+  /**
+   * Get all statements that contain an invoke expression belonging to the original seed.
+   *
+   * @return the statements that contain invoke expressions belonging to the original seed.
+   */
+  public Collection<Statement> getInvokeStatementsOnInstance() {
+    Collection<Statement> statements = new HashSet<>();
+
+    Map<Edge, DeclaredMethod> callsOnObject = getInvokedMethodOnInstance();
+    for (Edge edge : callsOnObject.keySet()) {
+      statements.add(edge.getStart());
+    }
+
+    return statements;
   }
 
   public QueryResults getPotentialNullPointerDereferences() {

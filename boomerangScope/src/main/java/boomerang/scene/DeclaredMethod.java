@@ -28,6 +28,8 @@ public abstract class DeclaredMethod {
 
   public abstract Type getParameterType(int index);
 
+  public abstract Type getReturnType();
+
   public InvokeExpr getInvokeExpr() {
     return inv;
   }

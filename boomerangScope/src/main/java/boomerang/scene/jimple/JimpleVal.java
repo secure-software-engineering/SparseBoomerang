@@ -88,10 +88,8 @@ public class JimpleVal extends Val {
   }
 
   public boolean isArrayAllocationVal() {
+    // TODO Split this into single array and multi array allocation
     if (v instanceof NewArrayExpr) {
-      NewArrayExpr expr = (NewArrayExpr) v;
-      // TODO Performance issue?!
-      //            return expr.getBaseType() instanceof RefType;
       return true;
     } else if (v instanceof NewMultiArrayExpr) {
       return true;
@@ -100,10 +98,17 @@ public class JimpleVal extends Val {
   }
 
   public Val getArrayAllocationSize() {
+    // TODO Split this into single array and multi array allocation
     if (v instanceof NewArrayExpr) {
       NewArrayExpr newArrayExpr = (NewArrayExpr) v;
 
       return new JimpleVal(newArrayExpr.getSize(), m);
+    }
+
+    if (v instanceof NewMultiArrayExpr) {
+      NewMultiArrayExpr expr = (NewMultiArrayExpr) v;
+
+      return new JimpleVal(expr.getSize(0), m);
     }
 
     throw new RuntimeException("Val is not an array allocation val");

@@ -90,7 +90,7 @@ public class DemandDrivenGuidedAnalysis {
         }
 
         Table<Edge, Val, NoWeight> forwardResults =
-            results.asStatementValWeightTable((ForwardQuery) pop.query);
+            results.asEdgeValWeightTable((ForwardQuery) pop.query);
         // Any ForwardQuery may trigger additional ForwardQuery under its own scope.
         triggerNewBackwardQueries(forwardResults, currentQuery, QueryDirection.FORWARD);
       } else {
@@ -103,16 +103,14 @@ public class DemandDrivenGuidedAnalysis {
                   (BackwardQuery) pop.query, pop.triggeringNode, pop.parentQuery);
         }
         Table<Edge, Val, NoWeight> backwardResults =
-            solver.getBackwardSolvers().get(query).asStatementValWeightTable();
+            solver.getBackwardSolvers().get(query).asEdgeValWeightTable();
 
         triggerNewBackwardQueries(backwardResults, pop.query, QueryDirection.BACKWARD);
         Map<ForwardQuery, Context> allocationSites = results.getAllocationSites();
 
         for (Entry<ForwardQuery, Context> entry : allocationSites.entrySet()) {
           triggerNewBackwardQueries(
-              results.asStatementValWeightTable(entry.getKey()),
-              entry.getKey(),
-              QueryDirection.FORWARD);
+              results.asEdgeValWeightTable(entry.getKey()), entry.getKey(), QueryDirection.FORWARD);
         }
       }
     }

@@ -168,6 +168,10 @@ public class AllocVal extends Val {
     return allocationVal;
   }
 
+  public Statement getAllocStatement() {
+    return allocStatement;
+  }
+
   public Val getDelegate() {
     return delegate;
   }

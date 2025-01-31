@@ -27,7 +27,6 @@ import boomerang.scene.Statement;
 import boomerang.scene.Type;
 import boomerang.scene.Val;
 import boomerang.util.RegExAccessPath;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -227,9 +226,9 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
         });
   }
 
-  public Table<Edge, Val, W> asStatementValWeightTable() {
+  public Table<Edge, Val, W> asEdgeValWeightTable() {
     final Table<Edge, Val, W> results = HashBasedTable.create();
-    Stopwatch sw = Stopwatch.createStarted();
+
     WeightedPAutomaton<Edge, INode<Val>, W> callAut = getCallAutomaton();
     for (Entry<Transition<Edge, INode<Val>>, W> e :
         callAut.getTransitionsToFinalWeights().entrySet()) {
@@ -240,6 +239,25 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
           && !t.getLabel().getMethod().equals(t.getStart().fact().m())) continue;
       results.put(t.getLabel(), t.getStart().fact(), w);
     }
+    return results;
+  }
+
+  public Table<Statement, Val, W> asStatementValWeightTable() {
+    Table<Statement, Val, W> results = HashBasedTable.create();
+
+    WeightedPAutomaton<Edge, INode<Val>, W> callAut = getCallAutomaton();
+    for (Entry<Transition<Edge, INode<Val>>, W> e :
+        callAut.getTransitionsToFinalWeights().entrySet()) {
+      Transition<Edge, INode<Val>> t = e.getKey();
+      W w = e.getValue();
+
+      if (t.getLabel().equals(new Edge(Statement.epsilon(), Statement.epsilon()))) continue;
+      if (t.getStart().fact().isLocal()
+          && !t.getLabel().getMethod().equals(t.getStart().fact().m())) continue;
+
+      results.put(t.getLabel().getStart(), t.getStart().fact(), w);
+    }
+
     return results;
   }
 
