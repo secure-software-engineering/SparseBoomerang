@@ -94,6 +94,6 @@ public class JimpleUpWrappedClass implements WrappedClass {
 
   @Override
   public String toString() {
-    return "SootUpClass: " + delegate.getName();
+    return delegate.getName();
   }
 }

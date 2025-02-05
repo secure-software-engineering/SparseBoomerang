@@ -103,9 +103,9 @@ public class Specification {
       this.go = go;
     }
 
-    private String methodStr;
-    private Collection<QuerySelector> on;
-    private Collection<QuerySelector> go;
+    private final String methodStr;
+    private final Collection<QuerySelector> on;
+    private final Collection<QuerySelector> go;
 
     public Collection<QuerySelector> getOn() {
       return on;
@@ -164,7 +164,7 @@ public class Specification {
     }
   }
 
-  public class QuerySelector {
+  public static class QuerySelector {
     QuerySelector(QueryDirection direction, Parameter argumentSelection) {
       this.direction = direction;
       this.argumentSelection = argumentSelection;

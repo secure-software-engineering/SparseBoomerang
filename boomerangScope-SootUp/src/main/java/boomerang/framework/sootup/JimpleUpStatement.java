@@ -7,11 +7,11 @@ import boomerang.scene.Pair;
 import boomerang.scene.Statement;
 import boomerang.scene.StaticFieldVal;
 import boomerang.scene.Val;
+import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.Collection;
 import sootup.core.jimple.common.constant.StringConstant;
-import sootup.core.jimple.common.expr.JCastExpr;
-import sootup.core.jimple.common.expr.JNewMultiArrayExpr;
+import sootup.core.jimple.common.expr.*;
 import sootup.core.jimple.common.ref.JArrayRef;
 import sootup.core.jimple.common.ref.JCaughtExceptionRef;
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
@@ -362,6 +362,56 @@ public class JimpleUpStatement extends Statement {
 
   @Override
   public String toString() {
-    return delegate.toString();
+    return shortName(delegate);
+  }
+
+  private String shortName(Stmt s) {
+    if (s.isInvokableStmt() && s.asInvokableStmt().containsInvokeExpr()) {
+      String base = "";
+      AbstractInvokeExpr abstractInvokeExpr = s.asInvokableStmt().getInvokeExpr().get();
+      if (abstractInvokeExpr instanceof AbstractInstanceInvokeExpr) {
+        AbstractInstanceInvokeExpr iie = (AbstractInstanceInvokeExpr) abstractInvokeExpr;
+        base = iie.getBase() + ".";
+      }
+      String assign = "";
+      if (s instanceof JAssignStmt) {
+        assign = ((JAssignStmt) s).getLeftOp() + " = ";
+      }
+      return assign
+          + base
+          + abstractInvokeExpr.getMethodSignature().getName()
+          + "("
+          + Joiner.on(",").join(abstractInvokeExpr.getArgs())
+          + ")";
+    }
+    if (s instanceof JIdentityStmt) {
+      return s.toString();
+    }
+    if (s instanceof JAssignStmt) {
+      JAssignStmt assignStmt = (JAssignStmt) s;
+      if (assignStmt.getLeftOp() instanceof JInstanceFieldRef) {
+        JInstanceFieldRef ifr = (JInstanceFieldRef) assignStmt.getLeftOp();
+        return ifr.getBase()
+            + "."
+            + ifr.getFieldSignature().getName()
+            + " = "
+            + assignStmt.getRightOp();
+      }
+      if (assignStmt.getRightOp() instanceof JInstanceFieldRef) {
+        JInstanceFieldRef ifr = (JInstanceFieldRef) assignStmt.getRightOp();
+        return assignStmt.getLeftOp()
+            + " = "
+            + ifr.getBase()
+            + "."
+            + ifr.getFieldSignature().getName();
+      }
+      if (assignStmt.getRightOp() instanceof JNewExpr) {
+        JNewExpr newExpr = (JNewExpr) assignStmt.getRightOp();
+        return assignStmt.getLeftOp()
+            + " = new "
+            + newExpr.getType().getClassName(); // getSootClass().getShortName();
+      }
+    }
+    return s.toString();
   }
 }

@@ -59,7 +59,13 @@ public class JimpleUpInvokeExpr implements InvokeExpr {
 
   @Override
   public DeclaredMethod getMethod() {
-    JavaSootMethod sootMethod = SootUpFrameworkScope.getInstance().getSootMethod(delegate.getMethodSignature()).orElseThrow(() -> new IllegalStateException("Can't find Method Declaration! " + delegate.getMethodSignature()));
+    JavaSootMethod sootMethod =
+        SootUpFrameworkScope.getInstance()
+            .getSootMethod(delegate.getMethodSignature())
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Can't find Method Declaration! " + delegate.getMethodSignature()));
     return new JimpleUpDeclaredMethod(this, sootMethod);
   }
 

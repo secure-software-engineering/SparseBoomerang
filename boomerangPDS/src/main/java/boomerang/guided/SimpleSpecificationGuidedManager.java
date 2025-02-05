@@ -87,7 +87,7 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
     //  [spaeth] This only works for Soot propagations
     // TODO: [ms] refactored soot checks away.. lets investigate why! maybe it needs just some
     // translation/mapping for other frameworks
-    if (!stmt.getClass().toString().contains("JimpleStatement")) {
+    if (!stmt.getClass().toString().contains("Jimple")) {
       // lets notify us in such a case..
       throw new UnsupportedOperationException("possibly unspported case? investigate!");
     }

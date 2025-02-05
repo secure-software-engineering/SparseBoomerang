@@ -12,7 +12,7 @@
 package sync.pds.solver.nodes;
 
 public class SingleNode<Fact> implements INode<Fact> {
-  private Fact fact;
+  private final Fact fact;
   private int hashCode = 0;
 
   public SingleNode(Fact fact) {

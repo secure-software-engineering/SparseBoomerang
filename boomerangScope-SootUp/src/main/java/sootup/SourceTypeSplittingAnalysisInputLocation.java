@@ -1,6 +1,5 @@
 package sootup;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -26,13 +25,13 @@ public abstract class SourceTypeSplittingAnalysisInputLocation implements Analys
   protected abstract boolean filter(@Nonnull ClassType type);
 
   private static boolean filterConditionCheck(String pkg, String className) {
-      if (className.equals(pkg)) {
-          return true;
-      }
-      if (pkg.endsWith(".*") || pkg.endsWith("$*")) {
-          return className.startsWith(pkg.substring(0, pkg.length() - 1));
-      }
-      return false;
+    if (className.equals(pkg)) {
+      return true;
+    }
+    if (pkg.endsWith(".*") || pkg.endsWith("$*")) {
+      return className.startsWith(pkg.substring(0, pkg.length() - 1));
+    }
+    return false;
   }
 
   @Nonnull

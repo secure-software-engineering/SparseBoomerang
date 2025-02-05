@@ -231,8 +231,8 @@ public class BoomerangPretransformer extends BodyTransformer {
         }
       }
       if (u instanceof ReturnStmt) {
-        ReturnStmt assignStmt = (ReturnStmt) u;
-        if (assignStmt.getOp() instanceof Constant) {
+        ReturnStmt returnStmt = (ReturnStmt) u;
+        if (returnStmt.getOp() instanceof Constant) {
           retMap.add(u);
         }
       }

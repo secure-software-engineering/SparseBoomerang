@@ -1,6 +1,7 @@
 package boomerang.framework.sootup;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import sootup.core.graph.MutableStmtGraph;
 import sootup.core.jimple.Jimple;
@@ -20,62 +21,62 @@ import sootup.core.views.View;
 
 public class BoomerangPreInterceptor implements BodyInterceptor {
 
-  public static boolean TRANSFORM_CONSTANTS = true;
+  private final boolean TRANSFORM_CONSTANTS_SETTINGS;
+
   private static final String LABEL = "varReplacer";
   private int replaceCounter = 0;
+
+  public BoomerangPreInterceptor() {
+    this(true);
+  }
+
+  public BoomerangPreInterceptor(boolean transformConstantsSettings) {
+    TRANSFORM_CONSTANTS_SETTINGS = transformConstantsSettings;
+  }
 
   @Override
   public void interceptBody(@Nonnull Body.BodyBuilder bodyBuilder, @Nonnull View view) {
     addNopStatementsToMethod(bodyBuilder);
 
-    if (TRANSFORM_CONSTANTS) {
+    if (TRANSFORM_CONSTANTS_SETTINGS) {
       transformConstantsAtFieldWrites(bodyBuilder);
     }
   }
 
   private void addNopStatementsToMethod(Body.BodyBuilder body) {
     // Initial nop statement
-    JNopStmt initialNop = new JNopStmt(StmtPositionInfo.getNoStmtPositionInfo());
+    JNopStmt initialNop = Jimple.newNopStmt(StmtPositionInfo.getNoStmtPositionInfo());
     MutableStmtGraph stmtGraph = body.getStmtGraph();
     stmtGraph.insertBefore(stmtGraph.getStartingStmt(), initialNop);
 
     // Collect if-statements
-    Collection<JIfStmt> ifStatements = new HashSet<>();
-    for (Stmt stmt : body.getStmts()) {
-      if (stmt instanceof JIfStmt) {
-        JIfStmt ifStmt = (JIfStmt) stmt;
-
-        ifStatements.add(ifStmt);
-      }
-    }
+    Collection<JIfStmt> ifStatements =
+        stmtGraph.getNodes().stream()
+            .filter(stmt -> stmt instanceof JIfStmt)
+            .map(stmt -> (JIfStmt) stmt)
+            .collect(Collectors.toSet());
 
     // Add nop statement before each if-statement branch
     for (JIfStmt ifStmt : ifStatements) {
       // Branch under if-Statement: Insert after if-statement
       List<Stmt> successors = stmtGraph.successors(ifStmt);
       if (!successors.isEmpty()) {
-        Stmt directSuccessor = successors.get(0);
+        Stmt fallsThroughSuccessor = successors.get(JIfStmt.FALSE_BRANCH_IDX);
 
         JNopStmt nopAfterIfStmt = Jimple.newNopStmt(ifStmt.getPositionInfo());
-        stmtGraph.insertBefore(directSuccessor, nopAfterIfStmt);
+        stmtGraph.insertBefore(fallsThroughSuccessor, nopAfterIfStmt);
       }
 
       // Branch for target: For if-statements, there is always exactly one target
-      List<Stmt> targets = stmtGraph.getBranchTargetsOf(ifStmt);
-      if (targets.size() == 1) {
-        Stmt target = targets.get(0);
-
-        JNopStmt nopBeforeTarget = Jimple.newNopStmt(target.getPositionInfo());
-        stmtGraph.insertBefore(target, nopBeforeTarget);
-        // TODO Check if the target is actually nop
-      }
+      Stmt target = successors.get(JIfStmt.TRUE_BRANCH_IDX);
+      JNopStmt nopBeforeTarget = Jimple.newNopStmt(target.getPositionInfo());
+      stmtGraph.insertBefore(target, nopBeforeTarget);
     }
   }
 
   private void transformConstantsAtFieldWrites(Body.BodyBuilder body) {
-    Collection<Stmt> statements = getStatementsWithConstants(body);
-
-    for (Stmt stmt : statements) {
+    Collection<Stmt> stmtsWithConstants = getStatementsWithConstants(body);
+    for (Stmt stmt : stmtsWithConstants) {
       if (stmt instanceof JAssignStmt) {
         /* Transform simple assignments to two assignment steps:
          * - value = 10;
@@ -116,57 +117,52 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
         Optional<AbstractInvokeExpr> InvokeExprOpt = invStmt.getInvokeExpr();
 
         if (InvokeExprOpt.isPresent()) {
-          List<Immediate> newArgs = new ArrayList<>();
-          AbstractInvokeExpr invokeExpr = InvokeExprOpt.get();
-          for (int i = 0; i < invokeExpr.getArgCount(); i++) {
-            Immediate arg = invokeExpr.getArg(i);
+          // TODO: ms: dont use in production?!
+          if (!stmt.toString().contains("test.assertions.Assertions:")
+              && !stmt.toString().contains("intQueryFor")) {
 
-            if (arg instanceof Constant && !(arg instanceof ClassConstant)) {
-              String label = LABEL + replaceCounter++;
-              Local local = Jimple.newLocal(label, arg.getType());
-              JAssignStmt newAssignStmt = Jimple.newAssignStmt(local, arg, stmt.getPositionInfo());
+            List<Immediate> newArgs = new ArrayList<>();
+            AbstractInvokeExpr invokeExpr = InvokeExprOpt.get();
+            for (int i = 0; i < invokeExpr.getArgCount(); i++) {
+              Immediate arg = invokeExpr.getArg(i);
 
-              body.addLocal(local);
-              body.getStmtGraph().insertBefore(stmt, newAssignStmt);
+              if (arg instanceof Constant && !(arg instanceof ClassConstant)) {
+                String label = LABEL + replaceCounter++;
+                Local paramLocal = Jimple.newLocal(label, arg.getType());
+                JAssignStmt newAssignStmt =
+                    Jimple.newAssignStmt(paramLocal, arg, stmt.getPositionInfo());
 
-              newArgs.add(local);
-            } else {
-              newArgs.add(arg);
+                body.addLocal(paramLocal);
+                body.getStmtGraph().insertBefore(stmt, newAssignStmt);
+                newArgs.add(paramLocal);
+              } else {
+                newArgs.add(arg);
+              }
             }
-          }
 
-          // Update the invoke expression with new arguments
-          // TODO: [ms] make use of new ReplaceUseExprVisitor()
-          AbstractInvokeExpr newInvokeExpr;
-          if (invokeExpr instanceof JStaticInvokeExpr) {
-            JStaticInvokeExpr staticInvokeExpr = (JStaticInvokeExpr) invokeExpr;
+            // Update the invoke expression with new arguments
+            AbstractInvokeExpr newInvokeExpr;
+            if (invokeExpr instanceof JStaticInvokeExpr) {
+              newInvokeExpr = ((JStaticInvokeExpr) invokeExpr).withArgs(newArgs);
+            } else if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
+              newInvokeExpr = ((AbstractInstanceInvokeExpr) invokeExpr).withArgs(newArgs);
+            } else {
+              throw new IllegalStateException("unknown InvokeExpr.");
+            }
 
-            newInvokeExpr = staticInvokeExpr.withArgs(newArgs);
-          } else if (invokeExpr instanceof AbstractInstanceInvokeExpr) {
-            AbstractInstanceInvokeExpr instanceInvokeExpr = (AbstractInstanceInvokeExpr) invokeExpr;
-
-            newInvokeExpr = instanceInvokeExpr.withArgs(newArgs);
-          } else {
-            // TODO Are there other relevant cases?
-            newInvokeExpr = invokeExpr;
-          }
-
-          if (stmt instanceof JInvokeStmt) {
-            JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
-            JInvokeStmt newStmt = invokeStmt.withInvokeExpr(newInvokeExpr);
-
-            body.getStmtGraph().replaceNode(stmt, newStmt);
-          } else if (stmt instanceof JAssignStmt) {
-            JAssignStmt assignStmt = (JAssignStmt) stmt;
-            JAssignStmt newStmt = assignStmt.withRValue(newInvokeExpr);
-
-            body.getStmtGraph().replaceNode(stmt, newStmt);
+            if (stmt instanceof JInvokeStmt) {
+              JInvokeStmt newStmt = ((JInvokeStmt) stmt).withInvokeExpr(newInvokeExpr);
+              body.getStmtGraph().replaceNode(stmt, newStmt);
+            } else if (stmt instanceof JAssignStmt) {
+              JAssignStmt newStmt = ((JAssignStmt) stmt).withRValue(newInvokeExpr);
+              body.getStmtGraph().replaceNode(stmt, newStmt);
+            }
           }
         }
       }
 
       if (stmt instanceof JReturnStmt) {
-        /* Transform return statements into two statements
+        /* Transform return stmtsWithConstants into two stmtsWithConstants
          * - return 10
          * becomes
          * - varReplacer = 10
@@ -191,37 +187,40 @@ public class BoomerangPreInterceptor implements BodyInterceptor {
   private Collection<Stmt> getStatementsWithConstants(Body.BodyBuilder body) {
     Collection<Stmt> result = new HashSet<>();
 
-    for (Stmt stmt : body.getStmts()) {
-      // Assign statements: If the right side is a constant
-      if (stmt instanceof JAssignStmt) {
-        JAssignStmt assignStmt = (JAssignStmt) stmt;
+    // Assign statements: If the right side is a constant
+    // Consider arguments of invoke expressions
+    // Check for constant return values
+    body.getStmts()
+        .forEach(
+            stmt -> {
+              if (stmt instanceof JAssignStmt) {
+                JAssignStmt assignStmt = (JAssignStmt) stmt;
 
-        if (isFieldRef(assignStmt.getLeftOp()) && assignStmt.getRightOp() instanceof Constant) {
-          result.add(stmt);
-        }
-      }
-
-      // Consider arguments of invoke expressions
-      if (stmt.isInvokableStmt()) {
-        Optional<AbstractInvokeExpr> invokeExpr = stmt.asInvokableStmt().getInvokeExpr();
-        if (invokeExpr.isPresent()) {
-          for (Value arg : invokeExpr.get().getArgs()) {
-            if (arg instanceof Constant) {
-              result.add(stmt);
-            }
-          }
-        }
-      }
-
-      // Check for constant return values
-      if (stmt instanceof JReturnStmt) {
-        JReturnStmt returnStmt = (JReturnStmt) stmt;
-
-        if (returnStmt.getOp() instanceof Constant) {
-          result.add(stmt);
-        }
-      }
-    }
+                if (isFieldRef(assignStmt.getLeftOp())
+                    && assignStmt.getRightOp() instanceof Constant) {
+                  result.add(stmt);
+                }
+              }
+              if (stmt.isInvokableStmt()) {
+                InvokableStmt invokableStmt = stmt.asInvokableStmt();
+                if (invokableStmt.containsInvokeExpr()) {
+                  Optional<AbstractInvokeExpr> invokeExpr = invokableStmt.getInvokeExpr();
+                  if (invokeExpr.isPresent()) {
+                    for (Value arg : invokeExpr.get().getArgs()) {
+                      if (arg instanceof Constant) {
+                        result.add(stmt);
+                      }
+                    }
+                  }
+                }
+              }
+              if (stmt instanceof JReturnStmt) {
+                JReturnStmt returnStmt = (JReturnStmt) stmt;
+                if (returnStmt.getOp() instanceof Constant) {
+                  result.add(stmt);
+                }
+              }
+            });
 
     return result;
   }

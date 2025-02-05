@@ -25,7 +25,6 @@ import sootup.core.types.NullType;
 public class JimpleUpVal extends Val {
 
   private final Value delegate;
-  private final Method method;
 
   public JimpleUpVal(Value delegate, Method method) {
     this(delegate, method, null);
@@ -38,7 +37,6 @@ public class JimpleUpVal extends Val {
       throw new RuntimeException("Value must not be null");
     }
     this.delegate = delegate;
-    this.method = method;
   }
 
   @Override
@@ -68,7 +66,7 @@ public class JimpleUpVal extends Val {
 
   @Override
   public Val asUnbalanced(ControlFlowGraph.Edge stmt) {
-    return new JimpleUpVal(delegate, method, stmt);
+    return new JimpleUpVal(delegate, m, stmt);
   }
 
   @Override
@@ -138,7 +136,7 @@ public class JimpleUpVal extends Val {
     assert isCast();
 
     JCastExpr castExpr = (JCastExpr) delegate;
-    return new JimpleUpVal(castExpr.getOp(), method);
+    return new JimpleUpVal(castExpr.getOp(), m);
   }
 
   @Override
@@ -156,7 +154,7 @@ public class JimpleUpVal extends Val {
     assert isInstanceOfExpr();
 
     JInstanceOfExpr instanceOfExpr = (JInstanceOfExpr) delegate;
-    return new JimpleUpVal(instanceOfExpr.getOp(), method);
+    return new JimpleUpVal(instanceOfExpr.getOp(), m);
   }
 
   @Override
@@ -169,7 +167,7 @@ public class JimpleUpVal extends Val {
     assert isLengthExpr();
 
     JLengthExpr lengthExpr = (JLengthExpr) delegate;
-    return new JimpleUpVal(lengthExpr.getOp(), method);
+    return new JimpleUpVal(lengthExpr.getOp(), m);
   }
 
   @Override
@@ -197,7 +195,7 @@ public class JimpleUpVal extends Val {
 
   @Override
   public Val withSecondVal(Val leftOp) {
-    return new JimpleUpDoubleVal(delegate, method, leftOp);
+    return new JimpleUpDoubleVal(delegate, m, leftOp);
   }
 
   @Override
@@ -227,7 +225,7 @@ public class JimpleUpVal extends Val {
 
     JArrayRef arrayRef = (JArrayRef) delegate;
     return new Pair<>(
-        new JimpleUpVal(arrayRef.getBase(), method),
+        new JimpleUpVal(arrayRef.getBase(), m),
         arrayRef.getIndex() instanceof IntConstant
             ? ((IntConstant) arrayRef.getIndex()).getValue()
             : -1);
@@ -263,6 +261,8 @@ public class JimpleUpVal extends Val {
   public String toString() {
     return delegate.toString()
         + " ("
+        + m.getDeclaringClass()
+        + "."
         + m
         + ")"
         + (isUnbalanced() ? " unbalanced " + unbalancedStmt : "");

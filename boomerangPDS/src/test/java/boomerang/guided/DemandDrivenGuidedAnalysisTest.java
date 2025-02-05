@@ -274,10 +274,9 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   public static BackwardQuery selectFirstArgOfQueryTarget(Method method) {
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
     Statement newFileStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
+            .filter(Statement::containsInvokeExpr)
             .filter(
                 x ->
                     x.getInvokeExpr().getMethod().getName().equals("queryFor")
@@ -305,12 +304,10 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   public static BackwardQuery selectFirstFileInitArgument(Method method) {
-    // TODO: [ms] this line seems to make no sense?
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
 
     Statement newFileStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
+            .filter(Statement::containsInvokeExpr)
             .filter(
                 x ->
                     x.getInvokeExpr().getMethod().getName().equals("<init>")
@@ -330,10 +327,9 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   public static BackwardQuery selectFirstBaseOfToString(Method method) {
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
     Statement newFileStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
+            .filter(Statement::containsInvokeExpr)
             .filter(x -> x.getInvokeExpr().getMethod().getName().equals("toString"))
             .findFirst()
             .get();
@@ -406,6 +402,9 @@ public class DemandDrivenGuidedAnalysisTest {
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
     demandDrivenGuidedAnalysis.cleanUp();
+
+    Assert.assertFalse(queryGraph.getNodes().isEmpty());
+
     // Filter out query graph's node to only return the queries of interest (ForwardQueries &
     // String/Int Allocation sites).
     Stream<Query> res =

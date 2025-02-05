@@ -712,9 +712,9 @@ public abstract class WeightedBoomerang<W extends Weight> {
       extends WPAStateListener<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> {
 
     private final int arrayAccessIndex;
-    private AllocVal val;
-    private BackwardQuery key;
-    private Node<ControlFlowGraph.Edge, Val> node;
+    private final AllocVal val;
+    private final BackwardQuery key;
+    private final Node<ControlFlowGraph.Edge, Val> node;
 
     public ArrayAllocationListener(
         int arrayAccessIndex,

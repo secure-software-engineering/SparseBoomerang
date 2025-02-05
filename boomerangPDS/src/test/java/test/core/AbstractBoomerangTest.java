@@ -223,7 +223,6 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     }
 
     compareQuery(expectedAllocationSites, results, AnalysisMode.WholeProgram);
-    System.out.println();
   }
 
   private void runDemandDrivenBackward() {

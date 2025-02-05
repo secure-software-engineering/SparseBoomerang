@@ -36,7 +36,7 @@ import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.signatures.PackageName;
 import sootup.core.transform.BodyInterceptor;
-import sootup.interceptors.BytecodeBodyInterceptors;
+import sootup.interceptors.*;
 import sootup.java.bytecode.frontend.inputlocation.DefaultRuntimeAnalysisInputLocation;
 import sootup.java.bytecode.frontend.inputlocation.JavaClassPathAnalysisInputLocation;
 import sootup.java.core.JavaSootClass;
@@ -67,7 +67,7 @@ public class FrameworkScopeFactory {
 
     // TODO: ms: currently: switch here to test desired framework - refactor e.g. into parameterized
     // tests!
-    return getSootUpFrameworkScope(
+    return getSootFrameworkScope(
         classPath, fqClassName, customEntrypointMethodName, includedPackages, excludedPackages);
   }
 
@@ -78,7 +78,7 @@ public class FrameworkScopeFactory {
       List<String> includedPackages,
       List<String> excludedPackages) {
 
-    System.out.println("framework:soot");
+    //    System.out.println("framework:soot");
 
     List<SootMethod> eps = Lists.newArrayList();
     SootMethod sootTestMethod = null;
@@ -197,7 +197,7 @@ public class FrameworkScopeFactory {
         throw new IllegalStateException(
             "No entrypoints given/found in " + classCount + " classes.");
       }
-      System.out.println("classes: "+ classCount);
+      // System.out.println("classes: " + classCount);
       Scene.v().setEntryPoints(eps);
 
       Transform transform =
@@ -219,10 +219,12 @@ public class FrameworkScopeFactory {
       PackManager.v().getPack("wjtp").apply();
     }
 
-    System.out.println("classes: " + Scene.v().getClasses().size());
-    Scene.v().getClasses().stream()
-        .sorted(Comparator.comparing(SootClass::toString))
-        .forEach(System.out::println);
+    /*
+         System.out.println("classes: " + Scene.v().getClasses().size());
+         Scene.v().getClasses().stream()
+            .sorted(Comparator.comparing(SootClass::toString))
+            .forEach(System.out::println);
+    */
 
     return new SootFrameworkScope();
   }
@@ -288,7 +290,9 @@ public class FrameworkScopeFactory {
     // configure interceptors
     // TODO: check if the interceptor needs a reset in between runs
     List<BodyInterceptor> bodyInterceptors =
-        new ArrayList<>(BytecodeBodyInterceptors.Default.getBodyInterceptors());
+        new ArrayList<>(
+            List.of(new CastAndReturnInliner(), new LocalSplitter(), new TypeAssigner()));
+    //     new ArrayList<>(BytecodeBodyInterceptors.Default.getBodyInterceptors());
     bodyInterceptors.add(new BoomerangPreInterceptor());
 
     // configure AnalysisInputLocations
@@ -297,9 +301,8 @@ public class FrameworkScopeFactory {
     DefaultRuntimeAnalysisInputLocation runtimeInputLocation =
         new DefaultRuntimeAnalysisInputLocation();
 
-
-    System.out.println("incl"+ includedPackages);
-    System.out.println("ex"+ excludedPackages);
+    System.out.println("incl" + includedPackages);
+    System.out.println("ex" + excludedPackages);
 
     if (true || includedPackages.isEmpty() && excludedPackages.isEmpty()) {
       inputLocations.add(runtimeInputLocation);
@@ -354,16 +357,26 @@ public class FrameworkScopeFactory {
       System.out.println(inputLocations);
       javaView = new JavaView(inputLocations);
       System.out.println(inputLocations.get(0).getSourceType());
-      inputLocations.get(0).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      inputLocations
+          .get(0)
+          .getClassSources(javaView)
+          .forEach(cs -> System.out.println(cs.getClassType()));
       System.out.println("-----");
       System.out.println(inputLocations.get(1).getSourceType());
-      inputLocations.get(1).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      inputLocations
+          .get(1)
+          .getClassSources(javaView)
+          .forEach(cs -> System.out.println(cs.getClassType()));
       System.out.println("-----");
       System.out.println(inputLocations.get(2).getSourceType());
-      inputLocations.get(2).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      inputLocations
+          .get(2)
+          .getClassSources(javaView)
+          .forEach(cs -> System.out.println(cs.getClassType()));
       System.out.println("-----");
-     // System.out.println(inputLocations.get(3).getSourceType());
- //     inputLocations.get(3).getClassSources(javaView).forEach( cs -> System.out.println(cs.getClassType()));
+      // System.out.println(inputLocations.get(3).getSourceType());
+      //     inputLocations.get(3).getClassSources(javaView).forEach( cs ->
+      // System.out.println(cs.getClassType()));
 
       classes = javaView.getClasses().collect(Collectors.toList());
       // collect entrypoints
@@ -488,9 +501,9 @@ public class FrameworkScopeFactory {
         "classes: "
             + classes.size()); // soot has 1911 for boomerang.guided.DemandDrivenGuidedAnalysisTest
 
-        classes.stream()
-           .sorted(Comparator.comparing(sootup.core.model.SootClass::toString))
-           .forEach(System.out::println);
+    classes.stream()
+        .sorted(Comparator.comparing(sootup.core.model.SootClass::toString))
+        .forEach(System.out::println);
 
     // initialize CallGraphAlgorithm
     // TODO: use spark when available
@@ -499,6 +512,8 @@ public class FrameworkScopeFactory {
             ? new RapidTypeAnalysisAlgorithm(javaView)
             : new RapidTypeAnalysisAlgorithm(javaView);
     cg = cga.initialize(entypointSignatures);
+
+    cg.exportAsDot();
 
     return new SootUpFrameworkScope(javaView, cg, entypointSignatures);
   }

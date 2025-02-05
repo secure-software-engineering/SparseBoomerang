@@ -19,11 +19,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight.NoWeight;
 
@@ -74,6 +71,7 @@ public class DemandDrivenGuidedAnalysis {
     }
     triggered = true;
     queryQueue.add(new QueryWithContext(query));
+
     while (!queryQueue.isEmpty()) {
       QueryWithContext pop = queryQueue.pop();
       if (pop.query instanceof ForwardQuery) {
@@ -88,7 +86,7 @@ public class DemandDrivenGuidedAnalysis {
         Table<Edge, Val, NoWeight> forwardResults =
             results.asStatementValWeightTable((ForwardQuery) pop.query);
         // Any ForwardQuery may trigger additional ForwardQuery under its own scope.
-        triggerNewBackwardQueries(forwardResults, currentQuery, QueryDirection.FORWARD);
+        triggerNewQueries(forwardResults, currentQuery, QueryDirection.FORWARD);
       } else {
         BackwardBoomerangResults<NoWeight> results;
         if (pop.parentQuery == null) {
@@ -98,14 +96,34 @@ public class DemandDrivenGuidedAnalysis {
               solver.solveUnderScope(
                   (BackwardQuery) pop.query, pop.triggeringNode, pop.parentQuery);
         }
-        Table<Edge, Val, NoWeight> backwardResults =
-            solver.getBackwardSolvers().get(query).asStatementValWeightTable();
+        /*
+        soot: results->slvr->icfg
+                icfg = {BackwardsObservableICFG@3203}
+         delegate = {ObservableStaticICFG@3202}
+          precomputedGraph = {SootCallGraph@2730}
+           LOGGER = {SimpleLogger@3465}
+           edges = {HashSet@3466}  size = 1
+           edgesOutOf = {HashMultimap@3467} "{this.<init>()=[Call Graph Edge: this.<init>() calls <java.lang.Object: void <init>()>]}"
+           edgesInto = {HashMultimap@3468} "{<java.lang.Object: void <init>()>=[Call Graph Edge: this.<init>() calls <java.lang.Object: void <init>()>]}"
+           entryPoints = {HashSet@3469}  size = 2
+            0 = {JimpleMethod@3487} "<boomerang.guided.targets.BasicTarget: void <init>()>"
+            1 = {JimpleMethod@3443} "<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>"
+           fieldLoadStatements = {HashMultimap@3470} "{}"
+           fieldStoreStatements = {HashMultimap@3471} "{}"
 
-        triggerNewBackwardQueries(backwardResults, pop.query, QueryDirection.BACKWARD);
+                * */
+        Table<Edge, Val, NoWeight> backwardResults =
+            solver
+                .getBackwardSolvers()
+                .get(query)
+                .asStatementValWeightTable(); // TODO: [ms] figure out why its structurally
+         // different than with Forwardqueries
+
+        triggerNewQueries(backwardResults, pop.query, QueryDirection.BACKWARD);
         Map<ForwardQuery, Context> allocationSites = results.getAllocationSites();
 
         for (Entry<ForwardQuery, Context> entry : allocationSites.entrySet()) {
-          triggerNewBackwardQueries(
+          triggerNewQueries(
               results.asStatementValWeightTable(entry.getKey()),
               entry.getKey(),
               QueryDirection.FORWARD);
@@ -129,7 +147,7 @@ public class DemandDrivenGuidedAnalysis {
     return solver;
   }
 
-  private void triggerNewBackwardQueries(
+  private void triggerNewQueries(
       Table<Edge, Val, NoWeight> backwardResults, Query lastQuery, QueryDirection direction) {
     for (Cell<Edge, Val, NoWeight> cell : backwardResults.cellSet()) {
       Edge triggeringEdge = cell.getRowKey();
@@ -143,14 +161,12 @@ public class DemandDrivenGuidedAnalysis {
             spec.onBackwardFlow((BackwardQuery) lastQuery, cell.getRowKey(), cell.getColumnKey());
       }
       for (Query q : queries) {
-        addToQueue(new QueryWithContext(q, new Node<>(triggeringEdge, fact), lastQuery));
+        if (visited.add(q)) {
+          QueryWithContext nextQuery =
+              new QueryWithContext(q, new Node<>(triggeringEdge, fact), lastQuery);
+          queryQueue.add(nextQuery);
+        }
       }
-    }
-  }
-
-  private void addToQueue(QueryWithContext nextQuery) {
-    if (visited.add(nextQuery.query)) {
-      queryQueue.add(nextQuery);
     }
   }
 
