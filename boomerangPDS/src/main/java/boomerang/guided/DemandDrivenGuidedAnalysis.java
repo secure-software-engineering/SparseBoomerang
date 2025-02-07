@@ -84,7 +84,7 @@ public class DemandDrivenGuidedAnalysis {
         }
 
         Table<Edge, Val, NoWeight> forwardResults =
-            results.asStatementValWeightTable((ForwardQuery) pop.query);
+            results.asEdgeValWeightTable((ForwardQuery) pop.query);
         // Any ForwardQuery may trigger additional ForwardQuery under its own scope.
         triggerNewQueries(forwardResults, currentQuery, QueryDirection.FORWARD);
       } else {
@@ -96,37 +96,17 @@ public class DemandDrivenGuidedAnalysis {
               solver.solveUnderScope(
                   (BackwardQuery) pop.query, pop.triggeringNode, pop.parentQuery);
         }
-        /*
-        soot: results->slvr->icfg
-                icfg = {BackwardsObservableICFG@3203}
-         delegate = {ObservableStaticICFG@3202}
-          precomputedGraph = {SootCallGraph@2730}
-           LOGGER = {SimpleLogger@3465}
-           edges = {HashSet@3466}  size = 1
-           edgesOutOf = {HashMultimap@3467} "{this.<init>()=[Call Graph Edge: this.<init>() calls <java.lang.Object: void <init>()>]}"
-           edgesInto = {HashMultimap@3468} "{<java.lang.Object: void <init>()>=[Call Graph Edge: this.<init>() calls <java.lang.Object: void <init>()>]}"
-           entryPoints = {HashSet@3469}  size = 2
-            0 = {JimpleMethod@3487} "<boomerang.guided.targets.BasicTarget: void <init>()>"
-            1 = {JimpleMethod@3443} "<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>"
-           fieldLoadStatements = {HashMultimap@3470} "{}"
-           fieldStoreStatements = {HashMultimap@3471} "{}"
 
-                * */
         Table<Edge, Val, NoWeight> backwardResults =
-            solver
-                .getBackwardSolvers()
-                .get(query)
-                .asStatementValWeightTable(); // TODO: [ms] figure out why its structurally
-         // different than with Forwardqueries
-
+            solver.getBackwardSolvers().get(query).asEdgeValWeightTable();
+        // TODO: [ms] figure out why its structurally
+        // different than with Forwardqueries - potential?
         triggerNewQueries(backwardResults, pop.query, QueryDirection.BACKWARD);
         Map<ForwardQuery, Context> allocationSites = results.getAllocationSites();
 
         for (Entry<ForwardQuery, Context> entry : allocationSites.entrySet()) {
           triggerNewQueries(
-              results.asStatementValWeightTable(entry.getKey()),
-              entry.getKey(),
-              QueryDirection.FORWARD);
+              results.asEdgeValWeightTable(entry.getKey()), entry.getKey(), QueryDirection.FORWARD);
         }
       }
     }

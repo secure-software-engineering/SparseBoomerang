@@ -70,6 +70,11 @@ public class JimpleUpMethod extends Method {
   }
 
   @Override
+  public Type getReturnType() {
+    return new JimpleUpType(delegate.getReturnType());
+  }
+
+  @Override
   public boolean isThisLocal(Val val) {
     if (val.isStatic()) return false;
     if (delegate.isStatic()) return false;

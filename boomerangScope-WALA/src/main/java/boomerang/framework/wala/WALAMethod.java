@@ -78,6 +78,11 @@ public class WALAMethod extends Method {
   }
 
   @Override
+  public Type getReturnType() {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  @Override
   public boolean isThisLocal(Val val) {
     return getThisLocal().equals(val);
   }

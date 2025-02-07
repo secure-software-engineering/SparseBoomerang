@@ -165,7 +165,7 @@ public class ExampleMain2 {
               solver.solve((ForwardQuery) query);
 
           // 3. Process forward results
-          Table<Edge, Val, NoWeight> results = forwardBoomerangResults.asStatementValWeightTable();
+          Table<Edge, Val, NoWeight> results = forwardBoomerangResults.asEdgeValWeightTable();
           for (Edge s : results.rowKeySet()) {
             // 4. Filter results based on your use statement, in our case the call of
             // System.out.println(n.nested.field)

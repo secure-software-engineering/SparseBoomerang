@@ -47,6 +47,11 @@ public abstract class Method implements Location {
             }
 
             @Override
+            public Type getReturnType() {
+              return null;
+            }
+
+            @Override
             public boolean isThisLocal(Val val) {
               return false;
             }
@@ -127,6 +132,8 @@ public abstract class Method implements Location {
   public abstract List<Type> getParameterTypes();
 
   public abstract Type getParameterType(int index);
+
+  public abstract Type getReturnType();
 
   public abstract boolean isThisLocal(Val val);
 

@@ -8,7 +8,6 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.*;
 import com.google.common.collect.Sets;
 import java.util.*;
-import java.util.Map.Entry;
 import org.junit.Test;
 import test.AbstractTestingFramework;
 import test.FrameworkScopeFactory;
@@ -68,19 +67,20 @@ public class Repro extends AbstractTestingFramework {
 
     // This will only show results if set_exclude above gets uncommented
     System.out.println("\nFoo invoked methods:");
-    Set<Entry<Edge, DeclaredMethod>> entries =
-        getMethodsInvokedFromInstanceInStatement(frameworkScope, newFoo).entrySet();
+    Collection<Statement> statements =
+        getMethodsInvokedFromInstanceInStatement(frameworkScope, newFoo);
     Set<String> methodCalledOnFoo = Sets.newHashSet();
-    for (Entry<Edge, DeclaredMethod> e : entries) {
-      System.out.println("\t" + e.getKey().toString());
-      System.out.println("\t\t" + e.getValue().toString());
-      methodCalledOnFoo.add(e.getValue().toString());
+    for (Statement s : statements) {
+      System.out.println("\t" + s);
+      DeclaredMethod calledMethod = s.getInvokeExpr().getMethod();
+      System.out.println("\t\t" + calledMethod);
+      methodCalledOnFoo.add(calledMethod.toString());
     }
 
     assert methodCalledOnFoo.equals(Sets.newHashSet(expectedCalledMethodsOnFoo));
   }
 
-  private static Map<Edge, DeclaredMethod> getMethodsInvokedFromInstanceInStatement(
+  private static Collection<Statement> getMethodsInvokedFromInstanceInStatement(
       FrameworkScope scopeFactory, Statement queryStatement) {
     Val var = new AllocVal(queryStatement.getLeftOp(), queryStatement, queryStatement.getRightOp());
     ForwardQuery fwq =
@@ -98,6 +98,6 @@ public class Repro extends AbstractTestingFramework {
             new IntAndStringBoomerangOptions(),
             scopeFactory);
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
-    return results.getInvokedMethodOnInstance();
+    return results.getInvokeStatementsOnInstance();
   }
 }

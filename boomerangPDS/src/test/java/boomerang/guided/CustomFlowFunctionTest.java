@@ -15,6 +15,7 @@ import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.solver.BackwardBoomerangSolver;
+import com.google.common.collect.Table;
 import java.nio.file.Paths;
 import org.junit.Assert;
 import org.junit.Test;
@@ -104,11 +105,11 @@ public class CustomFlowFunctionTest {
 
     System.out.println("Solving query: " + query);
     ForwardBoomerangResults<NoWeight> res = solver.solve(query);
-    System.out.println(res.asStatementValWeightTable());
+    System.out.println(res.asEdgeValWeightTable());
 
     boolean t =
         res.asStatementValWeightTable().cellSet().stream()
-            .map(c -> c.getRowKey().getTarget())
+            .map(Table.Cell::getRowKey)
             .anyMatch(
                 statement ->
                     statement.containsInvokeExpr()

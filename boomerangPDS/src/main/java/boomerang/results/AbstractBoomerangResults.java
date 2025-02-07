@@ -58,7 +58,11 @@ public class AbstractBoomerangResults<W extends Weight> {
             new OpeningCallStackExtracter<>(initialState, initialState, context, forwardSolver));
   }
 
-  public Table<Edge, Val, W> asStatementValWeightTable(ForwardQuery query) {
+  public Table<Edge, Val, W> asEdgeValWeightTable(ForwardQuery query) {
+    return queryToSolvers.getOrCreate(query).asEdgeValWeightTable();
+  }
+
+  public Table<Statement, Val, W> asStatementValWeightTable(ForwardQuery query) {
     return queryToSolvers.getOrCreate(query).asStatementValWeightTable();
   }
 

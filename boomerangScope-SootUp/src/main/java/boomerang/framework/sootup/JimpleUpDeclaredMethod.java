@@ -81,6 +81,11 @@ public class JimpleUpDeclaredMethod extends DeclaredMethod {
   }
 
   @Override
+  public Type getReturnType() {
+    return new JimpleUpType(delegate.getReturnType());
+  }
+
+  @Override
   public int hashCode() {
     return Arrays.hashCode(new Object[] {delegate});
   }

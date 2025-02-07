@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iem</groupId>
     <artifactId>SPDS</artifactId>
-    <version>3.2.1</version>
+    <version>3.2.3</version>
     <packaging>pom</packaging>
     <name>SPDS</name>
     <description>Sparsified Synchronized Pushdown Systems for Pointer and Data-Flow Analysis</description>
