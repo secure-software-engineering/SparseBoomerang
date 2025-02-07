@@ -42,14 +42,14 @@ public class ForwardBoomerangResults<W extends Weight> extends AbstractBoomerang
   private final ForwardQuery query;
   private final boolean timedout;
   private final IBoomerangStats<W> stats;
-  private Stopwatch analysisWatch;
-  private long maxMemory;
-  private ObservableICFG<Statement, Method> icfg;
-  private Set<Method> visitedMethods;
+  private final Stopwatch analysisWatch;
+  private final long maxMemory;
+  private final ObservableICFG<Statement, Method> icfg;
+  private final Set<Method> visitedMethods;
   private final boolean trackDataFlowPath;
   private final boolean pruneContradictoryDataFlowPath;
-  private ObservableControlFlowGraph cfg;
-  private boolean pruneImplictFlows;
+  private final ObservableControlFlowGraph cfg;
+  private final boolean pruneImplictFlows;
 
   public ForwardBoomerangResults(
       FrameworkScope scopeFactory,

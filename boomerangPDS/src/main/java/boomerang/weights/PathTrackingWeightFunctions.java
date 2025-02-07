@@ -9,9 +9,9 @@ import sync.pds.solver.nodes.Node;
 public class PathTrackingWeightFunctions
     implements WeightFunctions<Edge, Val, Edge, DataFlowPathWeight> {
 
-  private boolean trackDataFlowPath;
-  private boolean trackPathConditions;
-  private boolean implicitBooleanCondition;
+  private final boolean trackDataFlowPath;
+  private final boolean trackPathConditions;
+  private final boolean implicitBooleanCondition;
 
   public PathTrackingWeightFunctions(
       boolean trackDataFlowPath, boolean trackPathConditions, boolean implicitBooleanCondition) {

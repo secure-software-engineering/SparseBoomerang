@@ -24,7 +24,7 @@ public class JimpleField extends Field {
 
   @Override
   public String toString() {
-    return delegate.getName().toString();
+    return delegate.getName();
   }
 
   public SootField getSootField() {
@@ -46,9 +46,8 @@ public class JimpleField extends Field {
     if (getClass() != obj.getClass()) return false;
     JimpleField other = (JimpleField) obj;
     if (delegate == null) {
-      if (other.delegate != null) return false;
-    } else if (!delegate.equals(other.delegate)) return false;
-    return true;
+      return other.delegate == null;
+    } else return delegate.equals(other.delegate);
   }
 
   @Override

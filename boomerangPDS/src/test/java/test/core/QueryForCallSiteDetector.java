@@ -35,7 +35,7 @@ class QueryForCallSiteDetector extends AnalysisScope {
 
   private class FirstArgumentOf implements ValueOfInterestInUnit {
 
-    private String methodNameMatcher;
+    private final String methodNameMatcher;
 
     public FirstArgumentOf(String methodNameMatcher) {
       this.methodNameMatcher = methodNameMatcher;

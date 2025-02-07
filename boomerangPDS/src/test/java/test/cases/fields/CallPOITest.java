@@ -37,7 +37,7 @@ public class CallPOITest extends AbstractBoomerangTest {
   }
 
   public static class T {
-    private Object value;
+    private final Object value;
 
     T(Object o) {
       this.value = o;

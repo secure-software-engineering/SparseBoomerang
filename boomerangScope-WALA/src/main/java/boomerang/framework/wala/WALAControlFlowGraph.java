@@ -40,10 +40,10 @@ import java.util.Set;
 
 public class WALAControlFlowGraph implements ControlFlowGraph {
 
-  private Method method;
-  private SSACFG cfg;
-  private IClassHierarchy cha;
-  private Map<ISSABasicBlock, Statement> basicBlockToFirstStmt = Maps.newHashMap();
+  private final Method method;
+  private final SSACFG cfg;
+  private final IClassHierarchy cha;
+  private final Map<ISSABasicBlock, Statement> basicBlockToFirstStmt = Maps.newHashMap();
 
   public WALAControlFlowGraph(WALAMethod method, IClassHierarchy cha) {
     this.method = method;
@@ -53,11 +53,11 @@ public class WALAControlFlowGraph implements ControlFlowGraph {
   }
 
   private boolean cacheBuild = false;
-  private List<Statement> startPointCache = Lists.newArrayList();
-  private List<Statement> endPointCache = Lists.newArrayList();
-  private Multimap<Statement, Statement> succsOfCache = HashMultimap.create();
-  private Multimap<Statement, Statement> predsOfCache = HashMultimap.create();
-  private List<Statement> statements = Lists.newArrayList();
+  private final List<Statement> startPointCache = Lists.newArrayList();
+  private final List<Statement> endPointCache = Lists.newArrayList();
+  private final Multimap<Statement, Statement> succsOfCache = HashMultimap.create();
+  private final Multimap<Statement, Statement> predsOfCache = HashMultimap.create();
+  private final List<Statement> statements = Lists.newArrayList();
 
   public Collection<Statement> getStartPoints() {
     buildCache();

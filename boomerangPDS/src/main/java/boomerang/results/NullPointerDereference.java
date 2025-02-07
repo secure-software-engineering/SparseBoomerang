@@ -17,12 +17,12 @@ public class NullPointerDereference implements AffectedLocation {
 
   private final ControlFlowGraph.Edge statement;
   private final Val variable;
-  private PAutomaton<Statement, INode<Val>> openingContext;
-  private PAutomaton<Statement, INode<Val>> closingContext;
-  private List<PathElement> dataFlowPath;
+  private final PAutomaton<Statement, INode<Val>> openingContext;
+  private final PAutomaton<Statement, INode<Val>> closingContext;
+  private final List<PathElement> dataFlowPath;
   private final ControlFlowGraph.Edge sourceStatement;
   private final Val sourceVariable;
-  private Query query;
+  private final Query query;
 
   public NullPointerDereference(ControlFlowGraph.Edge statement) {
     this(null, statement, null, null, null, null);
@@ -213,9 +213,7 @@ public class NullPointerDereference implements AffectedLocation {
       }
       if (curr.getRightOp().isLengthExpr()) {
         Val lengthOp = curr.getRightOp().getLengthOp();
-        if (lengthOp.equals(fact)) {
-          return true;
-        }
+        return lengthOp.equals(fact);
       }
     }
     return false;

@@ -469,7 +469,7 @@ class TreeNode<K, V> extends Entry<K, V> {
               xpr = (xp = x.parent) == null ? null : xp.right;
             }
             if (xpr != null) {
-              xpr.red = (xp == null) ? false : xp.red;
+              xpr.red = xp != null && xp.red;
               if ((sr = xpr.right) != null) sr.red = false;
             }
             if (xp != null) {
@@ -500,7 +500,7 @@ class TreeNode<K, V> extends Entry<K, V> {
               xpl = (xp = x.parent) == null ? null : xp.left;
             }
             if (xpl != null) {
-              xpl.red = (xp == null) ? false : xp.red;
+              xpl.red = xp != null && xp.red;
               if ((sl = xpl.left) != null) sl.red = false;
             }
             if (xp != null) {
@@ -528,7 +528,6 @@ class TreeNode<K, V> extends Entry<K, V> {
     if (tr != null && (tr.parent != t || tr.hash < t.hash)) return false;
     if (t.red && tl != null && tl.red && tr != null && tr.red) return false;
     if (tl != null && !checkInvariants(tl)) return false;
-    if (tr != null && !checkInvariants(tr)) return false;
-    return true;
+    return tr == null || checkInvariants(tr);
   }
 }

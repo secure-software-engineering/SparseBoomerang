@@ -71,9 +71,8 @@ public class WALAClass implements WrappedClass {
     if (getClass() != obj.getClass()) return false;
     WALAClass other = (WALAClass) obj;
     if (delegate == null) {
-      if (other.delegate != null) return false;
-    } else if (!delegate.equals(other.delegate)) return false;
-    return true;
+      return other.delegate == null;
+    } else return delegate.equals(other.delegate);
   }
 
   @Override

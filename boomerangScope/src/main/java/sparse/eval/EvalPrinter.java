@@ -7,7 +7,7 @@ import sparse.SparseCFGCache;
 
 public class EvalPrinter {
 
-  private String evalName;
+  private final String evalName;
 
   public EvalPrinter(String evalName) {
     this.evalName = evalName;
@@ -24,15 +24,16 @@ public class EvalPrinter {
       long count = 0;
       for (SparseCFGQueryLog queryLog : queryLogs) {
         count++;
-        StringBuilder str = new StringBuilder(Long.toString(count));
-        str.append(",");
-        str.append(queryLog.isRetrievedFromCache());
-        str.append(",");
-        str.append(queryLog.getDirection());
-        str.append(",");
-        str.append(queryLog.getDuration().toMillis());
-        str.append(System.lineSeparator());
-        writer.write(str.toString());
+        String str =
+            Long.toString(count)
+                + ","
+                + queryLog.isRetrievedFromCache()
+                + ","
+                + queryLog.getDirection()
+                + ","
+                + queryLog.getDuration().toMillis()
+                + System.lineSeparator();
+        writer.write(str);
       }
     } catch (IOException e) {
       e.printStackTrace();

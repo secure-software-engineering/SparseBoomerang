@@ -10,7 +10,7 @@ import boomerang.scene.Val;
 import java.util.Optional;
 
 class AllocationSiteOf implements ValueOfInterestInUnit {
-  private String type;
+  private final String type;
 
   public AllocationSiteOf(String type) {
     this.type = type;
@@ -25,7 +25,7 @@ class AllocationSiteOf implements ValueOfInterestInUnit {
           Val local = stmt.getLeftOp();
           ForwardQuery forwardQuery =
               new ForwardQuery(cfgEdge, new AllocVal(local, stmt, stmt.getRightOp()));
-          return Optional.<Query>of(forwardQuery);
+          return Optional.of(forwardQuery);
         }
       }
     }

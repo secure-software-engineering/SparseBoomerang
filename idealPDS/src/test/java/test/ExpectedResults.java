@@ -23,7 +23,7 @@ public abstract class ExpectedResults<State, Val>
 
   enum InternalState {
     ERROR,
-    ACCEPTING;
+    ACCEPTING
   }
 
   ExpectedResults(Statement unit, Val val, InternalState state) {
@@ -69,9 +69,8 @@ public abstract class ExpectedResults<State, Val>
     } else if (!val.equals(other.val)) return false;
     if (state != other.state) return false;
     if (unit == null) {
-      if (other.unit != null) return false;
-    } else if (!unit.equals(other.unit)) return false;
-    return true;
+      return other.unit == null;
+    } else return unit.equals(other.unit);
   }
 
   @Override

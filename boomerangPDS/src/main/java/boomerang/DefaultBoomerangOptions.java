@@ -233,7 +233,7 @@ public class DefaultBoomerangOptions implements BoomerangOptions {
   }
 
   public void checkValid() {
-    if (trackPathConditions() == false && prunePathConditions()) {
+    if (!trackPathConditions() && prunePathConditions()) {
       throw new RuntimeException(
           "InvalidCombinations of Options, Path Conditions must be ables when pruning path conditions");
     }

@@ -20,7 +20,7 @@ import wpds.impl.Weight;
 public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBoomerang<W> {
   private int reachableMethodCount;
   private int allocationSites;
-  private CallGraph callGraph;
+  private final CallGraph callGraph;
 
   public WholeProgramBoomerang(
       CallGraph cg, DataFlowScope scope, BoomerangOptions opts, FrameworkScope scopeFactory) {

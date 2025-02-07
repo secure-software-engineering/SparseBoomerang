@@ -42,7 +42,7 @@ public class InterfaceInvocation extends AbstractBoomerangTest {
     a.bar();
   }
 
-  private static interface I {
+  private interface I {
     void bar();
   }
 

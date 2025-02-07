@@ -26,7 +26,7 @@ public class PipedInputStreamStateMachine extends TypeStateMachineWeightFunction
   private static final String CONNECT_METHODS = "connect";
   private static final String READ_METHODS = "read";
 
-  public static enum States implements State {
+  public enum States implements State {
     INIT,
     CONNECTED,
     ERROR;

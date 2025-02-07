@@ -11,7 +11,7 @@ import soot.SootMethod;
 
 public class JimpleWrappedClass implements WrappedClass {
 
-  private SootClass delegate;
+  private final SootClass delegate;
   private Set<Method> methods;
 
   public JimpleWrappedClass(SootClass delegate) {
@@ -65,9 +65,8 @@ public class JimpleWrappedClass implements WrappedClass {
     if (getClass() != obj.getClass()) return false;
     JimpleWrappedClass other = (JimpleWrappedClass) obj;
     if (delegate == null) {
-      if (other.delegate != null) return false;
-    } else if (!delegate.equals(other.delegate)) return false;
-    return true;
+      return other.delegate == null;
+    } else return delegate.equals(other.delegate);
   }
 
   @Override

@@ -35,7 +35,7 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
   }
 
   public SetDomain(Node<Stmt, Fact> node) {
-    this.nodes = Sets.<Node<Stmt, Fact>>newHashSet(node);
+    this.nodes = Sets.newHashSet(node);
     this.rep = null;
   }
 
@@ -98,9 +98,8 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
       if (other.nodes != null) return false;
     } else if (!nodes.equals(other.nodes)) return false;
     if (rep == null) {
-      if (other.rep != null) return false;
-    } else if (!rep.equals(other.rep)) return false;
-    return true;
+      return other.rep == null;
+    } else return rep.equals(other.rep);
   }
 
   public Collection<Node<Stmt, Fact>> elements() {

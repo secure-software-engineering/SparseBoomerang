@@ -16,9 +16,9 @@ public abstract class ExtractAllocationSiteStateListener<W extends Weight>
     extends WPAStateListener<Field, INode<Node<Edge, Val>>, W> {
 
   /** */
-  private ForwardQuery query;
+  private final ForwardQuery query;
 
-  private BackwardQuery bwQuery;
+  private final BackwardQuery bwQuery;
 
   public ExtractAllocationSiteStateListener(
       INode<Node<Edge, Val>> state, BackwardQuery bwQuery, ForwardQuery query) {

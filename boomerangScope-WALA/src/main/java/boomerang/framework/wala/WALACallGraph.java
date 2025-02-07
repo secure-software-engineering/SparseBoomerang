@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 public class WALACallGraph extends CallGraph {
 
-  private Map<IMethod, WALAMethod> iMethodToWALAMethod = new HashMap<>();
-  private IClassHierarchy cha;
+  private final Map<IMethod, WALAMethod> iMethodToWALAMethod = new HashMap<>();
+  private final IClassHierarchy cha;
 
   public WALACallGraph(com.ibm.wala.ipa.callgraph.CallGraph cg, IClassHierarchy cha) {
     this.cha = cha;

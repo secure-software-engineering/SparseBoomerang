@@ -19,7 +19,7 @@ import sparse.eval.SparseCFGQueryLog;
 public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
-  private boolean enableExceptions;
+  private final boolean enableExceptions;
   private Deque<Type> typeWorklist;
   private Set<Type> containerTypes;
 
@@ -213,14 +213,10 @@ public class TypeBasedSparseCFGBuilder extends SparseCFGBuilder {
   private boolean isInvokeBase(Type queryVarType, InvokeExpr invokeExpr) {
     if (invokeExpr instanceof JVirtualInvokeExpr) {
       Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
-      if (isAssignableType(base.getType(), queryVarType)) {
-        return true;
-      }
+      return isAssignableType(base.getType(), queryVarType);
     } else if (invokeExpr instanceof JSpecialInvokeExpr) {
       Value base = ((JSpecialInvokeExpr) invokeExpr).getBase();
-      if (isAssignableType(base.getType(), queryVarType)) {
-        return true;
-      }
+      return isAssignableType(base.getType(), queryVarType);
     }
     return false;
   }

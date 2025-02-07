@@ -4,19 +4,19 @@ import java.util.Set;
 
 public interface WrappedClass {
 
-  public Set<Method> getMethods();
+  Set<Method> getMethods();
 
-  public boolean hasSuperclass();
+  boolean hasSuperclass();
 
-  public WrappedClass getSuperclass();
+  WrappedClass getSuperclass();
 
-  public Type getType();
+  Type getType();
 
-  public boolean isApplicationClass();
+  boolean isApplicationClass();
 
-  public String getFullyQualifiedName();
+  String getFullyQualifiedName();
 
-  public String getName();
+  String getName();
 
-  public Object getDelegate();
+  Object getDelegate();
 }

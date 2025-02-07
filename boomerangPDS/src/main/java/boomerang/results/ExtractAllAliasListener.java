@@ -24,7 +24,7 @@ import wpds.interfaces.WPAUpdateListener;
 public class ExtractAllAliasListener<W extends Weight> implements SyncPDSUpdateListener<Edge, Val> {
   private final Set<AccessPath> results;
   private final Edge stmt;
-  private AbstractBoomerangSolver<W> fwSolver;
+  private final AbstractBoomerangSolver<W> fwSolver;
 
   public ExtractAllAliasListener(
       AbstractBoomerangSolver<W> fwSolver, Set<AccessPath> results, Edge stmt) {
@@ -74,10 +74,10 @@ public class ExtractAllAliasListener<W extends Weight> implements SyncPDSUpdateL
 
   class ExtractAccessPathStateListener extends WPAStateListener<Field, INode<Node<Edge, Val>>, W> {
 
-    private INode<Node<Edge, Val>> allocNode;
-    private Collection<Transition<Field, INode<Node<Edge, Val>>>> fields;
-    private Set<AccessPath> results;
-    private Val base;
+    private final INode<Node<Edge, Val>> allocNode;
+    private final Collection<Transition<Field, INode<Node<Edge, Val>>>> fields;
+    private final Set<AccessPath> results;
+    private final Val base;
 
     public ExtractAccessPathStateListener(
         INode<Node<Edge, Val>> state,
@@ -157,14 +157,13 @@ public class ExtractAllAliasListener<W extends Weight> implements SyncPDSUpdateL
         if (other.allocNode != null) return false;
       } else if (!allocNode.equals(other.allocNode)) return false;
       if (base == null) {
-        if (other.base != null) return false;
-      } else if (!base.equals(other.base)) return false;
+        return other.base == null;
+      } else return base.equals(other.base);
       // if (fields == null) {
       // if (other.fields != null)
       // return false;
       // } else if (!fields.equals(other.fields))
       // return false;
-      return true;
     }
 
     private ExtractAllAliasListener getOuterType() {
@@ -191,8 +190,7 @@ public class ExtractAllAliasListener<W extends Weight> implements SyncPDSUpdateL
       if (other.fwSolver != null) return false;
     } else if (!fwSolver.equals(other.fwSolver)) return false;
     if (stmt == null) {
-      if (other.stmt != null) return false;
-    } else if (!stmt.equals(other.stmt)) return false;
-    return true;
+      return other.stmt == null;
+    } else return stmt.equals(other.stmt);
   }
 }

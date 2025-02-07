@@ -30,7 +30,7 @@ public class ObservableDynamicICFG implements ObservableICFG<Statement, Method> 
 
   private int numberOfEdgesTakenFromPrecomputedCallGraph = 0;
 
-  private CallGraphOptions options = new CallGraphOptions();
+  private final CallGraphOptions options = new CallGraphOptions();
   private CallGraph demandDrivenCallGraph = new CallGraph();
 
   private final Multimap<Statement, CalleeListener<Statement, Method>> calleeListeners =

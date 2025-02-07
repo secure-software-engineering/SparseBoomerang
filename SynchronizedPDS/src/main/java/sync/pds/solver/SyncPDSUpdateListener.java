@@ -16,5 +16,5 @@ import sync.pds.solver.nodes.Node;
 
 public interface SyncPDSUpdateListener<Stmt extends Location, Fact> {
 
-  public void onReachableNodeAdded(Node<Stmt, Fact> reachableNode);
+  void onReachableNodeAdded(Node<Stmt, Fact> reachableNode);
 }

@@ -86,7 +86,6 @@ public class MinSemiring extends Weight {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     MinSemiring other = (MinSemiring) obj;
-    if (i != other.i) return false;
-    return true;
+    return i == other.i;
   }
 }

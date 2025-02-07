@@ -23,7 +23,7 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class PrintStreamStateMachine extends TypeStateMachineWeightFunctions {
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     CLOSED,
     ERROR;

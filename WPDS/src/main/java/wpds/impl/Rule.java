@@ -92,8 +92,7 @@ public abstract class Rule<N extends Location, D extends State, W extends Weight
       if (other.s2 != null) return false;
     } else if (!s2.equals(other.s2)) return false;
     if (w == null) {
-      if (other.w != null) return false;
-    } else if (!w.equals(other.w)) return false;
-    return true;
+      return other.w == null;
+    } else return w.equals(other.w);
   }
 }

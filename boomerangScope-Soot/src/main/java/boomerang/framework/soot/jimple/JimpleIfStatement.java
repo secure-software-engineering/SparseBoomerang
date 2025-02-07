@@ -14,8 +14,8 @@ import soot.jimple.NullConstant;
 
 public class JimpleIfStatement implements IfStatement {
 
-  private IfStmt delegate;
-  private Method method;
+  private final IfStmt delegate;
+  private final Method method;
 
   public JimpleIfStatement(IfStmt delegate, Method method) {
     this.delegate = delegate;
@@ -24,7 +24,7 @@ public class JimpleIfStatement implements IfStatement {
 
   @Override
   public Statement getTarget() {
-    return JimpleStatement.create(delegate.getTarget(), (JimpleMethod) method);
+    return JimpleStatement.create(delegate.getTarget(), method);
   }
 
   @Override

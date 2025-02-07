@@ -105,9 +105,7 @@ public class WALAStatement extends Statement {
   public boolean isReturnOperator(Val val) {
     if (isReturnStmt()) {
       SSAReturnInstruction ins = (SSAReturnInstruction) delegate;
-      return ins.getResult() == -1
-          ? false
-          : new WALAVal(ins.getResult(), (WALAMethod) method).equals(val);
+      return ins.getResult() != -1 && new WALAVal(ins.getResult(), (WALAMethod) method).equals(val);
     }
     return false;
   }
@@ -144,9 +142,7 @@ public class WALAStatement extends Statement {
 
   private boolean isAssigningCall() {
     if (containsInvokeExpr()) {
-      if (((SSAAbstractInvokeInstruction) delegate).getNumberOfReturnValues() > 0) {
-        return true;
-      }
+      return ((SSAAbstractInvokeInstruction) delegate).getNumberOfReturnValues() > 0;
     }
     return false;
   }
@@ -158,7 +154,7 @@ public class WALAStatement extends Statement {
   @Override
   public Val getLeftOp() {
     if (isFieldLoad() || isStaticFieldLoad()) {
-      return new WALAVal(((SSAGetInstruction) delegate).getDef(), (WALAMethod) method);
+      return new WALAVal(delegate.getDef(), (WALAMethod) method);
     }
     if (isFieldStore()) {
       // The left op of a statement x.f = y must be the complete term x.f
@@ -166,25 +162,24 @@ public class WALAStatement extends Statement {
     }
     if (isStaticFieldStore()) {
       return new WALAStaticFieldVal(
-          new WALAField(((SSAFieldAccessInstruction) delegate).getDeclaredField()),
-          (WALAMethod) method);
+          new WALAField(((SSAFieldAccessInstruction) delegate).getDeclaredField()), method);
     }
     if (isAllocationStatement()) {
-      return new WALAVal(((SSANewInstruction) delegate).getDef(), (WALAMethod) method);
+      return new WALAVal(delegate.getDef(), (WALAMethod) method);
     }
     if (isPhiStatement()) {
-      return new WALAVal(((SSAPhiInstruction) delegate).getDef(), (WALAMethod) method);
+      return new WALAVal(delegate.getDef(), (WALAMethod) method);
     }
     if (isAssigningCall()) {
       return new WALAVal(
           ((SSAAbstractInvokeInstruction) delegate).getReturnValue(0), (WALAMethod) method);
     }
     if (isCast()) {
-      return new WALAVal(((SSACheckCastInstruction) delegate).getDef(), (WALAMethod) method);
+      return new WALAVal(delegate.getDef(), (WALAMethod) method);
     }
 
     if (isArrayLoad()) {
-      return new WALAVal(((SSAArrayLoadInstruction) delegate).getDef(), (WALAMethod) method);
+      return new WALAVal(delegate.getDef(), (WALAMethod) method);
     }
 
     if (isArrayStore()) {
@@ -220,8 +215,7 @@ public class WALAStatement extends Statement {
     }
     if (isStaticFieldLoad()) {
       return new WALAStaticFieldVal(
-          new WALAField(((SSAFieldAccessInstruction) delegate).getDeclaredField()),
-          (WALAMethod) method);
+          new WALAField(((SSAFieldAccessInstruction) delegate).getDeclaredField()), method);
     }
     return null;
   }
@@ -357,7 +351,7 @@ public class WALAStatement extends Statement {
     final int prime = 31;
     int result = super.hashCode();
     if (delegate instanceof SSAPhiInstruction) {
-      result = prime * result + ((SSAPhiInstruction) delegate).getDef();
+      result = prime * result + delegate.getDef();
     }
     result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());
     result = prime * result + ((rep == null) ? 0 : rep.hashCode());
@@ -380,9 +374,7 @@ public class WALAStatement extends Statement {
       if (other.rep != null) return false;
     } else if (!rep.equals(other.rep)) return false;
     if (delegate instanceof SSAPhiInstruction && other.delegate instanceof SSAPhiInstruction) {
-      if (!phiEquals((SSAPhiInstruction) delegate, (SSAPhiInstruction) other.delegate)) {
-        return false;
-      }
+      return phiEquals((SSAPhiInstruction) delegate, (SSAPhiInstruction) other.delegate);
     }
     return true;
   }

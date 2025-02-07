@@ -53,9 +53,8 @@ public class JimpleMethod extends Method {
     if (getClass() != obj.getClass()) return false;
     JimpleMethod other = (JimpleMethod) obj;
     if (delegate == null) {
-      if (other.delegate != null) return false;
-    } else if (!delegate.equals(other.delegate)) return false;
-    return true;
+      return other.delegate == null;
+    } else return delegate.equals(other.delegate);
   }
 
   @Override

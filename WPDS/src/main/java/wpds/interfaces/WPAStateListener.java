@@ -49,8 +49,7 @@ public abstract class WPAStateListener<N extends Location, D extends State, W ex
     if (getClass() != obj.getClass()) return false;
     WPAStateListener other = (WPAStateListener) obj;
     if (state == null) {
-      if (other.state != null) return false;
-    } else if (!state.equals(other.state)) return false;
-    return true;
+      return other.state == null;
+    } else return state.equals(other.state);
   }
 }

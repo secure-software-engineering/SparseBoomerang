@@ -22,10 +22,10 @@ import java.util.Collection;
 
 public class WALAUnitializedFieldStatement extends WALAStatement {
 
-  private WALAField field;
-  private WALAMethod method;
-  private Val thisLocal;
-  private Val rightOp;
+  private final WALAField field;
+  private final WALAMethod method;
+  private final Val thisLocal;
+  private final Val rightOp;
 
   public WALAUnitializedFieldStatement(
       WALAField field, WALAMethod method, Val thisLocal, Val rightOp) {

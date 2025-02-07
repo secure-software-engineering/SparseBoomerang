@@ -134,9 +134,8 @@ public class PathTrackingWeight extends Weight {
       if (other.allPathWitness != null) return false;
     } else if (!allPathWitness.equals(other.allPathWitness)) return false;
     if (rep == null) {
-      if (other.rep != null) return false;
-    } else if (!rep.equals(other.rep)) return false;
-    return true;
+      return other.rep == null;
+    } else return rep.equals(other.rep);
   }
 
   @Override

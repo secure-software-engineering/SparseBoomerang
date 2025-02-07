@@ -52,7 +52,7 @@ import wpds.interfaces.WPAUpdateListener;
 
 public class IDEALSeedSolver<W extends Weight> {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(IDEALSeedSolver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IDEALSeedSolver.class);
   private final IDEALAnalysisDefinition<W> analysisDefinition;
   private final ForwardQuery seed;
   private final IDEALWeightFunctions<W> idealWeightFunctions;
@@ -60,8 +60,8 @@ public class IDEALSeedSolver<W extends Weight> {
   private final WeightedBoomerang<W> phase1Solver;
   private final WeightedBoomerang<W> phase2Solver;
   private final Stopwatch analysisStopwatch = Stopwatch.createUnstarted();
-  private Multimap<Node<Edge, Val>, Edge> affectedStrongUpdateStmt = HashMultimap.create();
-  private Set<Node<Edge, Val>> weakUpdates = Sets.newHashSet();
+  private final Multimap<Node<Edge, Val>, Edge> affectedStrongUpdateStmt = HashMultimap.create();
+  private final Set<Node<Edge, Val>> weakUpdates = Sets.newHashSet();
   private int killedRules;
 
   private final class AddIndirectFlowAtCallSite implements WPAUpdateListener<Edge, INode<Val>, W> {
@@ -104,9 +104,8 @@ public class IDEALSeedSolver<W extends Weight> {
         if (other.callSite != null) return false;
       } else if (!callSite.equals(other.callSite)) return false;
       if (returnedFact == null) {
-        if (other.returnedFact != null) return false;
-      } else if (!returnedFact.equals(other.returnedFact)) return false;
-      return true;
+        return other.returnedFact == null;
+      } else return returnedFact.equals(other.returnedFact);
     }
 
     private IDEALSeedSolver getOuterType() {
@@ -266,7 +265,7 @@ public class IDEALSeedSolver<W extends Weight> {
   public enum Phases {
     ObjectFlow,
     ValueFlow
-  };
+  }
 
   public IDEALSeedSolver(IDEALAnalysisDefinition<W> analysisDefinition, ForwardQuery seed) {
     this.analysisDefinition = analysisDefinition;
@@ -332,9 +331,7 @@ public class IDEALSeedSolver<W extends Weight> {
       @Override
       public boolean preventCallRuleAdd(ForwardQuery sourceQuery, Rule<Edge, INode<Val>, W> rule) {
         if (phase.equals(Phases.ValueFlow) && sourceQuery.equals(seed)) {
-          if (preventStrongUpdateFlows(rule)) {
-            return true;
-          }
+          return preventStrongUpdateFlows(rule);
         }
         return false;
       }

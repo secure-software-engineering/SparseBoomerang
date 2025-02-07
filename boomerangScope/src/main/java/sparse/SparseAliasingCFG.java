@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 
 public class SparseAliasingCFG<U, V> {
 
-  private static Logger log = LoggerFactory.getLogger(SparseAliasingCFG.class);
+  private static final Logger log = LoggerFactory.getLogger(SparseAliasingCFG.class);
 
-  private MutableGraph<U> graph;
-  private Val d; // which dff this SCFG belongs to
-  private U queryStmt; // in contrast to sparseCFG queryStmt affects the graph
-  private Set<V> fallbackAliases;
-  private Map<U, Integer> unitToNumber;
+  private final MutableGraph<U> graph;
+  private final Val d; // which dff this SCFG belongs to
+  private final U queryStmt; // in contrast to sparseCFG queryStmt affects the graph
+  private final Set<V> fallbackAliases;
+  private final Map<U, Integer> unitToNumber;
 
   public SparseAliasingCFG(
       Val d,

@@ -20,8 +20,8 @@ import java.util.List;
 
 public class WALAInvokeExpr implements InvokeExpr {
 
-  private SSAAbstractInvokeInstruction inv;
-  private WALAMethod m;
+  private final SSAAbstractInvokeInstruction inv;
+  private final WALAMethod m;
   private List<Val> argsCache;
 
   public WALAInvokeExpr(SSAAbstractInvokeInstruction inv, WALAMethod m) {

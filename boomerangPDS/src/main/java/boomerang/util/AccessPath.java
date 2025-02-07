@@ -29,7 +29,6 @@ public class AccessPath {
   @Override
   public String toString() {
     return val.toString()
-        + ""
         + (fieldChain.isEmpty() ? "" : fieldChain.toString())
         + (isOverApproximated() ? "*" : "");
   }
@@ -88,12 +87,7 @@ public class AccessPath {
       return false;
     }
     if (val == null) {
-      if (other.val != null) {
-        return false;
-      }
-    } else if (!val.equals(other.val)) {
-      return false;
-    }
-    return true;
+      return other.val == null;
+    } else return val.equals(other.val);
   }
 }

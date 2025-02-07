@@ -21,7 +21,7 @@ import boomerang.scene.Val;
 
 public class WALAStaticFieldVal extends StaticFieldVal {
 
-  private Field declaredField;
+  private final Field declaredField;
 
   public WALAStaticFieldVal(Field declaredField, Method method) {
     this(declaredField, method, null);
@@ -172,9 +172,8 @@ public class WALAStaticFieldVal extends StaticFieldVal {
     if (getClass() != obj.getClass()) return false;
     WALAStaticFieldVal other = (WALAStaticFieldVal) obj;
     if (declaredField == null) {
-      if (other.declaredField != null) return false;
-    } else if (!declaredField.equals(other.declaredField)) return false;
-    return true;
+      return other.declaredField == null;
+    } else return declaredField.equals(other.declaredField);
   }
 
   @Override

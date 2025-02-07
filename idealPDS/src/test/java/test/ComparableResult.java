@@ -15,9 +15,9 @@ import boomerang.scene.Statement;
 
 public interface ComparableResult<State, Val> {
 
-  public Val getVal();
+  Val getVal();
 
-  public Statement getStmt();
+  Statement getStmt();
 
-  public void computedResults(State val);
+  void computedResults(State val);
 }

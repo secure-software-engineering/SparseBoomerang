@@ -25,7 +25,7 @@ import wpds.impl.Weight.NoWeight;
 public class CustomFlowFunctionTest {
 
   public static String CG = "cha";
-  private String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
+  private final String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
 
   @Test
   public void killOnSystemExitBackwardTestInteger() {
@@ -47,13 +47,13 @@ public class CustomFlowFunctionTest {
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
     for (BackwardBoomerangSolver bw : solver.getBackwardSolvers().values()) {
-      Assert.assertEquals(true, bw.getCallAutomaton().getTransitions().size() < 3);
+      Assert.assertTrue(bw.getCallAutomaton().getTransitions().size() < 3);
     }
     System.out.println(backwardQueryResults.getAllocationSites());
 
     // For the query no allocation site is found, as between queryFor and the allocation site there
     // exists a System.exit call.
-    Assert.assertEquals(true, backwardQueryResults.isEmpty());
+    Assert.assertTrue(backwardQueryResults.isEmpty());
   }
 
   /*
@@ -114,7 +114,7 @@ public class CustomFlowFunctionTest {
                 statement ->
                     statement.containsInvokeExpr()
                         && statement.getInvokeExpr().getMethod().getName().equals("queryFor"));
-    Assert.assertEquals(false, t);
+    Assert.assertFalse(t);
   }
 
   public static BackwardQuery selectQueryForStatement(Method method) {

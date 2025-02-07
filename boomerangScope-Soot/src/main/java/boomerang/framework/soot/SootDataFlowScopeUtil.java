@@ -91,7 +91,7 @@ public class SootDataFlowScopeUtil {
   private static class MapFilter implements Predicate<SootClass> {
     private static final String MAP = "java.util.Map";
     private static final String GUAVA_MAP = "com.google.common.collect.Multimap";
-    private Set<SootClass> excludes = Sets.newHashSet();
+    private final Set<SootClass> excludes = Sets.newHashSet();
 
     public MapFilter() {
       List<SootClass> mapSubClasses =
@@ -120,7 +120,7 @@ public class SootDataFlowScopeUtil {
 
   private static class IterableFilter implements Predicate<SootClass> {
     private static final String ITERABLE = "java.lang.Iterable";
-    private Set<SootClass> excludes = Sets.newHashSet();
+    private final Set<SootClass> excludes = Sets.newHashSet();
 
     public IterableFilter() {
       List<SootClass> iterableSubClasses =
@@ -141,7 +141,7 @@ public class SootDataFlowScopeUtil {
   }
 
   private static class SubSignatureFilter implements Predicate<SootMethod> {
-    private Set<SootMethod> excludes = Sets.newHashSet();
+    private final Set<SootMethod> excludes = Sets.newHashSet();
 
     public SubSignatureFilter(String subSig) {
       QueueReader<MethodOrMethodContext> l = Scene.v().getReachableMethods().listener();

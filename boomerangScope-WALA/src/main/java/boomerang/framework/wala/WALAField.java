@@ -16,7 +16,7 @@ import com.ibm.wala.types.FieldReference;
 
 public class WALAField extends Field {
 
-  private FieldReference fieldRef;
+  private final FieldReference fieldRef;
 
   public WALAField(FieldReference fieldRef) {
     this.fieldRef = fieldRef;
@@ -37,9 +37,8 @@ public class WALAField extends Field {
     if (getClass() != obj.getClass()) return false;
     WALAField other = (WALAField) obj;
     if (fieldRef == null) {
-      if (other.fieldRef != null) return false;
-    } else if (!fieldRef.equals(other.fieldRef)) return false;
-    return true;
+      return other.fieldRef == null;
+    } else return fieldRef.equals(other.fieldRef);
   }
 
   @Override

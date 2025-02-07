@@ -100,8 +100,8 @@ public class IteratorTest extends IDEALTestingFramework {
   }
 
   private static class AxisCollection {
-    private ArrayList axesAtTop;
-    private ArrayList axesAtBottom;
+    private final ArrayList axesAtTop;
+    private final ArrayList axesAtBottom;
 
     public AxisCollection() {
       this.axesAtTop = new ArrayList();

@@ -36,9 +36,8 @@ public class SingleNode<Fact> implements INode<Fact> {
     if (getClass() != obj.getClass()) return false;
     SingleNode other = (SingleNode) obj;
     if (fact == null) {
-      if (other.fact != null) return false;
-    } else if (!fact.equals(other.fact)) return false;
-    return true;
+      return other.fact == null;
+    } else return fact.equals(other.fact);
   }
 
   @Override

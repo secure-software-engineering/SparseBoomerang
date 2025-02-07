@@ -175,9 +175,8 @@ public class JimpleStaticFieldVal extends StaticFieldVal {
     if (getClass() != obj.getClass()) return false;
     JimpleStaticFieldVal other = (JimpleStaticFieldVal) obj;
     if (field == null) {
-      if (other.field != null) return false;
-    } else if (!field.equals(other.field)) return false;
-    return true;
+      return other.field == null;
+    } else return field.equals(other.field);
   }
 
   @Override

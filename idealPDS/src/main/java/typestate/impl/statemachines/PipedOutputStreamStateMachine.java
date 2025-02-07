@@ -23,7 +23,7 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class PipedOutputStreamStateMachine extends TypeStateMachineWeightFunctions {
 
-  public static enum States implements State {
+  public enum States implements State {
     INIT,
     CONNECTED,
     ERROR;

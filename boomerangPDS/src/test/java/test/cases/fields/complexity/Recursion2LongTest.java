@@ -23,7 +23,7 @@ public class Recursion2LongTest extends AbstractBoomerangTest {
     queryFor(alias);
   }
 
-  public static interface IFoo {
+  public interface IFoo {
     DS before(DS ds);
 
     DS after(DS ds);

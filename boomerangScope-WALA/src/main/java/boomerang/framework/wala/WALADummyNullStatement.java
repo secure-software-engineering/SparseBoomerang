@@ -25,8 +25,8 @@ import java.util.Collection;
 
 public class WALADummyNullStatement extends WALAStatement {
 
-  private Val leftOp;
-  private WALAVal rightOp;
+  private final Val leftOp;
+  private final WALAVal rightOp;
 
   public WALADummyNullStatement(Val a, Method method) {
     super(a + " = null", method);
@@ -245,9 +245,8 @@ public class WALADummyNullStatement extends WALAStatement {
     if (getClass() != obj.getClass()) return false;
     WALADummyNullStatement other = (WALADummyNullStatement) obj;
     if (leftOp == null) {
-      if (other.leftOp != null) return false;
-    } else if (!leftOp.equals(other.leftOp)) return false;
-    return true;
+      return other.leftOp == null;
+    } else return leftOp.equals(other.leftOp);
   }
 
   @Override

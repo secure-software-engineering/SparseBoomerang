@@ -379,15 +379,12 @@ public abstract class Statement implements Location {
       if (getFieldStore().getX().equals(value)) return true;
     }
     if (isReturnOperator(value)) return true;
-    if (isParameter(value)) {
-      return true;
-    }
-    return false;
+    return isParameter(value);
   }
 
   public boolean assignsValue(Val value) {
     if (isAssign()) {
-      if (getLeftOp().equals(value)) return true;
+      return getLeftOp().equals(value);
     }
     return false;
   }
@@ -474,9 +471,8 @@ public abstract class Statement implements Location {
       if (other.method != null) return false;
     } else if (!method.equals(other.method)) return false;
     if (rep == null) {
-      if (other.rep != null) return false;
-    } else if (!rep.equals(other.rep)) return false;
-    return true;
+      return other.rep == null;
+    } else return rep.equals(other.rep);
   }
 
   public abstract int getStartLineNumber();

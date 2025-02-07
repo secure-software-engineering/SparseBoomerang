@@ -25,7 +25,7 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class SocketStateMachine extends TypeStateMachineWeightFunctions {
 
-  private static String CONNECT_METHOD = ".* connect.*";
+  private static final String CONNECT_METHOD = ".* connect.*";
 
   public enum States implements State {
     INIT,

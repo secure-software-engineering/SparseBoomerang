@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ObservableStaticICFG implements ObservableICFG<Statement, Method> {
   /** Wrapped static ICFG. If available, this is used to handle all queries. */
-  private CallGraph precomputedGraph;
+  private final CallGraph precomputedGraph;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ObservableStaticICFG.class);
   private static final int IMPRECISE_CALL_GRAPH_WARN_THRESHOLD = 30000;

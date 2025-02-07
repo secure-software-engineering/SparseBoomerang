@@ -54,7 +54,7 @@ public class SocketLongTest extends IDEALTestingFramework {
   public void test4() throws IOException {
     Collection<Socket> sockets = createSockets();
     for (Iterator<Socket> it = sockets.iterator(); it.hasNext(); ) {
-      Socket s = (Socket) it.next();
+      Socket s = it.next();
       s.connect(null);
       talk(s);
       mustBeInAcceptingState(s);
@@ -75,7 +75,7 @@ public class SocketLongTest extends IDEALTestingFramework {
   public void test5() throws IOException {
     Collection<Socket> sockets = createSockets();
     for (Iterator<Socket> it = sockets.iterator(); it.hasNext(); ) {
-      Socket s = (Socket) it.next();
+      Socket s = it.next();
       talk(s);
       mayBeInErrorState(s);
     }

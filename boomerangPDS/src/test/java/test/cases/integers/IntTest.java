@@ -76,7 +76,7 @@ public class IntTest extends AbstractBoomerangTest {
   @Ignore
   @Test
   public void wrappedType() {
-    Integer integer = new Integer(1);
+    Integer integer = Integer.valueOf(1);
     int allocation = integer;
     intQueryFor(allocation, "1");
   }

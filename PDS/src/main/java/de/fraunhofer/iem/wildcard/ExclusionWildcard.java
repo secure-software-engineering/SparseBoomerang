@@ -12,5 +12,5 @@
 package de.fraunhofer.iem.wildcard;
 
 public interface ExclusionWildcard<Location> extends Wildcard {
-  public Location excludes();
+  Location excludes();
 }

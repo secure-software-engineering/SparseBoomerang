@@ -92,8 +92,7 @@ public class InferenceWeight extends Weight {
       if (other.rep != null) return false;
     } else if (!rep.equals(other.rep)) return false;
     if (invokedMethods == null) {
-      if (other.invokedMethods != null) return false;
-    } else if (!invokedMethods.equals(other.invokedMethods)) return false;
-    return true;
+      return other.invokedMethods == null;
+    } else return invokedMethods.equals(other.invokedMethods);
   }
 }

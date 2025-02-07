@@ -33,7 +33,7 @@ public class SignatureStateMachine extends TypeStateMachineWeightFunctions {
   private static final String VERIFY = "verify";
   private static final String GET_INSTANCE = "getInstance";
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     UNITIALIZED,
     SIGN_CHECK,

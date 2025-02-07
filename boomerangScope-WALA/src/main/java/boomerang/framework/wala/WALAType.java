@@ -110,8 +110,7 @@ public class WALAType implements Type {
         return true;
       }
     }
-    if (typeAbstraction.equals(TypeAbstraction.TOP)) return true;
-    return false;
+    return typeAbstraction.equals(TypeAbstraction.TOP);
   }
 
   @Override

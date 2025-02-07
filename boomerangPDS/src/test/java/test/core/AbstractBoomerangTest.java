@@ -69,7 +69,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
   public enum AnalysisMode {
     WholeProgram,
-    DemandDrivenBackward;
+    DemandDrivenBackward
   }
 
   protected AnalysisMode[] getAnalyses() {

@@ -39,13 +39,15 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
   private static final String THREAD_START_SIGNATURE = "<java.lang.Thread: void start()>";
   private static final String THREAD_RUN_SUB_SIGNATURE = "void run()";
 
-  private static NoCalleeFoundFallbackOptions FALLBACK_OPTION = NoCalleeFoundFallbackOptions.BYPASS;
-  private static Multimap<DeclaredMethod, WrappedClass> didNotFindMethodLog = HashMultimap.create();
+  private static final NoCalleeFoundFallbackOptions FALLBACK_OPTION =
+      NoCalleeFoundFallbackOptions.BYPASS;
+  private static final Multimap<DeclaredMethod, WrappedClass> didNotFindMethodLog =
+      HashMultimap.create();
 
-  private CallGraph precomputedCallGraph;
-  private WeightedBoomerang<? extends Weight> solver;
-  private Set<Statement> queriedInvokeExprAndAllocationSitesFound = Sets.newHashSet();
-  private Set<Statement> queriedInvokeExpr = Sets.newHashSet();
+  private final CallGraph precomputedCallGraph;
+  private final WeightedBoomerang<? extends Weight> solver;
+  private final Set<Statement> queriedInvokeExprAndAllocationSitesFound = Sets.newHashSet();
+  private final Set<Statement> queriedInvokeExpr = Sets.newHashSet();
 
   public BoomerangResolver(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
     this.solver = new Boomerang(cg, scope, scopeFactory);
@@ -260,9 +262,8 @@ public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
         if (other.query != null) return false;
       } else if (!query.equals(other.query)) return false;
       if (invokeExpr == null) {
-        if (other.invokeExpr != null) return false;
-      } else if (!invokeExpr.equals(other.invokeExpr)) return false;
-      return true;
+        return other.invokeExpr == null;
+      } else return invokeExpr.equals(other.invokeExpr);
     }
 
     private BoomerangResolver getOuterType() {

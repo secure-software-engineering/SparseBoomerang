@@ -34,8 +34,8 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
 
   private static final Logger LOGGER = Logger.getLogger(AliasAwareSparseCFGBuilder.class.getName());
 
-  private boolean enableExceptions;
-  private boolean ignoreAfterQuery;
+  private final boolean enableExceptions;
+  private final boolean ignoreAfterQuery;
 
   public AliasAwareSparseCFGBuilder(boolean enableExceptions, boolean ignoreAfterQuery) {
     this.enableExceptions = enableExceptions;
@@ -216,9 +216,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   }
 
   private boolean isDebugTarget() {
-    return false
-        && currentMethod.getName().equals("main")
-        && queryStmt.toString().startsWith("b_q1");
+    return false;
   }
 
   private void logStackOp(Value val, String op) {
@@ -461,10 +459,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
         return true;
       }
     }
-    if (keepInvokeForValue(unit, queryVar)) {
-      return true;
-    }
-    return false;
+    return keepInvokeForValue(unit, queryVar);
   }
 
   /**
@@ -478,9 +473,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private boolean equalsQueryBase(Value rightOp, Value queryVar) {
     if (queryVar instanceof JInstanceFieldRef) {
       Value queryBase = ((JInstanceFieldRef) queryVar).getBase();
-      if (queryBase.equals(rightOp)) {
-        return true;
-      }
+      return queryBase.equals(rightOp);
     }
     return false;
   }
@@ -489,9 +482,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     if (op instanceof JInstanceFieldRef) {
       Value base = ((JInstanceFieldRef) op).getBase();
       Type fieldType = ((JInstanceFieldRef) op).getField().getType();
-      if (base.equals(queryVar) && fieldType.equals(queryVarType)) {
-        return true;
-      }
+      return base.equals(queryVar) && fieldType.equals(queryVarType);
     }
     return false;
   }
@@ -508,9 +499,7 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     if (op instanceof JInstanceFieldRef) {
       Value base = ((JInstanceFieldRef) op).getBase();
       Type fieldType = ((JInstanceFieldRef) op).getField().getType();
-      if (base.equals(queryVar) && fieldType.equals(queryVar.getType())) {
-        return true;
-      }
+      return base.equals(queryVar) && fieldType.equals(queryVar.getType());
     }
     return false;
   }
@@ -588,14 +577,10 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
   private boolean isInvokeBase(Value d, InvokeExpr invokeExpr) {
     if (invokeExpr instanceof JVirtualInvokeExpr) {
       Value base = ((JVirtualInvokeExpr) invokeExpr).getBase();
-      if (d.equals(base)) {
-        return true;
-      }
+      return d.equals(base);
     } else if (invokeExpr instanceof JSpecialInvokeExpr) {
       Value base = ((JSpecialInvokeExpr) invokeExpr).getBase();
-      if (d.equals(base)) {
-        return true;
-      }
+      return d.equals(base);
     }
     return false;
   }
@@ -605,17 +590,13 @@ public class AliasAwareSparseCFGBuilder extends SparseCFGBuilder {
     if (rightOp instanceof JNewExpr) {
       JNewExpr newExpr = (JNewExpr) rightOp;
       Type type = newExpr.getType();
-      if (type.equals(d.getType())) {
-        return true;
-      }
-    } else if (rightOp instanceof JSpecialInvokeExpr
-        || rightOp instanceof JStaticInvokeExpr
-        || rightOp instanceof JVirtualInvokeExpr
-        || rightOp instanceof JInterfaceInvokeExpr
-        || rightOp instanceof JDynamicInvokeExpr) {
-      return true;
-    }
-    return false;
+      return type.equals(d.getType());
+    } else
+      return rightOp instanceof JSpecialInvokeExpr
+          || rightOp instanceof JStaticInvokeExpr
+          || rightOp instanceof JVirtualInvokeExpr
+          || rightOp instanceof JInterfaceInvokeExpr
+          || rightOp instanceof JDynamicInvokeExpr;
   }
 
   /**

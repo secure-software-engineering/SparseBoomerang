@@ -19,9 +19,9 @@ import com.ibm.wala.ssa.SSAConditionalBranchInstruction;
 
 public class WALAIfStatement implements IfStatement {
 
-  private SSAConditionalBranchInstruction delegate;
-  private WALAMethod method;
-  private Statement target;
+  private final SSAConditionalBranchInstruction delegate;
+  private final WALAMethod method;
+  private final Statement target;
 
   public WALAIfStatement(SSAConditionalBranchInstruction delegate, WALAMethod method) {
     this.delegate = delegate;

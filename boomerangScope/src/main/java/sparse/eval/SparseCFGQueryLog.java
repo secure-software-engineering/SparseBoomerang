@@ -9,13 +9,13 @@ import java.time.Duration;
  */
 public class SparseCFGQueryLog {
 
-  private boolean retrievedFromCache;
+  private final boolean retrievedFromCache;
 
-  private QueryDirection direction;
+  private final QueryDirection direction;
 
   public enum QueryDirection {
     FWD,
-    BWD;
+    BWD
   }
 
   private final Stopwatch watch;
@@ -23,7 +23,7 @@ public class SparseCFGQueryLog {
   private final Stopwatch findStmtsWatch;
   private final Stopwatch sparsifysWatch;
 
-  private int containerTypeCount = 0;
+  private final int containerTypeCount = 0;
   private int initialStmtCount = 0;
   private int finalStmtCount = 0;
 

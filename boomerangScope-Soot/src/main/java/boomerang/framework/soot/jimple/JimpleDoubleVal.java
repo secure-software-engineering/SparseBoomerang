@@ -37,8 +37,7 @@ public class JimpleDoubleVal extends JimpleVal implements ValWithFalseVariable {
     if (getClass() != obj.getClass()) return false;
     JimpleDoubleVal other = (JimpleDoubleVal) obj;
     if (falseVariable == null) {
-      if (other.falseVariable != null) return false;
-    } else if (!falseVariable.equals(other.falseVariable)) return false;
-    return true;
+      return other.falseVariable == null;
+    } else return falseVariable.equals(other.falseVariable);
   }
 }

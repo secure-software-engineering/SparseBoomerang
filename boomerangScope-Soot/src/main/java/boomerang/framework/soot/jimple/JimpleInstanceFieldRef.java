@@ -6,8 +6,8 @@ import boomerang.scene.Val;
 
 public class JimpleInstanceFieldRef implements InstanceFieldRef {
 
-  private soot.jimple.InstanceFieldRef delegate;
-  private JimpleMethod m;
+  private final soot.jimple.InstanceFieldRef delegate;
+  private final JimpleMethod m;
 
   public JimpleInstanceFieldRef(soot.jimple.InstanceFieldRef ifr, JimpleMethod m) {
     this.delegate = ifr;

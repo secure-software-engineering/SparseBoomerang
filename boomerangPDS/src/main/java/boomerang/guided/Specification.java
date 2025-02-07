@@ -71,8 +71,8 @@ public class Specification {
             + go.stream().filter(x -> x.direction == QueryDirection.FORWARD).count();
     if (input.length()
         != sootMethod.length()
-            + (on.size() * ON_SELECTOR.length()
-                + go.size() * GO_SELECTOR.length()
+            + ((long) on.size() * ON_SELECTOR.length()
+                + (long) go.size() * GO_SELECTOR.length()
                 + backwardQueryCount * BACKWARD.length()
                 + forwardQueryCount * FORWARD.length())) {
       throw new RuntimeException("Parsing Specification failed. Please check your specification");

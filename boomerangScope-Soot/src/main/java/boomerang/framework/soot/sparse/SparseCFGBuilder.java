@@ -83,13 +83,10 @@ public class SparseCFGBuilder {
         || stmt instanceof JReturnVoidStmt) {
       return true;
     }
-    if (stmt instanceof JIdentityStmt) {
-      //      JIdentityStmt id = (JIdentityStmt) stmt;
-      //      if (id.getRightOp() instanceof JCaughtExceptionRef) {
-      return true;
-      //      }
-    }
-    return false;
+    //      JIdentityStmt id = (JIdentityStmt) stmt;
+    //      if (id.getRightOp() instanceof JCaughtExceptionRef) {
+    //      }
+    return stmt instanceof JIdentityStmt;
   }
 
   public void removeStmt(MutableGraph<Unit> mCFG, Unit unit) {

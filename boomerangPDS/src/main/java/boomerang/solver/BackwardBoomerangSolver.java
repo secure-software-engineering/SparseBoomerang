@@ -380,9 +380,8 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
         if (other.caller != null) return false;
       } else if (!caller.equals(other.caller)) return false;
       if (curr == null) {
-        if (other.curr != null) return false;
-      } else if (!curr.equals(other.curr)) return false;
-      return true;
+        return other.curr == null;
+      } else return curr.equals(other.curr);
     }
 
     private BackwardBoomerangSolver getOuterType() {

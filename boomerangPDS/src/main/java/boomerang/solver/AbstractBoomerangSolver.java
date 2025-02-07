@@ -70,21 +70,22 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
           Entry<INode<Node<ControlFlowGraph.Edge, Val>>, Field>,
           INode<Node<ControlFlowGraph.Edge, Val>>>
       generatedFieldState;
-  private Multimap<Method, Transition<Field, INode<Node<ControlFlowGraph.Edge, Val>>>>
+  private final Multimap<Method, Transition<Field, INode<Node<ControlFlowGraph.Edge, Val>>>>
       perMethodFieldTransitions = HashMultimap.create();
-  private Multimap<Method, MethodBasedFieldTransitionListener<W>>
+  private final Multimap<Method, MethodBasedFieldTransitionListener<W>>
       perMethodFieldTransitionsListener = HashMultimap.create();
   protected Multimap<
           ControlFlowGraph.Edge, Transition<Field, INode<Node<ControlFlowGraph.Edge, Val>>>>
       perStatementFieldTransitions = HashMultimap.create();
-  private Multimap<ControlFlowGraph.Edge, ControlFlowEdgeBasedFieldTransitionListener<W>>
+  private final Multimap<ControlFlowGraph.Edge, ControlFlowEdgeBasedFieldTransitionListener<W>>
       perStatementFieldTransitionsListener = HashMultimap.create();
-  private HashBasedTable<ControlFlowGraph.Edge, Transition<ControlFlowGraph.Edge, INode<Val>>, W>
+  private final HashBasedTable<
+          ControlFlowGraph.Edge, Transition<ControlFlowGraph.Edge, INode<Val>>, W>
       perStatementCallTransitions = HashBasedTable.create();
-  private Multimap<ControlFlowGraph.Edge, ControlFlowEdgeBasedCallTransitionListener<W>>
+  private final Multimap<ControlFlowGraph.Edge, ControlFlowEdgeBasedCallTransitionListener<W>>
       perStatementCallTransitionsListener = HashMultimap.create();
-  private Multimap<Method, UnbalancedDataFlow<W>> unbalancedDataFlows = HashMultimap.create();
-  private Multimap<Method, UnbalancedDataFlowListener> unbalancedDataFlowListeners =
+  private final Multimap<Method, UnbalancedDataFlow<W>> unbalancedDataFlows = HashMultimap.create();
+  private final Multimap<Method, UnbalancedDataFlowListener> unbalancedDataFlowListeners =
       HashMultimap.create();
   protected final DataFlowScope dataFlowScope;
   protected final BoomerangOptions options;
@@ -100,7 +101,7 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
       DataFlowScope scope,
       Type propagationType) {
     super(
-        icfg instanceof BackwardsObservableICFG ? false : options.callSummaries(),
+        !(icfg instanceof BackwardsObservableICFG) && options.callSummaries(),
         callSummaries,
         options.fieldSummaries(),
         fieldSummaries,
@@ -169,8 +170,8 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     synchedReachable(
         sourceNode,
         new WitnessListener<Edge, Val, Field>() {
-          Multimap<Val, Node<Edge, Val>> potentialFieldCandidate = HashMultimap.create();
-          Set<Val> potentialCallCandidate = Sets.newHashSet();
+          final Multimap<Val, Node<Edge, Val>> potentialFieldCandidate = HashMultimap.create();
+          final Set<Val> potentialCallCandidate = Sets.newHashSet();
 
           @Override
           public void fieldWitness(Transition<Field, INode<Node<Edge, Val>>> t) {
@@ -520,11 +521,11 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
       return false;
     }
     if (!(targetVal.isRefType()) || !(sourceVal.isRefType())) {
-      if (options.killNullAtCast() && targetVal.isNullType() && isCastNode(t.getStart().fact())) {
-        // A null pointer cannot be cast to any object
-        return true;
-      }
-      return false; // !allocVal.value().getType().equals(varVal.value().getType());
+      // A null pointer cannot be cast to any object
+      return options.killNullAtCast()
+          && targetVal.isNullType()
+          && isCastNode(
+              t.getStart().fact()); // !allocVal.value().getType().equals(varVal.value().getType());
     }
     return sourceVal.doesCastFail(targetVal, target);
   }
@@ -534,9 +535,7 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
     if (isCast) {
       Val rightOp = node.stmt().getStart().getRightOp();
       if (rightOp.isCast()) {
-        if (rightOp.getCastOp().equals(node.fact())) {
-          return true;
-        }
+        return rightOp.getCastOp().equals(node.fact());
       }
     }
     return false;
@@ -621,7 +620,7 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
   private static class UnbalancedDataFlow<W> {
 
     private final Method callee;
-    private Transition<ControlFlowGraph.Edge, INode<Val>> trans;
+    private final Transition<ControlFlowGraph.Edge, INode<Val>> trans;
 
     public UnbalancedDataFlow(Method callee, Transition<ControlFlowGraph.Edge, INode<Val>> trans) {
       this.callee = callee;
@@ -651,15 +650,14 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
         if (other.callee != null) return false;
       } else if (!callee.equals(other.callee)) return false;
       if (trans == null) {
-        if (other.trans != null) return false;
-      } else if (!trans.equals(other.trans)) return false;
-      return true;
+        return other.trans == null;
+      } else return trans.equals(other.trans);
     }
   }
 
   private static class UnbalancedDataFlowListener {
-    private Method callee;
-    private Statement callSite;
+    private final Method callee;
+    private final Statement callSite;
 
     public UnbalancedDataFlowListener(Method callee, Statement callSite) {
       this.callee = callee;
@@ -689,9 +687,8 @@ public abstract class AbstractBoomerangSolver<W extends Weight>
         if (other.callee != null) return false;
       } else if (!callee.equals(other.callee)) return false;
       if (callSite == null) {
-        if (other.callSite != null) return false;
-      } else if (!callSite.equals(other.callSite)) return false;
-      return true;
+        return other.callSite == null;
+      } else return callSite.equals(other.callSite);
     }
   }
 }

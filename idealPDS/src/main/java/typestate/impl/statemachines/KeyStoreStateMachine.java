@@ -27,9 +27,9 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class KeyStoreStateMachine extends TypeStateMachineWeightFunctions {
 
-  private static String LOAD_METHOD = ".* load.*";
+  private static final String LOAD_METHOD = ".* load.*";
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     INIT,
     LOADED,

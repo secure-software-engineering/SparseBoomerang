@@ -159,7 +159,7 @@ public class SootUpDataFlowScopeUtil {
   }
 
   private static class SubSignatureFilter implements Predicate<JavaSootMethod> {
-    private Set<String> excludes = Sets.newHashSet();
+    private final Set<String> excludes = Sets.newHashSet();
 
     public SubSignatureFilter(SootUpFrameworkScope scope, String subSig) {
       scope.getCallGraph().getReachableMethods().stream()

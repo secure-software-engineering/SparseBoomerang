@@ -4,17 +4,17 @@ import java.util.List;
 
 public interface InvokeExpr {
 
-  public Val getArg(int index);
+  Val getArg(int index);
 
-  public List<Val> getArgs();
+  List<Val> getArgs();
 
-  public boolean isInstanceInvokeExpr();
+  boolean isInstanceInvokeExpr();
 
-  public Val getBase();
+  Val getBase();
 
-  public DeclaredMethod getMethod();
+  DeclaredMethod getMethod();
 
-  public boolean isSpecialInvokeExpr();
+  boolean isSpecialInvokeExpr();
 
-  public boolean isStaticInvokeExpr();
+  boolean isStaticInvokeExpr();
 }

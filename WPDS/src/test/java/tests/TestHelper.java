@@ -175,9 +175,8 @@ public class TestHelper {
       Abstraction other = (Abstraction) obj;
       if (a != other.a) return false;
       if (s == null) {
-        if (other.s != null) return false;
-      } else if (!s.equals(other.s)) return false;
-      return true;
+        return other.s == null;
+      } else return s.equals(other.s);
     }
   }
 
@@ -203,9 +202,8 @@ public class TestHelper {
       if (getClass() != obj.getClass()) return false;
       StackSymbol other = (StackSymbol) obj;
       if (s == null) {
-        if (other.s != null) return false;
-      } else if (!s.equals(other.s)) return false;
-      return true;
+        return other.s == null;
+      } else return s.equals(other.s);
     }
 
     @Override

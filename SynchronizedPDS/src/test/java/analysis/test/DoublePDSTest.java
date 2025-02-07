@@ -38,9 +38,9 @@ import wpds.impl.Weight.NoWeight;
 import wpds.interfaces.State;
 
 public class DoublePDSTest {
-  private static Logger LOGGER = LoggerFactory.getLogger(DoublePDSTest.class);
-  private Multimap<Node<Statement, Variable>, State> successorMap = HashMultimap.create();
-  private Multimap<Node<Statement, Variable>, Node<Statement, Variable>> summaryMap =
+  private static final Logger LOGGER = LoggerFactory.getLogger(DoublePDSTest.class);
+  private final Multimap<Node<Statement, Variable>, State> successorMap = HashMultimap.create();
+  private final Multimap<Node<Statement, Variable>, Node<Statement, Variable>> summaryMap =
       HashMultimap.create();
 
   private void addFieldPop(
@@ -82,10 +82,11 @@ public class DoublePDSTest {
     addSucc(curr, new ExclusionNode<>(succ.stmt(), succ.fact(), push));
   }
 
-  private FieldRef epsilonField = new FieldRef("EMPTY");
-  private Statement epsilonCallSite = new Statement(-1);
+  private final FieldRef epsilonField = new FieldRef("EMPTY");
+  private final Statement epsilonCallSite = new Statement(-1);
 
-  private SyncPDSSolver<Statement, Variable, FieldRef, NoWeight> solver = new TestSyncPDSSolver();
+  private final SyncPDSSolver<Statement, Variable, FieldRef, NoWeight> solver =
+      new TestSyncPDSSolver();
 
   private class TestSyncPDSSolver extends SyncPDSSolver<Statement, Variable, FieldRef, NoWeight> {
 
@@ -709,7 +710,7 @@ public class DoublePDSTest {
 
     @Override
     public FieldRef excludes() {
-      return (FieldRef) excludes;
+      return excludes;
     }
 
     @Override
@@ -732,9 +733,8 @@ public class DoublePDSTest {
       if (getClass() != obj.getClass()) return false;
       ExclusionWildcardField other = (ExclusionWildcardField) obj;
       if (excludes == null) {
-        if (other.excludes != null) return false;
-      } else if (!excludes.equals(other.excludes)) return false;
-      return true;
+        return other.excludes == null;
+      } else return excludes.equals(other.excludes);
     }
   }
 
@@ -771,9 +771,8 @@ public class DoublePDSTest {
       if (getClass() != obj.getClass()) return false;
       StringBasedObj other = (StringBasedObj) obj;
       if (name == null) {
-        if (other.name != null) return false;
-      } else if (!name.equals(other.name)) return false;
-      return true;
+        return other.name == null;
+      } else return name.equals(other.name);
     }
 
     @Override

@@ -13,8 +13,8 @@ import soot.jimple.StaticInvokeExpr;
 
 public class JimpleInvokeExpr implements InvokeExpr {
 
-  private soot.jimple.InvokeExpr delegate;
-  private Method m;
+  private final soot.jimple.InvokeExpr delegate;
+  private final Method m;
   private ArrayList<Val> cache;
 
   public JimpleInvokeExpr(soot.jimple.InvokeExpr ive, Method m) {

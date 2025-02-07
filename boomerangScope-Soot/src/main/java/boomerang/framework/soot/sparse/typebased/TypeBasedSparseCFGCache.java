@@ -72,13 +72,7 @@ public class TypeBasedSparseCFGCache implements SparseCFGCache<Method, Statement
     //    Value sootInitialQueryVal = SootAdapter.asValue(initialQueryVal);
     //    Value sootCurrentQueryVal = SootAdapter.asValue(currentVal);
 
-    String key =
-        new StringBuilder(sootSurrentMethod.getSignature())
-            .append("-")
-            .append(initialQueryVal)
-            .append("-")
-            .append(initialQueryStmt)
-            .toString();
+    String key = sootSurrentMethod.getSignature() + "-" + initialQueryVal + "-" + initialQueryStmt;
 
     // currentStmt must be part of the sparseCFG that was built for the initialQueryStmt
     // if not we'll built another sparseCFG for the currentStmt

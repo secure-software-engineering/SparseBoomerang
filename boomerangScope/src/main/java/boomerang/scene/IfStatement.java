@@ -5,7 +5,7 @@ public interface IfStatement {
     TRUE,
     FALSE,
     UNKOWN
-  };
+  }
 
   Statement getTarget();
 

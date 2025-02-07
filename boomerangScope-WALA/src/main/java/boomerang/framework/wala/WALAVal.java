@@ -34,7 +34,7 @@ public class WALAVal extends Val {
   private final SSAInstruction ssaInstruction;
   private final OP op;
 
-  public static enum OP {
+  public enum OP {
     LEFT,
     RIGHT
   }
@@ -284,8 +284,7 @@ public class WALAVal extends Val {
     if (ssaInstruction == null) {
       if (other.ssaInstruction != null) return false;
     } else if (!ssaInstruction.equals(other.ssaInstruction)) return false;
-    if (programCounter != other.programCounter) return false;
-    return true;
+    return programCounter == other.programCounter;
   }
 
   @Override

@@ -76,7 +76,7 @@ public class JimpleVal extends Val {
   }
 
   public Type getNewExprType() {
-    return new JimpleType(((NewExpr) v).getType());
+    return new JimpleType(v.getType());
   }
 
   public Val asUnbalanced(Edge stmt) {
@@ -91,10 +91,7 @@ public class JimpleVal extends Val {
     // TODO Split this into single array and multi array allocation
     if (v instanceof NewArrayExpr) {
       return true;
-    } else if (v instanceof NewMultiArrayExpr) {
-      return true;
-    }
-    return false;
+    } else return v instanceof NewMultiArrayExpr;
   }
 
   public Val getArrayAllocationSize() {
@@ -241,9 +238,8 @@ public class JimpleVal extends Val {
     if (getClass() != obj.getClass()) return false;
     JimpleVal other = (JimpleVal) obj;
     if (v == null) {
-      if (other.v != null) return false;
-    } else if (!v.equals(other.v)) return false;
-    return true;
+      return other.v == null;
+    } else return v.equals(other.v);
   }
 
   public Value getDelegate() {

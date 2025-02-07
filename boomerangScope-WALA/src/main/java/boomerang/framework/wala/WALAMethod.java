@@ -31,13 +31,13 @@ import java.util.Set;
 
 public class WALAMethod extends Method {
 
-  private IMethod delegate;
-  private WALAControlFlowGraph cfg;
-  private IR ir;
+  private final IMethod delegate;
+  private final WALAControlFlowGraph cfg;
+  private final IR ir;
   private List<Val> paramLocalCache;
   private Set<Val> valueCache;
-  private TypeInference typeInference;
-  private IClassHierarchy cha;
+  private final TypeInference typeInference;
+  private final IClassHierarchy cha;
 
   public WALAMethod(IMethod delegate, IR ir, IClassHierarchy cha) {
     this.delegate = delegate;
@@ -168,9 +168,8 @@ public class WALAMethod extends Method {
     if (getClass() != obj.getClass()) return false;
     WALAMethod other = (WALAMethod) obj;
     if (delegate == null) {
-      if (other.delegate != null) return false;
-    } else if (!delegate.equals(other.delegate)) return false;
-    return true;
+      return other.delegate == null;
+    } else return delegate.equals(other.delegate);
   }
 
   IR getIR() {

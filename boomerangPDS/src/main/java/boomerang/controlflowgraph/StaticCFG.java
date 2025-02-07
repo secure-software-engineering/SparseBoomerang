@@ -8,9 +8,9 @@ import sparse.SparsificationStrategy;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
-  private SparsificationStrategy sparsificationStrategy;
+  private final SparsificationStrategy sparsificationStrategy;
 
-  private BoomerangOptions options;
+  private final BoomerangOptions options;
 
   private Val currentVal;
 

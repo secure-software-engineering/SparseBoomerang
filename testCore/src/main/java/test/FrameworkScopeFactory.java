@@ -304,7 +304,7 @@ public class FrameworkScopeFactory {
     System.out.println("incl" + includedPackages);
     System.out.println("ex" + excludedPackages);
 
-    if (true || includedPackages.isEmpty() && excludedPackages.isEmpty()) {
+    if (true) {
       inputLocations.add(runtimeInputLocation);
     } else {
       SourceTypeSplittingAnalysisInputLocation.ApplicationAnalysisInputLocation
@@ -507,10 +507,7 @@ public class FrameworkScopeFactory {
 
     // initialize CallGraphAlgorithm
     // TODO: use spark when available
-    CallGraphAlgorithm cga =
-        customEntrypointMethodName == null
-            ? new RapidTypeAnalysisAlgorithm(javaView)
-            : new RapidTypeAnalysisAlgorithm(javaView);
+    CallGraphAlgorithm cga = new RapidTypeAnalysisAlgorithm(javaView);
     cg = cga.initialize(entypointSignatures);
 
     cg.exportAsDot();
