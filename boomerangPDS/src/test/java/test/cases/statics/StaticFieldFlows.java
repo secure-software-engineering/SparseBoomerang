@@ -31,7 +31,7 @@ public class StaticFieldFlows extends AbstractBoomerangTest {
   public void simple2() {
     alloc = new Alloc();
     Object sr = new Object();
-    Object r = "";
+    Object r = new String();
     queryFor(alloc);
   }
 

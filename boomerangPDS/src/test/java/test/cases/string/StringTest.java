@@ -31,14 +31,18 @@ public class StringTest extends AbstractBoomerangTest {
 
   @Test
   public void stringbufferQueryByPass() {
-    T t = new T("");
+    StringBuffer s = new StringBuffer();
+    s.append("");
+    s.append("");
+    s.append("");
+    T t = new T(s.toString());
     StringBuffer t2 = new StringBuffer();
     queryFor(t);
   }
 
   private static class T implements AllocatedObject {
 
-    private final String string;
+    private String string;
 
     public T(String string) {
       this.string = string;
@@ -53,7 +57,9 @@ public class StringTest extends AbstractBoomerangTest {
 
   @Test
   public void stringBuilderTest() {
-    String s = "Test" + "ABC";
+    StringBuilder b = new StringBuilder("Test");
+    b.append("ABC");
+    String s = b.toString();
     queryFor(s);
   }
 

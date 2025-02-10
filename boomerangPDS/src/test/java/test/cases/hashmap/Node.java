@@ -53,7 +53,7 @@ class Node<K, V> implements Map.Entry<K, V> {
     if (o == this) return true;
     if (o instanceof Map.Entry) {
       Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-      return Objects.equals(key, e.getKey()) && Objects.equals(value, e.getValue());
+      if (Objects.equals(key, e.getKey()) && Objects.equals(value, e.getValue())) return true;
     }
     return false;
   }
