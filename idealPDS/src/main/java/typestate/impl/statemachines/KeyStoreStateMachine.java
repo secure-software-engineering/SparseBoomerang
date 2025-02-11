@@ -17,11 +17,7 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.Statement;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import soot.SootClass;
-import soot.SootMethod;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.MatcherTransition;
 import typestate.finiteautomata.MatcherTransition.Parameter;
@@ -31,9 +27,9 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class KeyStoreStateMachine extends TypeStateMachineWeightFunctions {
 
-  private static String LOAD_METHOD = ".* load.*";
+  private static final String LOAD_METHOD = ".* load.*";
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     INIT,
     LOADED,
@@ -74,6 +70,8 @@ public class KeyStoreStateMachine extends TypeStateMachineWeightFunctions {
             States.ERROR, LOAD_METHOD, true, Parameter.This, States.ERROR, Type.OnCallToReturn));
   }
 
+  /*
+  // TODO: [ms] re-enable
   private Set<SootMethod> keyStoreConstructor() {
     List<SootClass> subclasses = getSubclassesOf("java.security.KeyStore");
     Set<SootMethod> out = new HashSet<>();
@@ -83,6 +81,7 @@ public class KeyStoreStateMachine extends TypeStateMachineWeightFunctions {
     }
     return out;
   }
+  */
 
   @Override
   public Set<WeightedForwardQuery<TransitionFunction>> generateSeed(Edge edge) {

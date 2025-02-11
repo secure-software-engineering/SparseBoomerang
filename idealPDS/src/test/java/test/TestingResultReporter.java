@@ -24,7 +24,7 @@ import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
 public class TestingResultReporter<W extends Weight> {
-  private Multimap<Statement, Assertion> stmtToResults = HashMultimap.create();
+  private final Multimap<Statement, Assertion> stmtToResults = HashMultimap.create();
 
   public TestingResultReporter(Set<Assertion> expectedResults) {
     for (Assertion e : expectedResults) {

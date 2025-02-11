@@ -61,8 +61,7 @@ public abstract class ControlFlowEdgeBasedFieldTransitionListener<W extends Weig
     ControlFlowEdgeBasedFieldTransitionListener other =
         (ControlFlowEdgeBasedFieldTransitionListener) obj;
     if (cfgEdge == null) {
-      if (other.cfgEdge != null) return false;
-    } else if (!cfgEdge.equals(other.cfgEdge)) return false;
-    return true;
+      return other.cfgEdge == null;
+    } else return cfgEdge.equals(other.cfgEdge);
   }
 }

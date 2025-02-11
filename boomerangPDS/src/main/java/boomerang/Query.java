@@ -64,9 +64,8 @@ public abstract class Query {
       if (other.cfgEdge != null) return false;
     } else if (!cfgEdge.equals(other.cfgEdge)) return false;
     if (variable == null) {
-      if (other.variable != null) return false;
-    } else if (!variable.equals(other.variable)) return false;
-    return true;
+      return other.variable == null;
+    } else return variable.equals(other.variable);
   }
 
   public Type getType() {

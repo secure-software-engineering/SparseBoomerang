@@ -8,12 +8,12 @@ import java.util.Set;
 
 public class CallGraph {
 
-  private Set<Edge> edges = Sets.newHashSet();
-  private Multimap<Statement, Edge> edgesOutOf = HashMultimap.create();
-  private Multimap<Method, Edge> edgesInto = HashMultimap.create();
-  private Set<Method> entryPoints = Sets.newHashSet();
-  private Multimap<Field, Statement> fieldLoadStatements = HashMultimap.create();
-  private Multimap<Field, Statement> fieldStoreStatements = HashMultimap.create();
+  private final Set<Edge> edges = Sets.newHashSet();
+  private final Multimap<Statement, Edge> edgesOutOf = HashMultimap.create();
+  private final Multimap<Method, Edge> edgesInto = HashMultimap.create();
+  private final Set<Method> entryPoints = Sets.newHashSet();
+  private final Multimap<Field, Statement> fieldLoadStatements = HashMultimap.create();
+  private final Multimap<Field, Statement> fieldStoreStatements = HashMultimap.create();
 
   public Collection<Edge> edgesOutOf(Statement stmt) {
     return edgesOutOf.get(stmt);
@@ -57,9 +57,8 @@ public class CallGraph {
         if (other.callSite != null) return false;
       } else if (!callSite.equals(other.callSite)) return false;
       if (callee == null) {
-        if (other.callee != null) return false;
-      } else if (!callee.equals(other.callee)) return false;
-      return true;
+        return other.callee == null;
+      } else return callee.equals(other.callee);
     }
 
     @Override

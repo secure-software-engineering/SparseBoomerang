@@ -56,12 +56,13 @@ import wpds.impl.Weight;
 
 public class IDEVizDebugger<W extends Weight> extends Debugger<W> {
 
-  private static boolean ONLY_CFG = false;
+  private static final boolean ONLY_CFG = false;
   private static final Logger logger = LoggerFactory.getLogger(IDEVizDebugger.class);
-  private File ideVizFile;
+  private final File ideVizFile;
   private ObservableICFG<Statement, Method> icfg;
-  private Table<Query, Method, Set<Rule<Edge, INode<Val>, W>>> rules = HashBasedTable.create();
-  private Map<Object, Integer> objectToInteger = new HashMap<>();
+  private final Table<Query, Method, Set<Rule<Edge, INode<Val>, W>>> rules =
+      HashBasedTable.create();
+  private final Map<Object, Integer> objectToInteger = new HashMap<>();
   private int charSize;
   private ObservableControlFlowGraph cfg;
 
@@ -129,7 +130,6 @@ public class IDEVizDebugger<W extends Weight> extends Debugger<W> {
       queryJSON.put("methods", data);
       eventualData.add(queryJSON);
     }
-    ;
     logger.info("Computing visualization took: {}", watch.elapsed());
     try (FileWriter file = new FileWriter(ideVizFile)) {
       logger.info("Writing visualization to file {}", ideVizFile.getAbsolutePath());

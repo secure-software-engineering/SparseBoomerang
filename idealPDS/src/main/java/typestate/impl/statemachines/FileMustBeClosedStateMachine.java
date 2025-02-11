@@ -24,7 +24,7 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class FileMustBeClosedStateMachine extends TypeStateMachineWeightFunctions {
 
-  public static enum States implements State {
+  public enum States implements State {
     INIT,
     OPENED,
     CLOSED;

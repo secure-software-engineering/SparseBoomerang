@@ -26,10 +26,10 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class HasNextStateMachine extends TypeStateMachineWeightFunctions {
 
-  private static String NEXT_METHOD = ".* next\\(\\)";
-  private static String HAS_NEXT_METHOD = ".* hasNext\\(\\)";
+  private static final String NEXT_METHOD = ".* next\\(\\)";
+  private static final String HAS_NEXT_METHOD = ".* hasNext\\(\\)";
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     INIT,
     HASNEXT,

@@ -9,7 +9,7 @@ import java.util.Collections;
 
 public class Preanalysis extends AnalysisScope {
 
-  private ValueOfInterestInUnit f;
+  private final ValueOfInterestInUnit f;
 
   public Preanalysis(CallGraph cg, ValueOfInterestInUnit f) {
     super(cg);

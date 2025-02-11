@@ -25,7 +25,7 @@ public class StaticWithSuperclasses extends AbstractBoomerangTest {
 
   private static class List {
 
-    private static Object elementData = new Alloc();
+    private static final Object elementData = new Alloc();
 
     public Object get() {
       return elementData;
@@ -41,7 +41,7 @@ public class StaticWithSuperclasses extends AbstractBoomerangTest {
 
   private static class MyList extends List {
 
-    private static Object elementData2 = new Alloc();
+    private static final Object elementData2 = new Alloc();
 
     public Object get() {
       return elementData2;

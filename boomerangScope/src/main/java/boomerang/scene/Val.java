@@ -277,9 +277,8 @@ public abstract class Val {
       if (other.rep != null) return false;
     } else if (!rep.equals(other.rep)) return false;
     if (unbalancedStmt == null) {
-      if (other.unbalancedStmt != null) return false;
-    } else if (!unbalancedStmt.equals(other.unbalancedStmt)) return false;
-    return true;
+      return other.unbalancedStmt == null;
+    } else return unbalancedStmt.equals(other.unbalancedStmt);
   }
 
   public abstract Val withNewMethod(Method callee);
@@ -301,7 +300,7 @@ public abstract class Val {
   public abstract Pair<Val, Integer> getArrayBase();
 
   public boolean isThisLocal() {
-    return m().isStatic() ? false : m().getThisLocal().equals(this);
+    return !m().isStatic() && m().getThisLocal().equals(this);
   }
 
   public boolean isReturnLocal() {

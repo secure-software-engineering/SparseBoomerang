@@ -30,6 +30,7 @@ import boomerang.scene.Type;
 import boomerang.scene.Val;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -47,7 +48,6 @@ import wpds.impl.NestedWeightedPAutomatons;
 import wpds.impl.Transition;
 import wpds.impl.Weight;
 import wpds.impl.WeightedPAutomaton;
-import wpds.interfaces.Location;
 import wpds.interfaces.State;
 import wpds.interfaces.WPAStateListener;
 
@@ -131,9 +131,8 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       OverwriteAtFieldStore other = (OverwriteAtFieldStore) obj;
       if (!getEnclosingInstance().equals(other.getEnclosingInstance())) return false;
       if (nextStmt == null) {
-        if (other.nextStmt != null) return false;
-      } else if (!nextStmt.equals(other.nextStmt)) return false;
-      return true;
+        return other.nextStmt == null;
+      } else return nextStmt.equals(other.nextStmt);
     }
 
     private ForwardBoomerangSolver getEnclosingInstance() {
@@ -184,9 +183,8 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
       OverwriteAtArrayStore other = (OverwriteAtArrayStore) obj;
       if (!getEnclosingInstance().equals(other.getEnclosingInstance())) return false;
       if (nextStmt == null) {
-        if (other.nextStmt != null) return false;
-      } else if (!nextStmt.equals(other.nextStmt)) return false;
-      return true;
+        return other.nextStmt == null;
+      } else return nextStmt.equals(other.nextStmt);
     }
 
     private ForwardBoomerangSolver getEnclosingInstance() {
@@ -284,9 +282,8 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
         if (other.caller != null) return false;
       } else if (!caller.equals(other.caller)) return false;
       if (currNode == null) {
-        if (other.currNode != null) return false;
-      } else if (!currNode.equals(other.currNode)) return false;
-      return true;
+        return other.currNode == null;
+      } else return currNode.equals(other.currNode);
     }
 
     @Override

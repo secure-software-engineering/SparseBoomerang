@@ -15,8 +15,8 @@ public class DataFlowPathWeight extends Weight {
 
   private static DataFlowPathWeight one;
 
-  private PathTrackingWeight path;
-  private PathConditionWeight condition;
+  private final PathTrackingWeight path;
+  private final PathConditionWeight condition;
 
   private DataFlowPathWeight() {
     path = PathTrackingWeight.one();

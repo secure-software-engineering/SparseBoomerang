@@ -4,9 +4,9 @@ import boomerang.scene.ControlFlowGraph.Edge;
 
 public class AllocVal extends Val {
 
-  private Val delegate;
-  private Val allocationVal;
-  private Statement allocStatement;
+  private final Val delegate;
+  private final Val allocationVal;
+  private final Statement allocStatement;
 
   public AllocVal(Val delegate, Statement allocStatement, Val allocationVal) {
     super();
@@ -159,9 +159,8 @@ public class AllocVal extends Val {
       if (other.allocationVal != null) return false;
     } else if (!allocationVal.equals(other.allocationVal)) return false;
     if (delegate == null) {
-      if (other.delegate != null) return false;
-    } else if (!delegate.equals(other.delegate)) return false;
-    return true;
+      return other.delegate == null;
+    } else return delegate.equals(other.delegate);
   }
 
   public Val getAllocVal() {

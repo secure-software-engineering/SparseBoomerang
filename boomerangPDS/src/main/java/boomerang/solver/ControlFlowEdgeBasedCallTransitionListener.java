@@ -59,8 +59,7 @@ public abstract class ControlFlowEdgeBasedCallTransitionListener<W extends Weigh
     ControlFlowEdgeBasedCallTransitionListener other =
         (ControlFlowEdgeBasedCallTransitionListener) obj;
     if (edge == null) {
-      if (other.edge != null) return false;
-    } else if (!edge.equals(other.edge)) return false;
-    return true;
+      return other.edge == null;
+    } else return edge.equals(other.edge);
   }
 }

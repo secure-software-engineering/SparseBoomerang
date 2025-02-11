@@ -213,13 +213,8 @@ public class PathConditionWeight extends Weight {
       return false;
     }
     if (rep == null) {
-      if (other.rep != null) {
-        return false;
-      }
-    } else if (!rep.equals(other.rep)) {
-      return false;
-    }
-    return true;
+      return other.rep == null;
+    } else return rep.equals(other.rep);
   }
 
   public Map<Statement, ConditionDomain> getConditions() {

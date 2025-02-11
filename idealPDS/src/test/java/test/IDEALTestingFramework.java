@@ -16,34 +16,14 @@ import boomerang.DefaultBoomerangOptions;
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.CallGraph;
+import boomerang.scene.*;
 import boomerang.scene.CallGraph.Edge;
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Method;
-import boomerang.scene.SootDataFlowScope;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
-import boomerang.scene.jimple.JimpleMethod;
-import boomerang.scene.jimple.SootCallGraph;
 import com.google.common.collect.Lists;
-import ideal.IDEALAnalysis;
-import ideal.IDEALAnalysisDefinition;
-import ideal.IDEALResultHandler;
-import ideal.IDEALSeedSolver;
-import ideal.StoreIDEALResultHandler;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import ideal.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import soot.Scene;
-import soot.SceneTransformer;
 import sync.pds.solver.WeightFunctions;
 import test.ExpectedResults.InternalState;
-import test.core.selfrunning.AbstractTestingFramework;
 import test.core.selfrunning.ImprecisionException;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
@@ -52,8 +32,24 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
   private static final boolean FAIL_ON_IMPRECISE = false;
   protected StoreIDEALResultHandler<TransitionFunction> resultHandler =
       new StoreIDEALResultHandler<>();
-  protected CallGraph callGraph;
-  protected DataFlowScope dataFlowScope;
+
+  @Override
+  protected void initializeWithEntryPoint() {
+    frameworkScope =
+        FrameworkScopeFactory.init(
+            buildClassPath(),
+            getTestCaseClassName(),
+            testMethodName.getMethodName(),
+            getIncludedPackagesList(),
+            getExludedPackageList());
+  }
+
+  @Override
+  protected void analyze() {
+    analyze(
+        frameworkScope.getMethod(
+            "<" + getTestCaseClassName() + ": void " + testMethodName.getMethodName() + "()>"));
+  }
 
   protected abstract TypeStateMachineWeightFunctions getStateMachine();
 
@@ -77,7 +73,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
           @Override
           public Debugger<TransitionFunction> debugger(IDEALSeedSolver<TransitionFunction> solver) {
             return
-            /**
+            /*
              * VISUALIZATION ? new IDEVizDebugger<>(new File(
              * ideVizFile.getAbsolutePath().replace(".json", " " + solver.getSeed() + ".json")),
              * callGraph) :
@@ -110,30 +106,25 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
             };
           }
 
+          private final CallGraph callGraph = frameworkScope.getCallGraph();
+
           @Override
           public CallGraph callGraph() {
             return callGraph;
           }
 
+          private final DataFlowScope dataFlowScope = frameworkScope.getDataFlowScope();
+
           @Override
           protected DataFlowScope getDataFlowScope() {
             return dataFlowScope;
           }
-        });
-  }
 
-  @Override
-  protected SceneTransformer createAnalysisTransformer() throws ImprecisionException {
-    return new SceneTransformer() {
-      protected void internalTransform(
-          String phaseName, @SuppressWarnings("rawtypes") Map options) {
-        BoomerangPretransformer.v().reset();
-        BoomerangPretransformer.v().apply();
-        callGraph = new SootCallGraph();
-        dataFlowScope = SootDataFlowScope.make(Scene.v());
-        analyze(JimpleMethod.of(sootTestMethod));
-      }
-    };
+          @Override
+          public FrameworkScope getFrameworkFactory() {
+            return frameworkScope;
+          }
+        });
   }
 
   protected void analyze(Method m) {
@@ -189,7 +180,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
 
     for (Statement stmt : m.getStatements()) {
       if (!(stmt.containsInvokeExpr())) continue;
-      for (Edge callSite : callGraph.edgesOutOf(stmt)) {
+      for (Edge callSite : frameworkScope.getCallGraph().edgesOutOf(stmt)) {
         parseExpectedQueryResults(callSite.tgt(), queries, visited);
       }
       boomerang.scene.InvokeExpr invokeExpr = stmt.getInvokeExpr();

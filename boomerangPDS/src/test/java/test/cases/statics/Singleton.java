@@ -46,14 +46,14 @@ public class Singleton extends AbstractBoomerangTest {
     return allocation;
   }
 
-  public static interface GlobalObjectGetter {
-    public Alloc getG();
+  public interface GlobalObjectGetter {
+    Alloc getG();
 
-    public void reset();
+    void reset();
   }
 
   private static Alloc alloc;
-  private static GlobalObjectGetter objectGetter =
+  private static final GlobalObjectGetter objectGetter =
       new GlobalObjectGetter() {
 
         Alloc instance = new Alloc();

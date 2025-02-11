@@ -9,9 +9,9 @@ import boomerang.scene.Statement;
  * @author "Johannes Spaeth"
  */
 public interface Context {
-  public Statement getStmt();
+  Statement getStmt();
 
-  public int hashCode();
+  int hashCode();
 
-  public boolean equals(Object obj);
+  boolean equals(Object obj);
 }

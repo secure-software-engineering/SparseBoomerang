@@ -27,7 +27,7 @@ public class InputStreamStateMachine extends TypeStateMachineWeightFunctions {
   private static final String READ_METHODS = ".* read.*";
   private static final String TYPE = "java.io.InputStream";
 
-  public static enum States implements State {
+  public enum States implements State {
     CLOSED,
     ERROR;
 

@@ -28,7 +28,7 @@ public class URLConnStateMachine extends TypeStateMachineWeightFunctions {
   private static final String ILLEGAL_OPERTIONS =
       ".* (setDoInput|setDoOutput|setAllowUserInteraction|setUseCaches|setIfModifiedSince|setRequestProperty|addRequestProperty|getRequestProperty|getRequestProperties).*";
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     INIT,
     CONNECTED,

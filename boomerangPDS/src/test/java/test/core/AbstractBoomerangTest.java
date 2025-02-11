@@ -9,16 +9,9 @@ import boomerang.Query;
 import boomerang.WeightedBoomerang;
 import boomerang.WholeProgramBoomerang;
 import boomerang.results.BackwardBoomerangResults;
-import boomerang.scene.AllocVal;
-import boomerang.scene.CallGraph;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Field;
-import boomerang.scene.SootDataFlowScope;
-import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
-import boomerang.scene.jimple.SootCallGraph;
 import boomerang.solver.ForwardBoomerangSolver;
 import boomerang.util.AccessPath;
 import boomerang.util.DefaultValueMap;
@@ -31,20 +24,18 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Scene;
-import soot.SceneTransformer;
 import sync.pds.solver.OneWeightFunctions;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
 import sync.pds.solver.nodes.SingleNode;
-import test.core.selfrunning.AbstractTestingFramework;
+import test.AbstractTestingFramework;
+import test.FrameworkScopeFactory;
 import wpds.impl.Transition;
 import wpds.impl.Weight.NoWeight;
 import wpds.impl.WeightedPAutomaton;
@@ -75,12 +66,10 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   private static Duration globalQueryTime = Duration.ofMillis(0);
 
   protected int analysisTimeout = 3000 * 1000;
-  private CallGraph callGraph;
-  private DataFlowScope dataFlowScope;
 
   public enum AnalysisMode {
     WholeProgram,
-    DemandDrivenBackward;
+    DemandDrivenBackward
   }
 
   protected AnalysisMode[] getAnalyses() {
@@ -94,26 +83,29 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     return 1;
   }
 
+  @Override
+  protected void initializeWithEntryPoint() {
+    frameworkScope =
+        FrameworkScopeFactory.init(
+            buildClassPath(),
+            getTestCaseClassName(),
+            testMethodName.getMethodName(),
+            getIncludedPackagesList(),
+            getExludedPackageList());
+  }
+
+  @Override
+  protected void analyze() {
+    analyzeWithCallGraph();
+  }
+
   @Before
   public void beforeTestCaseExecution() {
     super.beforeTestCaseExecution();
   }
 
-  protected SceneTransformer createAnalysisTransformer() {
-    return new SceneTransformer() {
-
-      protected void internalTransform(
-          String phaseName, @SuppressWarnings("rawtypes") Map options) {
-        BoomerangPretransformer.v().reset();
-        BoomerangPretransformer.v().apply();
-        callGraph = new SootCallGraph();
-        dataFlowScope = getDataFlowScope();
-        analyzeWithCallGraph();
-      }
-    };
-  }
-
   private void analyzeWithCallGraph() {
+    CallGraph callGraph = frameworkScope.getCallGraph();
     queryDetector = new QueryForCallSiteDetector(callGraph);
     queryForCallSites = queryDetector.computeSeeds();
 
@@ -155,8 +147,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     final Set<Node<Edge, Val>> results = Sets.newHashSet();
     WholeProgramBoomerang<NoWeight> solver =
         new WholeProgramBoomerang<NoWeight>(
-            callGraph,
-            dataFlowScope,
+            frameworkScope.getCallGraph(),
+            frameworkScope.getDataFlowScope(),
             new DefaultBoomerangOptions() {
               @Override
               public int analysisTimeoutMS() {
@@ -167,7 +159,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
               public boolean onTheFlyCallGraph() {
                 return false;
               }
-            }) {
+            },
+            frameworkScope) {
 
           @Override
           protected WeightFunctions<Edge, Val, Field, NoWeight> getForwardFieldWeights() {
@@ -230,7 +223,6 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     }
 
     compareQuery(expectedAllocationSites, results, AnalysisMode.WholeProgram);
-    System.out.println();
   }
 
   private void runDemandDrivenBackward() {
@@ -278,7 +270,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
     for (final Query query : queries) {
       BoomerangOptions options = createBoomerangOptions();
-      Boomerang solver = new Boomerang(callGraph, getDataFlowScope(), options) {};
+      Boomerang solver =
+          new Boomerang(frameworkScope.getCallGraph(), getDataFlowScope(), options, frameworkScope);
 
       if (query instanceof BackwardQuery) {
         Stopwatch watch = Stopwatch.createStarted();
@@ -305,7 +298,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   }
 
   protected DataFlowScope getDataFlowScope() {
-    return SootDataFlowScope.make(Scene.v());
+    return frameworkScope.getDataFlowScope();
   }
 
   protected BoomerangOptions createBoomerangOptions() {

@@ -9,6 +9,10 @@
     <artifactId>WPDS</artifactId>
     <dependencies>
         <dependency>
+            <groupId>de.fraunhofer.iem</groupId>
+            <artifactId>PDS</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>

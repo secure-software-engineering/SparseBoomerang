@@ -28,7 +28,7 @@ public class URLConnTest extends IDEALTestingFramework {
           @Override
           public void connect() throws IOException {
             // TODO Auto-generated method stub
-            System.out.println("");
+            System.out.println();
           }
 
           @Override
@@ -58,7 +58,7 @@ public class URLConnTest extends IDEALTestingFramework {
           @Override
           public void connect() throws IOException {
             // TODO Auto-generated method stub
-            System.out.println("");
+            System.out.println();
           }
 
           @Override

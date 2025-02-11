@@ -12,10 +12,10 @@
 package boomerang.scene;
 
 import com.google.common.base.Objects;
-import wpds.interfaces.Empty;
-import wpds.interfaces.Location;
-import wpds.wildcard.ExclusionWildcard;
-import wpds.wildcard.Wildcard;
+import de.fraunhofer.iem.Empty;
+import de.fraunhofer.iem.Location;
+import de.fraunhofer.iem.wildcard.ExclusionWildcard;
+import de.fraunhofer.iem.wildcard.Wildcard;
 
 public class Field implements Location {
   private final String rep;
@@ -49,13 +49,8 @@ public class Field implements Location {
     }
     Field other = (Field) obj;
     if (rep == null) {
-      if (other.rep != null) {
-        return false;
-      }
-    } else if (!rep.equals(other.rep)) {
-      return false;
-    }
-    return true;
+      return other.rep == null;
+    } else return rep.equals(other.rep);
   }
 
   @Override
@@ -135,13 +130,8 @@ public class Field implements Location {
       }
       ExclusionWildcardField other = (ExclusionWildcardField) obj;
       if (excludes == null) {
-        if (other.excludes != null) {
-          return false;
-        }
-      } else if (!excludes.equals(other.excludes)) {
-        return false;
-      }
-      return true;
+        return other.excludes == null;
+      } else return excludes.equals(other.excludes);
     }
   }
 

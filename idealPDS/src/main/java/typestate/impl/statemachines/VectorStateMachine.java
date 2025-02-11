@@ -25,12 +25,13 @@ import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
 public class VectorStateMachine extends TypeStateMachineWeightFunctions {
 
-  private static String ADD_ELEMENT_METHODS =
+  private static final String ADD_ELEMENT_METHODS =
       "(.* (add|addAll|addElement|insertElementAt|set|setElementAt).*)|<java.util.Vector: void <init>(java.util.Collection)>";
-  private static String ACCESS_ELEMENT_METHODS = ".* (elementAt|firstElement|lastElement|get).*";
-  private static String REMOVE_ALL_METHODS = ".* removeAllElements.*";
+  private static final String ACCESS_ELEMENT_METHODS =
+      ".* (elementAt|firstElement|lastElement|get).*";
+  private static final String REMOVE_ALL_METHODS = ".* removeAllElements.*";
 
-  public static enum States implements State {
+  public enum States implements State {
     INIT,
     NOT_EMPTY,
     ACCESSED_EMPTY;

@@ -32,8 +32,8 @@ public class BackwardBoomerangResults<W extends Weight> extends AbstractBoomeran
   private Map<ForwardQuery, Context> allocationSites;
   private final boolean timedout;
   private final IBoomerangStats<W> stats;
-  private Stopwatch analysisWatch;
-  private long maxMemory;
+  private final Stopwatch analysisWatch;
+  private final long maxMemory;
 
   public BackwardBoomerangResults(
       BackwardQuery query,
@@ -77,7 +77,7 @@ public class BackwardBoomerangResults<W extends Weight> extends AbstractBoomeran
         fw.getValue()
             .getFieldAutomaton()
             .registerListener(
-                new ExtractAllocationSiteStateListener<W>(node, query, (ForwardQuery) fw.getKey()) {
+                new ExtractAllocationSiteStateListener<W>(node, query, fw.getKey()) {
 
                   @Override
                   protected void allocationSiteFound(

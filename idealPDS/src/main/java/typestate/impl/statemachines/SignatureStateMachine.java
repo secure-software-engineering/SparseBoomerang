@@ -17,11 +17,6 @@ import boomerang.scene.DeclaredMethod;
 import boomerang.scene.Statement;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import soot.SootClass;
-import soot.SootMethod;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.MatcherTransition;
 import typestate.finiteautomata.MatcherTransition.Parameter;
@@ -38,7 +33,7 @@ public class SignatureStateMachine extends TypeStateMachineWeightFunctions {
   private static final String VERIFY = "verify";
   private static final String GET_INSTANCE = "getInstance";
 
-  public static enum States implements State {
+  public enum States implements State {
     NONE,
     UNITIALIZED,
     SIGN_CHECK,
@@ -125,6 +120,8 @@ public class SignatureStateMachine extends TypeStateMachineWeightFunctions {
         new MatcherTransition(States.ERROR, UPDATE, Parameter.This, States.ERROR, Type.OnCall));
   }
 
+  /*
+  // TODO: [ms] re-enable
   private Set<SootMethod> constructor() {
     List<SootClass> subclasses = getSubclassesOf("java.security.Signature");
     Set<SootMethod> out = new HashSet<>();
@@ -134,6 +131,7 @@ public class SignatureStateMachine extends TypeStateMachineWeightFunctions {
     }
     return out;
   }
+  */
 
   @Override
   public Collection<WeightedForwardQuery<TransitionFunction>> generateSeed(Edge edge) {

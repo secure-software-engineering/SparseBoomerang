@@ -14,9 +14,9 @@ import wpds.interfaces.State;
 
 public class SingletonStaticFieldStrategy<W extends Weight> implements StaticFieldStrategy<W> {
 
-  private Multimap<Field, Statement> fieldStoreStatements;
-  private Multimap<Field, Statement> fieldLoadStatements;
-  private AbstractBoomerangSolver solver;
+  private final Multimap<Field, Statement> fieldStoreStatements;
+  private final Multimap<Field, Statement> fieldLoadStatements;
+  private final AbstractBoomerangSolver solver;
 
   public SingletonStaticFieldStrategy(
       AbstractBoomerangSolver solver,

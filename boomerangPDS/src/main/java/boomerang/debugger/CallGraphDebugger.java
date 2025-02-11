@@ -30,17 +30,17 @@ public class CallGraphDebugger<W extends Weight> extends Debugger<W> {
 
   private static final Logger logger = LoggerFactory.getLogger(CallGraphDebugger.class);
   private File dotFile;
-  private ObservableICFG<Statement, Method> icfg;
+  private final ObservableICFG<Statement, Method> icfg;
   private CallGraph callGraph;
 
-  private HashSet<Statement> totalCallSites = new HashSet<>();
-  private Multimap<Statement, Method> virtualCallSites = HashMultimap.create();
+  private final HashSet<Statement> totalCallSites = new HashSet<>();
+  private final Multimap<Statement, Method> virtualCallSites = HashMultimap.create();
   private int numVirtualCallSites;
   private int numVirtualCallSitesSingleTarget;
   private int numVirtualCallSitesMultipleTarget;
   private float avgNumTargetsVirtualCallSites;
   private float avgNumTargetMultiTargetCallSites;
-  private Multimap<Method, Statement> predecessors = HashMultimap.create();
+  private final Multimap<Method, Statement> predecessors = HashMultimap.create();
   private float avgNumOfPredecessors;
   private int numOfEdgesInCallGraph;
   private int numEdgesFromPrecomputed;

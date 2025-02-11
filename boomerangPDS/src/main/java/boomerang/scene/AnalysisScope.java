@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AnalysisScope {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AnalysisScope.class);
-  private CallGraph cg;
+  private final CallGraph cg;
   private boolean scanLibraryClasses = false;
 
   public AnalysisScope(CallGraph cg) {
@@ -23,7 +23,7 @@ public abstract class AnalysisScope {
 
   private final Set<Query> seeds = Sets.newHashSet();
 
-  private Collection<Method> processed = Sets.newHashSet();
+  private final Collection<Method> processed = Sets.newHashSet();
   private int statementCount;
 
   public void setScanLibraryClasses(boolean enabled) {

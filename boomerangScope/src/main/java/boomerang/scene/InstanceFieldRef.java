@@ -2,7 +2,7 @@ package boomerang.scene;
 
 public interface InstanceFieldRef {
 
-  public Val getBase();
+  Val getBase();
 
-  public Field getField();
+  Field getField();
 }

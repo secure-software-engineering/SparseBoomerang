@@ -4,301 +4,279 @@ import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
-import boomerang.guided.targets.ArrayContainerTarget;
-import boomerang.guided.targets.BasicTarget;
-import boomerang.guided.targets.BranchingAfterNewStringTest;
-import boomerang.guided.targets.BranchingTest;
-import boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget;
-import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget;
-import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
-import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2;
-import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget;
-import boomerang.guided.targets.ContextSensitiveTarget;
-import boomerang.guided.targets.IntegerCastTarget;
-import boomerang.guided.targets.LeftUnbalancedTarget;
-import boomerang.guided.targets.NestedContextAndBranchingTarget;
-import boomerang.guided.targets.NestedContextTarget;
-import boomerang.guided.targets.PingPongInterproceduralTarget;
-import boomerang.guided.targets.PingPongTarget;
-import boomerang.guided.targets.ValueOfTarget;
-import boomerang.guided.targets.WrappedInNewStringInnerTarget;
-import boomerang.guided.targets.WrappedInNewStringTarget;
-import boomerang.guided.targets.WrappedInStringTwiceTest;
-import boomerang.scene.AllocVal;
+import boomerang.guided.targets.*;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
-import boomerang.scene.jimple.BoomerangPretransformer;
 import boomerang.scene.jimple.IntAndStringBoomerangOptions;
-import boomerang.scene.jimple.JimpleMethod;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.nio.file.Path;
+import java.io.Serializable;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import soot.G;
-import soot.PackManager;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-import soot.options.Options;
+import test.FrameworkScopeFactory;
 import wpds.impl.Weight.NoWeight;
 
 public class DemandDrivenGuidedAnalysisTest {
 
-  public static String CG = "cha";
+  private final String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
 
   @Test
   public void integerCastTest() {
-    setupSoot(IntegerCastTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.IntegerCastTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, IntegerCastTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.IntegerCastTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
+
     BackwardQuery query = selectFirstBaseOfToString(m);
     Specification spec =
         Specification.create("<java.lang.Integer: ON{B}java.lang.Integer valueOf(GO{B}int)>");
-    runAnalysis(spec, query, 1);
+    runAnalysis(scopeFactory, spec, query, 1);
   }
 
   @Test
   public void basicTarget() {
-    setupSoot(BasicTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod("<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, BasicTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   @Ignore(
       "We need additional logic to tell the analysis to continue at some unknown parent context")
   public void leftUnbalancedTargetTest() {
-    setupSoot(LeftUnbalancedTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.LeftUnbalancedTarget: void bar(java.lang.String)>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, LeftUnbalancedTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.LeftUnbalancedTarget: void bar(java.lang.String)>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void contextSensitiveTest() {
-    setupSoot(ContextSensitiveTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ContextSensitiveTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, ContextSensitiveTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ContextSensitiveTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void nestedContextTest() {
-    setupSoot(NestedContextTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.NestedContextTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, NestedContextTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.NestedContextTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void nestedContextAndBranchingTest() {
-    setupSoot(NestedContextAndBranchingTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.NestedContextAndBranchingTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, NestedContextAndBranchingTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.NestedContextAndBranchingTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar", "foo");
+    runAnalysis(scopeFactory, query, "bar", "foo");
   }
 
   @Test
   public void contextSensitiveAndLeftUnbalanced2StacksTest() {
-    setupSoot(ContextSensitiveAndLeftUnbalanced2StacksTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget: void context()>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(
+            classPathStr, ContextSensitiveAndLeftUnbalanced2StacksTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget: void context()>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void contextSensitiveAndLeftUnbalancedTest() {
-    setupSoot(ContextSensitiveAndLeftUnbalancedTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget: void context(java.lang.String)>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(
+            classPathStr, ContextSensitiveAndLeftUnbalancedTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget: void context(java.lang.String)>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void contextSensitiveAndLeftUnbalancedWithFieldTest() {
-    setupSoot(ContextSensitiveAndLeftUnbalancedFieldTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget: void context(java.lang.String)>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(
+            classPathStr, ContextSensitiveAndLeftUnbalancedFieldTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget: void context(java.lang.String)>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void contextSensitiveAndLeftUnbalancedWithThisFieldTest() {
-    setupSoot(ContextSensitiveAndLeftUnbalancedThisFieldTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget$MyObject: void context()>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(
+            classPathStr, ContextSensitiveAndLeftUnbalancedThisFieldTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget$MyObject: void context()>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void contextSensitiveAndLeftUnbalancedWithFieldTest2() {
-    setupSoot(ContextSensitiveAndLeftUnbalancedTarget2.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2: void context()>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(
+            classPathStr, ContextSensitiveAndLeftUnbalancedTarget2.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2: void context()>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstBaseOfToString(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void wrappedInNewStringTest() {
-    setupSoot(WrappedInNewStringTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.WrappedInNewStringTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, WrappedInNewStringTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.WrappedInNewStringTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void wrappedInNewStringInnerTest() {
-    setupSoot(WrappedInNewStringInnerTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.WrappedInNewStringInnerTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, WrappedInNewStringInnerTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.WrappedInNewStringInnerTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void wrappedInNewStringTwiceTest() {
-    setupSoot(WrappedInStringTwiceTest.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.WrappedInStringTwiceTest: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, WrappedInStringTwiceTest.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.WrappedInStringTwiceTest: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar");
+    runAnalysis(scopeFactory, query, "bar");
   }
 
   @Test
   public void branchingTest() {
-    setupSoot(BranchingTest.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod("<boomerang.guided.targets.BranchingTest: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, BranchingTest.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.BranchingTest: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar", "foo");
+    runAnalysis(scopeFactory, query, "bar", "foo");
   }
 
   @Test
   public void branchingAfterNewTest() {
-    setupSoot(BranchingAfterNewStringTest.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.BranchingAfterNewStringTest: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, BranchingAfterNewStringTest.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.BranchingAfterNewStringTest: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(query, "bar", "foo");
+    runAnalysis(scopeFactory, query, "bar", "foo");
   }
 
   @Test
   public void pingPongTest() {
-    setupSoot(PingPongTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod("<boomerang.guided.targets.PingPongTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, PingPongTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.PingPongTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(getPingPongSpecification(), query, "hello", "world");
+    runAnalysis(scopeFactory, getPingPongSpecification(), query, "hello", "world");
   }
 
   @Test
   public void pingPongInterpoceduralTest() {
-    setupSoot(PingPongInterproceduralTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.PingPongInterproceduralTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, PingPongInterproceduralTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.PingPongInterproceduralTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
-    runAnalysis(getPingPongSpecification(), query, "hello", "world");
+    runAnalysis(scopeFactory, getPingPongSpecification(), query, "hello", "world");
   }
 
   @Test
   public void arrayContainerTest() {
-    setupSoot(ArrayContainerTarget.class);
-    SootMethod m =
-        Scene.v()
-            .getMethod(
-                "<boomerang.guided.targets.ArrayContainerTarget: void main(java.lang.String[])>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, ArrayContainerTarget.class.getName());
+    String methodSignatureStr =
+        "<boomerang.guided.targets.ArrayContainerTarget: void main(java.lang.String[])>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstBaseOfToString(m);
 
-    runAnalysis(new ArrayContainerCollectionManager(), query, "hello", "world");
+    runAnalysis(scopeFactory, new ArrayContainerCollectionManager(), query, "hello", "world");
   }
 
   @Test
   public void valueOfTarget() {
-    setupSoot(ValueOfTarget.class);
-    SootMethod m =
-        Scene.v().getMethod("<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>");
+    FrameworkScope scopeFactory =
+        FrameworkScopeFactory.init(classPathStr, ValueOfTarget.class.getName());
+    String methodSignatureStr = "<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>";
+    Method m = scopeFactory.getMethod(methodSignatureStr);
     BackwardQuery query = selectFirstArgOfQueryTarget(m);
 
-    runAnalysis(query, 1);
+    runAnalysis(scopeFactory, query, 1);
   }
 
-  public static BackwardQuery selectFirstArgOfQueryTarget(SootMethod m) {
-    Method method = JimpleMethod.of(m);
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+  public static BackwardQuery selectFirstArgOfQueryTarget(Method method) {
     Statement newFileStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
+            .filter(Statement::containsInvokeExpr)
             .filter(
                 x ->
                     x.getInvokeExpr().getMethod().getName().equals("queryFor")
@@ -325,12 +303,11 @@ public class DemandDrivenGuidedAnalysisTest {
         "<GO{B}java.lang.StringBuilder: ON{B}java.lang.String toString()>");
   }
 
-  public static BackwardQuery selectFirstFileInitArgument(SootMethod m) {
-    Method method = JimpleMethod.of(m);
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+  public static BackwardQuery selectFirstFileInitArgument(Method method) {
+
     Statement newFileStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
+            .filter(Statement::containsInvokeExpr)
             .filter(
                 x ->
                     x.getInvokeExpr().getMethod().getName().equals("<init>")
@@ -349,12 +326,10 @@ public class DemandDrivenGuidedAnalysisTest {
     return BackwardQuery.make(cfgEdge, arg);
   }
 
-  public static BackwardQuery selectFirstBaseOfToString(SootMethod m) {
-    Method method = JimpleMethod.of(m);
-    method.getStatements().stream().filter(x -> x.containsInvokeExpr()).forEach(x -> x.toString());
+  public static BackwardQuery selectFirstBaseOfToString(Method method) {
     Statement newFileStatement =
         method.getStatements().stream()
-            .filter(x -> x.containsInvokeExpr())
+            .filter(Statement::containsInvokeExpr)
             .filter(x -> x.getInvokeExpr().getMethod().getName().equals("toString"))
             .findFirst()
             .get();
@@ -366,7 +341,8 @@ public class DemandDrivenGuidedAnalysisTest {
     return BackwardQuery.make(cfgEdge, arg);
   }
 
-  protected void runAnalysis(BackwardQuery query, Object... expectedValues) {
+  protected void runAnalysis(
+      FrameworkScope scopeFactory, BackwardQuery query, Object... expectedValues) {
     Specification specification =
         Specification.create(
             "<java.lang.Integer: ON{B}java.lang.Integer valueOf(GO{B}int)>",
@@ -374,7 +350,7 @@ public class DemandDrivenGuidedAnalysisTest {
             "<GO{F}java.lang.String: void <init>(ON{F}java.lang.String)>",
             "<ON{B}java.lang.String: void <init>(GO{B}java.lang.String)>",
             "<GO{B}java.lang.String: ON{B}byte[] getBytes()>");
-    runAnalysis(specification, query, expectedValues);
+    runAnalysis(scopeFactory, specification, query, expectedValues);
   }
 
   private boolean isStringOrIntAllocation(Statement stmt) {
@@ -383,12 +359,19 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   protected void runAnalysis(
-      Specification specification, BackwardQuery query, Object... expectedValues) {
-    runAnalysis(new SimpleSpecificationGuidedManager(specification), query, expectedValues);
+      FrameworkScope scopeFactory,
+      Specification specification,
+      BackwardQuery query,
+      Object... expectedValues) {
+    runAnalysis(
+        scopeFactory, new SimpleSpecificationGuidedManager(specification), query, expectedValues);
   }
 
   protected void runAnalysis(
-      IDemandDrivenGuidedManager queryManager, BackwardQuery query, Object... expectedValues) {
+      FrameworkScope scopeFactory,
+      IDemandDrivenGuidedManager queryManager,
+      BackwardQuery query,
+      Object... expectedValues) {
     DemandDrivenGuidedAnalysis demandDrivenGuidedAnalysis =
         new DemandDrivenGuidedAnalysis(
             queryManager,
@@ -412,10 +395,16 @@ public class DemandDrivenGuidedAnalysisTest {
               public boolean allowMultipleQueries() {
                 return true;
               }
-            });
+            },
+            scopeFactory.getDataFlowScope(),
+            scopeFactory.getCallGraph(),
+            scopeFactory);
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
     demandDrivenGuidedAnalysis.cleanUp();
+
+    //  Assert.assertFalse(queryGraph.getNodes().isEmpty());
+
     // Filter out query graph's node to only return the queries of interest (ForwardQueries &
     // String/Int Allocation sites).
     Stream<Query> res =
@@ -424,51 +413,13 @@ public class DemandDrivenGuidedAnalysisTest {
                 x ->
                     x instanceof ForwardQuery
                         && isStringOrIntAllocation(x.asNode().stmt().getStart()));
-    Assert.assertEquals(
-        Sets.newHashSet(expectedValues),
+
+    Set<? extends Serializable> collect =
         res.map(t -> ((AllocVal) t.var()).getAllocVal())
             .filter(x -> x.isStringConstant() || x.isIntConstant())
             .map(x -> (x.isIntConstant() ? x.getIntValue() : x.getStringValue()))
-            .collect(Collectors.toSet()));
-  }
+            .collect(Collectors.toSet());
 
-  protected void setupSoot(Class cls) {
-    G.v().reset();
-    setupSoot();
-    setApplicationClass(cls);
-    PackManager.v().runPacks();
-    BoomerangPretransformer.v().reset();
-    BoomerangPretransformer.v().apply();
-  }
-
-  private void setupSoot() {
-    Options.v().set_whole_program(true);
-    Options.v().setPhaseOption("cg." + CG, "on");
-    Options.v().setPhaseOption("cg." + CG, "verbose:true");
-    Options.v().set_output_format(Options.output_format_none);
-    Options.v().set_no_bodies_for_excluded(true);
-    Options.v().set_allow_phantom_refs(true);
-    Options.v().setPhaseOption("jb", "use-original-names:true");
-    Options.v().set_keep_line_number(true);
-    Options.v().set_prepend_classpath(true);
-    Options.v().set_process_dir(getProcessDir());
-  }
-
-  private void setApplicationClass(Class cls) {
-    Scene.v().loadNecessaryClasses();
-    List<SootMethod> eps = Lists.newArrayList();
-    for (SootClass sootClass : Scene.v().getClasses()) {
-      if (sootClass.toString().equals(cls.getName())
-          || (sootClass.toString().contains(cls.getName() + "$"))) {
-        sootClass.setApplicationClass();
-        eps.addAll(sootClass.getMethods());
-      }
-    }
-    Scene.v().setEntryPoints(eps);
-  }
-
-  private List<String> getProcessDir() {
-    Path path = Paths.get("target/test-classes");
-    return Lists.newArrayList(path.toAbsolutePath().toString());
+    Assert.assertEquals(Sets.newHashSet(expectedValues), collect);
   }
 }

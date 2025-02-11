@@ -185,17 +185,13 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
         // But not for a statement x = x.f
         if (curr.isFieldLoad()) {
           Pair<Val, Field> ifr = curr.getFieldLoad();
-          if (ifr.getX().equals(value)) {
-            return false;
-          }
+          return !ifr.getX().equals(value);
         }
         return true;
       }
       if (curr.isStaticFieldStore()) {
         StaticFieldVal sf = curr.getStaticField();
-        if (value.isStatic() && value.equals(sf)) {
-          return true;
-        }
+        return value.isStatic() && value.equals(sf);
       }
     }
     return false;

@@ -1,8 +1,8 @@
 package boomerang.scene;
 
+import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.List;
-import wpds.interfaces.Location;
 
 public interface ControlFlowGraph {
 

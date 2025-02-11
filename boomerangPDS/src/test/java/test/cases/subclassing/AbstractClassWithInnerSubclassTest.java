@@ -46,7 +46,7 @@ public class AbstractClassWithInnerSubclassTest extends AbstractBoomerangTest {
     queryFor(query);
   }
 
-  private static interface Element {
+  private interface Element {
     AnotherClass get();
   }
 }

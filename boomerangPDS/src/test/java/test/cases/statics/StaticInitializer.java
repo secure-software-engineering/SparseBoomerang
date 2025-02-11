@@ -16,7 +16,7 @@ import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class StaticInitializer extends AbstractBoomerangTest {
-  private static Object alloc = new Alloc();
+  private static final Object alloc = new Alloc();
 
   @Test
   public void doubleSingleton() {

@@ -28,21 +28,9 @@ import boomerang.poi.ExecuteImportFieldStmtPOI;
 import boomerang.poi.PointOfIndirection;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.AllocVal;
-import boomerang.scene.CallGraph;
-import boomerang.scene.ControlFlowGraph;
+import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
-import boomerang.scene.Field;
 import boomerang.scene.Field.ArrayField;
-import boomerang.scene.Method;
-import boomerang.scene.Pair;
-import boomerang.scene.Statement;
-import boomerang.scene.StaticFieldVal;
-import boomerang.scene.Val;
-import boomerang.scene.jimple.JimpleField;
-import boomerang.scene.jimple.JimpleMethod;
-import boomerang.scene.jimple.JimpleStaticFieldVal;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;
@@ -64,9 +52,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.SootMethod;
 import sync.pds.solver.SyncPDSSolver.PDSSystem;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.GeneratedState;
@@ -85,17 +73,19 @@ import wpds.impl.WeightedPAutomaton;
 import wpds.interfaces.WPAStateListener;
 
 public abstract class WeightedBoomerang<W extends Weight> {
+  protected final FrameworkScope scopeFactory;
   protected ObservableICFG<Statement, Method> icfg;
   protected ObservableControlFlowGraph cfg;
   private static final Logger LOGGER = LoggerFactory.getLogger(WeightedBoomerang.class);
-  private Map<Entry<INode<Node<Edge, Val>>, Field>, INode<Node<Edge, Val>>> genField =
+  private final Map<Entry<INode<Node<Edge, Val>>, Field>, INode<Node<Edge, Val>>> genField =
       new HashMap<>();
   private long lastTick;
-  private IBoomerangStats<W> stats;
-  private Set<Method> visitedMethods = Sets.newHashSet();
-  private Set<SolverCreationListener<W>> solverCreationListeners = Sets.newHashSet();
-  private Multimap<SolverPair, ExecuteImportFieldStmtPOI<W>> poiListeners = HashMultimap.create();
-  private Multimap<SolverPair, INode<Node<Edge, Val>>> activatedPoi = HashMultimap.create();
+  private final IBoomerangStats<W> stats;
+  private final Set<Method> visitedMethods = Sets.newHashSet();
+  private final Set<SolverCreationListener<W>> solverCreationListeners = Sets.newHashSet();
+  private final Multimap<SolverPair, ExecuteImportFieldStmtPOI<W>> poiListeners =
+      HashMultimap.create();
+  private final Multimap<SolverPair, INode<Node<Edge, Val>>> activatedPoi = HashMultimap.create();
   private final DefaultValueMap<ForwardQuery, ForwardBoomerangSolver<W>> queryToSolvers =
       new DefaultValueMap<ForwardQuery, ForwardBoomerangSolver<W>>() {
         @Override
@@ -195,32 +185,28 @@ public abstract class WeightedBoomerang<W extends Weight> {
         && node.fact().isStatic()
         && isFirstStatementOfEntryPoint(node.stmt().getStart())) {
       Val fact = node.fact();
-      if (fact instanceof JimpleStaticFieldVal) {
-        JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
-        for (SootMethod m :
-            ((JimpleField) val.field()).getSootField().getDeclaringClass().getMethods()) {
-          if (!m.hasActiveBody()) {
-            continue;
-          }
-          JimpleMethod jimpleMethod = JimpleMethod.of(m);
-          if (m.isStaticInitializer()) {
-            for (Statement ep : icfg().getEndPointsOf(JimpleMethod.of(m))) {
-              StaticFieldVal newVal =
-                  new JimpleStaticFieldVal(((JimpleField) val.field()), jimpleMethod);
-              cfg.addPredsOfListener(
-                  new PredecessorListener(ep) {
-                    @Override
-                    public void getPredecessor(Statement pred) {
-                      backwardSolver.addNormalCallFlow(
-                          node, new Node<>(new Edge(pred, ep), newVal));
-                      backwardSolver.addNormalFieldFlow(
-                          node, new Node<>(new Edge(pred, ep), newVal));
-                    }
-                  });
+      Stream<Method> methodStream = scopeFactory.handleStaticFieldInitializers(fact);
+
+      methodStream.forEach(
+          m -> {
+            // TODO: [ms] check if still needed: I removed the "interner" JimpleMethod.of(m)
+            if (m.isStaticInitializer()) {
+              for (Statement ep : icfg.getEndPointsOf(m)) {
+                StaticFieldVal newVal =
+                    scopeFactory.newStaticFieldVal(((StaticFieldVal) fact).field(), m);
+                cfg.addPredsOfListener(
+                    new PredecessorListener(ep) {
+                      @Override
+                      public void getPredecessor(Statement pred) {
+                        backwardSolver.addNormalCallFlow(
+                            node, new Node<>(new ControlFlowGraph.Edge(pred, ep), newVal));
+                        backwardSolver.addNormalFieldFlow(
+                            node, new Node<>(new ControlFlowGraph.Edge(pred, ep), newVal));
+                      }
+                    });
+              }
             }
-          }
-        }
-      }
+          });
     }
   }
 
@@ -388,15 +374,15 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   private ObservableICFG<Statement, Method> bwicfg;
-  private NestedWeightedPAutomatons<Edge, INode<Val>, W> backwardCallSummaries =
+  private final NestedWeightedPAutomatons<Edge, INode<Val>, W> backwardCallSummaries =
       new SummaryNestedWeightedPAutomatons<>();
-  private NestedWeightedPAutomatons<Field, INode<Node<Edge, Val>>, W> backwardFieldSummaries =
+  private final NestedWeightedPAutomatons<Field, INode<Node<Edge, Val>>, W> backwardFieldSummaries =
       new SummaryNestedWeightedPAutomatons<>();
-  private NestedWeightedPAutomatons<Edge, INode<Val>, W> forwardCallSummaries =
+  private final NestedWeightedPAutomatons<Edge, INode<Val>, W> forwardCallSummaries =
       new SummaryNestedWeightedPAutomatons<>();
-  private NestedWeightedPAutomatons<Field, INode<Node<Edge, Val>>, W> forwardFieldSummaries =
+  private final NestedWeightedPAutomatons<Field, INode<Node<Edge, Val>>, W> forwardFieldSummaries =
       new SummaryNestedWeightedPAutomatons<>();
-  private DefaultValueMap<FieldWritePOI, FieldWritePOI> fieldWrites =
+  private final DefaultValueMap<FieldWritePOI, FieldWritePOI> fieldWrites =
       new DefaultValueMap<FieldWritePOI, FieldWritePOI>() {
         @Override
         protected FieldWritePOI createItem(FieldWritePOI key) {
@@ -405,12 +391,14 @@ public abstract class WeightedBoomerang<W extends Weight> {
         }
       };
   protected final BoomerangOptions options;
-  private Stopwatch analysisWatch = Stopwatch.createUnstarted();
+  private final Stopwatch analysisWatch = Stopwatch.createUnstarted();
   private final DataFlowScope dataFlowscope;
-  private CallGraph callGraph;
+  private final CallGraph callGraph;
   private INode<Val> rootQuery;
 
-  public WeightedBoomerang(CallGraph cg, DataFlowScope scope, BoomerangOptions options) {
+  public WeightedBoomerang(
+      CallGraph cg, DataFlowScope scope, BoomerangOptions options, FrameworkScope scopeFactory) {
+    this.scopeFactory = scopeFactory;
     this.options = options;
     this.options.checkValid();
     this.stats = options.statsFactory();
@@ -432,8 +420,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
     this.queryGraph = new QueryGraph<>(this);
   }
 
-  public WeightedBoomerang(CallGraph cg, DataFlowScope scope) {
-    this(cg, scope, new DefaultBoomerangOptions());
+  public WeightedBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
+    this(cg, scope, new DefaultBoomerangOptions(), scopeFactory);
   }
 
   protected void addVisitedMethod(Method method) {
@@ -658,8 +646,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
   private final class EmptyFieldListener
       extends WPAStateListener<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> {
 
-    private BackwardQuery key;
-    private Node<ControlFlowGraph.Edge, Val> node;
+    private final BackwardQuery key;
+    private final Node<ControlFlowGraph.Edge, Val> node;
 
     public EmptyFieldListener(BackwardQuery key, Node<ControlFlowGraph.Edge, Val> node) {
       super(new SingleNode<>(node));
@@ -681,8 +669,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       if (!super.equals(obj)) return false;
       if (getClass() != obj.getClass()) return false;
       EmptyFieldListener other = (EmptyFieldListener) obj;
-      if (!getEnclosingInstance().equals(other.getEnclosingInstance())) return false;
-      return true;
+      return getEnclosingInstance().equals(other.getEnclosingInstance());
     }
 
     @Override
@@ -725,9 +712,9 @@ public abstract class WeightedBoomerang<W extends Weight> {
       extends WPAStateListener<Field, INode<Node<ControlFlowGraph.Edge, Val>>, W> {
 
     private final int arrayAccessIndex;
-    private AllocVal val;
-    private BackwardQuery key;
-    private Node<ControlFlowGraph.Edge, Val> node;
+    private final AllocVal val;
+    private final BackwardQuery key;
+    private final Node<ControlFlowGraph.Edge, Val> node;
 
     public ArrayAllocationListener(
         int arrayAccessIndex,
@@ -785,8 +772,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       if (!super.equals(obj)) return false;
       if (getClass() != obj.getClass()) return false;
       ArrayAllocationListener other = (ArrayAllocationListener) obj;
-      if (!getEnclosingInstance().equals(other.getEnclosingInstance())) return false;
-      return true;
+      return getEnclosingInstance().equals(other.getEnclosingInstance());
     }
   }
 
@@ -831,9 +817,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
       ForwardHandleFieldWrite other = (ForwardHandleFieldWrite) obj;
       if (!getOuterType().equals(other.getOuterType())) return false;
       if (sourceQuery == null) {
-        if (other.sourceQuery != null) return false;
-      } else if (!sourceQuery.equals(other.sourceQuery)) return false;
-      return true;
+        return other.sourceQuery == null;
+      } else return sourceQuery.equals(other.sourceQuery);
     }
 
     private WeightedBoomerang getOuterType() {
@@ -893,9 +878,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
         if (other.fieldWritePoi != null) return false;
       } else if (!fieldWritePoi.equals(other.fieldWritePoi)) return false;
       if (sourceQuery == null) {
-        if (other.sourceQuery != null) return false;
-      } else if (!sourceQuery.equals(other.sourceQuery)) return false;
-      return true;
+        return other.sourceQuery == null;
+      } else return sourceQuery.equals(other.sourceQuery);
     }
 
     private WeightedBoomerang getOuterType() {
@@ -952,6 +936,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       analysisWatch.stop();
     }
     return new ForwardBoomerangResults<W>(
+        scopeFactory,
         query,
         icfg(),
         cfg(),
@@ -1065,6 +1050,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       analysisWatch.stop();
     }
     return new ForwardBoomerangResults<W>(
+        scopeFactory,
         query,
         icfg(),
         cfg(),
@@ -1265,8 +1251,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
   private class SolverPair {
 
-    private AbstractBoomerangSolver<W> flowSolver;
-    private AbstractBoomerangSolver<W> baseSolver;
+    private final AbstractBoomerangSolver<W> flowSolver;
+    private final AbstractBoomerangSolver<W> baseSolver;
 
     public SolverPair(
         AbstractBoomerangSolver<W> flowSolver, AbstractBoomerangSolver<W> baseSolver) {
@@ -1295,9 +1281,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
         if (other.baseSolver != null) return false;
       } else if (!baseSolver.equals(other.baseSolver)) return false;
       if (flowSolver == null) {
-        if (other.flowSolver != null) return false;
-      } else if (!flowSolver.equals(other.flowSolver)) return false;
-      return true;
+        return other.flowSolver == null;
+      } else return flowSolver.equals(other.flowSolver);
     }
 
     private WeightedBoomerang getOuterType() {
