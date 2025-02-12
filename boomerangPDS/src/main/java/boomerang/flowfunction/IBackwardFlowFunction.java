@@ -68,7 +68,7 @@ public interface IBackwardFlowFunction {
   Collection<State> callToReturnFlow(Edge edge, Val fact);
 
   void setSolver(
-      BackwardBoomerangSolver solver,
+      BackwardBoomerangSolver<?> solver,
       Multimap<Field, Statement> fieldLoadStatements,
       Multimap<Field, Statement> fieldStoreStatements);
 }

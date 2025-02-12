@@ -11,12 +11,12 @@
  */
 package boomerang.solver;
 
-import boomerang.BoomerangOptions;
 import boomerang.Query;
 import boomerang.callgraph.BackwardsObservableICFG;
 import boomerang.callgraph.CallerListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.ControlFlowGraph.Edge;

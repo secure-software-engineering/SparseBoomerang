@@ -2,11 +2,11 @@ package test.core;
 
 import boomerang.BackwardQuery;
 import boomerang.Query;
+import boomerang.scene.AccessPathParser;
 import boomerang.scene.AnalysisScope;
 import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Val;
-import boomerang.scene.jimple.AccessPathParser;
 import boomerang.util.AccessPath;
 import java.util.Collection;
 import java.util.Collections;

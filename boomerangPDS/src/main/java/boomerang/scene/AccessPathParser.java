@@ -1,6 +1,5 @@
-package boomerang.scene.jimple;
+package boomerang.scene;
 
-import boomerang.scene.Method;
 import boomerang.util.AccessPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

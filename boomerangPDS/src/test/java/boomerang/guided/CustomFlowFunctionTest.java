@@ -2,18 +2,18 @@ package boomerang.guided;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.ForwardQuery;
-import boomerang.flowfunction.IBackwardFlowFunction;
-import boomerang.flowfunction.IForwardFlowFunction;
+import boomerang.flowfunction.DefaultBackwardFlowFunctionOptions;
+import boomerang.flowfunction.DefaultForwardFlowFunctionOptions;
 import boomerang.guided.flowfunction.CustomBackwardFlowFunction;
 import boomerang.guided.flowfunction.CustomForwardFlowFunction;
 import boomerang.guided.targets.CustomFlowFunctionTarget;
+import boomerang.options.BoomerangOptions;
+import boomerang.options.IntAndStringAllocationSite;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.solver.BackwardBoomerangSolver;
 import com.google.common.collect.Table;
 import java.nio.file.Paths;
@@ -41,7 +41,7 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            new CustomIntAndStringBoomerangOptions(),
+            CUSTOM_OPTIONS(),
             scopeFactory);
 
     System.out.println("Solving query: " + query);
@@ -76,7 +76,7 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            new CustomBoomerangOptions(),
+            CUSTOM_OPTIONS(),
             scopeFactory);
 
     System.out.println("Solving query: " + query);
@@ -100,7 +100,7 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            new CustomBoomerangOptions(),
+            CUSTOM_OPTIONS(),
             scopeFactory);
 
     System.out.println("Solving query: " + query);
@@ -151,29 +151,13 @@ public class CustomFlowFunctionTest {
     return new ForwardQuery(cfgEdge, arg);
   }
 
-  private static class CustomBoomerangOptions extends DefaultBoomerangOptions {
-
-    @Override
-    public IForwardFlowFunction getForwardFlowFunctions() {
-      return new CustomForwardFlowFunction(this);
-    }
-
-    @Override
-    public IBackwardFlowFunction getBackwardFlowFunction() {
-      return new CustomBackwardFlowFunction(this);
-    }
-  }
-
-  private static class CustomIntAndStringBoomerangOptions extends IntAndStringBoomerangOptions {
-
-    @Override
-    public IForwardFlowFunction getForwardFlowFunctions() {
-      return new CustomForwardFlowFunction(this);
-    }
-
-    @Override
-    public IBackwardFlowFunction getBackwardFlowFunction() {
-      return new CustomBackwardFlowFunction(this);
-    }
+  private static BoomerangOptions CUSTOM_OPTIONS() {
+    return BoomerangOptions.builder()
+        .withAllocationSite(new IntAndStringAllocationSite())
+        .withForwardFlowFunction(
+            new CustomForwardFlowFunction(DefaultForwardFlowFunctionOptions.DEFAULT()))
+        .withBackwardFlowFunction(
+            new CustomBackwardFlowFunction(DefaultBackwardFlowFunctionOptions.DEFAULT()))
+        .build();
   }
 }

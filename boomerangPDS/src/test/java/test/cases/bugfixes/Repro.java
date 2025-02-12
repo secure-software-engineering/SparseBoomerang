@@ -2,10 +2,11 @@ package test.cases.bugfixes;
 
 import boomerang.Boomerang;
 import boomerang.ForwardQuery;
+import boomerang.options.BoomerangOptions;
+import boomerang.options.IntAndStringAllocationSite;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.jimple.*;
 import com.google.common.collect.Sets;
 import java.util.*;
 import org.junit.Test;
@@ -95,7 +96,7 @@ public class Repro extends AbstractTestingFramework {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            new IntAndStringBoomerangOptions(),
+            BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite()),
             scopeFactory);
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
     return results.getInvokeStatementsOnInstance();

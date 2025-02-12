@@ -11,7 +11,6 @@
  */
 package boomerang;
 
-import boomerang.BoomerangOptions.ArrayStrategy;
 import boomerang.callgraph.BackwardsObservableICFG;
 import boomerang.callgraph.ObservableDynamicICFG;
 import boomerang.callgraph.ObservableICFG;
@@ -22,6 +21,7 @@ import boomerang.controlflowgraph.PredecessorListener;
 import boomerang.controlflowgraph.StaticCFG;
 import boomerang.controlflowgraph.SuccessorListener;
 import boomerang.debugger.Debugger;
+import boomerang.options.BoomerangOptions;
 import boomerang.poi.AbstractPOI;
 import boomerang.poi.CopyAccessPathChain;
 import boomerang.poi.ExecuteImportFieldStmtPOI;
@@ -35,7 +35,9 @@ import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;
 import boomerang.solver.ForwardBoomerangSolver;
+import boomerang.solver.Strategies;
 import boomerang.stats.IBoomerangStats;
+import boomerang.stats.SimpleBoomerangStats;
 import boomerang.util.DefaultValueMap;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashBasedTable;
@@ -158,6 +160,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
               };
           backwardSolver.registerListener(
               node -> {
+                // TODO isAllocationNode uses getStart() but loads are getTarget()
                 Optional<AllocVal> allocNode = isAllocationNode(node.stmt(), node.fact());
                 if (allocNode.isPresent()
                     || node.stmt().getTarget().isArrayLoad()
@@ -349,13 +352,13 @@ public abstract class WeightedBoomerang<W extends Weight> {
   private boolean solving;
 
   public void checkTimeout() {
-    if (options.analysisTimeoutMS() > 0) {
+    if (options.analysisTimeout() > 0) {
       long elapsed = analysisWatch.elapsed(TimeUnit.MILLISECONDS);
       if (elapsed - lastTick > 15000) {
         LOGGER.debug(
             "Elapsed Time: {}/{}, Visited Methods {}",
             elapsed,
-            options.analysisTimeoutMS(),
+            options.analysisTimeout(),
             visitedMethods.size());
         LOGGER.debug("Forward / Backward Queries: {}/{}", forwardQueries, backwardQueries);
 
@@ -366,7 +369,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         }
         lastTick = elapsed;
       }
-      if (options.analysisTimeoutMS() < elapsed) {
+      if (options.analysisTimeout() < elapsed) {
         if (analysisWatch.isRunning()) analysisWatch.stop();
         throw new BoomerangTimeoutException(elapsed, stats);
       }
@@ -401,14 +404,14 @@ public abstract class WeightedBoomerang<W extends Weight> {
     this.scopeFactory = scopeFactory;
     this.options = options;
     this.options.checkValid();
-    this.stats = options.statsFactory();
     this.dataFlowscope = scope;
+    // TODO Revisit this
+    this.stats = new SimpleBoomerangStats<>();
 
     if (options.onTheFlyControlFlow()) {
       this.cfg = new DynamicCFG();
     } else {
-      StaticCFG staticCFG = new StaticCFG(options);
-      this.cfg = staticCFG;
+      this.cfg = new StaticCFG(options);
     }
 
     if (options.onTheFlyCallGraph()) {
@@ -421,7 +424,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   public WeightedBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
-    this(cg, scope, new DefaultBoomerangOptions(), scopeFactory);
+    this(cg, scope, BoomerangOptions.DEFAULT(), scopeFactory);
   }
 
   protected void addVisitedMethod(Method method) {
@@ -431,7 +434,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   protected Optional<AllocVal> isAllocationNode(ControlFlowGraph.Edge s, Val fact) {
-    return options.getAllocationVal(s.getStart().getMethod(), s.getStart(), fact);
+    // TODO Change to getTarget()?
+    return options.allocationSite().getAllocationSite(s.getStart().getMethod(), s.getStart(), fact);
   }
 
   protected ForwardBoomerangSolver<W> createForwardSolver(final ForwardQuery sourceQuery) {
@@ -445,7 +449,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
             createCallSummaries(sourceQuery, forwardCallSummaries),
             createFieldSummaries(sourceQuery, forwardFieldSummaries),
             dataFlowscope,
-            options.getForwardFlowFunctions(),
+            options.getForwardFlowFunction(),
             callGraph.getFieldLoadStatements(),
             callGraph.getFieldStoreStatements(),
             sourceQuery.getType()) {
@@ -511,7 +515,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         node -> {
           if (node.stmt().getStart().isFieldStore()) {
             forwardHandleFieldWrite(node, createFieldStore(node.stmt()), sourceQuery);
-          } else if (options.getArrayStrategy() != ArrayStrategy.DISABLED
+          } else if (options.getArrayStrategy() != Strategies.ArrayStrategy.DISABLED
               && node.stmt().getStart().isArrayStore()) {
             forwardHandleFieldWrite(node, createArrayFieldStore(node.stmt()), sourceQuery);
           }
@@ -526,7 +530,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
   private NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W> createCallSummaries(
       final ForwardQuery sourceQuery,
       final NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W> summaries) {
-    return new NestedWeightedPAutomatons<ControlFlowGraph.Edge, INode<Val>, W>() {
+    return new NestedWeightedPAutomatons<>() {
 
       @Override
       public void putSummaryAutomaton(
@@ -1076,7 +1080,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   protected void backwardSolve(BackwardQuery query) {
-    if (!options.aliasing()) return;
     AbstractBoomerangSolver<W> solver = queryToBackwardSolvers.getOrCreate(query);
     INode<Node<ControlFlowGraph.Edge, Val>> fieldTarget = solver.createQueryNodeField(query);
     INode<Val> callTarget =
@@ -1096,7 +1099,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
     Statement stmt = cfgEdge.getStart();
     if (!(stmt.isFieldStore())
         && query instanceof ForwardQueryArray
-        && options.getArrayStrategy() != ArrayStrategy.DISABLED) {
+        && options.getArrayStrategy() != Strategies.ArrayStrategy.DISABLED) {
       if (query instanceof ForwardQueryMultiDimensionalArray) {
         ForwardQueryMultiDimensionalArray arrayQuery = ((ForwardQueryMultiDimensionalArray) query);
         Node<ControlFlowGraph.Edge, Val> node =

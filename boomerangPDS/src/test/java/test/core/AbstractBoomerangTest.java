@@ -2,16 +2,15 @@ package test.core;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
-import boomerang.BoomerangOptions;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.WeightedBoomerang;
 import boomerang.WholeProgramBoomerang;
+import boomerang.options.BoomerangOptions;
+import boomerang.options.IntAndStringAllocationSite;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import boomerang.solver.ForwardBoomerangSolver;
 import boomerang.util.AccessPath;
 import boomerang.util.DefaultValueMap;
@@ -145,21 +144,13 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
   private void runWholeProgram() {
     final Set<Node<Edge, Val>> results = Sets.newHashSet();
+    BoomerangOptions options =
+        BoomerangOptions.builder().withAnalysisTimeout(analysisTimeout).build();
     WholeProgramBoomerang<NoWeight> solver =
-        new WholeProgramBoomerang<NoWeight>(
+        new WholeProgramBoomerang<>(
             frameworkScope.getCallGraph(),
             frameworkScope.getDataFlowScope(),
-            new DefaultBoomerangOptions() {
-              @Override
-              public int analysisTimeoutMS() {
-                return analysisTimeout;
-              }
-
-              @Override
-              public boolean onTheFlyCallGraph() {
-                return false;
-              }
-            },
+            options,
             frameworkScope) {
 
           @Override
@@ -302,14 +293,11 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
   }
 
   protected BoomerangOptions createBoomerangOptions() {
-    return (queryDetector.integerQueries
-        ? new IntAndStringBoomerangOptions()
-        : new DefaultBoomerangOptions() {
-          @Override
-          public int analysisTimeoutMS() {
-            return analysisTimeout;
-          }
-        });
+    if (queryDetector.integerQueries) {
+      return BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite());
+    }
+
+    return BoomerangOptions.builder().withAnalysisTimeout(analysisTimeout).build();
   }
 
   private void compareQuery(

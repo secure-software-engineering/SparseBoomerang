@@ -1,7 +1,6 @@
 package test.cases.callgraph;
 
-import boomerang.BoomerangOptions;
-import boomerang.DefaultBoomerangOptions;
+import boomerang.options.BoomerangOptions;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,12 +43,6 @@ public class ContextSpecificListTypeTest extends AbstractBoomerangTest {
 
   @Override
   protected BoomerangOptions createBoomerangOptions() {
-    return new DefaultBoomerangOptions() {
-
-      @Override
-      public boolean onTheFlyCallGraph() {
-        return true;
-      }
-    };
+    return BoomerangOptions.builder().enableOnTheFlyCallGraph(true).build();
   }
 }

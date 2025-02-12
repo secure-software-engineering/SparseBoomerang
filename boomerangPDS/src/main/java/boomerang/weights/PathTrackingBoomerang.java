@@ -11,9 +11,9 @@
  */
 package boomerang.weights;
 
-import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.WeightedBoomerang;
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import sync.pds.solver.OneWeightFunctions;
@@ -29,8 +29,8 @@ public abstract class PathTrackingBoomerang extends WeightedBoomerang<DataFlowPa
   }
 
   public PathTrackingBoomerang(
-      CallGraph cg, DataFlowScope scope, BoomerangOptions opt, FrameworkScope frameworkScope) {
-    super(cg, scope, opt, frameworkScope);
+      CallGraph cg, DataFlowScope scope, BoomerangOptions options, FrameworkScope frameworkScope) {
+    super(cg, scope, options, frameworkScope);
   }
 
   @Override

@@ -70,7 +70,7 @@ public interface IForwardFlowFunction {
   Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact);
 
   void setSolver(
-      ForwardBoomerangSolver solver,
+      ForwardBoomerangSolver<?> solver,
       Multimap<Field, Statement> fieldLoadStatements,
       Multimap<Field, Statement> fieldStoreStatements);
 }

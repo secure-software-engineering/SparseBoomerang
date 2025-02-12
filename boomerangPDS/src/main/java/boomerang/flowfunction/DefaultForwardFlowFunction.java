@@ -1,6 +1,5 @@
 package boomerang.flowfunction;
 
-import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Field;
@@ -28,12 +27,11 @@ import wpds.interfaces.State;
 
 public class DefaultForwardFlowFunction implements IForwardFlowFunction {
 
-  private final BoomerangOptions options;
+  private final DefaultForwardFlowFunctionOptions options;
   private Strategies strategies;
-  private ForwardBoomerangSolver solver;
 
-  public DefaultForwardFlowFunction(BoomerangOptions opts) {
-    this.options = opts;
+  public DefaultForwardFlowFunction(DefaultForwardFlowFunctionOptions options) {
+    this.options = options;
   }
 
   @Override
@@ -116,7 +114,7 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
         if (succ.isFieldStore()) {
           Pair<Val, Field> ifr = succ.getFieldStore();
           if (options.trackFields()) {
-            if (!options.ignoreInnerClassFields() || !ifr.getY().isInnerClassField()) {
+            if (options.includeInnerClassFields() || !ifr.getY().isInnerClassField()) {
               out.add(new PushNode<>(nextEdge, ifr.getX(), ifr.getY(), PDSSystem.FIELDS));
             }
           }
@@ -216,10 +214,15 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
 
   @Override
   public void setSolver(
-      ForwardBoomerangSolver solver,
+      ForwardBoomerangSolver<?> solver,
       Multimap<Field, Statement> fieldLoadStatements,
       Multimap<Field, Statement> fieldStoreStatements) {
-    this.solver = solver;
-    this.strategies = new Strategies<>(options, solver, fieldLoadStatements, fieldStoreStatements);
+    this.strategies =
+        new Strategies(
+            options.getStaticFieldStrategy(),
+            options.getArrayStrategy(),
+            solver,
+            fieldLoadStatements,
+            fieldStoreStatements);
   }
 }
