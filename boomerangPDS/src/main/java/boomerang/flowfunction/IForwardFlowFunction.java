@@ -48,8 +48,7 @@ public interface IForwardFlowFunction {
    *
    * @param edge The control-flow graph edge that will be propagated next.
    * @param fact The incoming data-flow fact that reaches the edge.
-   * @return A set of data-flow states (states in the pushdown system, typically of type
-   *     Node<Edge,Val>).
+   * @return A set of data-flow states (states in the pushdown system).
    */
   Collection<State> normalFlow(ForwardQuery query, Edge edge, Val fact);
 
@@ -64,8 +63,7 @@ public interface IForwardFlowFunction {
    * @param edge Edge that bypasses the call site. edge.getStart() is the call site,
    *     edge.getTarget() is any succsessor
    * @param fact The fact that by-passes the call site.
-   * @return A set of data-flow states (states in the pushdown system, typically of type
-   *     Node<Edge,Val>)
+   * @return A set of data-flow states (states in the pushdown system)
    */
   Collection<State> callToReturnFlow(ForwardQuery query, Edge edge, Val fact);
 

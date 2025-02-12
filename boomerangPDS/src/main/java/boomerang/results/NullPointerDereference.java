@@ -124,7 +124,7 @@ public class NullPointerDereference implements AffectedLocation {
    * 	foo(y); //call site context "c2"
    * }
    * foo(Object z){
-   * 	z.toString() //<- Variable z is null here under context c1, but *not* under c2)
+   * 	z.toString() // Variable z is null here under context c1, but *not* under c2)
    * }
    * </pre>
    *
@@ -153,7 +153,7 @@ public class NullPointerDereference implements AffectedLocation {
    *  } else {
    *  	x = returnNotNull(); //b2
    *  }
-   * 	x.toString() //<- Variable x is null here when the program executes along branch b1
+   * 	x.toString() // Variable x is null here when the program executes along branch b1
    * }
    * Object returnNull(){
    * 	Object y = null;
