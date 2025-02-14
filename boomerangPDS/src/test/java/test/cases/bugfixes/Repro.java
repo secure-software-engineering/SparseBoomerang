@@ -83,7 +83,8 @@ public class Repro extends AbstractTestingFramework {
 
   private static Collection<Statement> getMethodsInvokedFromInstanceInStatement(
       FrameworkScope scopeFactory, Statement queryStatement) {
-    Val var = new AllocVal(queryStatement.getLeftOp(), queryStatement, queryStatement.getRightOp());
+    AllocVal var =
+        new AllocVal(queryStatement.getLeftOp(), queryStatement, queryStatement.getRightOp());
     ForwardQuery fwq =
         new ForwardQuery(
             new Edge(

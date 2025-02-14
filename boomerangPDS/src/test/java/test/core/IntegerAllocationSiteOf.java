@@ -2,9 +2,9 @@ package test.core;
 
 import boomerang.ForwardQuery;
 import boomerang.Query;
+import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Statement;
-import boomerang.scene.Val;
 import java.util.Optional;
 
 class IntegerAllocationSiteOf implements ValueOfInterestInUnit {
@@ -13,8 +13,8 @@ class IntegerAllocationSiteOf implements ValueOfInterestInUnit {
     if (stmt.isAssign()) {
       if (stmt.getLeftOp().toString().contains("allocation")) {
         if (stmt.getLeftOp().isLocal() && stmt.getRightOp().isIntConstant()) {
-          Val local = stmt.getLeftOp();
-          ForwardQuery forwardQuery = new ForwardQuery(cfgEdge, local);
+          AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());
+          ForwardQuery forwardQuery = new ForwardQuery(cfgEdge, allocVal);
           return Optional.of(forwardQuery);
         }
       }

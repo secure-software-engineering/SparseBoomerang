@@ -121,9 +121,10 @@ public class Main {
                               .getType()
                               .toString()
                               .contains("inference.example.InferenceExample$File")) {
+                        AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());
                         return Collections.singleton(
                             new WeightedForwardQuery<InferenceWeight>(
-                                edge, stmt.getLeftOp(), InferenceWeight.one()));
+                                edge, allocVal, InferenceWeight.one()));
                       }
                     }
                     return Collections.emptySet();

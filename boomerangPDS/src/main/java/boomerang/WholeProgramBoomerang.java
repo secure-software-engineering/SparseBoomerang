@@ -42,7 +42,8 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
             Statement stmt = cfgEdge.getStart();
             if (stmt.isAssign()) {
               if (stmt.getRightOp().isNewExpr()) {
-                return Collections.singleton(new ForwardQuery(cfgEdge, stmt.getRightOp()));
+                AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());
+                return Collections.singleton(new ForwardQuery(cfgEdge, allocVal));
               }
             }
             return Collections.emptySet();

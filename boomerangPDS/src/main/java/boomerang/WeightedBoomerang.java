@@ -240,8 +240,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
                 backwardSolve(bwq);
                 for (ForwardQuery q : Lists.newArrayList(queryToSolvers.keySet())) {
                   if (queryToSolvers.get(q).getReachedStates().contains(bwq.asNode())) {
-                    Val var = q.var();
-                    AllocVal v = (AllocVal) var;
+                    AllocVal v = q.getAllocVal();
                     if (v.getAllocVal().isStringConstant()) {
                       String key = v.getAllocVal().getStringValue();
                       backwardSolverIns.propagate(
@@ -270,8 +269,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
                 backwardSolve(bwq);
                 for (ForwardQuery q : Lists.newArrayList(queryToSolvers.keySet())) {
                   if (queryToSolvers.get(q).getReachedStates().contains(bwq.asNode())) {
-                    Val var = q.var();
-                    AllocVal v = (AllocVal) var;
+                    AllocVal v = q.getAllocVal();
 
                     if (v.getAllocVal().isStringConstant()) {
                       String key = v.getAllocVal().getStringValue();
@@ -303,8 +301,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
                 public void getSuccessor(Statement succ) {
                   for (ForwardQuery q : Lists.newArrayList(queryToSolvers.keySet())) {
                     if (queryToSolvers.get(q).getReachedStates().contains(bwq.asNode())) {
-                      Val var = q.var();
-                      AllocVal v = (AllocVal) var;
+                      AllocVal v = q.getAllocVal();
 
                       if (v.getAllocVal().isStringConstant()) {
                         String key = v.getAllocVal().getStringValue();
@@ -330,8 +327,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
                 public void getSuccessor(Statement succ) {
                   for (ForwardQuery q : Lists.newArrayList(queryToSolvers.keySet())) {
                     if (queryToSolvers.get(q).getReachedStates().contains(bwq.asNode())) {
-                      Val var = q.var();
-                      AllocVal v = (AllocVal) var;
+                      AllocVal v = q.getAllocVal();
                       if (v.getAllocVal().isStringConstant()) {
                         String key = v.getAllocVal().getStringValue();
                         solver.propagate(
@@ -547,18 +543,17 @@ public abstract class WeightedBoomerang<W extends Weight> {
       @Override
       public WeightedPAutomaton<ControlFlowGraph.Edge, INode<Val>, W> getSummaryAutomaton(
           INode<Val> target) {
-        if (sourceQuery.var() instanceof AllocVal) {
-          AllocVal allocVal = (AllocVal) sourceQuery.var();
-          Val f;
-          if (target.fact().isUnbalanced()) {
-            f = target.fact().asUnbalanced(null);
-          } else {
-            f = target.fact();
-          }
-          if (f.equals(allocVal.getDelegate())) {
-            return queryToSolvers.getOrCreate(sourceQuery).getCallAutomaton();
-          }
+        AllocVal allocVal = sourceQuery.getAllocVal();
+        Val f;
+        if (target.fact().isUnbalanced()) {
+          f = target.fact().asUnbalanced(null);
+        } else {
+          f = target.fact();
         }
+        if (f.equals(allocVal.getDelegate())) {
+          return queryToSolvers.getOrCreate(sourceQuery).getCallAutomaton();
+        }
+
         return summaries.getSummaryAutomaton(target);
       }
     };
@@ -1109,7 +1104,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       if (query instanceof ForwardQueryMultiDimensionalArray) {
         ForwardQueryMultiDimensionalArray arrayQuery = ((ForwardQueryMultiDimensionalArray) query);
         Node<ControlFlowGraph.Edge, Val> node =
-            new Node<>(query.cfgEdge(), ((AllocVal) query.var()).getDelegate());
+            new Node<>(query.cfgEdge(), query.getAllocVal().getDelegate());
         SingleNode<Node<ControlFlowGraph.Edge, Val>> sourveVal = new SingleNode<>(node);
         INode<Node<ControlFlowGraph.Edge, Val>> genState1 =
             solver.generateFieldState(sourveVal, Field.array(arrayQuery.getIndex1()));
@@ -1126,7 +1121,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       } else {
         ForwardQueryArray arrayQuery = ((ForwardQueryArray) query);
         Node<ControlFlowGraph.Edge, Val> node =
-            new Node<>(query.cfgEdge(), ((AllocVal) query.var()).getDelegate());
+            new Node<>(query.cfgEdge(), query.getAllocVal().getDelegate());
         SingleNode<Node<ControlFlowGraph.Edge, Val>> sourceVal = new SingleNode<>(node);
         INode<Node<ControlFlowGraph.Edge, Val>> genState =
             solver.generateFieldState(sourceVal, Field.array(arrayQuery.getIndex()));
@@ -1148,7 +1143,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
           new FieldWritePOI(cfgEdge, var, field, stmt.getRightOp()),
           query);
     } else {
-      var = ((AllocVal) query.var()).getDelegate();
+      var = query.getAllocVal().getDelegate();
       field = Field.empty();
     }
     if (query instanceof WeightedForwardQuery) {

@@ -143,7 +143,8 @@ public class CustomFlowFunctionTest {
             .filter(x -> x.isAssign() && !x.getLeftOp().getType().isRefType())
             .findFirst()
             .get();
-    Val arg = new AllocVal(intAssignStmt.getLeftOp(), intAssignStmt, intAssignStmt.getRightOp());
+    AllocVal arg =
+        new AllocVal(intAssignStmt.getLeftOp(), intAssignStmt, intAssignStmt.getRightOp());
 
     Statement succs =
         method.getControlFlowGraph().getSuccsOf(intAssignStmt).stream().findFirst().get();
