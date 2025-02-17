@@ -1,12 +1,12 @@
 package boomerang.results;
 
 import boomerang.Query;
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.Field;
-import boomerang.scene.Method;
-import boomerang.scene.Pair;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph;
+import boomerang.scope.Field;
+import boomerang.scope.Method;
+import boomerang.scope.Pair;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import java.util.List;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;

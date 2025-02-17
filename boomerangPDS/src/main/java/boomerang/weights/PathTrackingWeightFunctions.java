@@ -1,7 +1,7 @@
 package boomerang.weights;
 
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Val;
 import boomerang.weights.PathConditionWeight.ConditionDomain;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.Node;

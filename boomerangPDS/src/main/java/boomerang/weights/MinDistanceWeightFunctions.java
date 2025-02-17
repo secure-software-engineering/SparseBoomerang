@@ -1,7 +1,7 @@
 package boomerang.weights;
 
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.Node;
 

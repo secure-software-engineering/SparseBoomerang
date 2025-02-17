@@ -1,8 +1,8 @@
 package boomerang.weights;
 
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Map;

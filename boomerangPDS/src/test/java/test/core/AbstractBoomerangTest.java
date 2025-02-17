@@ -10,7 +10,13 @@ import boomerang.options.BoomerangOptions;
 import boomerang.options.IntAndStringAllocationSite;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.*;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.AllocVal;
+import boomerang.scope.CallGraph;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.DataFlowScope;
+import boomerang.scope.Field;
+import boomerang.scope.InvokeExpr;
+import boomerang.scope.Val;
 import boomerang.solver.ForwardBoomerangSolver;
 import boomerang.util.AccessPath;
 import boomerang.util.DefaultValueMap;
@@ -226,7 +232,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     if (queryForCallSites.size() > 1) throw new RuntimeException("Not implemented");
     for (Query q : queryForCallSites) {
       Edge stmt = q.cfgEdge();
-      boomerang.scene.InvokeExpr ie = stmt.getStart().getInvokeExpr();
+      InvokeExpr ie = stmt.getStart().getInvokeExpr();
       Val arg = ie.getArg(1);
       Collection<String> expectedResults = parse(arg);
       LOGGER.info("Expected results: {}", expectedResults);

@@ -11,7 +11,7 @@
  */
 package typestate;
 
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.ControlFlowGraph.Edge;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Collection;

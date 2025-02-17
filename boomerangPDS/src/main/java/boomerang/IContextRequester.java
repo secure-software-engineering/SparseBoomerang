@@ -1,6 +1,6 @@
 package boomerang;
 
-import boomerang.scene.Statement;
+import boomerang.scope.Statement;
 import java.util.Collection;
 
 public interface IContextRequester {

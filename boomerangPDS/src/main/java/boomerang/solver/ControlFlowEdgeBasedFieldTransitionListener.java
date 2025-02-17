@@ -11,9 +11,9 @@
  */
 package boomerang.solver;
 
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.Field;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph;
+import boomerang.scope.Field;
+import boomerang.scope.Val;
 import sync.pds.solver.nodes.INode;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Transition;

@@ -11,11 +11,11 @@
  */
 package boomerang;
 
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Type;
-import boomerang.scene.Val;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Type;
+import boomerang.scope.Val;
 import sync.pds.solver.nodes.Node;
 
 public abstract class Query {

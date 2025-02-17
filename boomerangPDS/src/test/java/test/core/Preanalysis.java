@@ -1,9 +1,9 @@
 package test.core;
 
 import boomerang.Query;
-import boomerang.scene.AnalysisScope;
-import boomerang.scene.CallGraph;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.AnalysisScope;
+import boomerang.scope.CallGraph;
+import boomerang.scope.ControlFlowGraph.Edge;
 import java.util.Collection;
 import java.util.Collections;
 

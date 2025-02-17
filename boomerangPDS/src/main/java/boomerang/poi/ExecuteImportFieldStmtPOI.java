@@ -1,9 +1,9 @@
 package boomerang.poi;
 
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Field;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Field;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.ControlFlowEdgeBasedCallTransitionListener;
 import boomerang.solver.ControlFlowEdgeBasedFieldTransitionListener;

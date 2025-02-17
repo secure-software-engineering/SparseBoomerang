@@ -11,7 +11,7 @@
  */
 package test;
 
-import boomerang.scene.Statement;
+import boomerang.scope.Statement;
 
 public interface ComparableResult<State, Val> {
 

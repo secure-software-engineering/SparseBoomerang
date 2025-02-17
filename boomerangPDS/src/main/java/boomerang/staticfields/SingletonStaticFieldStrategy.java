@@ -1,10 +1,10 @@
 package boomerang.staticfields;
 
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Field;
-import boomerang.scene.Statement;
-import boomerang.scene.StaticFieldVal;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Field;
+import boomerang.scope.Statement;
+import boomerang.scope.StaticFieldVal;
+import boomerang.scope.Val;
 import boomerang.solver.AbstractBoomerangSolver;
 import com.google.common.collect.Multimap;
 import java.util.Set;

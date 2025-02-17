@@ -1,7 +1,7 @@
 package sparse;
 
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
 import sparse.eval.PropagationCounter;
 
 public interface SparsificationStrategy<M extends Method, S extends Statement> {

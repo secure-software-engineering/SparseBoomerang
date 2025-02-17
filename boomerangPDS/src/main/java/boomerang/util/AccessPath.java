@@ -1,7 +1,7 @@
 package boomerang.util;
 
-import boomerang.scene.Field;
-import boomerang.scene.Val;
+import boomerang.scope.Field;
+import boomerang.scope.Val;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Set;

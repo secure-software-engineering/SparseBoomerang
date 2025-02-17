@@ -1,6 +1,6 @@
 package boomerang.flowfunction;
 
-import boomerang.scene.DeclaredMethod;
+import boomerang.scope.DeclaredMethod;
 
 public class FlowFunctionUtils {
   public static boolean isSystemArrayCopy(DeclaredMethod method) {

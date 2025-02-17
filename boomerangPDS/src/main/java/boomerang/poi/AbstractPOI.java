@@ -11,7 +11,7 @@
  */
 package boomerang.poi;
 
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.ControlFlowGraph.Edge;
 
 public abstract class AbstractPOI<Statement, Val, Field>
     extends PointOfIndirection<Statement, Val, Field> {

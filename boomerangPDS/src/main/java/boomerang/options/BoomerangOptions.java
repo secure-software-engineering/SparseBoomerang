@@ -8,8 +8,8 @@ import boomerang.flowfunction.DefaultForwardFlowFunction;
 import boomerang.flowfunction.DefaultForwardFlowFunctionOptions;
 import boomerang.flowfunction.IBackwardFlowFunction;
 import boomerang.flowfunction.IForwardFlowFunction;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
 import boomerang.solver.Strategies;
 import sparse.SparsificationStrategy;
 

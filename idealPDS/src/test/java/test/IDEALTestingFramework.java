@@ -16,7 +16,13 @@ import boomerang.debugger.Debugger;
 import boomerang.options.BoomerangOptions;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
-import boomerang.scene.CallGraph.Edge;
+import boomerang.scope.CallGraph.Edge;
+import boomerang.scope.ControlFlowGraph;
+import boomerang.scope.FrameworkScope;
+import boomerang.scope.InvokeExpr;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.solver.Strategies;
 import com.google.common.collect.Lists;
 import ideal.*;
@@ -157,7 +163,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
       for (Edge callSite : frameworkScope.getCallGraph().edgesOutOf(stmt)) {
         parseExpectedQueryResults(callSite.tgt(), queries, visited);
       }
-      boomerang.scene.InvokeExpr invokeExpr = stmt.getInvokeExpr();
+      InvokeExpr invokeExpr = stmt.getInvokeExpr();
       String invocationName = invokeExpr.getMethod().getName();
       if (invocationName.equals("shouldNotBeAnalyzed")) {
         queries.add(new ShouldNotBeAnalyzed(stmt));
