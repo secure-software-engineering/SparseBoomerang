@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.github.soot-oss.SootUp</groupId>
             <artifactId>sootup.java.core</artifactId>
-            <version>develop-SNAPSHOT</version>
+            <version>v1.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.soot-oss.SootUp</groupId>
