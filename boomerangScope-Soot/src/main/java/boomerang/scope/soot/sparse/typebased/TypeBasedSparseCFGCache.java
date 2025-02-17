@@ -1,15 +1,14 @@
 package boomerang.scope.soot.sparse.typebased;
 
-import boomerang.scope.soot.jimple.JimpleMethod;
-import boomerang.scope.soot.sparse.SootAdapter;
 import boomerang.scope.Method;
 import boomerang.scope.Statement;
 import boomerang.scope.Val;
+import boomerang.scope.soot.jimple.JimpleMethod;
+import boomerang.scope.soot.sparse.SootAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import soot.SootMethod;
 import soot.jimple.Stmt;
 import sparse.SparseAliasingCFG;

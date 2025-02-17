@@ -1,13 +1,12 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.InvokeExpr;
 import boomerang.scope.Val;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import sootup.core.jimple.common.expr.AbstractInstanceInvokeExpr;
 import sootup.core.jimple.common.expr.AbstractInvokeExpr;
 import sootup.core.jimple.common.expr.JSpecialInvokeExpr;

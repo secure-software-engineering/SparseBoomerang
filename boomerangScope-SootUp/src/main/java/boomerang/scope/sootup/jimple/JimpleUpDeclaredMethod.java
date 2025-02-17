@@ -1,10 +1,10 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Method;
 import boomerang.scope.Type;
 import boomerang.scope.WrappedClass;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -6,7 +6,6 @@ import boomerang.callgraph.CallerListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
 import boomerang.controlflowgraph.PredecessorListener;
-import boomerang.scene.*;
 import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Field;

@@ -1,16 +1,15 @@
 package boomerang.scope.soot.sparse;
 
-import boomerang.framework.soot.jimple.*;
+import boomerang.scope.Field;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.scope.soot.jimple.JimpleField;
 import boomerang.scope.soot.jimple.JimpleMethod;
 import boomerang.scope.soot.jimple.JimpleStatement;
 import boomerang.scope.soot.jimple.JimpleStaticFieldVal;
 import boomerang.scope.soot.jimple.JimpleVal;
 import boomerang.scope.soot.sparse.aliasaware.MStaticFieldRef;
-import boomerang.scope.Field;
-import boomerang.scope.Method;
-import boomerang.scope.Statement;
-import boomerang.scope.Val;
 import soot.*;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;

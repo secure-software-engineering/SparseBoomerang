@@ -1,6 +1,5 @@
 package boomerang.scope.wala;
 
-import boomerang.scene.*;
 import boomerang.scope.CallGraph;
 import boomerang.scope.DataFlowScope;
 import boomerang.scope.Field;
@@ -8,7 +7,6 @@ import boomerang.scope.FrameworkScope;
 import boomerang.scope.Method;
 import boomerang.scope.StaticFieldVal;
 import boomerang.scope.Val;
-
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 

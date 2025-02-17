@@ -1,10 +1,10 @@
 package boomerang.scope.soot;
 
-import boomerang.scope.soot.jimple.JimpleDeclaredMethod;
-import boomerang.scope.soot.jimple.JimpleMethod;
 import boomerang.scope.DataFlowScope;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Method;
+import boomerang.scope.soot.jimple.JimpleDeclaredMethod;
+import boomerang.scope.soot.jimple.JimpleMethod;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 import java.util.List;

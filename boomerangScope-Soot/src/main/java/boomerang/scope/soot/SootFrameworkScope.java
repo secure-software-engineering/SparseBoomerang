@@ -1,9 +1,5 @@
 package boomerang.scope.soot;
 
-import boomerang.scope.soot.jimple.JimpleField;
-import boomerang.scope.soot.jimple.JimpleMethod;
-import boomerang.scope.soot.jimple.JimpleStaticFieldVal;
-import boomerang.scope.soot.jimple.JimpleVal;
 import boomerang.scope.CallGraph;
 import boomerang.scope.DataFlowScope;
 import boomerang.scope.Field;
@@ -11,11 +7,14 @@ import boomerang.scope.FrameworkScope;
 import boomerang.scope.Method;
 import boomerang.scope.StaticFieldVal;
 import boomerang.scope.Val;
+import boomerang.scope.soot.jimple.JimpleField;
+import boomerang.scope.soot.jimple.JimpleMethod;
+import boomerang.scope.soot.jimple.JimpleStaticFieldVal;
+import boomerang.scope.soot.jimple.JimpleVal;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-
 import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.IntConstant;

@@ -12,16 +12,14 @@
 package boomerang;
 
 import boomerang.options.BoomerangOptions;
-import boomerang.scene.*;
 import boomerang.scope.AllocVal;
 import boomerang.scope.AnalysisScope;
 import boomerang.scope.CallGraph;
 import boomerang.scope.ControlFlowGraph.Edge;
-import java.util.Collection;
-import java.util.Collections;
-
 import boomerang.scope.FrameworkScope;
 import boomerang.scope.Statement;
+import java.util.Collection;
+import java.util.Collections;
 import wpds.impl.Weight;
 
 public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBoomerang<W> {

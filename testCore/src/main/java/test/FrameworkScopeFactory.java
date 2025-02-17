@@ -2,13 +2,13 @@ package test;
 
 import static test.AbstractTestingFramework.getJavaVersion;
 
+import boomerang.scope.FrameworkScope;
 import boomerang.scope.soot.BoomerangPretransformer;
 import boomerang.scope.soot.SootDataFlowScopeUtil;
 import boomerang.scope.soot.SootFrameworkScope;
 import boomerang.scope.sootup.BoomerangPreInterceptor;
 import boomerang.scope.sootup.SootUpDataFlowScope;
 import boomerang.scope.sootup.SootUpFrameworkScope;
-import boomerang.scope.FrameworkScope;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Nonnull;
 import java.io.File;

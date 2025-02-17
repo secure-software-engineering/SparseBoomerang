@@ -1,6 +1,5 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.Field;
 import boomerang.scope.IfStatement;
 import boomerang.scope.InvokeExpr;
@@ -8,6 +7,7 @@ import boomerang.scope.Pair;
 import boomerang.scope.Statement;
 import boomerang.scope.StaticFieldVal;
 import boomerang.scope.Val;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.Collection;

@@ -11,7 +11,6 @@
  */
 package boomerang.scope.wala;
 
-import boomerang.scope.wala.WALAVal.OP;
 import boomerang.scope.Field;
 import boomerang.scope.IfStatement;
 import boomerang.scope.InvokeExpr;
@@ -20,6 +19,7 @@ import boomerang.scope.Pair;
 import boomerang.scope.Statement;
 import boomerang.scope.StaticFieldVal;
 import boomerang.scope.Val;
+import boomerang.scope.wala.WALAVal.OP;
 import com.google.common.collect.Lists;
 import com.ibm.wala.cast.loader.AstMethod;
 import com.ibm.wala.classLoader.IBytecodeMethod;

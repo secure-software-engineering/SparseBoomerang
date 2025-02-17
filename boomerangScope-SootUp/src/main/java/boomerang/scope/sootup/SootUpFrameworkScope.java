@@ -2,6 +2,13 @@ package boomerang.scope.sootup;
 
 import static boomerang.scope.sootup.SootUpDataFlowScopeUtil.excludeComplex;
 
+import boomerang.scope.CallGraph;
+import boomerang.scope.DataFlowScope;
+import boomerang.scope.Field;
+import boomerang.scope.FrameworkScope;
+import boomerang.scope.Method;
+import boomerang.scope.StaticFieldVal;
+import boomerang.scope.Val;
 import boomerang.scope.sootup.jimple.JimpleUpField;
 import boomerang.scope.sootup.jimple.JimpleUpMethod;
 import boomerang.scope.sootup.jimple.JimpleUpStaticFieldVal;
@@ -14,14 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-
-import boomerang.scope.CallGraph;
-import boomerang.scope.DataFlowScope;
-import boomerang.scope.Field;
-import boomerang.scope.FrameworkScope;
-import boomerang.scope.Method;
-import boomerang.scope.StaticFieldVal;
-import boomerang.scope.Val;
 import sootup.core.inputlocation.EagerInputLocation;
 import sootup.core.jimple.basic.NoPositionInformation;
 import sootup.core.jimple.common.constant.IntConstant;

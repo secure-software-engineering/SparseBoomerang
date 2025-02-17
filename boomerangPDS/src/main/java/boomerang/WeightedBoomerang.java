@@ -28,7 +28,6 @@ import boomerang.poi.ExecuteImportFieldStmtPOI;
 import boomerang.poi.PointOfIndirection;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.*;
 import boomerang.scope.AllocVal;
 import boomerang.scope.CallGraph;
 import boomerang.scope.ControlFlowGraph;

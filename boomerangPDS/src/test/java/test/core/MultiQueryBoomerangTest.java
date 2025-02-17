@@ -17,7 +17,6 @@ import boomerang.Query;
 import boomerang.WeightedBoomerang;
 import boomerang.options.BoomerangOptions;
 import boomerang.results.BackwardBoomerangResults;
-import boomerang.scene.*;
 import boomerang.scope.AnalysisScope;
 import boomerang.scope.Val;
 import com.google.common.base.Joiner;

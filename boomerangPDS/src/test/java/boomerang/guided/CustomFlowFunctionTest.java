@@ -12,7 +12,6 @@ import boomerang.options.BoomerangOptions;
 import boomerang.options.IntAndStringAllocationSite;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.*;
 import boomerang.scope.AllocVal;
 import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.FrameworkScope;

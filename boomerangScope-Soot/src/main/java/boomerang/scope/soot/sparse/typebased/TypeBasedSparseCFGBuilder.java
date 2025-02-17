@@ -1,9 +1,9 @@
 package boomerang.scope.soot.sparse.typebased;
 
+import boomerang.scope.Val;
 import boomerang.scope.soot.sparse.SootAdapter;
 import boomerang.scope.soot.sparse.SparseCFGBuilder;
 import boomerang.scope.soot.sparse.aliasaware.AliasAwareSparseCFGBuilder;
-import boomerang.scope.Val;
 import com.google.common.graph.MutableGraph;
 import java.util.*;
 import java.util.logging.Logger;

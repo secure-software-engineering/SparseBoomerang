@@ -1,12 +1,11 @@
 package boomerang.scope.soot.sparse.aliasaware;
 
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.scope.soot.jimple.JimpleMethod;
 import boomerang.scope.soot.jimple.JimpleStatement;
 import boomerang.scope.soot.sparse.SootAdapter;
-import boomerang.scope.Statement;
-import boomerang.scope.Val;
 import java.util.*;
-
 import soot.SootMethod;
 import soot.jimple.Stmt;
 import sparse.SparseAliasingCFG;

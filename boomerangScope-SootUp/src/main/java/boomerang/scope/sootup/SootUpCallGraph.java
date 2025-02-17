@@ -1,11 +1,10 @@
 package boomerang.scope.sootup;
 
-import boomerang.scope.sootup.jimple.JimpleUpMethod;
-import boomerang.scope.sootup.jimple.JimpleUpStatement;
 import boomerang.scope.CallGraph;
 import boomerang.scope.Statement;
+import boomerang.scope.sootup.jimple.JimpleUpMethod;
+import boomerang.scope.sootup.jimple.JimpleUpStatement;
 import java.util.Optional;
-
 import sootup.core.jimple.common.stmt.InvokableStmt;
 import sootup.core.signatures.MethodSignature;
 import sootup.java.core.JavaSootMethod;

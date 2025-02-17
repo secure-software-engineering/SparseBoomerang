@@ -14,7 +14,6 @@ package boomerang.weights;
 import boomerang.ForwardQuery;
 import boomerang.WeightedBoomerang;
 import boomerang.options.BoomerangOptions;
-import boomerang.scene.*;
 import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.Field;
 import boomerang.scope.FrameworkScope;

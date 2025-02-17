@@ -12,7 +12,6 @@
 package boomerang;
 
 import boomerang.options.BoomerangOptions;
-import boomerang.scene.*;
 import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.Field;
 import boomerang.scope.FrameworkScope;

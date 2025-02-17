@@ -7,7 +7,6 @@ import boomerang.Query;
 import boomerang.SolverCreationListener;
 import boomerang.WeightedBoomerang;
 import boomerang.results.ExtractAllocationSiteStateListener;
-import boomerang.scene.*;
 import boomerang.scope.CallGraph;
 import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.DeclaredMethod;

@@ -1,12 +1,12 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.ControlFlowGraph;
 import boomerang.scope.Method;
 import boomerang.scope.Statement;
 import boomerang.scope.Type;
 import boomerang.scope.Val;
 import boomerang.scope.WrappedClass;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import java.util.ArrayList;

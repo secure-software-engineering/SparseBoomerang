@@ -1,10 +1,10 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.AllocVal;
 import boomerang.scope.Type;
 import boomerang.scope.Val;
 import boomerang.scope.WrappedClass;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import sootup.core.typehierarchy.TypeHierarchy;
 import sootup.core.types.ArrayType;
 import sootup.core.types.NullType;

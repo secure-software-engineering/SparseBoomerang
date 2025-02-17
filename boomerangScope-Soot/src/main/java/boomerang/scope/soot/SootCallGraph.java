@@ -1,9 +1,9 @@
 package boomerang.scope.soot;
 
-import boomerang.scope.soot.jimple.JimpleMethod;
-import boomerang.scope.soot.jimple.JimpleStatement;
 import boomerang.scope.CallGraph;
 import boomerang.scope.Statement;
+import boomerang.scope.soot.jimple.JimpleMethod;
+import boomerang.scope.soot.jimple.JimpleStatement;
 
 public class SootCallGraph extends CallGraph {
 

@@ -1,11 +1,11 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.ControlFlowGraph;
 import boomerang.scope.Method;
 import boomerang.scope.Pair;
 import boomerang.scope.Type;
 import boomerang.scope.Val;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import java.util.Arrays;
 import sootup.core.jimple.basic.Local;
 import sootup.core.jimple.basic.Value;

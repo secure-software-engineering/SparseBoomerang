@@ -1,11 +1,10 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.Field;
 import boomerang.scope.InstanceFieldRef;
 import boomerang.scope.Val;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import java.util.Arrays;
-
 import sootup.core.jimple.common.ref.JInstanceFieldRef;
 import sootup.java.core.JavaSootField;
 

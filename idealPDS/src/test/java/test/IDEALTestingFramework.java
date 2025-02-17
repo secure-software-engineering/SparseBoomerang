@@ -15,7 +15,6 @@ import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
 import boomerang.options.BoomerangOptions;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.*;
 import boomerang.scope.CallGraph.Edge;
 import boomerang.scope.ControlFlowGraph;
 import boomerang.scope.FrameworkScope;

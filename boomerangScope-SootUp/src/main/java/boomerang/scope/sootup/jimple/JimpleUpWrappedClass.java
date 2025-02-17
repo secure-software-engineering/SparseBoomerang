@@ -1,9 +1,9 @@
 package boomerang.scope.sootup.jimple;
 
-import boomerang.scope.sootup.SootUpFrameworkScope;
 import boomerang.scope.Method;
 import boomerang.scope.Type;
 import boomerang.scope.WrappedClass;
+import boomerang.scope.sootup.SootUpFrameworkScope;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;

@@ -11,7 +11,6 @@
  */
 package boomerang.scope.soot.jimple;
 
-import boomerang.scope.soot.BoomerangPretransformer;
 import boomerang.scope.Field;
 import boomerang.scope.IfStatement;
 import boomerang.scope.InvokeExpr;
@@ -20,6 +19,7 @@ import boomerang.scope.Pair;
 import boomerang.scope.Statement;
 import boomerang.scope.StaticFieldVal;
 import boomerang.scope.Val;
+import boomerang.scope.soot.BoomerangPretransformer;
 import com.google.common.base.Joiner;
 import java.util.Collection;
 import soot.jimple.ArrayRef;
