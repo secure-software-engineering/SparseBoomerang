@@ -13,10 +13,9 @@ package example;
 
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
+import boomerang.framework.soot.BoomerangPretransformer;
 import boomerang.framework.soot.SootDataFlowScopeUtil;
 import boomerang.framework.soot.SootFrameworkScope;
-import boomerang.framework.soot.jimple.BoomerangPretransformer;
-import boomerang.framework.soot.jimple.SootCallGraph;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -62,7 +61,7 @@ public class Main {
   }
 
   private static void setupSoot(String sootClassPath, String mainClass) {
-    G.v().reset();
+    G.reset();
     Options.v().set_whole_program(true);
     Options.v().setPhaseOption("cg.spark", "on");
     Options.v().set_output_format(Options.output_format_none);
@@ -104,13 +103,17 @@ public class Main {
 
   private static Transformer createAnalysisTransformer() {
     return new SceneTransformer() {
-      protected void internalTransform(
-          String phaseName, @SuppressWarnings("rawtypes") Map options) {
+      protected void internalTransform(String phaseName, Map<String, String> options) {
         StoreIDEALResultHandler<InferenceWeight> resultHandler = new StoreIDEALResultHandler<>();
-        CallGraph callGraph = new SootCallGraph();
+        SootFrameworkScope frameworkScope =
+            new SootFrameworkScope(
+                Scene.v(),
+                Scene.v().getCallGraph(),
+                Scene.v().getEntryPoints(),
+                SootDataFlowScopeUtil.make(Scene.v()));
         IDEALAnalysis<InferenceWeight> solver =
             new IDEALAnalysis<>(
-                new IDEALAnalysisDefinition<InferenceWeight>() {
+                new IDEALAnalysisDefinition<>() {
 
                   @Override
                   public Collection<WeightedForwardQuery<InferenceWeight>> generate(Edge edge) {
@@ -123,8 +126,7 @@ public class Main {
                               .contains("inference.example.InferenceExample$File")) {
                         AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());
                         return Collections.singleton(
-                            new WeightedForwardQuery<InferenceWeight>(
-                                edge, allocVal, InferenceWeight.one()));
+                            new WeightedForwardQuery<>(edge, allocVal, InferenceWeight.one()));
                       }
                     }
                     return Collections.emptySet();
@@ -147,18 +149,8 @@ public class Main {
                   }
 
                   @Override
-                  public CallGraph callGraph() {
-                    return callGraph;
-                  }
-
-                  @Override
-                  protected DataFlowScope getDataFlowScope() {
-                    return SootDataFlowScopeUtil.make(Scene.v());
-                  }
-
-                  @Override
                   public FrameworkScope getFrameworkFactory() {
-                    return new SootFrameworkScope();
+                    return frameworkScope;
                   }
                 });
         solver.run();

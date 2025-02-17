@@ -1,5 +1,6 @@
-package boomerang.framework.sootup;
+package boomerang.framework.sootup.jimple;
 
+import boomerang.framework.sootup.SootUpFrameworkScope;
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.InvokeExpr;
 import boomerang.scene.Val;

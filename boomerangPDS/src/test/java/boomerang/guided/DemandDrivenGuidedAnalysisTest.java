@@ -33,7 +33,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, IntegerCastTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.IntegerCastTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
 
     BackwardQuery query = selectFirstBaseOfToString(m);
     Specification spec =
@@ -47,7 +47,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, BasicTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.BasicTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -61,7 +61,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, LeftUnbalancedTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.LeftUnbalancedTarget: void bar(java.lang.String)>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -73,7 +73,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, ContextSensitiveTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ContextSensitiveTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -85,7 +85,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, NestedContextTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.NestedContextTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -97,7 +97,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, NestedContextAndBranchingTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.NestedContextAndBranchingTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar", "foo");
@@ -110,7 +110,7 @@ public class DemandDrivenGuidedAnalysisTest {
             classPathStr, ContextSensitiveAndLeftUnbalanced2StacksTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget: void context()>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -123,7 +123,7 @@ public class DemandDrivenGuidedAnalysisTest {
             classPathStr, ContextSensitiveAndLeftUnbalancedTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget: void context(java.lang.String)>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -136,7 +136,7 @@ public class DemandDrivenGuidedAnalysisTest {
             classPathStr, ContextSensitiveAndLeftUnbalancedFieldTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget: void context(java.lang.String)>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -149,7 +149,7 @@ public class DemandDrivenGuidedAnalysisTest {
             classPathStr, ContextSensitiveAndLeftUnbalancedThisFieldTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget$MyObject: void context()>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -162,7 +162,7 @@ public class DemandDrivenGuidedAnalysisTest {
             classPathStr, ContextSensitiveAndLeftUnbalancedTarget2.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2: void context()>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstBaseOfToString(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -174,7 +174,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, WrappedInNewStringTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.WrappedInNewStringTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -186,7 +186,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, WrappedInNewStringInnerTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.WrappedInNewStringInnerTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -198,7 +198,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, WrappedInStringTwiceTest.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.WrappedInStringTwiceTest: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar");
@@ -210,7 +210,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, BranchingTest.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.BranchingTest: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar", "foo");
@@ -222,7 +222,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, BranchingAfterNewStringTest.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.BranchingAfterNewStringTest: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, query, "bar", "foo");
@@ -234,7 +234,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, PingPongTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.PingPongTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, getPingPongSpecification(), query, "hello", "world");
@@ -246,7 +246,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, PingPongInterproceduralTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.PingPongInterproceduralTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstFileInitArgument(m);
 
     runAnalysis(scopeFactory, getPingPongSpecification(), query, "hello", "world");
@@ -258,7 +258,7 @@ public class DemandDrivenGuidedAnalysisTest {
         FrameworkScopeFactory.init(classPathStr, ArrayContainerTarget.class.getName());
     String methodSignatureStr =
         "<boomerang.guided.targets.ArrayContainerTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstBaseOfToString(m);
 
     runAnalysis(scopeFactory, new ArrayContainerCollectionManager(), query, "hello", "world");
@@ -269,7 +269,7 @@ public class DemandDrivenGuidedAnalysisTest {
     FrameworkScope scopeFactory =
         FrameworkScopeFactory.init(classPathStr, ValueOfTarget.class.getName());
     String methodSignatureStr = "<boomerang.guided.targets.ValueOfTarget: void foo(int,int)>";
-    Method m = scopeFactory.getMethod(methodSignatureStr);
+    Method m = scopeFactory.resolveMethod(methodSignatureStr);
     BackwardQuery query = selectFirstArgOfQueryTarget(m);
 
     runAnalysis(scopeFactory, query, 1);
@@ -381,12 +381,7 @@ public class DemandDrivenGuidedAnalysisTest {
             .build();
 
     DemandDrivenGuidedAnalysis demandDrivenGuidedAnalysis =
-        new DemandDrivenGuidedAnalysis(
-            queryManager,
-            options,
-            scopeFactory.getDataFlowScope(),
-            scopeFactory.getCallGraph(),
-            scopeFactory);
+        new DemandDrivenGuidedAnalysis(queryManager, options, scopeFactory);
 
     QueryGraph<NoWeight> queryGraph = demandDrivenGuidedAnalysis.run(query);
     demandDrivenGuidedAnalysis.cleanUp();

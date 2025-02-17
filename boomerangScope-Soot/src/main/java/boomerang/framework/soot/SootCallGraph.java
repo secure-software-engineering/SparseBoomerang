@@ -1,18 +1,13 @@
-package boomerang.framework.soot.jimple;
+package boomerang.framework.soot;
 
+import boomerang.framework.soot.jimple.JimpleMethod;
+import boomerang.framework.soot.jimple.JimpleStatement;
 import boomerang.scene.CallGraph;
 import boomerang.scene.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import soot.Scene;
-import soot.SootMethod;
 
 public class SootCallGraph extends CallGraph {
-  Logger LOGGER = LoggerFactory.getLogger(SootCallGraph.class);
 
-  public SootCallGraph() {
-
-    soot.jimple.toolkits.callgraph.CallGraph callGraph = Scene.v().getCallGraph();
+  public SootCallGraph(soot.jimple.toolkits.callgraph.CallGraph callGraph) {
     for (soot.jimple.toolkits.callgraph.Edge e : callGraph) {
       if (e.src().hasActiveBody() && e.tgt().hasActiveBody() && e.srcStmt() != null) {
         Statement callSite = JimpleStatement.create(e.srcStmt(), JimpleMethod.of(e.src()));
@@ -22,12 +17,14 @@ public class SootCallGraph extends CallGraph {
         }
       }
     }
-    for (SootMethod m : Scene.v().getEntryPoints()) {
-      if (m.hasActiveBody()) this.addEntryPoint(JimpleMethod.of(m));
-    }
 
-    if (getEdges().isEmpty()) {
-      throw new IllegalStateException("CallGraph is empty!");
-    }
+    // TODO
+    // for (SootMethod m : Scene.v().getEntryPoints()) {
+    //  if (m.hasActiveBody()) this.addEntryPoint(JimpleMethod.of(m));
+    // }
+
+    // if (getEdges().isEmpty()) {
+    //  throw new IllegalStateException("CallGraph is empty!");
+    // }
   }
 }

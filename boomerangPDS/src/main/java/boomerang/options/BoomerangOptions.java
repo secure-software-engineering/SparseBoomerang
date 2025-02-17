@@ -67,7 +67,7 @@ public class BoomerangOptions {
   }
 
   public IAllocationSite allocationSite() {
-    return builder().allocationSite;
+    return builder.allocationSite;
   }
 
   public IForwardFlowFunction getForwardFlowFunction() {

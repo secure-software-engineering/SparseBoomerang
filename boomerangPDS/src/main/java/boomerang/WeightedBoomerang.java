@@ -75,7 +75,7 @@ import wpds.impl.WeightedPAutomaton;
 import wpds.interfaces.WPAStateListener;
 
 public abstract class WeightedBoomerang<W extends Weight> {
-  protected final FrameworkScope scopeFactory;
+
   protected ObservableICFG<Statement, Method> icfg;
   protected ObservableControlFlowGraph cfg;
   private static final Logger LOGGER = LoggerFactory.getLogger(WeightedBoomerang.class);
@@ -160,7 +160,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
               };
           backwardSolver.registerListener(
               node -> {
-                // TODO isAllocationNode uses getStart() but loads are getTarget()
                 Optional<AllocVal> allocNode = isAllocationNode(node.stmt(), node.fact());
                 if (allocNode.isPresent()
                     || node.stmt().getStart().isArrayLoad()
@@ -191,7 +190,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
         && node.fact().isStatic()
         && isFirstStatementOfEntryPoint(node.stmt().getStart())) {
       Val fact = node.fact();
-      Stream<Method> methodStream = scopeFactory.handleStaticFieldInitializers(fact);
+      Stream<Method> methodStream = frameworkScope.handleStaticFieldInitializers(fact);
 
       methodStream.forEach(
           m -> {
@@ -199,7 +198,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
             if (m.isStaticInitializer()) {
               for (Statement ep : icfg.getEndPointsOf(m)) {
                 StaticFieldVal newVal =
-                    scopeFactory.newStaticFieldVal(((StaticFieldVal) fact).field(), m);
+                    frameworkScope.newStaticFieldVal(((StaticFieldVal) fact).field(), m);
                 cfg.addPredsOfListener(
                     new PredecessorListener(ep) {
                       @Override
@@ -392,18 +391,21 @@ public abstract class WeightedBoomerang<W extends Weight> {
           return key;
         }
       };
+
+  protected final FrameworkScope frameworkScope;
   protected final BoomerangOptions options;
   private final Stopwatch analysisWatch = Stopwatch.createUnstarted();
   private final DataFlowScope dataFlowscope;
   private final CallGraph callGraph;
   private INode<Val> rootQuery;
 
-  public WeightedBoomerang(
-      CallGraph cg, DataFlowScope scope, BoomerangOptions options, FrameworkScope scopeFactory) {
-    this.scopeFactory = scopeFactory;
+  public WeightedBoomerang(FrameworkScope frameworkScope, BoomerangOptions options) {
+    this.frameworkScope = frameworkScope;
     this.options = options;
     this.options.checkValid();
-    this.dataFlowscope = scope;
+
+    this.callGraph = frameworkScope.getCallGraph();
+    this.dataFlowscope = frameworkScope.getDataFlowScope();
     // TODO Revisit this
     this.stats = new SimpleBoomerangStats<>();
 
@@ -414,16 +416,17 @@ public abstract class WeightedBoomerang<W extends Weight> {
     }
 
     if (options.onTheFlyCallGraph()) {
-      icfg = new ObservableDynamicICFG(cfg, options.getResolutionStrategy().newInstance(this, cg));
+      icfg =
+          new ObservableDynamicICFG(
+              cfg, options.getResolutionStrategy().newInstance(this, callGraph));
     } else {
-      icfg = new ObservableStaticICFG(cg);
+      icfg = new ObservableStaticICFG(callGraph);
     }
-    this.callGraph = cg;
     this.queryGraph = new QueryGraph<>(this);
   }
 
-  public WeightedBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
-    this(cg, scope, BoomerangOptions.DEFAULT(), scopeFactory);
+  public WeightedBoomerang(FrameworkScope frameworkScope) {
+    this(frameworkScope, BoomerangOptions.DEFAULT());
   }
 
   protected void addVisitedMethod(Method method) {
@@ -433,7 +436,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
   }
 
   protected Optional<AllocVal> isAllocationNode(ControlFlowGraph.Edge s, Val fact) {
-    // TODO Change to getTarget()?
     return options.allocationSite().getAllocationSite(s.getStart().getMethod(), s.getStart(), fact);
   }
 
@@ -941,7 +943,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       analysisWatch.stop();
     }
     return new ForwardBoomerangResults<>(
-        scopeFactory,
+        frameworkScope,
         query,
         icfg(),
         cfg(),
@@ -1055,7 +1057,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
       analysisWatch.stop();
     }
     return new ForwardBoomerangResults<>(
-        scopeFactory,
+        frameworkScope,
         query,
         icfg(),
         cfg(),

@@ -1,12 +1,13 @@
 package boomerang.scene;
 
-import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 public interface FrameworkScope {
 
-  List<Method> getEntrypoints();
+  CallGraph getCallGraph();
+
+  DataFlowScope getDataFlowScope();
 
   Val getTrueValue(Method m);
 
@@ -16,16 +17,13 @@ public interface FrameworkScope {
 
   StaticFieldVal newStaticFieldVal(Field field, Method m);
 
-  // TODO: [ms] maybe refactor it - currently its only used in testcases
+  // TODO Refactor: Only used in tests
+  void updateDataFlowScope(DataFlowScope dataFlowScope);
+
+  // TODO Refactor: Only used in tests
   @Nonnull
-  Method getMethod(String signatureStr);
+  Method resolveMethod(String signatureStr);
 
-  // TODO: [ms] maybe refactor it - currently its only used in testcases
-  CallGraph getCallGraph();
-
-  // TODO: [ms] maybe refactor it - currently its only used in testcases
-  DataFlowScope getDataFlowScope();
-
-  // TODO: [ms] maybe refactor it - currently its only used in testcases
+  // TODO Refactor: Only used in tests
   DataFlowScope createDataFlowScopeWithoutComplex();
 }

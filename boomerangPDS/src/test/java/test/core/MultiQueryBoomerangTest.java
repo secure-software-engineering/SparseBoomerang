@@ -129,12 +129,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
             .withAnalysisTimeout(analysisTimeout)
             .enableAllowMultipleQueries(true)
             .build();
-    solver =
-        new Boomerang(
-            frameworkScope.getCallGraph(),
-            frameworkScope.getDataFlowScope(),
-            options,
-            frameworkScope);
+    solver = new Boomerang(frameworkScope, options);
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
         BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);

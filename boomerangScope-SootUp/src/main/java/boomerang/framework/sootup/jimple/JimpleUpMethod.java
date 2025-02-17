@@ -1,5 +1,6 @@
-package boomerang.framework.sootup;
+package boomerang.framework.sootup.jimple;
 
+import boomerang.framework.sootup.SootUpFrameworkScope;
 import boomerang.scene.*;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;

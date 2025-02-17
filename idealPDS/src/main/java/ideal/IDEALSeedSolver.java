@@ -300,11 +300,8 @@ public class IDEALSeedSolver<W extends Weight> {
   }
 
   private WeightedBoomerang<W> createSolver(Phases phase) {
-    return new WeightedBoomerang<W>(
-        analysisDefinition.callGraph(),
-        analysisDefinition.getDataFlowScope(),
-        analysisDefinition.boomerangOptions(),
-        analysisDefinition.getFrameworkFactory()) {
+    return new WeightedBoomerang<>(
+        analysisDefinition.getFrameworkFactory(), analysisDefinition.boomerangOptions()) {
 
       @Override
       protected WeightFunctions<Edge, Val, Edge, W> getForwardCallWeights(

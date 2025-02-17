@@ -1,5 +1,7 @@
 package boomerang.framework.sootup;
 
+import boomerang.framework.sootup.jimple.JimpleUpDeclaredMethod;
+import boomerang.framework.sootup.jimple.JimpleUpMethod;
 import boomerang.scene.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;

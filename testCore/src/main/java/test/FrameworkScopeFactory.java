@@ -2,9 +2,11 @@ package test;
 
 import static test.AbstractTestingFramework.getJavaVersion;
 
+import boomerang.framework.soot.BoomerangPretransformer;
+import boomerang.framework.soot.SootDataFlowScopeUtil;
 import boomerang.framework.soot.SootFrameworkScope;
-import boomerang.framework.soot.jimple.BoomerangPretransformer;
 import boomerang.framework.sootup.BoomerangPreInterceptor;
+import boomerang.framework.sootup.SootUpDataFlowScope;
 import boomerang.framework.sootup.SootUpFrameworkScope;
 import boomerang.scene.FrameworkScope;
 import com.google.common.collect.Lists;
@@ -226,7 +228,11 @@ public class FrameworkScopeFactory {
             .forEach(System.out::println);
     */
 
-    return new SootFrameworkScope();
+    return new SootFrameworkScope(
+        Scene.v(),
+        Scene.v().getCallGraph(),
+        Scene.v().getEntryPoints(),
+        SootDataFlowScopeUtil.make(Scene.v()));
   }
 
   private static String getTargetClass(SootMethod sootTestMethod, String testCaseClassName) {
@@ -512,6 +518,11 @@ public class FrameworkScopeFactory {
 
     cg.exportAsDot();
 
-    return new SootUpFrameworkScope(javaView, cg, entypointSignatures);
+    Collection<JavaSootMethod> entryPoints = new HashSet<>();
+    for (MethodSignature signature : entypointSignatures) {
+      Optional<JavaSootMethod> sootMethod = javaView.getMethod(signature);
+      sootMethod.ifPresent(entryPoints::add);
+    }
+    return new SootUpFrameworkScope(javaView, cg, entryPoints, SootUpDataFlowScope.make());
   }
 }

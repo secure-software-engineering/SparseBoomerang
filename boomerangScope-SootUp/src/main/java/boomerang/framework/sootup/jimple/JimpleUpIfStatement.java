@@ -1,4 +1,4 @@
-package boomerang.framework.sootup;
+package boomerang.framework.sootup.jimple;
 
 import boomerang.scene.IfStatement;
 import boomerang.scene.Statement;

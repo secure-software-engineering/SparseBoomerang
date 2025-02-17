@@ -5,9 +5,12 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CallGraph {
 
+  protected Logger LOGGER = LoggerFactory.getLogger(CallGraph.class);
   private final Set<Edge> edges = Sets.newHashSet();
   private final Multimap<Statement, Edge> edgesOutOf = HashMultimap.create();
   private final Multimap<Method, Edge> edgesInto = HashMultimap.create();

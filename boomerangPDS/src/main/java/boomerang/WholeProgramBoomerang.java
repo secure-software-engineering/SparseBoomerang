@@ -23,14 +23,13 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
   private int allocationSites;
   private final CallGraph callGraph;
 
-  public WholeProgramBoomerang(
-      CallGraph cg, DataFlowScope scope, BoomerangOptions options, FrameworkScope scopeFactory) {
-    super(cg, scope, options, scopeFactory);
-    this.callGraph = cg;
+  public WholeProgramBoomerang(FrameworkScope frameworkScope, BoomerangOptions options) {
+    super(frameworkScope, options);
+    this.callGraph = frameworkScope.getCallGraph();
   }
 
-  public WholeProgramBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
-    this(cg, scope, BoomerangOptions.DEFAULT(), scopeFactory);
+  public WholeProgramBoomerang(FrameworkScope frameworkScope) {
+    this(frameworkScope, BoomerangOptions.DEFAULT());
   }
 
   public void wholeProgramAnalysis() {

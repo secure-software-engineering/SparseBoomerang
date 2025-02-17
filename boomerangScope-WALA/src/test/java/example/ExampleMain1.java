@@ -103,9 +103,7 @@ public class ExampleMain1 {
           }
         };
     // 1. Create a Boomerang solver.
-    Boomerang solver =
-        new Boomerang(
-            cg, DataFlowScope.INCLUDE_ALL, BoomerangOptions.DEFAULT(), new WalaFrameworkScope());
+    Boomerang solver = new Boomerang(new WalaFrameworkScope(), BoomerangOptions.DEFAULT());
 
     // 2. Submit a query to the solver.
     Collection<Query> seeds = scope.computeSeeds();

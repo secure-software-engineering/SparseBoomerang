@@ -10,9 +10,7 @@ import boomerang.options.BoomerangOptions;
 import boomerang.results.AbstractBoomerangResults.Context;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DataFlowScope;
 import boomerang.scene.FrameworkScope;
 import boomerang.scene.Val;
 import com.google.common.collect.Lists;
@@ -26,10 +24,7 @@ import wpds.impl.Weight.NoWeight;
 
 public class DemandDrivenGuidedAnalysis {
 
-  private final BoomerangOptions customBoomerangOptions;
   private final IDemandDrivenGuidedManager spec;
-  private final DataFlowScope scope;
-  private final CallGraph callGraph;
   private final LinkedList<QueryWithContext> queryQueue = Lists.newLinkedList();
   private final Set<Query> visited = Sets.newHashSet();
   private final Boomerang solver;
@@ -38,18 +33,13 @@ public class DemandDrivenGuidedAnalysis {
   public DemandDrivenGuidedAnalysis(
       IDemandDrivenGuidedManager specification,
       BoomerangOptions options,
-      DataFlowScope dataFlowScope,
-      CallGraph callGraph,
-      FrameworkScope scopeFactory) {
-    spec = specification;
-    scope = dataFlowScope;
-    this.callGraph = callGraph;
+      FrameworkScope frameworkScope) {
+    this.spec = specification;
     if (!options.allowMultipleQueries()) {
       throw new RuntimeException(
           "Boomerang options allowMultipleQueries is set to false. Please enable it.");
     }
-    customBoomerangOptions = options;
-    solver = new Boomerang(callGraph, scope, customBoomerangOptions, scopeFactory);
+    this.solver = new Boomerang(frameworkScope, options);
   }
 
   /**

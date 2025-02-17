@@ -11,6 +11,7 @@
  */
 package boomerang.framework.soot.jimple;
 
+import boomerang.framework.soot.BoomerangPretransformer;
 import boomerang.scene.Field;
 import boomerang.scene.IfStatement;
 import boomerang.scene.InvokeExpr;

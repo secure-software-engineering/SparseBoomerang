@@ -2,11 +2,15 @@ package boomerang.framework.sootup;
 
 import static boomerang.framework.sootup.SootUpDataFlowScopeUtil.excludeComplex;
 
+import boomerang.framework.sootup.jimple.JimpleUpField;
+import boomerang.framework.sootup.jimple.JimpleUpMethod;
+import boomerang.framework.sootup.jimple.JimpleUpStaticFieldVal;
+import boomerang.framework.sootup.jimple.JimpleUpVal;
 import boomerang.scene.*;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,25 +29,25 @@ import sootup.java.core.views.JavaView;
 
 public class SootUpFrameworkScope implements FrameworkScope {
 
-  @Nonnull protected final JavaView view;
-  @Nonnull protected final CallGraph cg;
-  @Nonnull protected final List<Method> entrypoints;
-  @Nonnull protected final DataFlowScope dataflowScope;
+  protected final JavaView view;
+  protected final CallGraph sootUpCallGraph;
+  protected DataFlowScope dataflowScope;
 
   public SootUpFrameworkScope(
       @Nonnull JavaView view,
-      @Nonnull sootup.callgraph.CallGraph cg,
-      @Nonnull List<MethodSignature> entrypoints) {
+      @Nonnull sootup.callgraph.CallGraph callGraph,
+      @Nonnull Collection<JavaSootMethod> entryPoints,
+      @Nonnull DataFlowScope dataFlowScope) {
     INSTANCE = this; // FIXME! [ms] this hack is disgusting!
-    this.view = view;
-    this.entrypoints =
-        entrypoints.stream()
-            .map(ep -> view.getMethod(ep).get())
-            .map(JimpleUpMethod::of)
-            .collect(Collectors.toList());
 
-    this.cg = new SootUpCallGraph(cg, getEntrypoints());
-    dataflowScope = SootUpDataFlowScope.make();
+    this.view = view;
+
+    this.sootUpCallGraph = new SootUpCallGraph(callGraph);
+    Collection<JimpleUpMethod> entryPointMethods =
+        entryPoints.stream().map(JimpleUpMethod::of).collect(Collectors.toList());
+    entryPointMethods.forEach(sootUpCallGraph::addEntryPoint);
+
+    this.dataflowScope = dataFlowScope;
   }
 
   private static SootUpFrameworkScope INSTANCE;
@@ -53,11 +57,6 @@ public class SootUpFrameworkScope implements FrameworkScope {
       throw new RuntimeException("Client hasn't been initialized. Call setInstance first");
     }
     return INSTANCE;
-  }
-
-  @Override
-  public List<Method> getEntrypoints() {
-    return entrypoints;
   }
 
   @Override
@@ -92,19 +91,24 @@ public class SootUpFrameworkScope implements FrameworkScope {
 
   @Nonnull
   @Override
-  public Method getMethod(String signatureStr) {
+  public Method resolveMethod(String signatureStr) {
     return JimpleUpMethod.of(
         view.getMethod(view.getIdentifierFactory().parseMethodSignature(signatureStr)).get());
   }
 
   @Override
   public CallGraph getCallGraph() {
-    return cg;
+    return sootUpCallGraph;
   }
 
   @Override
   public DataFlowScope getDataFlowScope() {
     return dataflowScope;
+  }
+
+  @Override
+  public void updateDataFlowScope(DataFlowScope dataFlowScope) {
+    this.dataflowScope = dataFlowScope;
   }
 
   @Override

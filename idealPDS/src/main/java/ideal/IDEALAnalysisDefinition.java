@@ -43,7 +43,9 @@ public abstract class IDEALAnalysisDefinition<W extends Weight> {
    */
   public abstract WeightFunctions<Edge, Val, Edge, W> weightFunctions();
 
-  public abstract CallGraph callGraph();
+  public CallGraph callGraph() {
+    return getFrameworkFactory().getCallGraph();
+  }
 
   public boolean enableStrongUpdates() {
     return true;
@@ -74,7 +76,9 @@ public abstract class IDEALAnalysisDefinition<W extends Weight> {
     return new IDEALResultHandler();
   }
 
-  protected abstract DataFlowScope getDataFlowScope();
+  protected DataFlowScope getDataFlowScope() {
+    return getFrameworkFactory().getDataFlowScope();
+  }
 
   public abstract FrameworkScope getFrameworkFactory();
 }

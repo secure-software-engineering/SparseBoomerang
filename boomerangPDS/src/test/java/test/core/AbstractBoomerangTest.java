@@ -147,11 +147,7 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
     BoomerangOptions options =
         BoomerangOptions.builder().withAnalysisTimeout(analysisTimeout).build();
     WholeProgramBoomerang<NoWeight> solver =
-        new WholeProgramBoomerang<>(
-            frameworkScope.getCallGraph(),
-            frameworkScope.getDataFlowScope(),
-            options,
-            frameworkScope) {
+        new WholeProgramBoomerang<>(frameworkScope, options) {
 
           @Override
           protected WeightFunctions<Edge, Val, Field, NoWeight> getForwardFieldWeights() {
@@ -261,8 +257,8 @@ public class AbstractBoomerangTest extends AbstractTestingFramework {
 
     for (final Query query : queries) {
       BoomerangOptions options = createBoomerangOptions();
-      Boomerang solver =
-          new Boomerang(frameworkScope.getCallGraph(), getDataFlowScope(), options, frameworkScope);
+      frameworkScope.updateDataFlowScope(getDataFlowScope());
+      Boomerang solver = new Boomerang(frameworkScope, options);
 
       if (query instanceof BackwardQuery) {
         Stopwatch watch = Stopwatch.createStarted();

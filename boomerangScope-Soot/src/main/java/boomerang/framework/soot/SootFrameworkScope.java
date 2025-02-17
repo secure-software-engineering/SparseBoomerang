@@ -1,26 +1,43 @@
 package boomerang.framework.soot;
 
-import boomerang.framework.soot.jimple.*;
-import boomerang.scene.*;
-import java.util.List;
+import boomerang.framework.soot.jimple.JimpleField;
+import boomerang.framework.soot.jimple.JimpleMethod;
+import boomerang.framework.soot.jimple.JimpleStaticFieldVal;
+import boomerang.framework.soot.jimple.JimpleVal;
+import boomerang.scene.CallGraph;
+import boomerang.scene.DataFlowScope;
+import boomerang.scene.Field;
+import boomerang.scene.FrameworkScope;
+import boomerang.scene.Method;
+import boomerang.scene.StaticFieldVal;
+import boomerang.scene.Val;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import soot.*;
+import soot.Scene;
+import soot.SootMethod;
 import soot.jimple.IntConstant;
 
 public class SootFrameworkScope implements FrameworkScope {
 
-  @Nonnull private final SootCallGraph sootCallGraph;
+  protected final Scene scene;
+  protected final SootCallGraph sootCallGraph;
+  protected DataFlowScope dataFlowScope;
 
-  public SootFrameworkScope() {
-    sootCallGraph = new SootCallGraph();
-    getEntrypoints().forEach(sootCallGraph::addEntryPoint);
-  }
+  public SootFrameworkScope(
+      Scene scene,
+      soot.jimple.toolkits.callgraph.CallGraph callGraph,
+      Collection<SootMethod> entryPoints,
+      DataFlowScope dataFlowScope) {
+    this.scene = scene;
 
-  @Override
-  public List<Method> getEntrypoints() {
-    return Scene.v().getEntryPoints().stream().map(JimpleMethod::of).collect(Collectors.toList());
+    this.sootCallGraph = new SootCallGraph(callGraph);
+    Collection<JimpleMethod> entryPointMethods =
+        entryPoints.stream().map(JimpleMethod::of).collect(Collectors.toList());
+    entryPointMethods.forEach(sootCallGraph::addEntryPoint);
+
+    this.dataFlowScope = dataFlowScope;
   }
 
   @Override
@@ -49,8 +66,8 @@ public class SootFrameworkScope implements FrameworkScope {
 
   @Nonnull
   @Override
-  public Method getMethod(String signatureStr) {
-    return JimpleMethod.of(Scene.v().getMethod(signatureStr));
+  public Method resolveMethod(String signatureStr) {
+    return JimpleMethod.of(scene.getMethod(signatureStr));
   }
 
   @Override
@@ -60,7 +77,12 @@ public class SootFrameworkScope implements FrameworkScope {
 
   @Override
   public DataFlowScope getDataFlowScope() {
-    return SootDataFlowScopeUtil.make(Scene.v());
+    return dataFlowScope;
+  }
+
+  @Override
+  public void updateDataFlowScope(DataFlowScope dataFlowScope) {
+    this.dataFlowScope = dataFlowScope;
   }
 
   @Override

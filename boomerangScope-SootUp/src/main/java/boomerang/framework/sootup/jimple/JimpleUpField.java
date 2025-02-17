@@ -1,4 +1,4 @@
-package boomerang.framework.sootup;
+package boomerang.framework.sootup.jimple;
 
 import boomerang.scene.Field;
 import java.util.Arrays;

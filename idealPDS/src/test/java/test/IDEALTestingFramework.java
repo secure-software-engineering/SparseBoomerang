@@ -47,7 +47,7 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
   @Override
   protected void analyze() {
     analyze(
-        frameworkScope.getMethod(
+        frameworkScope.resolveMethod(
             "<" + getTestCaseClassName() + ": void " + testMethodName.getMethodName() + "()>"));
   }
 
@@ -92,20 +92,6 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
                 .withStaticFieldStrategy(Strategies.StaticFieldStrategy.FLOW_SENSITIVE)
                 .enableAllowMultipleQueries(true)
                 .build();
-          }
-
-          private final CallGraph callGraph = frameworkScope.getCallGraph();
-
-          @Override
-          public CallGraph callGraph() {
-            return callGraph;
-          }
-
-          private final DataFlowScope dataFlowScope = frameworkScope.getDataFlowScope();
-
-          @Override
-          protected DataFlowScope getDataFlowScope() {
-            return dataFlowScope;
           }
 
           @Override

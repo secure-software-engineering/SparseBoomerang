@@ -54,7 +54,7 @@ public class Repro extends AbstractTestingFramework {
   public void analyze() {}
 
   private void assertResults(String... expectedCalledMethodsOnFoo) {
-    Method method = frameworkScope.getMethod("<Test: java.util.List foos()>");
+    Method method = frameworkScope.resolveMethod("<Test: java.util.List foos()>");
     System.out.println("All method units:");
     for (Statement s : method.getControlFlowGraph().getStatements()) {
       System.out.println("\t" + s.toString());
@@ -95,10 +95,7 @@ public class Repro extends AbstractTestingFramework {
             var);
     Boomerang solver =
         new Boomerang(
-            scopeFactory.getCallGraph(),
-            scopeFactory.getDataFlowScope(),
-            BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite()),
-            scopeFactory);
+            scopeFactory, BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite()));
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
     return results.getInvokeStatementsOnInstance();
   }

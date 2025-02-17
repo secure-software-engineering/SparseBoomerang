@@ -9,7 +9,7 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-package boomerang.framework.soot.jimple;
+package boomerang.framework.soot;
 
 import com.google.common.collect.Sets;
 import java.util.AbstractMap;

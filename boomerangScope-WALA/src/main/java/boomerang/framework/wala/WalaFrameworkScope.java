@@ -1,7 +1,6 @@
 package boomerang.framework.wala;
 
 import boomerang.scene.*;
-import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
@@ -29,7 +28,7 @@ public class WalaFrameworkScope implements FrameworkScope {
 
   @Nonnull
   @Override
-  public Method getMethod(String signatureStr) {
+  public Method resolveMethod(String signatureStr) {
     throw new UnsupportedOperationException("implement me!");
   }
 
@@ -44,12 +43,10 @@ public class WalaFrameworkScope implements FrameworkScope {
   }
 
   @Override
-  public DataFlowScope createDataFlowScopeWithoutComplex() {
-    throw new UnsupportedOperationException("implement me!");
-  }
+  public void updateDataFlowScope(DataFlowScope dataFlowScope) {}
 
   @Override
-  public List<Method> getEntrypoints() {
+  public DataFlowScope createDataFlowScopeWithoutComplex() {
     throw new UnsupportedOperationException("implement me!");
   }
 }

@@ -33,16 +33,10 @@ public class CustomFlowFunctionTest {
         FrameworkScopeFactory.init(classPathStr, CustomFlowFunctionTarget.class.getName());
     String s =
         "<boomerang.guided.targets.CustomFlowFunctionIntTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(s);
+    Method m = scopeFactory.resolveMethod(s);
     BackwardQuery query = selectQueryForStatement(m);
 
-    CallGraph CallGraph = scopeFactory.getCallGraph();
-    Boomerang solver =
-        new Boomerang(
-            scopeFactory.getCallGraph(),
-            scopeFactory.getDataFlowScope(),
-            CUSTOM_OPTIONS(),
-            scopeFactory);
+    Boomerang solver = new Boomerang(scopeFactory, CUSTOM_OPTIONS());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -69,15 +63,10 @@ public class CustomFlowFunctionTest {
     FrameworkScope scopeFactory =
         FrameworkScopeFactory.init(classPathStr, CustomFlowFunctionTarget.class.getName());
     String s = "<boomerang.guided.targets.CustomFlowFunctionTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(s);
+    Method m = scopeFactory.resolveMethod(s);
     BackwardQuery query = selectQueryForStatement(m);
 
-    Boomerang solver =
-        new Boomerang(
-            scopeFactory.getCallGraph(),
-            scopeFactory.getDataFlowScope(),
-            CUSTOM_OPTIONS(),
-            scopeFactory);
+    Boomerang solver = new Boomerang(scopeFactory, CUSTOM_OPTIONS());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -93,15 +82,10 @@ public class CustomFlowFunctionTest {
     FrameworkScope scopeFactory =
         FrameworkScopeFactory.init(classPathStr, CustomFlowFunctionTarget.class.getName());
     String s = "<boomerang.guided.targets.CustomFlowFunctionTarget: void main(java.lang.String[])>";
-    Method m = scopeFactory.getMethod(s);
+    Method m = scopeFactory.resolveMethod(s);
     ForwardQuery query = selectFirstIntAssignment(m);
 
-    Boomerang solver =
-        new Boomerang(
-            scopeFactory.getCallGraph(),
-            scopeFactory.getDataFlowScope(),
-            CUSTOM_OPTIONS(),
-            scopeFactory);
+    Boomerang solver = new Boomerang(scopeFactory, CUSTOM_OPTIONS());
 
     System.out.println("Solving query: " + query);
     ForwardBoomerangResults<NoWeight> res = solver.solve(query);
