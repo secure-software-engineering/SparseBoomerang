@@ -245,6 +245,7 @@ public class BoomerangOptions {
       if (this.backwardFlowFunction == null) {
         DefaultBackwardFlowFunctionOptions options =
             DefaultBackwardFlowFunctionOptions.builder()
+                .withAllocationSite(allocationSite)
                 .withStaticFieldStrategy(staticFieldStrategy)
                 .withArrayStrategy(arrayStrategy)
                 .build();
