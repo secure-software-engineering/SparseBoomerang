@@ -6,7 +6,6 @@ import boomerang.scope.sootup.jimple.JimpleUpField;
 import boomerang.scope.sootup.jimple.JimpleUpMethod;
 import boomerang.scope.sootup.jimple.JimpleUpStaticFieldVal;
 import boomerang.scope.sootup.jimple.JimpleUpVal;
-import boomerang.scene.*;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;

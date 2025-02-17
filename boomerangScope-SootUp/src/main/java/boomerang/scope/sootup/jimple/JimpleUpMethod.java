@@ -1,7 +1,6 @@
 package boomerang.scope.sootup.jimple;
 
 import boomerang.scope.sootup.SootUpFrameworkScope;
-import boomerang.scene.*;
 import boomerang.scope.ControlFlowGraph;
 import boomerang.scope.Method;
 import boomerang.scope.Statement;

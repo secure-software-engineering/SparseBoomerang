@@ -2,7 +2,6 @@ package boomerang.scope.sootup;
 
 import boomerang.scope.sootup.jimple.JimpleUpDeclaredMethod;
 import boomerang.scope.sootup.jimple.JimpleUpMethod;
-import boomerang.scene.*;
 import boomerang.scope.DataFlowScope;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Method;
