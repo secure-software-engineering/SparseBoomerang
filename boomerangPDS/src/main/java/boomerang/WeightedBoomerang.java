@@ -204,7 +204,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
       methodStream.forEach(
           m -> {
-            // TODO: [ms] check if still needed: I removed the "interner" JimpleMethod.of(m)
             if (m.isStaticInitializer()) {
               for (Statement ep : icfg.getEndPointsOf(m)) {
                 StaticFieldVal newVal =
@@ -300,7 +299,8 @@ public abstract class WeightedBoomerang<W extends Weight> {
   protected void handleMapsForward(ForwardBoomerangSolver<W> solver, Node<Edge, Val> node) {
     Statement rstmt = node.stmt().getTarget();
     if (rstmt.containsInvokeExpr()) {
-      if (rstmt.isAssignStmt() && rstmt.getInvokeExpr().toString().contains(MAP_GET_SUB_SIGNATURE)) {
+      if (rstmt.isAssignStmt()
+          && rstmt.getInvokeExpr().toString().contains(MAP_GET_SUB_SIGNATURE)) {
         if (rstmt.getInvokeExpr().getBase().equals(node.fact())) {
           BackwardQuery bwq = BackwardQuery.make(node.stmt(), rstmt.getInvokeExpr().getArg(0));
           backwardSolve(bwq);
