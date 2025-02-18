@@ -42,11 +42,11 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git checkout -b version_${{ steps.versioning.outputs.version }}_SNAPSHOT master
+          git checkout -b snapshot_version master
           mvn versions:set versions:commit -DnextSnapshot
           git ls-files | grep 'pom.xml$' | xargs git add
-          git commit --allow-empty -am "Update version to ${{ steps.versioning.outputs.version }}-SNAPSHOT"
-          git push origin version_${{ steps.versioning.outputs.version }}_SNAPSHOT
+          git commit --allow-empty -am "Update version to next SNAPSHOT"
+          git push origin snapshot_version
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
