@@ -15,10 +15,9 @@ import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.Pair;
 import boomerang.scene.Val;
 import java.util.Set;
-import wpds.impl.Weight;
 import wpds.interfaces.State;
 
-public interface ArrayHandlingStrategy<W extends Weight> {
+public interface ArrayHandlingStrategy {
   void handleForward(Edge arrayStoreStmt, Pair<Val, Integer> arrayBase, Set<State> out);
 
   void handleBackward(Edge arrayStoreStmt, Pair<Val, Integer> arrayBase, Set<State> out);

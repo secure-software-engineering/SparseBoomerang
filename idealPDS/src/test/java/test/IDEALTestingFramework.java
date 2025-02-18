@@ -11,13 +11,13 @@
  */
 package test;
 
-import boomerang.BoomerangOptions;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
+import boomerang.options.BoomerangOptions;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.CallGraph.Edge;
+import boomerang.solver.Strategies;
 import com.google.common.collect.Lists;
 import ideal.*;
 import java.util.*;
@@ -88,22 +88,10 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
 
           @Override
           public BoomerangOptions boomerangOptions() {
-            return new DefaultBoomerangOptions() {
-
-              @Override
-              public boolean onTheFlyCallGraph() {
-                return false;
-              }
-
-              public StaticFieldStrategy getStaticFieldStrategy() {
-                return StaticFieldStrategy.FLOW_SENSITIVE;
-              }
-
-              @Override
-              public boolean allowMultipleQueries() {
-                return true;
-              }
-            };
+            return BoomerangOptions.builder()
+                .withStaticFieldStrategy(Strategies.StaticFieldStrategy.FLOW_SENSITIVE)
+                .enableAllowMultipleQueries(true)
+                .build();
           }
 
           private final CallGraph callGraph = frameworkScope.getCallGraph();

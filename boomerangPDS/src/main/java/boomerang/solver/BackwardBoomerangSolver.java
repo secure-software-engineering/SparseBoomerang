@@ -12,13 +12,13 @@
 package boomerang.solver;
 
 import boomerang.BackwardQuery;
-import boomerang.BoomerangOptions;
 import boomerang.callgraph.CalleeListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.ObservableControlFlowGraph;
 import boomerang.controlflowgraph.PredecessorListener;
 import boomerang.controlflowgraph.SuccessorListener;
 import boomerang.flowfunction.IBackwardFlowFunction;
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import com.google.common.collect.Multimap;
@@ -257,7 +257,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
         }
       }
       if (exitingFact.isReturnLocal()) {
-        if (callSite.isAssign()) {
+        if (callSite.isAssignStmt()) {
           out.add(new Node<>(callSiteEdge, callSite.getLeftOp()));
         }
       }

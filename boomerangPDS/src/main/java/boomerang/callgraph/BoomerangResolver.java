@@ -26,7 +26,7 @@ import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
 public class BoomerangResolver implements ICallerCalleeResolutionStrategy {
-  public static final Factory FACTORY = (solver, cg) -> new BoomerangResolver(solver, cg);
+  public static final Factory FACTORY = BoomerangResolver::new;
 
   private static final Logger logger = LoggerFactory.getLogger(BoomerangResolver.class);
 

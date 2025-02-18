@@ -13,9 +13,9 @@ package test.core;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.Query;
 import boomerang.WeightedBoomerang;
+import boomerang.options.BoomerangOptions;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.*;
 import com.google.common.base.Joiner;
@@ -124,23 +124,11 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
   }
 
   private void runDemandDrivenBackward() {
-    DefaultBoomerangOptions options =
-        new DefaultBoomerangOptions() {
-          @Override
-          public int analysisTimeoutMS() {
-            return analysisTimeout;
-          }
-
-          @Override
-          public boolean onTheFlyCallGraph() {
-            return false;
-          }
-
-          @Override
-          public boolean allowMultipleQueries() {
-            return true;
-          }
-        };
+    BoomerangOptions options =
+        BoomerangOptions.builder()
+            .withAnalysisTimeout(analysisTimeout)
+            .enableAllowMultipleQueries(true)
+            .build();
     solver =
         new Boomerang(
             frameworkScope.getCallGraph(),

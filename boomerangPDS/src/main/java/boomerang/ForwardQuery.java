@@ -11,13 +11,17 @@
  */
 package boomerang;
 
+import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.Val;
 
 public class ForwardQuery extends Query {
 
-  public ForwardQuery(ControlFlowGraph.Edge edge, Val variable) {
+  public ForwardQuery(ControlFlowGraph.Edge edge, AllocVal variable) {
     super(edge, variable);
+  }
+
+  public AllocVal getAllocVal() {
+    return (AllocVal) var();
   }
 
   @Override

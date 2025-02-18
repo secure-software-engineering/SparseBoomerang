@@ -11,15 +11,15 @@
  */
 package ideal;
 
-import boomerang.BoomerangOptions;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.WeightedForwardQuery;
 import boomerang.debugger.Debugger;
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.CallGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DataFlowScope;
 import boomerang.scene.FrameworkScope;
 import boomerang.scene.Val;
+import boomerang.solver.Strategies;
 import java.util.Collection;
 import sync.pds.solver.WeightFunctions;
 import wpds.impl.Weight;
@@ -31,9 +31,8 @@ public abstract class IDEALAnalysisDefinition<W extends Weight> {
    * To place a seed, a pair of access graph and an edge function must be specified. From this node
    * the analysis starts its analysis.
    *
-   * @param method
    * @param stmt The statement over which is iterated over
-   * @return
+   * @return the generated seeds
    */
   public abstract Collection<WeightedForwardQuery<W>> generate(Edge stmt);
 
@@ -65,17 +64,10 @@ public abstract class IDEALAnalysisDefinition<W extends Weight> {
   public abstract Debugger<W> debugger(IDEALSeedSolver<W> idealSeedSolver);
 
   public BoomerangOptions boomerangOptions() {
-    return new DefaultBoomerangOptions() {
-      @Override
-      public StaticFieldStrategy getStaticFieldStrategy() {
-        return StaticFieldStrategy.FLOW_SENSITIVE;
-      }
-
-      @Override
-      public boolean allowMultipleQueries() {
-        return true;
-      }
-    };
+    return BoomerangOptions.builder()
+        .withStaticFieldStrategy(Strategies.StaticFieldStrategy.FLOW_SENSITIVE)
+        .enableAllowMultipleQueries(true)
+        .build();
   }
 
   public IDEALResultHandler getResultHandler() {

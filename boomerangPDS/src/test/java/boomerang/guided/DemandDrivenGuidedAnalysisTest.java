@@ -5,9 +5,11 @@ import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
 import boomerang.guided.targets.*;
+import boomerang.options.BoomerangOptions;
+import boomerang.options.IAllocationSite;
+import boomerang.options.IntAndStringAllocationSite;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.jimple.IntAndStringBoomerangOptions;
 import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.nio.file.Paths;
@@ -354,7 +356,7 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   private boolean isStringOrIntAllocation(Statement stmt) {
-    return stmt.isAssign()
+    return stmt.isAssignStmt()
         && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
   }
 
@@ -372,30 +374,16 @@ public class DemandDrivenGuidedAnalysisTest {
       IDemandDrivenGuidedManager queryManager,
       BackwardQuery query,
       Object... expectedValues) {
+    BoomerangOptions options =
+        BoomerangOptions.builder()
+            .withAllocationSite(allocationSite())
+            .enableAllowMultipleQueries(true)
+            .build();
+
     DemandDrivenGuidedAnalysis demandDrivenGuidedAnalysis =
         new DemandDrivenGuidedAnalysis(
             queryManager,
-            new IntAndStringBoomerangOptions() {
-              @Override
-              public Optional<AllocVal> getAllocationVal(Method m, Statement stmt, Val fact) {
-                if (stmt.isAssign()
-                    && stmt.getLeftOp().equals(fact)
-                    && isStringOrIntAllocation(stmt)) {
-                  return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp()));
-                }
-                return super.getAllocationVal(m, stmt, fact);
-              }
-
-              @Override
-              public int analysisTimeoutMS() {
-                return 5000;
-              }
-
-              @Override
-              public boolean allowMultipleQueries() {
-                return true;
-              }
-            },
+            options,
             scopeFactory.getDataFlowScope(),
             scopeFactory.getCallGraph(),
             scopeFactory);
@@ -421,5 +409,18 @@ public class DemandDrivenGuidedAnalysisTest {
             .collect(Collectors.toSet());
 
     Assert.assertEquals(Sets.newHashSet(expectedValues), collect);
+  }
+
+  private IAllocationSite allocationSite() {
+    return new IntAndStringAllocationSite() {
+
+      @Override
+      public Optional<AllocVal> getAllocationSite(Method m, Statement stmt, Val fact) {
+        if (stmt.isAssignStmt() && stmt.getLeftOp().equals(fact) && isStringOrIntAllocation(stmt)) {
+          return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp()));
+        }
+        return super.getAllocationSite(m, stmt, fact);
+      }
+    };
   }
 }

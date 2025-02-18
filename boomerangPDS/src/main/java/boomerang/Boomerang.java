@@ -11,6 +11,7 @@
  */
 package boomerang;
 
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import sync.pds.solver.OneWeightFunctions;
@@ -27,8 +28,11 @@ public class Boomerang extends WeightedBoomerang<Weight.NoWeight> {
   }
 
   public Boomerang(
-      CallGraph callGraph, DataFlowScope scope, BoomerangOptions opt, FrameworkScope scopeFactory) {
-    super(callGraph, scope, opt, scopeFactory);
+      CallGraph callGraph,
+      DataFlowScope scope,
+      BoomerangOptions options,
+      FrameworkScope scopeFactory) {
+    super(callGraph, scope, options, scopeFactory);
   }
 
   @Override

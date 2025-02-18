@@ -1,6 +1,6 @@
 package boomerang.controlflowgraph;
 
-import boomerang.BoomerangOptions;
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.Method;
 import boomerang.scene.Statement;
 import boomerang.scene.Val;
@@ -8,7 +8,8 @@ import sparse.SparsificationStrategy;
 
 public class StaticCFG implements ObservableControlFlowGraph {
 
-  private final SparsificationStrategy sparsificationStrategy;
+  private final SparsificationStrategy<? extends Method, ? extends Statement>
+      sparsificationStrategy;
 
   private final BoomerangOptions options;
 

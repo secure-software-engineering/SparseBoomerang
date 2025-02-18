@@ -192,7 +192,7 @@ public class IDEALSeedSolver<W extends Weight> {
                                     }
                                   }
                                   if (returnedFact.isReturnLocal()) {
-                                    if (callSite.isAssign()) {
+                                    if (callSite.isAssignStmt()) {
                                       solver
                                           .getCallAutomaton()
                                           .registerListener(

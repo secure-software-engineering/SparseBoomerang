@@ -111,7 +111,7 @@ public abstract class Statement implements Location {
     }
 
     @Override
-    public boolean isAssign() {
+    public boolean isAssignStmt() {
       // TODO Auto-generated method stub
       return false;
     }
@@ -383,13 +383,13 @@ public abstract class Statement implements Location {
   }
 
   public boolean assignsValue(Val value) {
-    if (isAssign()) {
+    if (isAssignStmt()) {
       return getLeftOp().equals(value);
     }
     return false;
   }
 
-  public abstract boolean isAssign();
+  public abstract boolean isAssignStmt();
 
   public abstract Val getLeftOp();
 

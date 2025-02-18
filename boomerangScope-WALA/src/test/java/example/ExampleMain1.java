@@ -13,10 +13,10 @@ package example;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
-import boomerang.DefaultBoomerangOptions;
 import boomerang.Query;
 import boomerang.framework.wala.WALACallGraph;
 import boomerang.framework.wala.WalaFrameworkScope;
+import boomerang.options.BoomerangOptions;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -105,7 +105,7 @@ public class ExampleMain1 {
     // 1. Create a Boomerang solver.
     Boomerang solver =
         new Boomerang(
-            cg, DataFlowScope.INCLUDE_ALL, new DefaultBoomerangOptions(), new WalaFrameworkScope());
+            cg, DataFlowScope.INCLUDE_ALL, BoomerangOptions.DEFAULT(), new WalaFrameworkScope());
 
     // 2. Submit a query to the solver.
     Collection<Query> seeds = scope.computeSeeds();

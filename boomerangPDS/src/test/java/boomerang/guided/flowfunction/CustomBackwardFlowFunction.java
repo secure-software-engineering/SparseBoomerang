@@ -1,7 +1,7 @@
 package boomerang.guided.flowfunction;
 
-import boomerang.DefaultBoomerangOptions;
 import boomerang.flowfunction.DefaultBackwardFlowFunction;
+import boomerang.flowfunction.DefaultBackwardFlowFunctionOptions;
 import boomerang.scene.ControlFlowGraph.Edge;
 import boomerang.scene.DeclaredMethod;
 import boomerang.scene.Method;
@@ -13,8 +13,8 @@ import wpds.interfaces.State;
 
 public class CustomBackwardFlowFunction extends DefaultBackwardFlowFunction {
 
-  public CustomBackwardFlowFunction(DefaultBoomerangOptions opts) {
-    super(opts);
+  public CustomBackwardFlowFunction(DefaultBackwardFlowFunctionOptions options) {
+    super(options);
   }
 
   @Override

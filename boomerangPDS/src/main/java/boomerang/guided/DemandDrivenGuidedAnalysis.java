@@ -2,11 +2,11 @@ package boomerang.guided;
 
 import boomerang.BackwardQuery;
 import boomerang.Boomerang;
-import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
 import boomerang.guided.Specification.QueryDirection;
+import boomerang.options.BoomerangOptions;
 import boomerang.results.AbstractBoomerangResults.Context;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;

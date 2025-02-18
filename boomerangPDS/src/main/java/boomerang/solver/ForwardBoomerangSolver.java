@@ -11,13 +11,13 @@
  */
 package boomerang.solver;
 
-import boomerang.BoomerangOptions;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.callgraph.CalleeListener;
 import boomerang.callgraph.ObservableICFG;
 import boomerang.controlflowgraph.*;
 import boomerang.flowfunction.IForwardFlowFunction;
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.AllocVal;
 import boomerang.scene.ControlFlowGraph;
 import boomerang.scene.ControlFlowGraph.Edge;
@@ -212,7 +212,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
                   public void getPredecessor(Statement pred) {
                     Node<ControlFlowGraph.Edge, Val> curr =
                         new Node<>(new Edge(pred, callSite), query.var());
-                    /**
+                    /*
                      * Transition<Field, INode<Node<Statement, Val>>> fieldTrans = new
                      * Transition<>(new SingleNode<>(curr), emptyField(), new SingleNode<>(curr));
                      * fieldAutomaton.addTransition(fieldTrans);*
@@ -339,7 +339,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
         }
       }
       if (returnedFact.isReturnLocal()) {
-        if (callSite.isAssign()) {
+        if (callSite.isAssignStmt()) {
           out.add(new Node<>(returnSiteStatement, callSite.getLeftOp()));
         }
       }

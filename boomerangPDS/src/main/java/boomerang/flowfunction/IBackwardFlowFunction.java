@@ -46,8 +46,7 @@ public interface IBackwardFlowFunction {
    *
    * @param edge The control-flow graph edge that will be propagated next.
    * @param fact The incoming data-flow fact that reaches the edge.
-   * @return A set of data-flow states (states in the pushdown system, typically of type
-   *     Node<Edge,Val>).
+   * @return A set of data-flow states (states in the pushdown system).
    */
   Collection<State> normalFlow(Edge edge, Val fact);
 
@@ -62,13 +61,12 @@ public interface IBackwardFlowFunction {
    * @param edge Edge that bypasses the call site. edge.getTarget() is the call site,
    *     edge.getStart() is any predecessor
    * @param fact The fact that by-passes the call site.
-   * @return A set of data-flow states (states in the pushdown system, typically of type
-   *     Node<Edge,Val>)
+   * @return A set of data-flow states (states in the pushdown system)
    */
   Collection<State> callToReturnFlow(Edge edge, Val fact);
 
   void setSolver(
-      BackwardBoomerangSolver solver,
+      BackwardBoomerangSolver<?> solver,
       Multimap<Field, Statement> fieldLoadStatements,
       Multimap<Field, Statement> fieldStoreStatements);
 }

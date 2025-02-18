@@ -11,6 +11,7 @@
  */
 package boomerang;
 
+import boomerang.options.BoomerangOptions;
 import boomerang.scene.*;
 import boomerang.scene.ControlFlowGraph.Edge;
 import java.util.Collection;
@@ -23,13 +24,13 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
   private final CallGraph callGraph;
 
   public WholeProgramBoomerang(
-      CallGraph cg, DataFlowScope scope, BoomerangOptions opts, FrameworkScope scopeFactory) {
-    super(cg, scope, opts, scopeFactory);
+      CallGraph cg, DataFlowScope scope, BoomerangOptions options, FrameworkScope scopeFactory) {
+    super(cg, scope, options, scopeFactory);
     this.callGraph = cg;
   }
 
   public WholeProgramBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
-    this(cg, scope, new DefaultBoomerangOptions(), scopeFactory);
+    this(cg, scope, BoomerangOptions.DEFAULT(), scopeFactory);
   }
 
   public void wholeProgramAnalysis() {
@@ -39,9 +40,10 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
           @Override
           protected Collection<? extends Query> generate(Edge cfgEdge) {
             Statement stmt = cfgEdge.getStart();
-            if (stmt.isAssign()) {
+            if (stmt.isAssignStmt()) {
               if (stmt.getRightOp().isNewExpr()) {
-                return Collections.singleton(new ForwardQuery(cfgEdge, stmt.getRightOp()));
+                AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());
+                return Collections.singleton(new ForwardQuery(cfgEdge, allocVal));
               }
             }
             return Collections.emptySet();
@@ -56,7 +58,7 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
     System.out.println("Analyzed methods:\t" + reachableMethodCount);
     System.out.println("Total solvers:\t" + this.getSolvers().size());
     System.out.println("Allocation Sites:\t" + allocationSites);
-    System.out.println(options.statsFactory());
+    System.out.println(getStats());
   }
 
   @Override

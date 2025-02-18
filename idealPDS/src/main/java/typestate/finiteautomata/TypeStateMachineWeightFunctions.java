@@ -140,7 +140,7 @@ public abstract class TypeStateMachineWeightFunctions
 
   protected Collection<WeightedForwardQuery<TransitionFunction>> getLeftSideOf(Edge edge) {
     Statement s = edge.getStart();
-    if (s.isAssign()) {
+    if (s.isAssignStmt()) {
       return Collections.singleton(
           new WeightedForwardQuery<>(
               edge, new AllocVal(s.getLeftOp(), s, s.getRightOp()), initialTransition()));
@@ -151,7 +151,7 @@ public abstract class TypeStateMachineWeightFunctions
   protected Collection<WeightedForwardQuery<TransitionFunction>> generateAtAllocationSiteOf(
       Edge edge, Class allocationSuperType) {
     Statement s = edge.getStart();
-    if (s.isAssign()) {
+    if (s.isAssignStmt()) {
       if (s.getRightOp().isNewExpr()) {
         boomerang.scene.Type newExprType = s.getRightOp().getNewExprType();
         if (newExprType.isSubtypeOf(allocationSuperType.getName())) {
