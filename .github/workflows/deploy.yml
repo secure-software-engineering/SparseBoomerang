@@ -38,26 +38,12 @@ jobs:
         with:
           fetch-depth: 0
 
-       # Semantic versioning
-      - name: Semantic versioning
-        id: versioning
-        uses: paulhatch/semantic-version@v5.1.0
-        with:
-          tag_prefix: ""
-        # A string which, if present in a git commit, indicates that a change represents a
-        # major (breaking) change, supports regular expressions wrapped with '/'
-          major_pattern: "(MAJOR)"
-        # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
-          minor_pattern: "(MINOR)"
-        # A string to determine the format of the version output
-          version_format: "${major}.${minor}.${patch}"
-
       - name: Create branch and update to next SNAPSHOT version
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git checkout -b version_${{ steps.versioning.outputs.version }}_SNAPSHOT
-          mvn build-helper:parse-version versions:set -DnewVersion=\${{ steps.versioning.outputs.version }}-SNAPSHOT versions:commit
+          git checkout -b version_${{ steps.versioning.outputs.version }}_SNAPSHOT master
+          mvn versions:set versions:commit -DnextSnapshot
           git ls-files | grep 'pom.xml$' | xargs git add
           git commit --allow-empty -am "Update version to ${{ steps.versioning.outputs.version }}-SNAPSHOT"
           git push origin version_${{ steps.versioning.outputs.version }}_SNAPSHOT
