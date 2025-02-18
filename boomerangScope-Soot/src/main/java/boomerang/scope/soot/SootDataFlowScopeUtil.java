@@ -5,6 +5,7 @@ import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Method;
 import boomerang.scope.soot.jimple.JimpleDeclaredMethod;
 import boomerang.scope.soot.jimple.JimpleMethod;
+import boomerang.scope.soot.jimple.JimpleWrappedClass;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 import java.util.List;
@@ -38,12 +39,14 @@ public class SootDataFlowScopeUtil {
       @Override
       public boolean isExcluded(DeclaredMethod method) {
         JimpleDeclaredMethod m = (JimpleDeclaredMethod) method;
-        return ((SootClass) m.getDeclaringClass().getDelegate()).isPhantom() || m.isNative();
+        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
+            || m.isNative();
       }
 
       public boolean isExcluded(Method method) {
         JimpleMethod m = (JimpleMethod) method;
-        return ((SootClass) m.getDeclaringClass().getDelegate()).isPhantom() || m.isNative();
+        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
+            || m.isNative();
       }
     };
   }
@@ -59,7 +62,8 @@ public class SootDataFlowScopeUtil {
       public boolean isExcluded(DeclaredMethod method) {
         JimpleDeclaredMethod m = (JimpleDeclaredMethod) method;
         for (Predicate<SootClass> f : classFilters) {
-          if (f.apply((SootClass) m.getDeclaringClass().getDelegate())) {
+          SootClass sootClass = ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate();
+          if (f.apply(sootClass)) {
             return true;
           }
         }
@@ -68,13 +72,15 @@ public class SootDataFlowScopeUtil {
             return true;
           }
         }
-        return ((SootClass) m.getDeclaringClass().getDelegate()).isPhantom() || m.isNative();
+        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
+            || m.isNative();
       }
 
       public boolean isExcluded(Method method) {
         JimpleMethod m = (JimpleMethod) method;
         for (Predicate<SootClass> f : classFilters) {
-          if (f.apply((SootClass) m.getDeclaringClass().getDelegate())) {
+          SootClass sootClass = ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate();
+          if (f.apply(sootClass)) {
             return true;
           }
         }
@@ -83,7 +89,8 @@ public class SootDataFlowScopeUtil {
             return true;
           }
         }
-        return ((SootClass) m.getDeclaringClass().getDelegate()).isPhantom() || m.isNative();
+        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
+            || m.isNative();
       }
     };
   }

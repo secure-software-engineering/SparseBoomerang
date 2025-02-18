@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class CallGraph {
 
-  protected Logger LOGGER = LoggerFactory.getLogger(CallGraph.class);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(CallGraph.class);
   private final Set<Edge> edges = Sets.newHashSet();
   private final Multimap<Statement, Edge> edgesOutOf = HashMultimap.create();
   private final Multimap<Method, Edge> edgesInto = HashMultimap.create();

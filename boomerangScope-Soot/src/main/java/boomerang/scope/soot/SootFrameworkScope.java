@@ -26,10 +26,10 @@ public class SootFrameworkScope implements FrameworkScope {
   protected DataFlowScope dataFlowScope;
 
   public SootFrameworkScope(
-      Scene scene,
-      soot.jimple.toolkits.callgraph.CallGraph callGraph,
-      Collection<SootMethod> entryPoints,
-      DataFlowScope dataFlowScope) {
+      @Nonnull Scene scene,
+      @Nonnull soot.jimple.toolkits.callgraph.CallGraph callGraph,
+      @Nonnull Collection<SootMethod> entryPoints,
+      @Nonnull DataFlowScope dataFlowScope) {
     this.scene = scene;
 
     this.sootCallGraph = new SootCallGraph(callGraph);
@@ -54,7 +54,7 @@ public class SootFrameworkScope implements FrameworkScope {
   public Stream<Method> handleStaticFieldInitializers(Val fact) {
     JimpleStaticFieldVal val = ((JimpleStaticFieldVal) fact);
     return ((JimpleField) val.field())
-        .getSootField().getDeclaringClass().getMethods().stream()
+        .getDelegate().getDeclaringClass().getMethods().stream()
             .filter(SootMethod::hasActiveBody)
             .map(JimpleMethod::of);
   }

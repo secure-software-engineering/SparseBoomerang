@@ -162,11 +162,6 @@ public class JimpleUpMethod extends Method {
   }
 
   @Override
-  public boolean isPublic() {
-    return delegate.isPublic();
-  }
-
-  @Override
   public int hashCode() {
     return Arrays.hashCode(new Object[] {delegate});
   }

@@ -7,6 +7,7 @@ import boomerang.scope.Type;
 import boomerang.scope.WrappedClass;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import soot.SootMethod;
 
 public class JimpleDeclaredMethod extends DeclaredMethod {
@@ -29,11 +30,6 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   }
 
   @Override
-  public String toString() {
-    return delegate.toString();
-  }
-
-  @Override
   public String getName() {
     return delegate.getName();
   }
@@ -41,25 +37,6 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   @Override
   public boolean isStatic() {
     return delegate.isStatic();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    JimpleDeclaredMethod other = (JimpleDeclaredMethod) obj;
-    if (delegate == null) {
-      return other.delegate == null;
-    } else return delegate.equals(other.delegate);
   }
 
   @Override
@@ -102,7 +79,25 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
     return new JimpleType(delegate.getReturnType());
   }
 
-  public Object getDelegate() {
+  public SootMethod getDelegate() {
     return delegate;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    JimpleDeclaredMethod that = (JimpleDeclaredMethod) o;
+    return Objects.equals(delegate, that.delegate);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(delegate);
+  }
+
+  @Override
+  public String toString() {
+    return delegate.toString();
   }
 }

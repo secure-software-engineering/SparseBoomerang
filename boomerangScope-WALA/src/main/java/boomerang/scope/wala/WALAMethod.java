@@ -190,11 +190,6 @@ public class WALAMethod extends Method {
     return delegate.isInit();
   }
 
-  @Override
-  public boolean isPublic() {
-    return delegate.isPublic();
-  }
-
   public Statement getBranchTarget(int target) {
     return cfg.getBranchTarget(target);
   }
