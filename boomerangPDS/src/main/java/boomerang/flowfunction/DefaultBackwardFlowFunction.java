@@ -74,7 +74,7 @@ public class DefaultBackwardFlowFunction implements IBackwardFlowFunction {
       i++;
     }
 
-    if (callSite.isAssign() && calleeSp.isReturnStmt()) {
+    if (callSite.isAssignStmt() && calleeSp.isReturnStmt()) {
       if (callSite.getLeftOp().equals(fact)) {
         out.add(calleeSp.getReturnOp());
       }
@@ -97,7 +97,7 @@ public class DefaultBackwardFlowFunction implements IBackwardFlowFunction {
     Set<State> out = Sets.newHashSet();
 
     boolean leftSideMatches = false;
-    if (curr.isAssign()) {
+    if (curr.isAssignStmt()) {
       Val leftOp = curr.getLeftOp();
       Val rightOp = curr.getRightOp();
       if (leftOp.equals(fact)) {

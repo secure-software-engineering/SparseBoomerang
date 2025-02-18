@@ -356,7 +356,7 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   private boolean isStringOrIntAllocation(Statement stmt) {
-    return stmt.isAssign()
+    return stmt.isAssignStmt()
         && (stmt.getRightOp().isIntConstant() || stmt.getRightOp().isStringConstant());
   }
 
@@ -416,7 +416,7 @@ public class DemandDrivenGuidedAnalysisTest {
 
       @Override
       public Optional<AllocVal> getAllocationSite(Method m, Statement stmt, Val fact) {
-        if (stmt.isAssign() && stmt.getLeftOp().equals(fact) && isStringOrIntAllocation(stmt)) {
+        if (stmt.isAssignStmt() && stmt.getLeftOp().equals(fact) && isStringOrIntAllocation(stmt)) {
           return Optional.of(new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp()));
         }
         return super.getAllocationSite(m, stmt, fact);

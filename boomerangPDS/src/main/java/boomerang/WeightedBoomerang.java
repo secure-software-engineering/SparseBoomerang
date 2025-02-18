@@ -226,7 +226,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
   protected void handleMapsBackward(Node<Edge, Val> node) {
     Statement rstmt = node.stmt().getStart();
-    if (rstmt.isAssign()
+    if (rstmt.isAssignStmt()
         && rstmt.containsInvokeExpr()
         && rstmt.getInvokeExpr().toString().contains(MAP_GET_SUB_SIGNATURE)) {
       if (rstmt.getLeftOp().equals(node.fact())) {
@@ -291,7 +291,7 @@ public abstract class WeightedBoomerang<W extends Weight> {
   protected void handleMapsForward(ForwardBoomerangSolver<W> solver, Node<Edge, Val> node) {
     Statement rstmt = node.stmt().getTarget();
     if (rstmt.containsInvokeExpr()) {
-      if (rstmt.isAssign() && rstmt.getInvokeExpr().toString().contains(MAP_GET_SUB_SIGNATURE)) {
+      if (rstmt.isAssignStmt() && rstmt.getInvokeExpr().toString().contains(MAP_GET_SUB_SIGNATURE)) {
         if (rstmt.getInvokeExpr().getBase().equals(node.fact())) {
           BackwardQuery bwq = BackwardQuery.make(node.stmt(), rstmt.getInvokeExpr().getArg(0));
           backwardSolve(bwq);

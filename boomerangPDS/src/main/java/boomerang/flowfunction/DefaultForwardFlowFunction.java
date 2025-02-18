@@ -107,7 +107,7 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
     } else {
       out.add(new ExclusionNode<>(nextEdge, fact, succ.getWrittenField()));
     }
-    if (succ.isAssign()) {
+    if (succ.isAssignStmt()) {
       Val leftOp = succ.getLeftOp();
       Val rightOp = succ.getRightOp();
       if (rightOp.equals(fact)) {
@@ -177,7 +177,7 @@ public class DefaultForwardFlowFunction implements IForwardFlowFunction {
       return true;
     }
 
-    if (curr.isAssign()) {
+    if (curr.isAssignStmt()) {
       // Kill x at any statement x = * during propagation.
       if (curr.getLeftOp().equals(value)) {
         // But not for a statement x = x.f

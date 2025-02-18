@@ -72,7 +72,7 @@ public class WALAUnitializedFieldStatement extends WALAStatement {
   }
 
   @Override
-  public boolean isAssign() {
+  public boolean isAssignStmt() {
     return true;
   }
 

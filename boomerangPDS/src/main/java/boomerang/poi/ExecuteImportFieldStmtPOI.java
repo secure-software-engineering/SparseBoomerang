@@ -194,7 +194,7 @@ public abstract class ExecuteImportFieldStmtPOI<W extends Weight> {
           .asUnbalanced(null)
           .equals(t.getTarget().fact().asUnbalanced(null))) return;*/
       if (callSite.containsInvokeExpr()) {
-        if (callSite.isAssign() && callSite.getLeftOp().equals(t.getStart().fact())) return;
+        if (callSite.isAssignStmt() && callSite.getLeftOp().equals(t.getStart().fact())) return;
         if (callSite.uses(t.getStart().fact())) {
           importSolvers(edge, t.getStart(), t.getTarget(), w);
         }

@@ -41,7 +41,7 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            CUSTOM_OPTIONS(),
+            customOptions(),
             scopeFactory);
 
     System.out.println("Solving query: " + query);
@@ -76,7 +76,7 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            CUSTOM_OPTIONS(),
+            customOptions(),
             scopeFactory);
 
     System.out.println("Solving query: " + query);
@@ -100,7 +100,7 @@ public class CustomFlowFunctionTest {
         new Boomerang(
             scopeFactory.getCallGraph(),
             scopeFactory.getDataFlowScope(),
-            CUSTOM_OPTIONS(),
+            customOptions(),
             scopeFactory);
 
     System.out.println("Solving query: " + query);
@@ -140,7 +140,7 @@ public class CustomFlowFunctionTest {
     method.getStatements().forEach(x -> System.out.println(x.toString()));
     Statement intAssignStmt =
         method.getStatements().stream()
-            .filter(x -> x.isAssign() && !x.getLeftOp().getType().isRefType())
+            .filter(x -> x.isAssignStmt() && !x.getLeftOp().getType().isRefType())
             .findFirst()
             .get();
     AllocVal arg =
@@ -152,7 +152,7 @@ public class CustomFlowFunctionTest {
     return new ForwardQuery(cfgEdge, arg);
   }
 
-  private static BoomerangOptions CUSTOM_OPTIONS() {
+  private static BoomerangOptions customOptions() {
     return BoomerangOptions.builder()
         .withAllocationSite(new IntAndStringAllocationSite())
         .withForwardFlowFunction(

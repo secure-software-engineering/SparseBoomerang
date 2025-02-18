@@ -115,7 +115,7 @@ public class Main {
                   @Override
                   public Collection<WeightedForwardQuery<InferenceWeight>> generate(Edge edge) {
                     Statement stmt = edge.getStart();
-                    if (stmt.isAssign()) {
+                    if (stmt.isAssignStmt()) {
                       if (stmt.getRightOp().isNewExpr()
                           && stmt.getRightOp()
                               .getType()

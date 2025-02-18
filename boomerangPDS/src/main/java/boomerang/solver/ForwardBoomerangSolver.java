@@ -339,7 +339,7 @@ public abstract class ForwardBoomerangSolver<W extends Weight> extends AbstractB
         }
       }
       if (returnedFact.isReturnLocal()) {
-        if (callSite.isAssign()) {
+        if (callSite.isAssignStmt()) {
           out.add(new Node<>(returnSiteStatement, callSite.getLeftOp()));
         }
       }

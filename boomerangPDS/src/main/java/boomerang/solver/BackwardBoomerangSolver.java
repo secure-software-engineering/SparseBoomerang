@@ -257,7 +257,7 @@ public abstract class BackwardBoomerangSolver<W extends Weight> extends Abstract
         }
       }
       if (exitingFact.isReturnLocal()) {
-        if (callSite.isAssign()) {
+        if (callSite.isAssignStmt()) {
           out.add(new Node<>(callSiteEdge, callSite.getLeftOp()));
         }
       }
