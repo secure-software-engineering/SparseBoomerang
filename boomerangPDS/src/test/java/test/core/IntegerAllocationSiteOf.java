@@ -10,7 +10,7 @@ import java.util.Optional;
 class IntegerAllocationSiteOf implements ValueOfInterestInUnit {
   public Optional<? extends Query> test(Edge cfgEdge) {
     Statement stmt = cfgEdge.getStart();
-    if (stmt.isAssign()) {
+    if (stmt.isAssignStmt()) {
       if (stmt.getLeftOp().toString().contains("allocation")) {
         if (stmt.getLeftOp().isLocal() && stmt.getRightOp().isIntConstant()) {
           AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());

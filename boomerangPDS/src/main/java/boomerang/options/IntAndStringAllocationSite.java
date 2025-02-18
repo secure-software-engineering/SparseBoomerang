@@ -11,7 +11,7 @@ public class IntAndStringAllocationSite extends DefaultAllocationSite {
 
   @Override
   public Optional<AllocVal> getAllocationSite(Method method, Statement statement, Val fact) {
-    if (!statement.isAssign()) {
+    if (!statement.isAssignStmt()) {
       return Optional.empty();
     }
 

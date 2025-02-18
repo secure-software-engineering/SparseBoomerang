@@ -133,11 +133,11 @@ public class JimpleStatement extends Statement {
   }
 
   public boolean isFieldWriteWithBase(Val base) {
-    if (isAssign() && isFieldStore()) {
+    if (isAssignStmt() && isFieldStore()) {
       Pair<Val, Field> instanceFieldRef = getFieldStore();
       return instanceFieldRef.getX().equals(base);
     }
-    if (isAssign() && isArrayStore()) {
+    if (isAssignStmt() && isArrayStore()) {
       Pair<Val, Integer> arrayBase = getArrayBase();
       return arrayBase.getX().equals(base);
     }
@@ -151,31 +151,31 @@ public class JimpleStatement extends Statement {
   }
 
   public boolean isFieldLoadWithBase(Val base) {
-    if (isAssign() && isFieldLoad()) {
+    if (isAssignStmt() && isFieldLoad()) {
       return getFieldLoad().getX().equals(base);
     }
     return false;
   }
 
   @Override
-  public boolean isAssign() {
+  public boolean isAssignStmt() {
     return delegate instanceof AssignStmt;
   }
 
   public Val getLeftOp() {
-    assert isAssign();
+    assert isAssignStmt();
     AssignStmt assignStmt = (AssignStmt) delegate;
     return new JimpleVal(assignStmt.getLeftOp(), method);
   }
 
   public Val getRightOp() {
-    assert isAssign();
+    assert isAssignStmt();
     AssignStmt assignStmt = (AssignStmt) delegate;
     return new JimpleVal(assignStmt.getRightOp(), method);
   }
 
   public boolean isInstanceOfStatement(Val fact) {
-    if (isAssign()) {
+    if (isAssignStmt()) {
       if (getRightOp().isInstanceOfExpr()) {
         Val instanceOfOp = getRightOp().getInstanceOfOp();
         return instanceOfOp.equals(fact);
@@ -269,14 +269,14 @@ public class JimpleStatement extends Statement {
     if (containsInvokeExpr()) {
       InvokeExpr invokeExpr = getInvokeExpr();
       if (invokeExpr.isStaticInvokeExpr()) {
-        return (isAssign() ? getLeftOp() + " = " : "")
+        return (isAssignStmt() ? getLeftOp() + " = " : "")
             + invokeExpr.getMethod()
             + "("
             + invokeExpr.getArgs().toString().replace("[", "").replace("]", "")
             + ")";
       }
       if (invokeExpr.isInstanceInvokeExpr()) {
-        return (isAssign() ? getLeftOp() + " = " : "")
+        return (isAssignStmt() ? getLeftOp() + " = " : "")
             + invokeExpr.getBase()
             + "."
             + invokeExpr.getMethod()

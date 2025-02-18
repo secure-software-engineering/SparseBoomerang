@@ -204,7 +204,7 @@ public class NullPointerDereference implements AffectedLocation {
         }
       }
     }
-    if (curr.isAssign()) {
+    if (curr.isAssignStmt()) {
       if (curr.isFieldLoad()) {
         Pair<Val, Field> ifr = curr.getFieldLoad();
         if (ifr.getX().equals(fact)) {

@@ -24,13 +24,13 @@ public class PathTrackingWeightFunctions
   public DataFlowPathWeight push(Node<Edge, Val> curr, Node<Edge, Val> succ, Edge callSite) {
     if (trackDataFlowPath && !curr.fact().isStatic()) {
       if (callSite.getStart().uses(curr.fact())) {
-        if (implicitBooleanCondition && callSite.getTarget().isAssign()) {
+        if (implicitBooleanCondition && callSite.getTarget().isAssignStmt()) {
           return new DataFlowPathWeight(
               new Node<>(callSite, curr.fact()), callSite.getStart(), succ.stmt().getMethod());
         }
         return new DataFlowPathWeight(new Node<>(callSite, curr.fact()));
       }
-      if (implicitBooleanCondition && callSite.getStart().isAssign()) {
+      if (implicitBooleanCondition && callSite.getStart().isAssignStmt()) {
         return new DataFlowPathWeight(callSite.getStart(), succ.stmt().getMethod());
       }
     }
@@ -52,7 +52,7 @@ public class PathTrackingWeightFunctions
       return new DataFlowPathWeight(succ);
     }
     if (implicitBooleanCondition
-        && curr.stmt().getTarget().isAssign()
+        && curr.stmt().getTarget().isAssignStmt()
         && curr.stmt().getTarget().getLeftOp().getType().isBooleanType()) {
       return new DataFlowPathWeight(
           curr.stmt().getTarget().getLeftOp(),

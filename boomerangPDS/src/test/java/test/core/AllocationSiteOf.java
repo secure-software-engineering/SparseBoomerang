@@ -18,7 +18,7 @@ class AllocationSiteOf implements ValueOfInterestInUnit {
 
   public Optional<Query> test(Edge cfgEdge) {
     Statement stmt = cfgEdge.getStart();
-    if (stmt.isAssign()) {
+    if (stmt.isAssignStmt()) {
       if (stmt.getLeftOp().isLocal() && stmt.getRightOp().isNewExpr()) {
         Type expr = stmt.getRightOp().getNewExprType();
         if (expr.isSubtypeOf(type)) {

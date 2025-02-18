@@ -10,7 +10,7 @@ public class DefaultAllocationSite implements IAllocationSite {
 
   @Override
   public Optional<AllocVal> getAllocationSite(Method method, Statement statement, Val fact) {
-    if (!statement.isAssign()) {
+    if (!statement.isAssignStmt()) {
       return Optional.empty();
     }
 

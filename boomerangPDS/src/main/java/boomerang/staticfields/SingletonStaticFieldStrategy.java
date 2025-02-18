@@ -30,7 +30,7 @@ public class SingletonStaticFieldStrategy implements StaticFieldHandlingStrategy
   public void handleForward(
       Edge storeStmt, Val storedVal, StaticFieldVal staticVal, Set<State> out) {
     for (Statement matchingStore : fieldLoadStatements.get(staticVal.field())) {
-      if (matchingStore.isAssign()) {
+      if (matchingStore.isAssignStmt()) {
         for (Statement succ :
             matchingStore.getMethod().getControlFlowGraph().getSuccsOf(matchingStore)) {
           solver.processNormal(

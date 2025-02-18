@@ -40,7 +40,7 @@ public class CustomFlowFunctionTest {
     Method m = scopeFactory.resolveMethod(s);
     BackwardQuery query = selectQueryForStatement(m);
 
-    Boomerang solver = new Boomerang(scopeFactory, CUSTOM_OPTIONS());
+    Boomerang solver = new Boomerang(scopeFactory, customOptions());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -70,7 +70,7 @@ public class CustomFlowFunctionTest {
     Method m = scopeFactory.resolveMethod(s);
     BackwardQuery query = selectQueryForStatement(m);
 
-    Boomerang solver = new Boomerang(scopeFactory, CUSTOM_OPTIONS());
+    Boomerang solver = new Boomerang(scopeFactory, customOptions());
 
     System.out.println("Solving query: " + query);
     BackwardBoomerangResults<NoWeight> backwardQueryResults = solver.solve(query);
@@ -89,7 +89,7 @@ public class CustomFlowFunctionTest {
     Method m = scopeFactory.resolveMethod(s);
     ForwardQuery query = selectFirstIntAssignment(m);
 
-    Boomerang solver = new Boomerang(scopeFactory, CUSTOM_OPTIONS());
+    Boomerang solver = new Boomerang(scopeFactory, customOptions());
 
     System.out.println("Solving query: " + query);
     ForwardBoomerangResults<NoWeight> res = solver.solve(query);
@@ -128,7 +128,7 @@ public class CustomFlowFunctionTest {
     method.getStatements().forEach(x -> System.out.println(x.toString()));
     Statement intAssignStmt =
         method.getStatements().stream()
-            .filter(x -> x.isAssign() && !x.getLeftOp().getType().isRefType())
+            .filter(x -> x.isAssignStmt() && !x.getLeftOp().getType().isRefType())
             .findFirst()
             .get();
     AllocVal arg =
@@ -140,7 +140,7 @@ public class CustomFlowFunctionTest {
     return new ForwardQuery(cfgEdge, arg);
   }
 
-  private static BoomerangOptions CUSTOM_OPTIONS() {
+  private static BoomerangOptions customOptions() {
     return BoomerangOptions.builder()
         .withAllocationSite(new IntAndStringAllocationSite())
         .withForwardFlowFunction(

@@ -74,7 +74,7 @@ public class HasNextStateMachine extends TypeStateMachineWeightFunctions {
 
   public Set<WeightedForwardQuery<TransitionFunction>> generateSeed(Edge edge) {
     Statement unit = edge.getStart();
-    if (unit.containsInvokeExpr() && unit.isAssign()) {
+    if (unit.containsInvokeExpr() && unit.isAssignStmt()) {
       InvokeExpr invokeExpr = unit.getInvokeExpr();
       if (invokeExpr.isInstanceInvokeExpr()) {
         if (invokeExpr.getMethod().getName().contains("iterator")) {

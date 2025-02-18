@@ -24,7 +24,7 @@ public class AllocVal extends Val {
   }
 
   public String toString() {
-    if (allocStatement.isAssign()) {
+    if (allocStatement.isAssignStmt()) {
       if (allocStatement.getRightOp().isIntConstant()) {
         return delegate + " Value (int): " + allocStatement.getRightOp().getIntValue();
       }

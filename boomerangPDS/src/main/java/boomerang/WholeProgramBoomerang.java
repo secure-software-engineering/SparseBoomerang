@@ -43,7 +43,7 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
           @Override
           protected Collection<? extends Query> generate(Edge cfgEdge) {
             Statement stmt = cfgEdge.getStart();
-            if (stmt.isAssign()) {
+            if (stmt.isAssignStmt()) {
               if (stmt.getRightOp().isNewExpr()) {
                 AllocVal allocVal = new AllocVal(stmt.getLeftOp(), stmt, stmt.getRightOp());
                 return Collections.singleton(new ForwardQuery(cfgEdge, allocVal));

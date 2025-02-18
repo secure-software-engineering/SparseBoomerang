@@ -86,7 +86,7 @@ public class WALADummyNullStatement extends WALAStatement {
   }
 
   @Override
-  public boolean isAssign() {
+  public boolean isAssignStmt() {
     return true;
   }
 

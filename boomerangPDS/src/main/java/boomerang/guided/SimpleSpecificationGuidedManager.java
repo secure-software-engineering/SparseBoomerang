@@ -111,7 +111,7 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
       return stmt.getInvokeExpr().getBase().equals(fact);
     }
     if (argumentSelection.equals(Parameter.returnParam())) {
-      return stmt.isAssign() && stmt.getLeftOp().equals(fact);
+      return stmt.isAssignStmt() && stmt.getLeftOp().equals(fact);
     }
     return stmt.getInvokeExpr().getArgs().size() > argumentSelection.getValue()
         && argumentSelection.getValue() >= 0
@@ -124,7 +124,7 @@ public class SimpleSpecificationGuidedManager implements IDemandDrivenGuidedMana
         && selector.equals(Parameter.base())) {
       return Optional.of(stmt.getInvokeExpr().getBase());
     }
-    if (stmt.isAssign() && selector.equals(Parameter.returnParam())) {
+    if (stmt.isAssignStmt() && selector.equals(Parameter.returnParam())) {
       return Optional.of(stmt.getLeftOp());
     }
     if (stmt.getInvokeExpr().getArgs().size() > selector.getValue() && selector.getValue() >= 0) {

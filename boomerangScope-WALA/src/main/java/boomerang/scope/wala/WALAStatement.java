@@ -127,7 +127,7 @@ public class WALAStatement extends Statement {
   }
 
   @Override
-  public boolean isAssign() {
+  public boolean isAssignStmt() {
     return isFieldLoad()
         || isFieldStore()
         || isAllocationStatement()
