@@ -2,41 +2,30 @@ package boomerang.scope.soot.jimple;
 
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.InvokeExpr;
-import boomerang.scope.Method;
 import boomerang.scope.Type;
 import boomerang.scope.WrappedClass;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import soot.SootMethod;
+import soot.SootMethodRef;
 
 public class JimpleDeclaredMethod extends DeclaredMethod {
 
-  private final SootMethod delegate;
+  private final SootMethodRef delegate;
 
-  public JimpleDeclaredMethod(InvokeExpr inv, SootMethod method) {
+  public JimpleDeclaredMethod(InvokeExpr inv, SootMethodRef method) {
     super(inv);
     this.delegate = method;
   }
 
   @Override
-  public boolean isNative() {
-    return delegate.isNative();
-  }
-
-  @Override
   public String getSubSignature() {
-    return delegate.getSubSignature();
+    return delegate.getSubSignature().getString();
   }
 
   @Override
   public String getName() {
     return delegate.getName();
-  }
-
-  @Override
-  public boolean isStatic() {
-    return delegate.isStatic();
   }
 
   @Override
@@ -47,11 +36,6 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
   @Override
   public String getSignature() {
     return delegate.getSignature();
-  }
-
-  @Override
-  public Method getCalledMethod() {
-    return JimpleMethod.of(delegate);
   }
 
   @Override
@@ -79,7 +63,7 @@ public class JimpleDeclaredMethod extends DeclaredMethod {
     return new JimpleType(delegate.getReturnType());
   }
 
-  public SootMethod getDelegate() {
+  public SootMethodRef getDelegate() {
     return delegate;
   }
 

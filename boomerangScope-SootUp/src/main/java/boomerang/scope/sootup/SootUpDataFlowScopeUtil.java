@@ -70,9 +70,10 @@ public class SootUpDataFlowScopeUtil {
           }
         }
         for (Predicate<JavaSootMethod> f : methodFilters) {
-          if (f.apply(m.getDelegate())) {
-            return true;
-          }
+          // TODO
+          // if (f.apply(m.getDelegate())) {
+          //  return true;
+          // }
         }
         return m.getDeclaringClass() instanceof SootUpFrameworkScope.PhantomClass;
       }

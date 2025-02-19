@@ -38,8 +38,7 @@ public class JimplePhantomMethod extends Method {
 
   @Override
   public boolean isParameterLocal(Val val) {
-    List<Val> parameterLocals = getParameterLocals();
-    return parameterLocals.contains(val);
+    return false;
   }
 
   @Override
@@ -79,7 +78,8 @@ public class JimplePhantomMethod extends Method {
 
   @Override
   public List<Val> getParameterLocals() {
-    throw new RuntimeException("Parameter locals of phantom method are not available");
+    throw new RuntimeException(
+        "Parameter locals of phantom method " + delegate + " are not available");
   }
 
   @Override
@@ -109,7 +109,7 @@ public class JimplePhantomMethod extends Method {
 
   @Override
   public ControlFlowGraph getControlFlowGraph() {
-    throw new RuntimeException("CFG of phantom method is not available");
+    throw new RuntimeException("CFG of phantom method " + delegate + " is not available");
   }
 
   @Override

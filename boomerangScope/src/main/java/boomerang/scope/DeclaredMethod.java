@@ -11,20 +11,13 @@ public abstract class DeclaredMethod {
     this.inv = inv;
   }
 
-  // TODO May be removed
-  public abstract boolean isNative();
-
   public abstract String getSubSignature();
 
   public abstract String getName();
 
-  public abstract boolean isStatic();
-
   public abstract boolean isConstructor();
 
   public abstract String getSignature();
-
-  public abstract Method getCalledMethod();
 
   public abstract WrappedClass getDeclaringClass();
 

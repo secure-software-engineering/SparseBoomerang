@@ -64,9 +64,10 @@ public class SootDataFlowScopeUtil {
           }
         }
         for (Predicate<SootMethod> f : methodFilters) {
-          if (f.apply((SootMethod) m.getDelegate())) {
-            return true;
-          }
+          // TODO
+          // if (f.apply((SootMethod) m.getDelegate())) {
+          //  return true;
+          // }
         }
         return m.getDeclaringClass().isPhantom();
       }
