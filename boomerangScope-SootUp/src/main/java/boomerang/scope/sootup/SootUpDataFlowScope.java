@@ -19,13 +19,13 @@ public class SootUpDataFlowScope {
       public boolean isExcluded(DeclaredMethod method) {
         WrappedClass declaringClass = method.getDeclaringClass();
 
-        return method.isNative() || !declaringClass.isApplicationClass();
+        return !declaringClass.isApplicationClass();
       }
 
       public boolean isExcluded(Method method) {
         WrappedClass declaringClass = method.getDeclaringClass();
 
-        return method.isNative() || !declaringClass.isApplicationClass();
+        return method.isPhantom() || !declaringClass.isApplicationClass();
       }
     };
   }

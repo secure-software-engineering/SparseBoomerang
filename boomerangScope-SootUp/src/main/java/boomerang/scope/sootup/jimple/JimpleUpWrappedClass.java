@@ -66,6 +66,12 @@ public class JimpleUpWrappedClass implements WrappedClass {
     return delegate.getName();
   }
 
+  @Override
+  public boolean isPhantom() {
+    // TODO May change
+    return false;
+  }
+
   public JavaSootClass getDelegate() {
     return delegate;
   }

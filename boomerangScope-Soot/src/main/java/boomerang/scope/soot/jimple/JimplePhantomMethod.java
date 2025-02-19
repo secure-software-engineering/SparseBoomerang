@@ -6,41 +6,29 @@ import boomerang.scope.Statement;
 import boomerang.scope.Type;
 import boomerang.scope.Val;
 import boomerang.scope.WrappedClass;
-import com.google.common.collect.Interner;
-import com.google.common.collect.Interners;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import soot.Local;
 import soot.SootMethod;
-import soot.util.Chain;
 
 /**
- * Class that wraps a {@link SootMethod} with an existing body. All operations provide their
- * corresponding information.
+ * Class that wraps a {@link SootMethod} without an existing body. Operations that require
+ * information from the body throw an exception.
  */
-public class JimpleMethod extends Method {
+public class JimplePhantomMethod extends Method {
 
   private final SootMethod delegate;
 
-  protected static Interner<JimpleMethod> INTERNAL_POOL = Interners.newWeakInterner();
-  protected ControlFlowGraph cfg;
-  private List<Val> parameterLocalCache;
-  private Collection<Val> localCache;
-
-  protected JimpleMethod(SootMethod delegate) {
+  protected JimplePhantomMethod(SootMethod delegate) {
     this.delegate = delegate;
-    if (!delegate.hasActiveBody()) {
-      throw new RuntimeException(
-          "Trying to build a Jimple method for " + delegate + " without active body present");
+    if (delegate.hasActiveBody()) {
+      throw new RuntimeException("Building phantom method " + delegate + " with existing body");
     }
   }
 
-  public static JimpleMethod of(SootMethod m) {
-    return INTERNAL_POOL.intern(new JimpleMethod(m));
+  public static JimplePhantomMethod of(SootMethod delegate) {
+    return new JimplePhantomMethod(delegate);
   }
 
   @Override
@@ -50,11 +38,6 @@ public class JimpleMethod extends Method {
 
   @Override
   public boolean isParameterLocal(Val val) {
-    if (val.isStatic()) return false;
-    if (!delegate.hasActiveBody()) {
-      throw new RuntimeException("Soot Method has no active body");
-    }
-
     List<Val> parameterLocals = getParameterLocals();
     return parameterLocals.contains(val);
   }
@@ -81,41 +64,22 @@ public class JimpleMethod extends Method {
 
   @Override
   public boolean isThisLocal(Val val) {
-    if (val.isStatic()) return false;
-    if (!delegate.hasActiveBody()) {
-      throw new RuntimeException("Soot Method has no active body");
-    }
-    if (delegate.isStatic()) return false;
-    Val parameterLocals = getThisLocal();
-    return parameterLocals.equals(val);
+    return false;
   }
 
   @Override
   public Collection<Val> getLocals() {
-    if (localCache == null) {
-      localCache = Sets.newHashSet();
-      Chain<Local> locals = delegate.getActiveBody().getLocals();
-      for (Local l : locals) {
-        localCache.add(new JimpleVal(l, this));
-      }
-    }
-    return localCache;
+    throw new RuntimeException("Locals of phantom method are not available");
   }
 
   @Override
   public Val getThisLocal() {
-    return new JimpleVal(delegate.getActiveBody().getThisLocal(), this);
+    throw new RuntimeException("this local of phantom method is not available");
   }
 
   @Override
   public List<Val> getParameterLocals() {
-    if (parameterLocalCache == null) {
-      parameterLocalCache = Lists.newArrayList();
-      for (Local v : delegate.getActiveBody().getParameterLocals()) {
-        parameterLocalCache.add(new JimpleVal(v, this));
-      }
-    }
-    return parameterLocalCache;
+    throw new RuntimeException("Parameter locals of phantom method are not available");
   }
 
   @Override
@@ -125,17 +89,17 @@ public class JimpleMethod extends Method {
 
   @Override
   public boolean isDefined() {
-    return true;
-  }
-
-  @Override
-  public boolean isPhantom() {
     return false;
   }
 
   @Override
+  public boolean isPhantom() {
+    return true;
+  }
+
+  @Override
   public List<Statement> getStatements() {
-    return getControlFlowGraph().getStatements();
+    throw new RuntimeException("Statements of phantom method " + delegate + " are not available");
   }
 
   @Override
@@ -145,10 +109,7 @@ public class JimpleMethod extends Method {
 
   @Override
   public ControlFlowGraph getControlFlowGraph() {
-    if (cfg == null) {
-      cfg = new JimpleControlFlowGraph(this);
-    }
-    return cfg;
+    throw new RuntimeException("CFG of phantom method is not available");
   }
 
   @Override
@@ -166,15 +127,11 @@ public class JimpleMethod extends Method {
     return delegate.isConstructor();
   }
 
-  public SootMethod getDelegate() {
-    return delegate;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    JimpleMethod that = (JimpleMethod) o;
+    JimplePhantomMethod that = (JimplePhantomMethod) o;
     return Objects.equals(delegate, that.delegate);
   }
 
@@ -185,6 +142,6 @@ public class JimpleMethod extends Method {
 
   @Override
   public String toString() {
-    return delegate != null ? delegate.toString() : "METHOD_EPS";
+    return "PHANTOM:" + delegate.toString();
   }
 }

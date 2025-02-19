@@ -41,15 +41,14 @@ public class SootUpDataFlowScopeUtil {
       public boolean isExcluded(DeclaredMethod method) {
         JimpleUpDeclaredMethod m = (JimpleUpDeclaredMethod) method;
         return ((JimpleUpWrappedClass) m.getDeclaringClass()).getDelegate()
-                instanceof SootUpFrameworkScope.PhantomClass
-            || m.isNative();
+            instanceof SootUpFrameworkScope.PhantomClass;
       }
 
       public boolean isExcluded(Method method) {
         JimpleUpMethod m = (JimpleUpMethod) method;
         return ((JimpleUpWrappedClass) m.getDeclaringClass()).getDelegate()
                 instanceof SootUpFrameworkScope.PhantomClass
-            || m.isNative();
+            || m.isPhantom();
       }
     };
   }
@@ -75,7 +74,7 @@ public class SootUpDataFlowScopeUtil {
             return true;
           }
         }
-        return m.getDeclaringClass() instanceof SootUpFrameworkScope.PhantomClass || m.isNative();
+        return m.getDeclaringClass() instanceof SootUpFrameworkScope.PhantomClass;
       }
 
       public boolean isExcluded(Method method) {
@@ -91,7 +90,7 @@ public class SootUpDataFlowScopeUtil {
             return true;
           }
         }
-        return m.getDeclaringClass() instanceof SootUpFrameworkScope.PhantomClass || m.isNative();
+        return m.getDeclaringClass() instanceof SootUpFrameworkScope.PhantomClass || m.isPhantom();
       }
     };
   }

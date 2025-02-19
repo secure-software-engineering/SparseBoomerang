@@ -69,8 +69,13 @@ public abstract class Method implements Location {
             }
 
             @Override
-            public boolean isNative() {
+            public boolean isDefined() {
               return false;
+            }
+
+            @Override
+            public boolean isPhantom() {
+              return true;
             }
 
             @Override
@@ -131,7 +136,9 @@ public abstract class Method implements Location {
 
   public abstract boolean isStatic();
 
-  public abstract boolean isNative();
+  public abstract boolean isDefined();
+
+  public abstract boolean isPhantom();
 
   public abstract List<Statement> getStatements();
 

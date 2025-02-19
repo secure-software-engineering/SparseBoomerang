@@ -38,15 +38,11 @@ public class SootDataFlowScopeUtil {
     return new DataFlowScope() {
       @Override
       public boolean isExcluded(DeclaredMethod method) {
-        JimpleDeclaredMethod m = (JimpleDeclaredMethod) method;
-        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
-            || m.isNative();
+        return method.getDeclaringClass().isPhantom();
       }
 
       public boolean isExcluded(Method method) {
-        JimpleMethod m = (JimpleMethod) method;
-        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
-            || m.isNative();
+        return method.getDeclaringClass().isPhantom();
       }
     };
   }
@@ -72,8 +68,7 @@ public class SootDataFlowScopeUtil {
             return true;
           }
         }
-        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
-            || m.isNative();
+        return m.getDeclaringClass().isPhantom();
       }
 
       public boolean isExcluded(Method method) {
@@ -89,8 +84,7 @@ public class SootDataFlowScopeUtil {
             return true;
           }
         }
-        return ((JimpleWrappedClass) m.getDeclaringClass()).getDelegate().isPhantom()
-            || m.isNative();
+        return m.getDeclaringClass().isPhantom() || m.isPhantom();
       }
     };
   }

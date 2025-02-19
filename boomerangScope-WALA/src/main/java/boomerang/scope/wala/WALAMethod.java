@@ -120,8 +120,13 @@ public class WALAMethod extends Method {
   }
 
   @Override
-  public boolean isNative() {
-    return delegate.isNative();
+  public boolean isDefined() {
+    return true;
+  }
+
+  @Override
+  public boolean isPhantom() {
+    return false;
   }
 
   @Override

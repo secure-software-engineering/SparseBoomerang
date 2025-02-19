@@ -51,6 +51,11 @@ public class JimpleWrappedClass implements WrappedClass {
     return delegate.getName();
   }
 
+  @Override
+  public boolean isPhantom() {
+    return delegate.isPhantom();
+  }
+
   public SootClass getDelegate() {
     return delegate;
   }

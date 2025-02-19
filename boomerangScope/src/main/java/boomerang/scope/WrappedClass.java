@@ -15,4 +15,6 @@ public interface WrappedClass {
   boolean isApplicationClass();
 
   String getFullyQualifiedName();
+
+  boolean isPhantom();
 }
