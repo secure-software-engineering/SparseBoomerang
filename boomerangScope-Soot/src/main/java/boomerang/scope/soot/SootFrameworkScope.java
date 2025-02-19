@@ -12,7 +12,6 @@ import boomerang.scope.soot.jimple.JimpleMethod;
 import boomerang.scope.soot.jimple.JimpleStaticFieldVal;
 import boomerang.scope.soot.jimple.JimpleVal;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import soot.Scene;
@@ -32,11 +31,7 @@ public class SootFrameworkScope implements FrameworkScope {
       @Nonnull DataFlowScope dataFlowScope) {
     this.scene = scene;
 
-    this.sootCallGraph = new SootCallGraph(callGraph);
-    Collection<JimpleMethod> entryPointMethods =
-        entryPoints.stream().map(JimpleMethod::of).collect(Collectors.toList());
-    entryPointMethods.forEach(sootCallGraph::addEntryPoint);
-
+    this.sootCallGraph = new SootCallGraph(callGraph, entryPoints);
     this.dataFlowScope = dataFlowScope;
   }
 

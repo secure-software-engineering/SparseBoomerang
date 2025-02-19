@@ -4,6 +4,7 @@ import boomerang.scope.CallGraph;
 import boomerang.scope.Statement;
 import boomerang.scope.sootup.jimple.JimpleUpMethod;
 import boomerang.scope.sootup.jimple.JimpleUpStatement;
+import java.util.Collection;
 import java.util.Optional;
 import sootup.core.jimple.common.stmt.InvokableStmt;
 import sootup.core.signatures.MethodSignature;
@@ -11,9 +12,11 @@ import sootup.java.core.JavaSootMethod;
 
 public class SootUpCallGraph extends CallGraph {
 
-  public SootUpCallGraph(sootup.callgraph.CallGraph callGraph) {
+  public SootUpCallGraph(
+      sootup.callgraph.CallGraph callGraph, Collection<JavaSootMethod> entryPoints) {
 
     assert !callGraph.getMethodSignatures().isEmpty();
+    assert !entryPoints.isEmpty();
 
     // TODO: add a convenience method for this(edge collecting) to sootup
     callGraph.getMethodSignatures().stream()
@@ -47,11 +50,12 @@ public class SootUpCallGraph extends CallGraph {
               LOGGER.trace("Added edge {} -> {}", callSite, targetMethod);
             });
 
-    // TODO
-    /*for (Method em : entryPoints) {
-      this.addEntryPoint(em);
-      LOGGER.trace("Added entry point: {}", em);
-    }*/
+    for (JavaSootMethod m : entryPoints) {
+      if (m.hasBody()) {
+        this.addEntryPoint(JimpleUpMethod.of(m));
+        LOGGER.trace("Added entry point: {}", m);
+      }
+    }
 
     if (getEdges().isEmpty()) {
       throw new IllegalStateException("CallGraph is empty!");

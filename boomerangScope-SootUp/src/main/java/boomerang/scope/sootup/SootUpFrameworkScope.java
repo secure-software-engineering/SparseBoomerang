@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import sootup.core.inputlocation.EagerInputLocation;
@@ -48,11 +47,7 @@ public class SootUpFrameworkScope implements FrameworkScope {
 
     this.view = view;
 
-    this.sootUpCallGraph = new SootUpCallGraph(callGraph);
-    Collection<JimpleUpMethod> entryPointMethods =
-        entryPoints.stream().map(JimpleUpMethod::of).collect(Collectors.toList());
-    entryPointMethods.forEach(sootUpCallGraph::addEntryPoint);
-
+    this.sootUpCallGraph = new SootUpCallGraph(callGraph, entryPoints);
     this.dataflowScope = dataFlowScope;
   }
 

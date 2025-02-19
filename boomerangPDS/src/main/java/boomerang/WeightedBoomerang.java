@@ -204,7 +204,6 @@ public abstract class WeightedBoomerang<W extends Weight> {
 
       methodStream.forEach(
           m -> {
-            // TODO: [ms] check if still needed: I removed the "interner" JimpleMethod.of(m)
             if (m.isStaticInitializer()) {
               for (Statement ep : icfg.getEndPointsOf(m)) {
                 StaticFieldVal newVal =
