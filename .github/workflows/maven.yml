@@ -1,7 +1,9 @@
 name: Java CI with Maven
 
 on:
-  pull_request: [synchronize]
+  pull_request:
+    types:
+      - synchronize
 
 jobs:
   BuildAndTest:
