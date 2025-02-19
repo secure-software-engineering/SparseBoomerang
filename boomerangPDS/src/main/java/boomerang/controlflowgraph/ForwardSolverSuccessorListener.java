@@ -1,10 +1,10 @@
 package boomerang.controlflowgraph;
 
 import boomerang.ForwardQuery;
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.solver.ForwardBoomerangSolver;
 import java.util.Collection;
 import sync.pds.solver.nodes.Node;

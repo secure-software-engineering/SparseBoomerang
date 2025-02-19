@@ -1,7 +1,7 @@
 package boomerang.results;
 
 import boomerang.Query;
-import boomerang.scene.Method;
+import boomerang.scope.Method;
 import java.util.Collection;
 import java.util.Set;
 

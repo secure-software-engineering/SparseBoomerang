@@ -1,10 +1,10 @@
 package boomerang.options;
 
-import boomerang.scene.AllocVal;
-import boomerang.scene.DeclaredMethod;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.AllocVal;
+import boomerang.scope.DeclaredMethod;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import java.util.Optional;
 
 public class IntAndStringAllocationSite extends DefaultAllocationSite {

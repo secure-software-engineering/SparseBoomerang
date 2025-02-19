@@ -1,6 +1,6 @@
 package boomerang;
 
-import boomerang.scene.Statement;
+import boomerang.scope.Statement;
 
 /**
  * A context is stored within the context graph. And must at least have a statement associated with

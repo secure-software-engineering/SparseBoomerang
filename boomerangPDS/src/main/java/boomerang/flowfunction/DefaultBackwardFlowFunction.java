@@ -1,13 +1,13 @@
 package boomerang.flowfunction;
 
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Field;
-import boomerang.scene.InvokeExpr;
-import boomerang.scene.Method;
-import boomerang.scene.Pair;
-import boomerang.scene.Statement;
-import boomerang.scene.StaticFieldVal;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Field;
+import boomerang.scope.InvokeExpr;
+import boomerang.scope.Method;
+import boomerang.scope.Pair;
+import boomerang.scope.Statement;
+import boomerang.scope.StaticFieldVal;
+import boomerang.scope.Val;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.Strategies;
 import com.google.common.collect.Multimap;

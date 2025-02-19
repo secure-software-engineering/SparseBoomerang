@@ -11,7 +11,7 @@
  */
 package inference;
 
-import boomerang.scene.Method;
+import boomerang.scope.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

@@ -12,8 +12,12 @@
 package boomerang;
 
 import boomerang.options.BoomerangOptions;
-import boomerang.scene.*;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.AllocVal;
+import boomerang.scope.AnalysisScope;
+import boomerang.scope.CallGraph;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.FrameworkScope;
+import boomerang.scope.Statement;
 import java.util.Collection;
 import java.util.Collections;
 import wpds.impl.Weight;
@@ -23,14 +27,13 @@ public abstract class WholeProgramBoomerang<W extends Weight> extends WeightedBo
   private int allocationSites;
   private final CallGraph callGraph;
 
-  public WholeProgramBoomerang(
-      CallGraph cg, DataFlowScope scope, BoomerangOptions options, FrameworkScope scopeFactory) {
-    super(cg, scope, options, scopeFactory);
-    this.callGraph = cg;
+  public WholeProgramBoomerang(FrameworkScope frameworkScope, BoomerangOptions options) {
+    super(frameworkScope, options);
+    this.callGraph = frameworkScope.getCallGraph();
   }
 
-  public WholeProgramBoomerang(CallGraph cg, DataFlowScope scope, FrameworkScope scopeFactory) {
-    this(cg, scope, BoomerangOptions.DEFAULT(), scopeFactory);
+  public WholeProgramBoomerang(FrameworkScope frameworkScope) {
+    this(frameworkScope, BoomerangOptions.DEFAULT());
   }
 
   public void wholeProgramAnalysis() {

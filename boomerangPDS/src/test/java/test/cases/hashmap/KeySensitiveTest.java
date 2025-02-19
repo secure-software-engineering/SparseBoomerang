@@ -11,7 +11,7 @@
  */
 package test.cases.hashmap;
 
-import boomerang.scene.DataFlowScope;
+import boomerang.scope.DataFlowScope;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

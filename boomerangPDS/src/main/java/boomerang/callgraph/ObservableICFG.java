@@ -1,6 +1,6 @@
 package boomerang.callgraph;
 
-import boomerang.scene.CallGraph.Edge;
+import boomerang.scope.CallGraph.Edge;
 import java.util.Collection;
 
 /**

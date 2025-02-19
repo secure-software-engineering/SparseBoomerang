@@ -11,7 +11,7 @@
  */
 package test;
 
-import boomerang.scene.FrameworkScope;
+import boomerang.scope.FrameworkScope;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

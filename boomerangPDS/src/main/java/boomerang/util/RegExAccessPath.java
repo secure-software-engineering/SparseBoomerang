@@ -1,7 +1,7 @@
 package boomerang.util;
 
-import boomerang.scene.Field;
-import boomerang.scene.Val;
+import boomerang.scope.Field;
+import boomerang.scope.Val;
 import pathexpression.IRegEx;
 
 public class RegExAccessPath {
