@@ -1,9 +1,9 @@
 package boomerang.results;
 
 import boomerang.ForwardQuery;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.ForwardBoomerangSolver;
 import boomerang.util.DefaultValueMap;

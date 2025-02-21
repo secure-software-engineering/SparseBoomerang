@@ -11,8 +11,8 @@
  */
 package boomerang;
 
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph;
 
 public class ForwardQuery extends Query {
 

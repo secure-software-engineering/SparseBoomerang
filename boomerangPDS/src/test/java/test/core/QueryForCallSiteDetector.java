@@ -2,11 +2,12 @@ package test.core;
 
 import boomerang.BackwardQuery;
 import boomerang.Query;
-import boomerang.scene.AccessPathParser;
-import boomerang.scene.AnalysisScope;
-import boomerang.scene.CallGraph;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Val;
+import boomerang.scope.AccessPathParser;
+import boomerang.scope.AnalysisScope;
+import boomerang.scope.CallGraph;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.InvokeExpr;
+import boomerang.scope.Val;
 import boomerang.util.AccessPath;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,7 +45,7 @@ class QueryForCallSiteDetector extends AnalysisScope {
     @Override
     public Optional<? extends Query> test(Edge stmt) {
       if (!(stmt.getTarget().containsInvokeExpr())) return Optional.empty();
-      boomerang.scene.InvokeExpr invokeExpr = stmt.getTarget().getInvokeExpr();
+      InvokeExpr invokeExpr = stmt.getTarget().getInvokeExpr();
       if (!invokeExpr.getMethod().getName().matches(methodNameMatcher)) return Optional.empty();
       Val param = invokeExpr.getArg(0);
       if (!param.isLocal()) return Optional.empty();

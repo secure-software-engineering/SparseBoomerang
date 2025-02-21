@@ -12,9 +12,10 @@
 package typestate.impl.statemachines;
 
 import boomerang.WeightedForwardQuery;
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Statement;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.InvokeExpr;
+import boomerang.scope.Statement;
 import java.util.Collections;
 import java.util.Set;
 import typestate.TransitionFunction;
@@ -74,7 +75,7 @@ public class HasNextStateMachine extends TypeStateMachineWeightFunctions {
   public Set<WeightedForwardQuery<TransitionFunction>> generateSeed(Edge edge) {
     Statement unit = edge.getStart();
     if (unit.containsInvokeExpr() && unit.isAssignStmt()) {
-      boomerang.scene.InvokeExpr invokeExpr = unit.getInvokeExpr();
+      InvokeExpr invokeExpr = unit.getInvokeExpr();
       if (invokeExpr.isInstanceInvokeExpr()) {
         if (invokeExpr.getMethod().getName().contains("iterator")) {
           return Collections.singleton(

@@ -12,10 +12,10 @@
 package typestate.impl.statemachines;
 
 import boomerang.WeightedForwardQuery;
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.DeclaredMethod;
-import boomerang.scene.Statement;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.DeclaredMethod;
+import boomerang.scope.Statement;
 import java.util.Collections;
 import java.util.Set;
 import typestate.TransitionFunction;

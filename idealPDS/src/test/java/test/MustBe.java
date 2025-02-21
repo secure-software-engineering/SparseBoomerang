@@ -11,8 +11,8 @@
  */
 package test;
 
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import typestate.TransitionFunction;

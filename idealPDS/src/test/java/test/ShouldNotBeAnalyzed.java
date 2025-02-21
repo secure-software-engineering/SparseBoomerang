@@ -1,6 +1,6 @@
 package test;
 
-import boomerang.scene.Statement;
+import boomerang.scope.Statement;
 
 public class ShouldNotBeAnalyzed implements Assertion {
   public Statement unit;

@@ -2,11 +2,11 @@ package boomerang;
 
 import boomerang.callgraph.CallerListener;
 import boomerang.callgraph.ObservableICFG;
-import boomerang.scene.ControlFlowGraph;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Method;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.BackwardBoomerangSolver;
 import boomerang.solver.ForwardBoomerangSolver;

@@ -17,7 +17,8 @@ import boomerang.Query;
 import boomerang.WeightedBoomerang;
 import boomerang.options.BoomerangOptions;
 import boomerang.results.BackwardBoomerangResults;
-import boomerang.scene.*;
+import boomerang.scope.AnalysisScope;
+import boomerang.scope.Val;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -129,12 +130,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
             .withAnalysisTimeout(analysisTimeout)
             .enableAllowMultipleQueries(true)
             .build();
-    solver =
-        new Boomerang(
-            frameworkScope.getCallGraph(),
-            frameworkScope.getDataFlowScope(),
-            options,
-            frameworkScope);
+    solver = new Boomerang(frameworkScope, options);
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
         BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);

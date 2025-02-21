@@ -12,7 +12,7 @@
 package typestate.impl.statemachines;
 
 import boomerang.WeightedForwardQuery;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.ControlFlowGraph.Edge;
 import java.util.Collection;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.MatcherTransition;

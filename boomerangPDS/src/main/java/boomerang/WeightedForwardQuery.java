@@ -11,8 +11,8 @@
  */
 package boomerang;
 
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
 import wpds.impl.Weight;
 
 public class WeightedForwardQuery<W extends Weight> extends ForwardQuery {

@@ -12,11 +12,11 @@
 package typestate.finiteautomata;
 
 import boomerang.WeightedForwardQuery;
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.InvokeExpr;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.InvokeExpr;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
@@ -153,7 +153,7 @@ public abstract class TypeStateMachineWeightFunctions
     Statement s = edge.getStart();
     if (s.isAssignStmt()) {
       if (s.getRightOp().isNewExpr()) {
-        boomerang.scene.Type newExprType = s.getRightOp().getNewExprType();
+        boomerang.scope.Type newExprType = s.getRightOp().getNewExprType();
         if (newExprType.isSubtypeOf(allocationSuperType.getName())) {
           return Collections.singleton(
               new WeightedForwardQuery<>(

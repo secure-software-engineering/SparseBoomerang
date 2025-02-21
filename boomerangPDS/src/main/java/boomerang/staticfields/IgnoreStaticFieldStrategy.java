@@ -1,8 +1,8 @@
 package boomerang.staticfields;
 
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.StaticFieldVal;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.StaticFieldVal;
+import boomerang.scope.Val;
 import java.util.Set;
 import wpds.interfaces.State;
 

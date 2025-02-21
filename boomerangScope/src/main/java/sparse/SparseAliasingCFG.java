@@ -1,6 +1,6 @@
 package sparse;
 
-import boomerang.scene.Val;
+import boomerang.scope.Val;
 import com.google.common.graph.MutableGraph;
 import java.util.ArrayList;
 import java.util.List;

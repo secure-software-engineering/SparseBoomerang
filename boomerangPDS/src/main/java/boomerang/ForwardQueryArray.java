@@ -11,8 +11,8 @@
  */
 package boomerang;
 
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
 import com.google.common.base.Objects;
 
 public class ForwardQueryArray extends ForwardQuery {

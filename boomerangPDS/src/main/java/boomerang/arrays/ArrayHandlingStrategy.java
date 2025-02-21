@@ -11,9 +11,9 @@
  */
 package boomerang.arrays;
 
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Pair;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Pair;
+import boomerang.scope.Val;
 import java.util.Set;
 import wpds.interfaces.State;
 

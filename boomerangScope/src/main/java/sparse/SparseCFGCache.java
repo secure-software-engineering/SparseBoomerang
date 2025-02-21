@@ -1,6 +1,6 @@
 package sparse;
 
-import boomerang.scene.Val;
+import boomerang.scope.Val;
 import java.util.List;
 import sparse.eval.SparseCFGQueryLog;
 

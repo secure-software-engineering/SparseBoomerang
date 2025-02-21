@@ -2,11 +2,11 @@ package test.core;
 
 import boomerang.ForwardQuery;
 import boomerang.Query;
-import boomerang.scene.AllocVal;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Statement;
-import boomerang.scene.Type;
-import boomerang.scene.Val;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Statement;
+import boomerang.scope.Type;
+import boomerang.scope.Val;
 import java.util.Optional;
 
 class AllocationSiteOf implements ValueOfInterestInUnit {

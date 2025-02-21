@@ -11,8 +11,8 @@
  */
 package test;
 
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.ITransition;
 import typestate.finiteautomata.State;

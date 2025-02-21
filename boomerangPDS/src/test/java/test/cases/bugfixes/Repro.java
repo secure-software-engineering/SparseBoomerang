@@ -5,8 +5,12 @@ import boomerang.ForwardQuery;
 import boomerang.options.BoomerangOptions;
 import boomerang.options.IntAndStringAllocationSite;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.*;
-import boomerang.scene.ControlFlowGraph.Edge;
+import boomerang.scope.AllocVal;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.DeclaredMethod;
+import boomerang.scope.FrameworkScope;
+import boomerang.scope.Method;
+import boomerang.scope.Statement;
 import com.google.common.collect.Sets;
 import java.util.*;
 import org.junit.Test;
@@ -54,7 +58,7 @@ public class Repro extends AbstractTestingFramework {
   public void analyze() {}
 
   private void assertResults(String... expectedCalledMethodsOnFoo) {
-    Method method = frameworkScope.getMethod("<Test: java.util.List foos()>");
+    Method method = frameworkScope.resolveMethod("<Test: java.util.List foos()>");
     System.out.println("All method units:");
     for (Statement s : method.getControlFlowGraph().getStatements()) {
       System.out.println("\t" + s.toString());
@@ -95,10 +99,7 @@ public class Repro extends AbstractTestingFramework {
             var);
     Boomerang solver =
         new Boomerang(
-            scopeFactory.getCallGraph(),
-            scopeFactory.getDataFlowScope(),
-            BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite()),
-            scopeFactory);
+            scopeFactory, BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite()));
     ForwardBoomerangResults<NoWeight> results = solver.solve(fwq);
     return results.getInvokeStatementsOnInstance();
   }

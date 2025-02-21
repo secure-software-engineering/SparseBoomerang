@@ -17,10 +17,10 @@ import boomerang.Query;
 import boomerang.WeightedBoomerang;
 import boomerang.results.BackwardBoomerangResults;
 import boomerang.results.ForwardBoomerangResults;
-import boomerang.scene.ControlFlowGraph.Edge;
-import boomerang.scene.Field;
-import boomerang.scene.Statement;
-import boomerang.scene.Val;
+import boomerang.scope.ControlFlowGraph.Edge;
+import boomerang.scope.Field;
+import boomerang.scope.Statement;
+import boomerang.scope.Val;
 import boomerang.solver.AbstractBoomerangSolver;
 import boomerang.solver.ForwardBoomerangSolver;
 import com.google.common.base.Stopwatch;
@@ -300,11 +300,8 @@ public class IDEALSeedSolver<W extends Weight> {
   }
 
   private WeightedBoomerang<W> createSolver(Phases phase) {
-    return new WeightedBoomerang<W>(
-        analysisDefinition.callGraph(),
-        analysisDefinition.getDataFlowScope(),
-        analysisDefinition.boomerangOptions(),
-        analysisDefinition.getFrameworkFactory()) {
+    return new WeightedBoomerang<>(
+        analysisDefinition.getFrameworkFactory(), analysisDefinition.boomerangOptions()) {
 
       @Override
       protected WeightFunctions<Edge, Val, Edge, W> getForwardCallWeights(
