@@ -6,10 +6,11 @@ import test.Assertion;
 public class ShouldNotBeAnalyzed implements Assertion {
 
   private final Statement statement;
-  private boolean isSatisfied = true;
+  private boolean unsound;
 
   public ShouldNotBeAnalyzed(Statement statement) {
     this.statement = statement;
+    this.unsound = false;
   }
 
   public Statement getStatement() {
@@ -18,12 +19,12 @@ public class ShouldNotBeAnalyzed implements Assertion {
 
   @Override
   public String toString() {
-    return "Method should not be included in analysis: " + statement.toString();
+    return "Method should not be included in analysis: " + statement.getMethod();
   }
 
   @Override
   public boolean isUnsound() {
-    return isSatisfied;
+    return unsound;
   }
 
   @Override
@@ -37,6 +38,6 @@ public class ShouldNotBeAnalyzed implements Assertion {
   }
 
   public void hasBeenAnalyzed() {
-    isSatisfied = false;
+    unsound = true;
   }
 }

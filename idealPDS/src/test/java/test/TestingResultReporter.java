@@ -11,6 +11,7 @@
  */
 package test;
 
+import assertions.ShouldNotBeAnalyzed;
 import assertions.StateResult;
 import boomerang.results.ForwardBoomerangResults;
 import boomerang.scope.ControlFlowGraph.Edge;
@@ -19,39 +20,49 @@ import boomerang.scope.Val;
 import com.google.common.collect.Table;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import sync.pds.solver.nodes.Node;
 import typestate.TransitionFunction;
 
 public class TestingResultReporter {
 
-  private final Collection<Assertion> expectedResults;
+  private final Collection<StateResult> expectedStateResults;
+  private final Collection<ShouldNotBeAnalyzed> expectedShouldNotBeAnalyzed;
 
   public TestingResultReporter(Collection<Assertion> expectedResults) {
-    this.expectedResults = expectedResults;
+    this.expectedStateResults = new HashSet<>();
+    this.expectedShouldNotBeAnalyzed = new HashSet<>();
+
+    for (Assertion a : expectedResults) {
+      if (a instanceof StateResult) {
+        StateResult stateResult = (StateResult) a;
+        expectedStateResults.add(stateResult);
+      }
+
+      if (a instanceof ShouldNotBeAnalyzed) {
+        ShouldNotBeAnalyzed shouldNotBeAnalyzed = (ShouldNotBeAnalyzed) a;
+        expectedShouldNotBeAnalyzed.add(shouldNotBeAnalyzed);
+      }
+    }
   }
 
   public void onSeedFinished(Node<Edge, Val> seed, ForwardBoomerangResults<TransitionFunction> res) {
     Table<Statement, Val, TransitionFunction> results = res.asStatementValWeightTable();
 
-    for (Assertion a : expectedResults) {
-      if (a instanceof StateResult) {
-        StateResult stateResult = (StateResult) a;
-        TransitionFunction function = results.get(stateResult.getStmt(), stateResult.getSeed());
+    for (StateResult stateResult : expectedStateResults) {
+      TransitionFunction function = results.get(stateResult.getStmt(), stateResult.getSeed());
 
-        if (function != null) {
-          stateResult.computedResults(function);
-        }
+      if (function != null) {
+        stateResult.computedResults(function);
       }
+    }
 
-      // check if any of the methods that should not be analyzed have been analyzed
-      /*if (a instanceof ShouldNotBeAnalyzed) {
-        ShouldNotBeAnalyzed shouldNotBeAnalyzed = (ShouldNotBeAnalyzed) a;
-        Statement analyzedUnit = shouldNotBeAnalyzed.;
-        if (analyzedUnit.equals(shouldNotBeAnalyzed.getStatement())) {
-          shouldNotBeAnalyzed.hasBeenAnalyzed();
-        }
-      }*/
+    // check if any of the methods that should not be analyzed have been analyzed
+    for (ShouldNotBeAnalyzed shouldNotBeAnalyzed : expectedShouldNotBeAnalyzed) {
+      if (results.containsRow(shouldNotBeAnalyzed.getStatement())) {
+        shouldNotBeAnalyzed.hasBeenAnalyzed();
+      }
     }
   }
 }

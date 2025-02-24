@@ -50,7 +50,7 @@ public abstract class IDEALTestingFramework extends TestingFramework {
     }
 
     public void analyze(String targetClassName, String targetMethodName, int expectedAssertions, int expectedSeeds) {
-        LOGGER.info("Testing method '{}' in class '{}' with {} assertions", targetMethodName, targetClassName, expectedAssertions);
+        LOGGER.info("Running '{}' in class '{}' with {} assertions", targetMethodName, targetClassName, expectedAssertions);
 
         // Set up the framework scope
         FrameworkScope frameworkScope = super.getFrameworkScope(targetClassName, targetMethodName);

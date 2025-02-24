@@ -21,7 +21,7 @@ public class MayBeInErrorState extends StateResult {
 
     @Override
     public boolean isUnsound() {
-        return !checked && !satisfied;
+        return !checked || !satisfied;
     }
 
     @Override

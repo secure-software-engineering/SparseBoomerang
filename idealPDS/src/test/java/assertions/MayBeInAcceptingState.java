@@ -30,7 +30,7 @@ public class MayBeInAcceptingState extends StateResult {
 
     @Override
     public boolean isUnsound() {
-        return !checked && !satisfied;
+        return !checked || !satisfied;
     }
 
     @Override
