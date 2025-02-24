@@ -69,7 +69,7 @@
         <dependency>
             <groupId>com.github.soot-oss.SootUp</groupId>
             <artifactId>sootup.core</artifactId>
-            <version>develop-SNAPSHOT</version>
+            <version>v2.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.soot-oss.SootUp</groupId>
