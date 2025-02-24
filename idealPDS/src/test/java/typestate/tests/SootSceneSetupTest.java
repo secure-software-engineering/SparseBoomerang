@@ -1,55 +1,35 @@
-/**
- * ***************************************************************************** Copyright (c) 2018
- * Fraunhofer IEM, Paderborn, Germany. This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
- *
- * <p>SPDX-License-Identifier: EPL-2.0
- *
- * <p>Contributors: Johannes Spaeth - initial API and implementation
- * *****************************************************************************
- */
 package typestate.tests;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import test.IDEALTestingFramework;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 import typestate.impl.statemachines.FileMustBeClosedStateMachineCallToReturn;
-import typestate.test.helper.File;
+import typestate.targets.SootSceneSetup;
+import typestate.targets.helper.File;
+
+import java.util.List;
 
 public class SootSceneSetupTest extends IDEALTestingFramework {
-  @Test
-  public void simple() {
-    File file = new File();
-    file.open();
-    mustBeInErrorState(file);
-    file.close();
-    mustBeInAcceptingState(file);
-  }
 
-  @Test
-  @Ignore
-  public void aliassimple() {
-    File file = new File();
-    File alias = file;
-    alias.open();
-    mustBeInErrorState(file);
-    mustBeInErrorState(alias);
-  }
+    private final String target = SootSceneSetup.class.getName();
 
-  @Override
-  protected TypeStateMachineWeightFunctions getStateMachine() {
-    return new FileMustBeClosedStateMachineCallToReturn();
-  }
+    @Override
+    protected TypeStateMachineWeightFunctions getStateMachine() {
+        return new FileMustBeClosedStateMachineCallToReturn();
+    }
 
-  /*
-  // TODO: [ms] re-enable?
-  @Override
-  public List<String> excludedPackages() {
-    List<String> exlcuded = super.excludedPackages();
-    exlcuded.add("typestate.test.helper.File");
-    return exlcuded;
-  }
-  */
+    @Override
+    public List<String> getExcludedPackages() {
+        return List.of(File.class.getName());
+    }
+
+    @Test
+    public void simple() {
+        analyze(target, testName.getMethodName(), 2, 1);
+    }
+
+    @Test
+    public void aliasSimple() {
+        analyze(target, testName.getMethodName(), 2, 1);
+    }
 }

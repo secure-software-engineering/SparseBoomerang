@@ -9,8 +9,23 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-package typestate.test.helper;
+package typestate.targets.helper;
 
-public class ObjectWithField {
-  public File field;
+public class File {
+
+  public File open() {
+    return this;
+  }
+
+  public File close() {
+    return this;
+  }
+
+  public int hashCode() {
+    return 9;
+  }
+
+  public void wrappedClose() {
+    close();
+  }
 }

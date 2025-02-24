@@ -1,21 +1,20 @@
 package typestate.tests;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import test.IDEALTestingFramework;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
-import typestate.impl.statemachines.SocketStateMachine;
-import typestate.targets.SocketLong;
+import typestate.impl.statemachines.KeyStoreStateMachine;
+import typestate.targets.KeyStoreLong;
 
-import java.util.List;
+import java.security.KeyStoreException;
 
-public class SocketLongTest extends IDEALTestingFramework {
+public class KeyStoreLongTest extends IDEALTestingFramework {
 
-    private final String target = SocketLong.class.getName();
+    private final String target = KeyStoreLong.class.getName();
 
     @Override
     protected TypeStateMachineWeightFunctions getStateMachine() {
-        return new SocketStateMachine();
+        return new KeyStoreStateMachine();
     }
 
     @Test
@@ -24,7 +23,7 @@ public class SocketLongTest extends IDEALTestingFramework {
     }
 
     @Test
-    public void test2() {
+    public void test2() throws KeyStoreException {
         analyze(target, testName.getMethodName(), 1, 1);
     }
 
@@ -34,14 +33,12 @@ public class SocketLongTest extends IDEALTestingFramework {
     }
 
     @Test
-    @Ignore("Reading sockets from an iterator is too complex")
     public void test4() {
-        analyze(target, testName.getMethodName(), 1, 2);
+        analyze(target, testName.getMethodName(), 2, 1);
     }
 
     @Test
-    @Ignore("Reading sockets from an iterator is too complex")
-    public void test5() {
+    public void catchClause() {
         analyze(target, testName.getMethodName(), 1, 1);
     }
 }

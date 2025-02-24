@@ -1,17 +1,19 @@
 package typestate.tests;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import test.IDEALTestingFramework;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 import typestate.impl.statemachines.FileMustBeClosedStateMachine;
-import typestate.targets.FileMustBeClosedInterface;
+import typestate.targets.FileMustBeClosedDemandDriven;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileMustBeClosedInterfaceTest extends IDEALTestingFramework {
+@Ignore("Adapt call graph algorithms")
+public class FileMustBeClosedDemandDrivenTest extends IDEALTestingFramework {
 
-    private final String target = FileMustBeClosedInterface.class.getName();
+    private final String target = FileMustBeClosedDemandDriven.class.getName();
 
     @Override
     public TypeStateMachineWeightFunctions getStateMachine() {
@@ -19,12 +21,12 @@ public class FileMustBeClosedInterfaceTest extends IDEALTestingFramework {
     }
 
     @Test
-    public void mainTest() {
+    public void notCaughtByCHA() {
         analyze(target, testName.getMethodName(), 2, 1);
     }
 
     @Test
-    public void otherTest() {
-        analyze(target, testName.getMethodName(), 4, 1);
+    public void notCaughtByRTA() {
+        analyze(target, testName.getMethodName(), 2, 1);
     }
 }

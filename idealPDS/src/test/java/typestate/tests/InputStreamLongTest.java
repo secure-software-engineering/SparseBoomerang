@@ -1,53 +1,45 @@
-/**
- * ***************************************************************************** Copyright (c) 2018
- * Fraunhofer IEM, Paderborn, Germany. This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
- *
- * <p>SPDX-License-Identifier: EPL-2.0
- *
- * <p>Contributors: Johannes Spaeth - initial API and implementation
- * *****************************************************************************
- */
 package typestate.tests;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import org.junit.Test;
 import test.IDEALTestingFramework;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 import typestate.impl.statemachines.InputStreamStateMachine;
+import typestate.targets.InputStreamLong;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InputStreamLongTest extends IDEALTestingFramework {
 
-  @Test
-  public void test1() throws IOException {
-    InputStream inputStream = new FileInputStream("");
-    inputStream.close();
-    inputStream.read();
-    mustBeInErrorState(inputStream);
-  }
+    private final String target = InputStreamLong.class.getName();
 
-  @Test
-  public void test2() throws IOException {
-    InputStream inputStream = new FileInputStream("");
-    inputStream.close();
-    inputStream.close();
-    inputStream.read();
-    mustBeInErrorState(inputStream);
-  }
+    @Override
+    protected TypeStateMachineWeightFunctions getStateMachine() {
+        return new InputStreamStateMachine();
+    }
 
-  @Test
-  public void test3() throws IOException {
-    InputStream inputStream = new FileInputStream("");
-    inputStream.read();
-    inputStream.close();
-    mustBeInAcceptingState(inputStream);
-  }
+    @Override
+    protected List<String> getIncludedPackages() {
+        return List.of("java.io.FileInputStream");
+    }
 
-  @Override
-  protected TypeStateMachineWeightFunctions getStateMachine() {
-    return new InputStreamStateMachine();
-  }
+    @Override
+    protected List<String> getExcludedPackages() {
+        return new ArrayList<>();
+    }
+
+    @Test
+    public void test1() {
+        analyze(target, testName.getMethodName(), 1, 1);
+    }
+
+    @Test
+    public void test2() {
+        analyze(target, testName.getMethodName(), 1, 2);
+    }
+
+    @Test
+    public void test3() {
+        analyze(target, testName.getMethodName(), 1, 1);
+    }
 }

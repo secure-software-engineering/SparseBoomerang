@@ -9,15 +9,8 @@
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-package test;
+package typestate.targets.helper;
 
-import boomerang.scope.Statement;
-
-public interface ComparableResult<State, Val> {
-
-  Val getVal();
-
-  Statement getStmt();
-
-  void computedResults(State val);
+public class ObjectWithField {
+  public File field;
 }

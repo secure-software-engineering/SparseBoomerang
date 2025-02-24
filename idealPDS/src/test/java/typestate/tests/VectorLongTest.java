@@ -1,21 +1,25 @@
 package typestate.tests;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import test.IDEALTestingFramework;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
-import typestate.impl.statemachines.SocketStateMachine;
-import typestate.targets.SocketLong;
+import typestate.impl.statemachines.VectorStateMachine;
+import typestate.targets.VectorLong;
 
 import java.util.List;
 
-public class SocketLongTest extends IDEALTestingFramework {
+public class VectorLongTest extends IDEALTestingFramework {
 
-    private final String target = SocketLong.class.getName();
+    private final String target = VectorLong.class.getName();
 
     @Override
     protected TypeStateMachineWeightFunctions getStateMachine() {
-        return new SocketStateMachine();
+        return new VectorStateMachine();
+    }
+
+    @Override
+    protected List<String> getIncludedPackages() {
+        return List.of("java.util.Vector");
     }
 
     @Test
@@ -34,14 +38,22 @@ public class SocketLongTest extends IDEALTestingFramework {
     }
 
     @Test
-    @Ignore("Reading sockets from an iterator is too complex")
     public void test4() {
-        analyze(target, testName.getMethodName(), 1, 2);
+        analyze(target, testName.getMethodName(), 3, 1);
     }
 
     @Test
-    @Ignore("Reading sockets from an iterator is too complex")
     public void test5() {
+        analyze(target, testName.getMethodName(), 1, 1);
+    }
+
+    @Test
+    public void test6() {
+        analyze(target, testName.getMethodName(), 3, 1);
+    }
+
+    @Test
+    public void staticAccessTest() {
         analyze(target, testName.getMethodName(), 1, 1);
     }
 }
