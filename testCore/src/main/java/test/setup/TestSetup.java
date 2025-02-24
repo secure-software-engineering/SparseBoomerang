@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TestSetup {
 
-    void initialize(String classPath, String testClassName, String testMethodName, List<String> includedPackages, List<String> excludedPackages);
+    void initialize(String classPath, MethodWrapper testMethod, List<String> includedPackages, List<String> excludedPackages);
 
     Method getTestMethod();
 

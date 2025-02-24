@@ -6,24 +6,15 @@ import boomerang.scope.Method;
 import boomerang.scope.soot.BoomerangPretransformer;
 import boomerang.scope.soot.SootFrameworkScope;
 import boomerang.scope.soot.jimple.JimpleMethod;
-import soot.ArrayType;
 import soot.G;
-import soot.Local;
-import soot.Modifier;
 import soot.PackManager;
-import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.Type;
-import soot.VoidType;
-import soot.jimple.Jimple;
-import soot.jimple.JimpleBody;
 import soot.options.Options;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SootTestSetup implements TestSetup {
@@ -31,7 +22,7 @@ public class SootTestSetup implements TestSetup {
     private SootMethod testMethod;
 
     @Override
-    public void initialize(String classPath, String testClassName, String testMethodName, List<String> includedPackages, List<String> excludedPackages) {
+    public void initialize(String classPath, MethodWrapper methodWrapper, List<String> includedPackages, List<String> excludedPackages) {
         G.reset();
 
         Options.v().set_whole_program(true);
@@ -52,21 +43,17 @@ public class SootTestSetup implements TestSetup {
         Options.v().set_exclude(excludedPackages);
         Options.v().set_include(includedPackages);
 
-        SootClass sootTestCaseClass = Scene.v().forceResolve(testClassName, SootClass.BODIES);
+        SootClass sootTestCaseClass = Scene.v().forceResolve(methodWrapper.getDeclaringClass(), SootClass.BODIES);
         sootTestCaseClass.setApplicationClass();
-        testMethod = sootTestCaseClass.getMethod("void " + testMethodName + "()");
+        // TODO Include parameters
+        String signature = methodWrapper.getReturnType() + " " + methodWrapper.getMethodName() + "()";
+        testMethod = sootTestCaseClass.getMethod(signature);
 
         if (testMethod == null) {
-            throw new RuntimeException("Could not load testMethod " + testMethodName);
+            throw new RuntimeException("Could not load testMethod " + signature);
         }
-
-        //SootClass targetClass = getTargetClass(testClassName, testMethod);
-        //targetClass.setApplicationClass();
-
-        //Scene.v().addBasicClass(targetClass.toString(), SootClass.BODIES);
         Scene.v().loadNecessaryClasses();
 
-        //SootMethod methodByName = targetClass.getMethodByName("main");
         List<SootMethod> entryPoints = new ArrayList<>();
 
         for (SootMethod m : sootTestCaseClass.getMethods()) {
@@ -108,44 +95,5 @@ public class SootTestSetup implements TestSetup {
                 Scene.v().getCallGraph(),
                 Scene.v().getEntryPoints(),
                 dataFlowScope);
-    }
-
-    private SootClass getTargetClass(String className, SootMethod sootTestMethod) {
-        SootClass sootClass = new SootClass("dummyClass");
-        Type paramType = ArrayType.v(RefType.v("java.lang.String"), 1);
-        SootMethod mainMethod =
-                new SootMethod(
-                        "main",
-                        Collections.singletonList(paramType),
-                        VoidType.v(),
-                        Modifier.PUBLIC | Modifier.STATIC);
-        sootClass.addMethod(mainMethod);
-        JimpleBody body = Jimple.v().newBody(mainMethod);
-        mainMethod.setActiveBody(body);
-        RefType testCaseType = RefType.v(className);
-        Local loc = Jimple.v().newLocal("l0", paramType);
-        body.getLocals().add(loc);
-        body.getUnits()
-                .add(Jimple.v().newIdentityStmt(loc, Jimple.v().newParameterRef(paramType, 0)));
-        Local allocatedTestObj = Jimple.v().newLocal("dummyObj", testCaseType);
-        body.getLocals().add(allocatedTestObj);
-        body.getUnits()
-                .add(
-                        Jimple.v()
-                                .newAssignStmt(
-                                        allocatedTestObj, Jimple.v().newNewExpr(testCaseType)));
-        body.getUnits()
-                .add(
-                        Jimple.v()
-                                .newInvokeStmt(
-                                        Jimple.v()
-                                                .newVirtualInvokeExpr(
-                                                        allocatedTestObj,
-                                                        sootTestMethod.makeRef())));
-        body.getUnits().add(Jimple.v().newReturnVoidStmt());
-
-        Scene.v().addClass(sootClass);
-        body.validate();
-        return sootClass;
     }
 }

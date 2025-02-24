@@ -29,6 +29,7 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sync.pds.solver.WeightFunctions;
+import test.setup.MethodWrapper;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
@@ -53,7 +54,8 @@ public abstract class IDEALTestingFramework extends TestingFramework {
         LOGGER.info("Running '{}' in class '{}' with {} assertions", targetMethodName, targetClassName, expectedAssertions);
 
         // Set up the framework scope
-        FrameworkScope frameworkScope = super.getFrameworkScope(targetClassName, targetMethodName);
+        MethodWrapper methodWrapper = new MethodWrapper(targetClassName, targetMethodName);
+        FrameworkScope frameworkScope = super.getFrameworkScope(methodWrapper);
         Method testMethod = super.getTestMethod();
 
         // Collect the expected assertions

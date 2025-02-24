@@ -5,6 +5,7 @@ import boomerang.scope.FrameworkScope;
 import boomerang.scope.Method;
 import org.junit.Assert;
 import test.setup.SootTestSetup;
+import test.setup.MethodWrapper;
 import test.setup.TestSetup;
 
 import java.util.Collection;
@@ -17,22 +18,18 @@ public class TestingFramework {
 
     private final TestSetup testSetup;
 
-    protected TestingFramework() {
-        this.testSetup = createTestSetup();
-    }
-
-    private TestSetup createTestSetup() {
+    public TestingFramework() {
         // TODO Parameterize
-        return new SootTestSetup();
+        this.testSetup = new SootTestSetup();
     }
 
-    public FrameworkScope getFrameworkScope(String targetClassName, String targetMethodName) {
-        return getFrameworkScope(targetClassName, targetMethodName, DataFlowScope.EXCLUDE_PHANTOM_CLASSES);
+    public FrameworkScope getFrameworkScope(MethodWrapper methodWrapper) {
+        return getFrameworkScope(methodWrapper, DataFlowScope.EXCLUDE_PHANTOM_CLASSES);
     }
 
-    public FrameworkScope getFrameworkScope(String targetClassName, String targetMethodName, DataFlowScope dataFlowScope) {
+    public FrameworkScope getFrameworkScope(MethodWrapper methodWrapper, DataFlowScope dataFlowScope) {
         String classPath = buildClassPath();
-        testSetup.initialize(classPath, targetClassName, targetMethodName, getIncludedPackages(), getExcludedPackages());
+        testSetup.initialize(classPath, methodWrapper, getIncludedPackages(), getExcludedPackages());
 
         return testSetup.createFrameworkScope(dataFlowScope);
     }
