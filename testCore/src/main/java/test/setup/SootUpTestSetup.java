@@ -1,27 +1,26 @@
-package test;
+package test.setup;
 
-import static test.AbstractTestingFramework.getJavaVersion;
-
+import boomerang.scope.DataFlowScope;
 import boomerang.scope.FrameworkScope;
-import boomerang.scope.soot.BoomerangPretransformer;
-import boomerang.scope.soot.SootDataFlowScopeUtil;
-import boomerang.scope.soot.SootFrameworkScope;
+import boomerang.scope.Method;
 import boomerang.scope.sootup.BoomerangPreInterceptor;
 import boomerang.scope.sootup.SootUpDataFlowScope;
 import boomerang.scope.sootup.SootUpFrameworkScope;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Nonnull;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import soot.*;
-import soot.jimple.Jimple;
-import soot.jimple.JimpleBody;
-import soot.options.Options;
 import sootup.SourceTypeSplittingAnalysisInputLocation;
 import sootup.callgraph.CallGraphAlgorithm;
 import sootup.callgraph.RapidTypeAnalysisAlgorithm;
@@ -33,12 +32,15 @@ import sootup.core.inputlocation.EagerInputLocation;
 import sootup.core.jimple.basic.NoPositionInformation;
 import sootup.core.model.ClassModifier;
 import sootup.core.model.MethodModifier;
+import sootup.core.model.SootClass;
 import sootup.core.model.SootClassMember;
 import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.signatures.PackageName;
 import sootup.core.transform.BodyInterceptor;
-import sootup.interceptors.*;
+import sootup.interceptors.CastAndReturnInliner;
+import sootup.interceptors.LocalSplitter;
+import sootup.interceptors.TypeAssigner;
 import sootup.java.bytecode.frontend.inputlocation.DefaultRuntimeAnalysisInputLocation;
 import sootup.java.bytecode.frontend.inputlocation.JavaClassPathAnalysisInputLocation;
 import sootup.java.core.JavaSootClass;
@@ -49,222 +51,25 @@ import sootup.java.core.views.JavaView;
 import sootup.jimple.frontend.JimpleStringAnalysisInputLocation;
 import sootup.jimple.frontend.JimpleView;
 
-// TODO: refactor as parameterized test -> update to junit 5
-public class FrameworkScopeFactory {
+public class SootUpTestSetup implements TestSetup {
 
-  // FIXME: adapt to be used by Guided...Tests and CustomFlowTests --> no need to create a
-  // in-memory-entrypoint! --> uses processdir
-  // see
-  // https://github.com/secure-software-engineering/SparseBoomerang/blob/4c491929237d869f6efdd9fcadbd065c1729610a/boomerangPDS/src/test/java/boomerang/guided/DemandDrivenGuidedAnalysisTest.java#L463
-  public static FrameworkScope init(String classPath, String fqClassName) {
-    return init(classPath, fqClassName, null, new ArrayList<>(), Collections.emptyList());
-  }
-
-  public static FrameworkScope init(
+  @Override
+  public void initialize(
       String classPath,
-      String fqClassName,
-      String customEntrypointMethodName,
+      MethodWrapper testMethod,
       List<String> includedPackages,
       List<String> excludedPackages) {
-
-    // TODO: ms: currently: switch here to test desired framework - refactor e.g. into parameterized
-    // tests!
-    return getSootFrameworkScope(
-        classPath, fqClassName, customEntrypointMethodName, includedPackages, excludedPackages);
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
-  private static FrameworkScope getSootFrameworkScope(
-      String pathStr,
-      String className,
-      String customEntrypointMethodName,
-      List<String> includedPackages,
-      List<String> excludedPackages) {
-
-    //    System.out.println("framework:soot");
-
-    List<SootMethod> eps = Lists.newArrayList();
-    SootMethod sootTestMethod = null;
-    int classCount = 0;
-
-    G.v().reset();
-
-    Options.v().set_whole_program(true);
-    Options.v().set_output_format(Options.output_format_none);
-    Options.v().set_no_bodies_for_excluded(true);
-    Options.v().set_allow_phantom_refs(true);
-
-    if (!includedPackages.isEmpty()) {
-      Options.v().set_include(includedPackages);
-    }
-
-    Options.v().setPhaseOption("jb", "use-original-names:true");
-    Options.v().set_keep_line_number(true);
-
-    Options.v().setPhaseOption("jb.sils", "enabled:false");
-    Options.v().setPhaseOption("jb", "use-original-names:true");
-
-    if (!excludedPackages.isEmpty()) {
-      Options.v().set_exclude(excludedPackages);
-    }
-
-    if (customEntrypointMethodName == null) {
-      Options.v().setPhaseOption("cg.cha", "on");
-      Options.v().setPhaseOption("cg.cha", "verbose:true");
-
-      Options.v().set_prepend_classpath(true);
-      List<String> processDir = Collections.singletonList(pathStr);
-      Options.v().set_process_dir(processDir);
-
-      Scene.v().loadNecessaryClasses();
-
-      for (SootClass sootClass : Scene.v().getClasses()) {
-        classCount++;
-        String scStr = sootClass.toString();
-        if (scStr.equals(className) || (scStr.startsWith(className + "$"))) {
-          sootClass.setApplicationClass();
-          eps.addAll(sootClass.getMethods());
-        }
-      }
-      if (eps.isEmpty()) {
-        throw new IllegalStateException(
-            "No entrypoints given/found in " + classCount + " classes.");
-      }
-      Scene.v().setEntryPoints(eps);
-
-      PackManager.v().runPacks();
-      BoomerangPretransformer.v().reset();
-      BoomerangPretransformer.v().apply();
-
-    } else {
-      Options.v().setPhaseOption("cg.spark", "on");
-      Options.v().setPhaseOption("cg.spark", "verbose:true");
-
-      // which runtime library needs to be configured
-      if (getJavaVersion() < 9) {
-        Options.v().set_prepend_classpath(true);
-        Options.v().set_soot_classpath(pathStr);
-      } else if (getJavaVersion() >= 9) {
-        Options.v().set_soot_classpath("VIRTUAL_FS_FOR_JDK" + File.pathSeparator + pathStr);
-      }
-
-      // create entrypoint class/method
-      SootClass sootTestCaseClass = Scene.v().forceResolve(className, SootClass.BODIES);
-      for (SootMethod m : sootTestCaseClass.getMethods()) {
-        if (m.getName().equals(customEntrypointMethodName)) {
-          sootTestMethod = m;
-          break;
-        }
-      }
-      if (sootTestMethod == null) {
-        throw new RuntimeException(
-            "The method with name "
-                + customEntrypointMethodName
-                + " was not found in the Soot Scene.");
-      }
-      sootTestMethod.getDeclaringClass().setApplicationClass();
-
-      String targetClass = getTargetClass(sootTestMethod, className);
-
-      Scene.v().addBasicClass(targetClass, SootClass.BODIES);
-      Scene.v().loadNecessaryClasses();
-
-      SootClass c = Scene.v().forceResolve(targetClass, SootClass.BODIES);
-      if (c != null) {
-        c.setApplicationClass();
-      }
-
-      SootMethod methodByName = c.getMethodByName("main");
-      eps.add(methodByName);
-
-      for (SootMethod m : sootTestCaseClass.getMethods()) {
-        if (m.isStaticInitializer()) {
-          eps.add(m);
-        }
-      }
-
-      // collect entrypoints
-      for (SootClass inner : Scene.v().getClasses()) {
-        classCount++;
-        if (inner.getName().contains(sootTestCaseClass.getName())) {
-          inner.setApplicationClass();
-          for (SootMethod m : inner.getMethods()) {
-            if (m.isStaticInitializer()) {
-              eps.add(m);
-            }
-          }
-        }
-      }
-
-      if (eps.isEmpty()) {
-        throw new IllegalStateException(
-            "No entrypoints given/found in " + classCount + " classes.");
-      }
-      // System.out.println("classes: " + classCount);
-      Scene.v().setEntryPoints(eps);
-
-      Transform transform =
-          new Transform(
-              "wjtp.ifds",
-              new SceneTransformer() {
-                @Override
-                protected void internalTransform(String phaseName, Map<String, String> options) {
-                  BoomerangPretransformer.v().reset();
-                  BoomerangPretransformer.v().apply();
-                }
-              });
-
-      // analyze
-      PackManager.v()
-          .getPack("wjtp")
-          .add(transform); // whole programm, jimple, user-defined transformations
-      PackManager.v().getPack("cg").apply(); // call graph package
-      PackManager.v().getPack("wjtp").apply();
-    }
-
-    /*
-         System.out.println("classes: " + Scene.v().getClasses().size());
-         Scene.v().getClasses().stream()
-            .sorted(Comparator.comparing(SootClass::toString))
-            .forEach(System.out::println);
-    */
-
-    return new SootFrameworkScope(
-        Scene.v(),
-        Scene.v().getCallGraph(),
-        Scene.v().getEntryPoints(),
-        SootDataFlowScopeUtil.make(Scene.v()));
+  @Override
+  public Method getTestMethod() {
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
-  private static String getTargetClass(SootMethod sootTestMethod, String testCaseClassName) {
-    SootClass sootClass = new SootClass("dummyClass");
-    Type paramType = ArrayType.v(RefType.v("java.lang.String"), 1);
-    SootMethod mainMethod =
-        new SootMethod(
-            "main",
-            Collections.singletonList(paramType),
-            VoidType.v(),
-            Modifier.PUBLIC | Modifier.STATIC);
-    sootClass.addMethod(mainMethod);
-    JimpleBody body = Jimple.v().newBody(mainMethod);
-    mainMethod.setActiveBody(body);
-    RefType testCaseType = RefType.v(testCaseClassName);
-    Local loc = Jimple.v().newLocal("l0", paramType);
-    body.getLocals().add(loc);
-    body.getUnits().add(Jimple.v().newIdentityStmt(loc, Jimple.v().newParameterRef(paramType, 0)));
-    Local allocatedTestObj = Jimple.v().newLocal("dummyObj", testCaseType);
-    body.getLocals().add(allocatedTestObj);
-    body.getUnits()
-        .add(Jimple.v().newAssignStmt(allocatedTestObj, Jimple.v().newNewExpr(testCaseType)));
-    body.getUnits()
-        .add(
-            Jimple.v()
-                .newInvokeStmt(
-                    Jimple.v().newVirtualInvokeExpr(allocatedTestObj, sootTestMethod.makeRef())));
-    body.getUnits().add(Jimple.v().newReturnVoidStmt());
-
-    Scene.v().addClass(sootClass);
-    body.validate();
-    return sootClass.toString();
+  @Override
+  public FrameworkScope createFrameworkScope(DataFlowScope dataFlowScope) {
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
   /** SootUp Framework setup TODO: [ms] refactor me! */
@@ -425,7 +230,7 @@ public class FrameworkScopeFactory {
           new JimpleStringAnalysisInputLocation(
               jimpleClassStr, SourceType.Application, Collections.emptyList());
       JimpleView jimpleView = new JimpleView(jimpleStringAnalysisInputLocation);
-      Optional<sootup.core.model.SootClass> aClass = jimpleView.getClass(dummyClassType);
+      Optional<SootClass> aClass = jimpleView.getClass(dummyClassType);
 
       assert aClass.isPresent();
       sootup.core.model.SootClass sootClass = aClass.get();
