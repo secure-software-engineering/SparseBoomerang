@@ -42,9 +42,6 @@ public class TransitionRepresentationFunction extends Weight {
     this.stateChangeStatements = Sets.newHashSet();
   }
 
-  public Set<Edge> getLastStateChangeStatements() {
-    return stateChangeStatements;
-  }
 
   @Override
   public Weight extendWith(Weight other) {
@@ -65,14 +62,10 @@ public class TransitionRepresentationFunction extends Weight {
       return one();
     }
     TransitionRepresentationFunction func = (TransitionRepresentationFunction) other;
-    if (other.equals(one()) || this.equals(one())) {
-     Set<ITransition> idTransitions = Sets.newHashSet();
-    }
 
     HashSet<Edge> newStateChangeStmts = Sets.newHashSet(stateChangeStatements);
     newStateChangeStmts.addAll(func.stateChangeStatements);
-    Weight weight = extendWith(other);
-    return weight;
+    return extendWith(other);
   }
 
   public static TransitionRepresentationFunction one() {
