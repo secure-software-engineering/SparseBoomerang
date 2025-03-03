@@ -21,14 +21,10 @@ import boomerang.scope.Statement;
 import boomerang.scope.Val;
 import boomerang.solver.BackwardBoomerangSolver;
 import com.google.common.collect.Table;
-import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.Assert;
 import org.junit.Test;
-import test.FrameworkScopeFactory;
 import test.TestingFramework;
 import test.setup.MethodWrapper;
 import wpds.impl.Weight.NoWeight;
@@ -39,7 +35,12 @@ public class CustomFlowFunctionTest {
   public void killOnSystemExitBackwardTestInteger() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(CustomFlowFunctionIntTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            CustomFlowFunctionIntTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -71,7 +72,12 @@ public class CustomFlowFunctionTest {
   public void killOnSystemExitBackwardTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(CustomFlowFunctionTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            CustomFlowFunctionTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -92,10 +98,15 @@ public class CustomFlowFunctionTest {
   public void killOnSystemExitForwardTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(CustomFlowFunctionTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            CustomFlowFunctionTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
-    Method m =  testingFramework.getTestMethod();
+    Method m = testingFramework.getTestMethod();
     ForwardQuery query = selectFirstIntAssignment(m);
 
     Boomerang solver = new Boomerang(frameworkScope, customOptions());
@@ -150,7 +161,8 @@ public class CustomFlowFunctionTest {
     }
 
     AllocVal arg =
-        new AllocVal(intAssignStmt.get().getLeftOp(), intAssignStmt.get(), intAssignStmt.get().getRightOp());
+        new AllocVal(
+            intAssignStmt.get().getLeftOp(), intAssignStmt.get(), intAssignStmt.get().getRightOp());
 
     Optional<Statement> succs =
         method.getControlFlowGraph().getSuccsOf(intAssignStmt.get()).stream().findFirst();

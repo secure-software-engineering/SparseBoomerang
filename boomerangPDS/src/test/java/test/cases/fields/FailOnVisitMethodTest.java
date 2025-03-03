@@ -11,12 +11,8 @@
  */
 package test.cases.fields;
 
-import java.util.Collection;
-import java.util.Collections;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
-import test.core.selfrunning.NullableField;
 
 // TODO The test does nothing?
 public class FailOnVisitMethodTest extends AbstractBoomerangTest {

@@ -34,7 +34,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void integerCastTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(IntegerCastTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            IntegerCastTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -49,7 +54,9 @@ public class DemandDrivenGuidedAnalysisTest {
   public void basicTarget() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(BasicTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            BasicTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -64,7 +71,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void leftUnbalancedTargetTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(LeftUnbalancedTarget.class.getName(), "bar", MethodWrapper.VOID, List.of("java.lang.String"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            LeftUnbalancedTarget.class.getName(),
+            "bar",
+            MethodWrapper.VOID,
+            List.of("java.lang.String"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -77,7 +89,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void contextSensitiveTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ContextSensitiveTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ContextSensitiveTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -90,7 +107,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void nestedContextTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(NestedContextTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            NestedContextTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -103,7 +125,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void nestedContextAndBranchingTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(NestedContextAndBranchingTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            NestedContextAndBranchingTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -116,7 +143,9 @@ public class DemandDrivenGuidedAnalysisTest {
   public void contextSensitiveAndLeftUnbalanced2StacksTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ContextSensitiveAndLeftUnbalanced2StacksTarget.class.getName(), "context");
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ContextSensitiveAndLeftUnbalanced2StacksTarget.class.getName(), "context");
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -129,7 +158,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void contextSensitiveAndLeftUnbalancedTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ContextSensitiveAndLeftUnbalancedTarget.class.getName(), "context", MethodWrapper.VOID, List.of("java.lang.String"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ContextSensitiveAndLeftUnbalancedTarget.class.getName(),
+            "context",
+            MethodWrapper.VOID,
+            List.of("java.lang.String"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -142,7 +176,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void contextSensitiveAndLeftUnbalancedWithFieldTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ContextSensitiveAndLeftUnbalancedFieldTarget.class.getName(), "context", MethodWrapper.VOID, List.of("java.lang.String"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ContextSensitiveAndLeftUnbalancedFieldTarget.class.getName(),
+            "context",
+            MethodWrapper.VOID,
+            List.of("java.lang.String"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -155,7 +194,9 @@ public class DemandDrivenGuidedAnalysisTest {
   public void contextSensitiveAndLeftUnbalancedWithThisFieldTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ContextSensitiveAndLeftUnbalancedThisFieldTarget.MyObject.class.getName(), "context");
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ContextSensitiveAndLeftUnbalancedThisFieldTarget.MyObject.class.getName(), "context");
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -168,7 +209,8 @@ public class DemandDrivenGuidedAnalysisTest {
   public void contextSensitiveAndLeftUnbalancedWithFieldTest2() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ContextSensitiveAndLeftUnbalancedTarget2.class.getName(), "context");
+    MethodWrapper methodWrapper =
+        new MethodWrapper(ContextSensitiveAndLeftUnbalancedTarget2.class.getName(), "context");
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -181,7 +223,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void wrappedInNewStringTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(WrappedInNewStringTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            WrappedInNewStringTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -194,7 +241,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void wrappedInNewStringInnerTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(WrappedInNewStringInnerTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            WrappedInNewStringInnerTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -207,7 +259,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void wrappedInNewStringTwiceTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(WrappedInStringTwiceTest.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            WrappedInStringTwiceTest.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -220,7 +277,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void branchingTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(BranchingTest.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            BranchingTest.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -233,7 +295,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void branchingAfterNewTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(BranchingAfterNewStringTest.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            BranchingAfterNewStringTest.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -246,7 +313,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void pingPongTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(PingPongTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            PingPongTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -259,7 +331,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void pingPongInterproceduralTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(PingPongInterproceduralTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            PingPongInterproceduralTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -272,7 +349,12 @@ public class DemandDrivenGuidedAnalysisTest {
   public void arrayContainerTest() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ArrayContainerTarget.class.getName(), "main", MethodWrapper.VOID, List.of("java.lang.String[]"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ArrayContainerTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
@@ -285,7 +367,9 @@ public class DemandDrivenGuidedAnalysisTest {
   public void valueOfTarget() {
     TestingFramework testingFramework = new TestingFramework();
 
-    MethodWrapper methodWrapper = new MethodWrapper(ValueOfTarget.class.getName(), "foo", MethodWrapper.VOID, List.of("int", "int"));
+    MethodWrapper methodWrapper =
+        new MethodWrapper(
+            ValueOfTarget.class.getName(), "foo", MethodWrapper.VOID, List.of("int", "int"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();

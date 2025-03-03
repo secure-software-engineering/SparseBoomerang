@@ -11,7 +11,6 @@
  */
 package test.cases.integers;
 
-import java.math.BigInteger;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;

@@ -18,8 +18,6 @@ import boomerang.scope.WrappedClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
-import test.core.selfrunning.NoAllocatedObject;
 
 public class ArrayTest extends AbstractBoomerangTest {
 

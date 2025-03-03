@@ -18,10 +18,8 @@ import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.Statement;
 import boomerang.scope.Val;
 import com.google.common.collect.Table;
-
 import java.util.Collection;
 import java.util.HashSet;
-
 import sync.pds.solver.nodes.Node;
 import typestate.TransitionFunction;
 
@@ -47,7 +45,8 @@ public class TestingResultReporter {
     }
   }
 
-  public void onSeedFinished(Node<Edge, Val> seed, ForwardBoomerangResults<TransitionFunction> res) {
+  public void onSeedFinished(
+      Node<Edge, Val> seed, ForwardBoomerangResults<TransitionFunction> res) {
     Table<Statement, Val, TransitionFunction> results = res.asStatementValWeightTable();
 
     for (StateResult stateResult : expectedStateResults) {

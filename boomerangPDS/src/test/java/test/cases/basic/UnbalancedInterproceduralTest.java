@@ -1,7 +1,6 @@
 package test.cases.basic;
 
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class UnbalancedInterproceduralTest extends AbstractBoomerangTest {

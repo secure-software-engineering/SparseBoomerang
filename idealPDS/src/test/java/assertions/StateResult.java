@@ -13,14 +13,13 @@ package assertions;
 
 import boomerang.scope.Statement;
 import boomerang.scope.Val;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import test.Assertion;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.ITransition;
 import typestate.finiteautomata.State;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
 
 public abstract class StateResult implements Assertion {
 

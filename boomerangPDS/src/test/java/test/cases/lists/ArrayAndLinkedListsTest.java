@@ -11,13 +11,7 @@
  */
 package test.cases.lists;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class ArrayAndLinkedListsTest extends AbstractBoomerangTest {

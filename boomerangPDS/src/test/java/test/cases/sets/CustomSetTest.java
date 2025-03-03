@@ -15,13 +15,8 @@ import boomerang.scope.DataFlowScope;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Method;
 import boomerang.scope.WrappedClass;
-import java.util.Iterator;
-import java.util.List;
-
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class CustomSetTest extends AbstractBoomerangTest {
 

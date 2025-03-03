@@ -12,7 +12,6 @@
 package test.cases.fields.complexity;
 
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class Recursion2LongTest extends AbstractBoomerangTest {

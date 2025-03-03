@@ -14,8 +14,6 @@ package test.cases.realworld;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
-import java.util.List;
-
 public class ScalabilityOfBackwardAnalysisTest extends AbstractBoomerangTest {
 
   private final String target = ScalabilityOfBackwardAnalysisTarget.class.getName();

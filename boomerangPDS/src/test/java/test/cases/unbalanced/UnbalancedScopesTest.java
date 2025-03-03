@@ -1,8 +1,6 @@
 package test.cases.unbalanced;
 
 import org.junit.Test;
-import test.cases.fields.Alloc;
-import test.cases.fields.B;
 import test.core.AbstractBoomerangTest;
 
 public class UnbalancedScopesTest extends AbstractBoomerangTest {

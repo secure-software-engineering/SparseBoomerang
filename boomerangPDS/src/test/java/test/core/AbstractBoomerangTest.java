@@ -23,14 +23,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -52,8 +50,7 @@ import wpds.interfaces.WPAStateListener;
 
 public class AbstractBoomerangTest extends TestingFramework {
 
-  @Rule
-  public TestName testName = new TestName();
+  @Rule public TestName testName = new TestName();
 
   /**
    * Fails the test cases, when any instance of the interface {@link
@@ -99,7 +96,8 @@ public class AbstractBoomerangTest extends TestingFramework {
     analyze(targetClassName, targetMethodName, DataFlowScope.EXCLUDE_PHANTOM_CLASSES);
   }
 
-  protected void analyze(String targetClassName, String targetMethodName, DataFlowScope dataFlowScope) {
+  protected void analyze(
+      String targetClassName, String targetMethodName, DataFlowScope dataFlowScope) {
     MethodWrapper methodWrapper = new MethodWrapper(targetClassName, targetMethodName);
     FrameworkScope frameworkScope = super.getFrameworkScope(methodWrapper, dataFlowScope);
 
@@ -118,9 +116,7 @@ public class AbstractBoomerangTest extends TestingFramework {
       Preanalysis an =
           new Preanalysis(callGraph, new AllocationSiteOf(AllocatedObject.class.getName()));
       expectedAllocationSites = an.computeSeeds();
-      an =
-          new Preanalysis(
-              callGraph, new AllocationSiteOf(NoAllocatedObject.class.getName()));
+      an = new Preanalysis(callGraph, new AllocationSiteOf(NoAllocatedObject.class.getName()));
       explicitlyUnexpectedAllocationSites =
           an.computeSeeds().stream().map(Query::asNode).collect(Collectors.toList());
     }
@@ -257,7 +253,8 @@ public class AbstractBoomerangTest extends TestingFramework {
     return Lists.newArrayList(split);
   }
 
-  private Set<Node<Edge, Val>> runQuery(FrameworkScope frameworkScope, Collection<? extends Query> queries) {
+  private Set<Node<Edge, Val>> runQuery(
+      FrameworkScope frameworkScope, Collection<? extends Query> queries) {
     final Set<Node<Edge, Val>> results = Sets.newHashSet();
 
     for (final Query query : queries) {
@@ -301,7 +298,9 @@ public class AbstractBoomerangTest extends TestingFramework {
       Collection<? extends Node<Edge, Val>> results,
       AnalysisMode analysis) {
     LOGGER.info("Boomerang Results: {}", results);
-    LOGGER.info("Expected Results: {}", expectedResults.stream().map(Query::var).collect(Collectors.toList()));
+    LOGGER.info(
+        "Expected Results: {}",
+        expectedResults.stream().map(Query::var).collect(Collectors.toList()));
     Collection<Node<Edge, Val>> falseNegativeAllocationSites = new HashSet<>();
     for (Query res : expectedResults) {
       if (!results.contains(res.asNode())) falseNegativeAllocationSites.add(res.asNode());

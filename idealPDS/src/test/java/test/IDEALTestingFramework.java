@@ -23,6 +23,9 @@ import ideal.IDEALAnalysisDefinition;
 import ideal.IDEALResultHandler;
 import ideal.IDEALSeedSolver;
 import ideal.StoreIDEALResultHandler;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -33,158 +36,166 @@ import test.setup.MethodWrapper;
 import typestate.TransitionFunction;
 import typestate.finiteautomata.TypeStateMachineWeightFunctions;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 public abstract class IDEALTestingFramework extends TestingFramework {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IDEALTestingFramework.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IDEALTestingFramework.class);
 
-    @Rule
-    public TestName testName = new TestName();
+  @Rule public TestName testName = new TestName();
 
-    private final StoreIDEALResultHandler<TransitionFunction> resultHandler;
+  private final StoreIDEALResultHandler<TransitionFunction> resultHandler;
 
-    protected IDEALTestingFramework() {
-        this.resultHandler = new StoreIDEALResultHandler<>();
+  protected IDEALTestingFramework() {
+    this.resultHandler = new StoreIDEALResultHandler<>();
+  }
+
+  public void analyze(
+      String targetClassName, String targetMethodName, int expectedAssertions, int expectedSeeds) {
+    LOGGER.info(
+        "Running '{}' in class '{}' with {} assertions",
+        targetMethodName,
+        targetClassName,
+        expectedAssertions);
+
+    // Set up the framework scope
+    MethodWrapper methodWrapper = new MethodWrapper(targetClassName, targetMethodName);
+    FrameworkScope frameworkScope = super.getFrameworkScope(methodWrapper);
+    Method testMethod = super.getTestMethod();
+
+    // Collect the expected assertions
+    Collection<Assertion> assertions =
+        parseExpectedQueryResults(frameworkScope.getCallGraph(), testMethod);
+    if (assertions.size() != expectedAssertions) {
+      Assert.fail(
+          "Unexpected number of assertions in target program. Expected "
+              + expectedAssertions
+              + ", got "
+              + assertions.size());
+    }
+    TestingResultReporter resultReporter = new TestingResultReporter(assertions);
+
+    // Run IDEal
+    IDEALAnalysis<TransitionFunction> idealAnalysis = createAnalysis(frameworkScope);
+    idealAnalysis.run();
+
+    // Update results
+    Collection<WeightedForwardQuery<TransitionFunction>> seeds =
+        resultHandler.getResults().keySet();
+    if (seeds.size() != expectedSeeds) {
+      Assert.fail(
+          "Unexpected number of seeds. Expected " + expectedSeeds + ", got " + seeds.size());
     }
 
-    public void analyze(String targetClassName, String targetMethodName, int expectedAssertions, int expectedSeeds) {
-        LOGGER.info("Running '{}' in class '{}' with {} assertions", targetMethodName, targetClassName, expectedAssertions);
-
-        // Set up the framework scope
-        MethodWrapper methodWrapper = new MethodWrapper(targetClassName, targetMethodName);
-        FrameworkScope frameworkScope = super.getFrameworkScope(methodWrapper);
-        Method testMethod = super.getTestMethod();
-
-        // Collect the expected assertions
-        Collection<Assertion> assertions = parseExpectedQueryResults(frameworkScope.getCallGraph(), testMethod);
-        if (assertions.size() != expectedAssertions) {
-            Assert.fail("Unexpected number of assertions in target program. Expected " + expectedAssertions + ", got " + assertions.size());
-        }
-        TestingResultReporter resultReporter = new TestingResultReporter(assertions);
-
-        // Run IDEal
-        IDEALAnalysis<TransitionFunction> idealAnalysis = createAnalysis(frameworkScope);
-        idealAnalysis.run();
-
-        // Update results
-        Collection<WeightedForwardQuery<TransitionFunction>> seeds = resultHandler.getResults().keySet();
-        if (seeds.size() != expectedSeeds) {
-            Assert.fail("Unexpected number of seeds. Expected " + expectedSeeds + ", got " + seeds.size());
-        }
-
-        for (WeightedForwardQuery<TransitionFunction> seed : seeds) {
-            resultReporter.onSeedFinished(seed.asNode(), resultHandler.getResults().get(seed));
-        }
-
-        // Assert the assertions
-        assertResults(assertions);
+    for (WeightedForwardQuery<TransitionFunction> seed : seeds) {
+      resultReporter.onSeedFinished(seed.asNode(), resultHandler.getResults().get(seed));
     }
 
-    protected IDEALAnalysis<TransitionFunction> createAnalysis(FrameworkScope frameworkScope) {
-        return new IDEALAnalysis<>(
-                new IDEALAnalysisDefinition<>() {
+    // Assert the assertions
+    assertResults(assertions);
+  }
 
-                    @Override
-                    public Collection<WeightedForwardQuery<TransitionFunction>> generate(
-                            ControlFlowGraph.Edge stmt) {
-                        return getStateMachine().generateSeed(stmt);
-                    }
+  protected IDEALAnalysis<TransitionFunction> createAnalysis(FrameworkScope frameworkScope) {
+    return new IDEALAnalysis<>(
+        new IDEALAnalysisDefinition<>() {
 
-                    @Override
-                    public WeightFunctions<
-                            ControlFlowGraph.Edge, Val, ControlFlowGraph.Edge, TransitionFunction>
-                    weightFunctions() {
-                        return getStateMachine();
-                    }
+          @Override
+          public Collection<WeightedForwardQuery<TransitionFunction>> generate(
+              ControlFlowGraph.Edge stmt) {
+            return getStateMachine().generateSeed(stmt);
+          }
 
-                    @Override
-                    public Debugger<TransitionFunction> debugger(IDEALSeedSolver<TransitionFunction> solver) {
-                        return new Debugger<>();
-                    }
+          @Override
+          public WeightFunctions<
+                  ControlFlowGraph.Edge, Val, ControlFlowGraph.Edge, TransitionFunction>
+              weightFunctions() {
+            return getStateMachine();
+          }
 
-                    @Override
-                    public IDEALResultHandler<TransitionFunction> getResultHandler() {
-                        return resultHandler;
-                    }
+          @Override
+          public Debugger<TransitionFunction> debugger(IDEALSeedSolver<TransitionFunction> solver) {
+            return new Debugger<>();
+          }
 
-                    @Override
-                    public BoomerangOptions boomerangOptions() {
-                        return BoomerangOptions.builder()
-                                .withStaticFieldStrategy(Strategies.StaticFieldStrategy.FLOW_SENSITIVE)
-                                .withAnalysisTimeout(-1)
-                                .enableAllowMultipleQueries(true)
-                                .build();
-                    }
+          @Override
+          public IDEALResultHandler<TransitionFunction> getResultHandler() {
+            return resultHandler;
+          }
 
-                    @Override
-                    public FrameworkScope getFrameworkFactory() {
-                        return frameworkScope;
-                    }
-                });
+          @Override
+          public BoomerangOptions boomerangOptions() {
+            return BoomerangOptions.builder()
+                .withStaticFieldStrategy(Strategies.StaticFieldStrategy.FLOW_SENSITIVE)
+                .withAnalysisTimeout(-1)
+                .enableAllowMultipleQueries(true)
+                .build();
+          }
+
+          @Override
+          public FrameworkScope getFrameworkFactory() {
+            return frameworkScope;
+          }
+        });
+  }
+
+  protected abstract TypeStateMachineWeightFunctions getStateMachine();
+
+  private Collection<Assertion> parseExpectedQueryResults(CallGraph callGraph, Method testMethod) {
+    Collection<Assertion> results = new HashSet<>();
+    parseExpectedQueryResults(callGraph, testMethod, results, new HashSet<>());
+
+    return results;
+  }
+
+  private void parseExpectedQueryResults(
+      CallGraph callGraph, Method testMethod, Collection<Assertion> queries, Set<Method> visited) {
+    if (visited.contains(testMethod)) {
+      return;
     }
+    visited.add(testMethod);
 
-    protected abstract TypeStateMachineWeightFunctions getStateMachine();
+    for (Statement stmt : testMethod.getStatements()) {
+      if (!stmt.containsInvokeExpr()) {
+        continue;
+      }
 
-    private Collection<Assertion> parseExpectedQueryResults(CallGraph callGraph, Method testMethod) {
-        Collection<Assertion> results = new HashSet<>();
-        parseExpectedQueryResults(callGraph, testMethod, results, new HashSet<>());
-
-        return results;
-    }
-
-    private void parseExpectedQueryResults(CallGraph callGraph, Method testMethod, Collection<Assertion> queries, Set<Method> visited) {
-        if (visited.contains(testMethod)) {
-            return;
+      for (CallGraph.Edge callSite : callGraph.edgesOutOf(stmt)) {
+        if (callSite.tgt().isDefined()) {
+          parseExpectedQueryResults(callGraph, callSite.tgt(), queries, visited);
         }
-        visited.add(testMethod);
+      }
 
-        for (Statement stmt : testMethod.getStatements()) {
-            if (!stmt.containsInvokeExpr()) {
-                continue;
-            }
+      InvokeExpr invokeExpr = stmt.getInvokeExpr();
+      DeclaredMethod declaredMethod = invokeExpr.getMethod();
 
-            for (CallGraph.Edge callSite : callGraph.edgesOutOf(stmt)) {
-                if (callSite.tgt().isDefined()) {
-                    parseExpectedQueryResults(callGraph, callSite.tgt(), queries, visited);
-                }
-            }
+      String assertionsName = Assertions.class.getName();
+      if (!declaredMethod.getDeclaringClass().getFullyQualifiedName().equals(assertionsName)) {
+        continue;
+      }
 
-            InvokeExpr invokeExpr = stmt.getInvokeExpr();
-            DeclaredMethod declaredMethod = invokeExpr.getMethod();
+      String invocationName = invokeExpr.getMethod().getName();
 
-            String assertionsName = Assertions.class.getName();
-            if (!declaredMethod.getDeclaringClass().getFullyQualifiedName().equals(assertionsName)) {
-                continue;
-            }
+      if (invocationName.equals("shouldNotBeAnalyzed")) {
+        queries.add(new ShouldNotBeAnalyzed(stmt));
+      }
 
-            String invocationName = invokeExpr.getMethod().getName();
+      if (invocationName.equals("mustBeInAcceptingState")) {
+        Val seed = invokeExpr.getArg(0);
+        queries.add(new MustBeInAcceptingState(stmt, seed));
+      }
 
-            if (invocationName.equals("shouldNotBeAnalyzed")) {
-                queries.add(new ShouldNotBeAnalyzed(stmt));
-            }
+      if (invocationName.equals("mustBeInErrorState")) {
+        Val seed = invokeExpr.getArg(0);
+        queries.add(new MustBeInErrorState(stmt, seed));
+      }
 
-            if (invocationName.equals("mustBeInAcceptingState")) {
-                Val seed = invokeExpr.getArg(0);
-                queries.add(new MustBeInAcceptingState(stmt, seed));
-            }
+      if (invocationName.equals("mayBeInAcceptingState")) {
+        Val seed = invokeExpr.getArg(0);
+        queries.add(new MayBeInAcceptingState(stmt, seed));
+      }
 
-            if (invocationName.equals("mustBeInErrorState")) {
-                Val seed = invokeExpr.getArg(0);
-                queries.add(new MustBeInErrorState(stmt, seed));
-            }
-
-            if (invocationName.equals("mayBeInAcceptingState")) {
-                Val seed = invokeExpr.getArg(0);
-                queries.add(new MayBeInAcceptingState(stmt, seed));
-            }
-
-            if (invocationName.equals("mayBeInErrorState")) {
-                Val seed = invokeExpr.getArg(0);
-                queries.add(new MayBeInErrorState(stmt, seed));
-            }
-        }
+      if (invocationName.equals("mayBeInErrorState")) {
+        Val seed = invokeExpr.getArg(0);
+        queries.add(new MayBeInErrorState(stmt, seed));
+      }
     }
+  }
 }

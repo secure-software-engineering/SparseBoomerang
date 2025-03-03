@@ -11,11 +11,8 @@
  */
 package test.cases.lists;
 
-import java.util.List;
-import java.util.Vector;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class VectorsLongTest extends AbstractBoomerangTest {
 

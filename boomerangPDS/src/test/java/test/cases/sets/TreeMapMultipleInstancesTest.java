@@ -12,11 +12,7 @@
 package test.cases.sets;
 
 import boomerang.options.BoomerangOptions;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class TreeMapMultipleInstancesTest extends AbstractBoomerangTest {

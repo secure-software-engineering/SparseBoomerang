@@ -13,7 +13,6 @@ package test.cases.generics;
 
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class GenericsTest extends AbstractBoomerangTest {
 

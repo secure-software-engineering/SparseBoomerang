@@ -13,7 +13,6 @@ package test.cases.exceptions;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 @Ignore

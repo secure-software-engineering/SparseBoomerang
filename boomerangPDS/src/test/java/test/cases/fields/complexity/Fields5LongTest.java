@@ -13,7 +13,6 @@ package test.cases.fields.complexity;
 
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class Fields5LongTest extends AbstractBoomerangTest {
 

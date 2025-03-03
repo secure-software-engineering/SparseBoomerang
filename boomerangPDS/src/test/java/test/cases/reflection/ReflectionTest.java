@@ -11,9 +11,7 @@
  */
 package test.cases.reflection;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class ReflectionTest extends AbstractBoomerangTest {

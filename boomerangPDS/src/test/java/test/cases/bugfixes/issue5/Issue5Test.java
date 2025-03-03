@@ -13,14 +13,12 @@ import boomerang.scope.Method;
 import boomerang.scope.Statement;
 import boomerang.scope.Type;
 import boomerang.scope.Val;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.junit.Assert;
 import org.junit.Test;
 import test.TestingFramework;
@@ -28,8 +26,8 @@ import test.setup.MethodWrapper;
 import wpds.impl.Weight.NoWeight;
 
 /**
- * This code was added to test <a href="https://github.com/CodeShield-Security/SPDS/issues/5">Issue 5</a>.
- * Thanks to @copumpkin for sharing code for testing purpose.
+ * This code was added to test <a href="https://github.com/CodeShield-Security/SPDS/issues/5">Issue
+ * 5</a>. Thanks to @copumpkin for sharing code for testing purpose.
  */
 public class Issue5Test {
 
@@ -37,22 +35,23 @@ public class Issue5Test {
 
   @Test
   public void excludeFoo() {
-    TestingFramework testingFramework = new TestingFramework() {
-      @Override
-      public List<String> getExcludedPackages() {
-        return List.of(Foo.class.getName());
-      }
-    };
+    TestingFramework testingFramework =
+        new TestingFramework() {
+          @Override
+          public List<String> getExcludedPackages() {
+            return List.of(Foo.class.getName());
+          }
+        };
 
     MethodWrapper methodWrapper = new MethodWrapper(target, "foos", "java.util.List");
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     assertResults(
-            frameworkScope,
-            testingFramework.getTestMethod(),
-            new MethodWrapper(Foo.class.getName(), "baz"),
-            new MethodWrapper(Foo.class.getName(), "bar"),
-            new MethodWrapper(Foo.class.getName(), "<init>"));
+        frameworkScope,
+        testingFramework.getTestMethod(),
+        new MethodWrapper(Foo.class.getName(), "baz"),
+        new MethodWrapper(Foo.class.getName(), "bar"),
+        new MethodWrapper(Foo.class.getName(), "<init>"));
   }
 
   @Test
@@ -62,15 +61,18 @@ public class Issue5Test {
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     assertResults(
-            frameworkScope,
-            testingFramework.getTestMethod(),
-            new MethodWrapper(Foo.class.getName(), "baz"),
-            new MethodWrapper(Foo.class.getName(), "bar"),
-            new MethodWrapper(Foo.class.getName(), "<init>"),
-            new MethodWrapper("java.lang.Object", "<init>"));
+        frameworkScope,
+        testingFramework.getTestMethod(),
+        new MethodWrapper(Foo.class.getName(), "baz"),
+        new MethodWrapper(Foo.class.getName(), "bar"),
+        new MethodWrapper(Foo.class.getName(), "<init>"),
+        new MethodWrapper("java.lang.Object", "<init>"));
   }
 
-  private void assertResults(FrameworkScope frameworkScope, Method testMethod, MethodWrapper... expectedCalledMethodsOnFoo) {
+  private void assertResults(
+      FrameworkScope frameworkScope,
+      Method testMethod,
+      MethodWrapper... expectedCalledMethodsOnFoo) {
     System.out.println("All method units:");
     for (Statement s : testMethod.getControlFlowGraph().getStatements()) {
       System.out.println("\t" + s.toString());
@@ -95,11 +97,14 @@ public class Issue5Test {
       System.out.println("\t" + s);
       DeclaredMethod calledMethod = s.getInvokeExpr().getMethod();
       System.out.println("\t\t" + calledMethod);
-      MethodWrapper methodWrapper = new MethodWrapper(
+      MethodWrapper methodWrapper =
+          new MethodWrapper(
               calledMethod.getDeclaringClass().getFullyQualifiedName(),
               calledMethod.getName(),
               calledMethod.getReturnType().toString(),
-              calledMethod.getParameterTypes().stream().map(Object::toString).collect(Collectors.toList()));
+              calledMethod.getParameterTypes().stream()
+                  .map(Object::toString)
+                  .collect(Collectors.toList()));
       methodCalledOnFoo.add(methodWrapper);
     }
 
@@ -110,17 +115,14 @@ public class Issue5Test {
       FrameworkScope scopeFactory, Statement queryStatement) {
     AllocVal var =
         new AllocVal(queryStatement.getLeftOp(), queryStatement, queryStatement.getRightOp());
-    Optional<Statement> successorStmt = queryStatement.getMethod().getControlFlowGraph().getSuccsOf(queryStatement).stream().findFirst();
+    Optional<Statement> successorStmt =
+        queryStatement.getMethod().getControlFlowGraph().getSuccsOf(queryStatement).stream()
+            .findFirst();
     if (successorStmt.isEmpty()) {
       Assert.fail("Could not find successor for " + queryStatement);
     }
 
-    ForwardQuery fwq =
-        new ForwardQuery(
-            new Edge(
-                queryStatement,
-                successorStmt.get()),
-            var);
+    ForwardQuery fwq = new ForwardQuery(new Edge(queryStatement, successorStmt.get()), var);
     Boomerang solver =
         new Boomerang(
             scopeFactory, BoomerangOptions.WITH_ALLOCATION_SITE(new IntAndStringAllocationSite()));

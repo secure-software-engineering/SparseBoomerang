@@ -13,7 +13,6 @@ package test.cases.statics;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class SingletonTest extends AbstractBoomerangTest {
@@ -35,5 +34,4 @@ public class SingletonTest extends AbstractBoomerangTest {
   public void singletonDirect() {
     analyze(target, testName.getMethodName());
   }
-
 }

@@ -1,4 +1,3 @@
 package test;
 
-public @interface TestMethod {
-}
+public @interface TestMethod {}

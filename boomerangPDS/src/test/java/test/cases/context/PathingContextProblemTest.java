@@ -12,7 +12,6 @@
 package test.cases.context;
 
 import org.junit.Test;
-import test.cases.basic.Allocation;
 import test.core.AbstractBoomerangTest;
 
 public class PathingContextProblemTest extends AbstractBoomerangTest {

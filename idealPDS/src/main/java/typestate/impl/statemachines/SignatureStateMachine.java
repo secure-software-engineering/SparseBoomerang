@@ -67,7 +67,8 @@ public class SignatureStateMachine extends TypeStateMachineWeightFunctions {
         new MatcherTransition(
             States.UNINITIALIZED, INIT_VERIFY, Parameter.This, States.VERIFY_CHECK, Type.OnCall));
     addTransition(
-        new MatcherTransition(States.UNINITIALIZED, SIGN, Parameter.This, States.ERROR, Type.OnCall));
+        new MatcherTransition(
+            States.UNINITIALIZED, SIGN, Parameter.This, States.ERROR, Type.OnCall));
     addTransition(
         new MatcherTransition(
             States.UNINITIALIZED, VERIFY, Parameter.This, States.ERROR, Type.OnCall));

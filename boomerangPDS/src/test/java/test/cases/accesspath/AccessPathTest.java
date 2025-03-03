@@ -14,7 +14,6 @@ package test.cases.accesspath;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 @Ignore
 public class AccessPathTest extends AbstractBoomerangTest {

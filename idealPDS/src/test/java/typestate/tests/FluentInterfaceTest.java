@@ -8,20 +8,20 @@ import typestate.targets.FluentInterface;
 
 public class FluentInterfaceTest extends IDEALTestingFramework {
 
-    private final String target = FluentInterface.class.getName();
+  private final String target = FluentInterface.class.getName();
 
-    @Override
-    public TypeStateMachineWeightFunctions getStateMachine() {
-        return new FileMustBeClosedStateMachine();
-    }
+  @Override
+  public TypeStateMachineWeightFunctions getStateMachine() {
+    return new FileMustBeClosedStateMachine();
+  }
 
-    @Test
-    public void fluentOpen() {
-        analyze(target, testName.getMethodName(), 1, 1);
-    }
+  @Test
+  public void fluentOpen() {
+    analyze(target, testName.getMethodName(), 1, 1);
+  }
 
-    @Test
-    public void fluentOpenAndClose() {
-        analyze(target, testName.getMethodName(), 2, 1);
-    }
+  @Test
+  public void fluentOpenAndClose() {
+    analyze(target, testName.getMethodName(), 2, 1);
+  }
 }

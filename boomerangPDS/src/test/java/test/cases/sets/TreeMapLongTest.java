@@ -11,10 +11,7 @@
  */
 package test.cases.sets;
 
-import java.util.Map;
-import java.util.TreeMap;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class TreeMapLongTest extends AbstractBoomerangTest {

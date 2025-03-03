@@ -13,7 +13,6 @@ package test.cases.fields.loops;
 
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class LoopsWithFieldsIntraTest extends AbstractBoomerangTest {
 

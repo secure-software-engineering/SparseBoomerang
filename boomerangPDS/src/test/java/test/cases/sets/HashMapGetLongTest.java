@@ -11,12 +11,8 @@
  */
 package test.cases.sets;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class HashMapGetLongTest extends AbstractBoomerangTest {
 

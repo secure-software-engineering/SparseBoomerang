@@ -11,12 +11,9 @@
  */
 package test.cases.lists;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
 
 public class ArrayListsLongTest extends AbstractBoomerangTest {
 

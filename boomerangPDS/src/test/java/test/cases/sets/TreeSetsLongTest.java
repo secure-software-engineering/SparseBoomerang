@@ -11,12 +11,8 @@
  */
 package test.cases.sets;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
 import org.junit.Ignore;
 import org.junit.Test;
-import test.cases.fields.Alloc;
 import test.core.AbstractBoomerangTest;
 
 public class TreeSetsLongTest extends AbstractBoomerangTest {
