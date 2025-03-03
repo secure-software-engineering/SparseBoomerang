@@ -10,10 +10,8 @@ package inference;
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-
-import wpds.impl.Weight;
-
 import javax.annotation.Nonnull;
+import wpds.impl.Weight;
 
 public class RepresentativeWeight extends Weight {
 
@@ -21,7 +19,7 @@ public class RepresentativeWeight extends Weight {
   private static RepresentativeWeight one;
   private static RepresentativeWeight zero;
 
-  private RepresentativeWeight(String rep) {
+  private RepresentativeWeight(@Nonnull String rep) {
     this.rep = rep;
   }
 
@@ -40,14 +38,14 @@ public class RepresentativeWeight extends Weight {
     return extendWith(other);
   }
 
-  public static RepresentativeWeight one() {
+  public static <W extends Weight> W one() {
     if (one == null) one = new RepresentativeWeight("ONE");
-    return one;
+    return (W) one;
   }
 
-  public static RepresentativeWeight zero() {
+  public static <W extends Weight> W zero() {
     if (zero == null) zero = new RepresentativeWeight("ZERO");
-    return zero;
+    return (W) zero;
   }
 
   public String toString() {
@@ -65,13 +63,13 @@ public class RepresentativeWeight extends Weight {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
     if (obj == null) {
-        return false;
+      return false;
     }
     if (getClass() != obj.getClass()) {
-        return false;
+      return false;
     }
     RepresentativeWeight other = (RepresentativeWeight) obj;
     return rep.equals(other.rep);

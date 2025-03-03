@@ -11,16 +11,15 @@
  */
 package inference;
 
+import static inference.RepresentativeWeight.one;
+import static inference.RepresentativeWeight.zero;
+
 import boomerang.scope.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import wpds.impl.Weight;
-
 import javax.annotation.Nonnull;
-
-import static inference.RepresentativeWeight.one;
-import static inference.RepresentativeWeight.zero;
+import wpds.impl.Weight;
 
 public class InferenceWeight extends Weight {
 
@@ -37,18 +36,17 @@ public class InferenceWeight extends Weight {
   @Override
   public Weight extendWith(Weight other) {
     if (other.equals(one())) {
-        return this;
+      return this;
     }
     if (this.equals(one())) {
-        return other;
+      return other;
     }
     if (other.equals(zero()) || this.equals(zero())) {
       return zero();
     }
     InferenceWeight func = (InferenceWeight) other;
-    Set<Method> otherInvokedMethods = func.invokedMethods;
     Set<Method> res = new HashSet<>(invokedMethods);
-    res.addAll(otherInvokedMethods);
+    res.addAll(func.invokedMethods);
     return new InferenceWeight(res);
   }
 
@@ -75,6 +73,6 @@ public class InferenceWeight extends Weight {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     InferenceWeight other = (InferenceWeight) obj;
-      return invokedMethods.equals(other.invokedMethods);
+    return invokedMethods.equals(other.invokedMethods);
   }
 }
