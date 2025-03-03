@@ -22,6 +22,9 @@ import typestate.finiteautomata.ITransition;
 import typestate.finiteautomata.Transition;
 import wpds.impl.Weight;
 
+import static typestate.TransitionRepresentationFunction.one;
+import static typestate.TransitionRepresentationFunction.zero;
+
 public class TransitionFunction extends Weight {
 
   private final Set<ITransition> value;
@@ -41,18 +44,10 @@ public class TransitionFunction extends Weight {
     this(new HashSet<>(Collections.singleton(trans)), stateChangeStatements);
   }
 
-  private TransitionFunction(String rep) {
-    this.value = Sets.newHashSet();
-    this.stateChangeStatements = Sets.newHashSet();
-  }
-
   public Collection<ITransition> values() {
     return Lists.newArrayList(value);
   }
 
-  public Set<Edge> getLastStateChangeStatements() {
-    return stateChangeStatements;
-  }
 
   @Override
   public Weight extendWith(Weight other) {
@@ -108,16 +103,6 @@ public class TransitionFunction extends Weight {
     HashSet<Edge> newStateChangeStmts = Sets.newHashSet(stateChangeStatements);
     newStateChangeStmts.addAll(func.stateChangeStatements);
     return new TransitionFunction(transitions, newStateChangeStmts);
-  }
-
-  public static TransitionFunction one() {
-    if (one == null) one = new TransitionFunction("ONE");
-    return one;
-  }
-
-  public static TransitionFunction zero() {
-    if (zero == null) zero = new TransitionFunction("ZERO");
-    return zero;
   }
 
   public String toString() {
