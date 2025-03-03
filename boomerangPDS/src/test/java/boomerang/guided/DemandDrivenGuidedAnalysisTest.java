@@ -4,11 +4,31 @@ import boomerang.BackwardQuery;
 import boomerang.ForwardQuery;
 import boomerang.Query;
 import boomerang.QueryGraph;
-import boomerang.guided.targets.*;
+import boomerang.guided.targets.ArrayContainerTarget;
+import boomerang.guided.targets.BasicTarget;
+import boomerang.guided.targets.BranchingAfterNewStringTest;
+import boomerang.guided.targets.BranchingTest;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalanced2StacksTarget;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedFieldTarget;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedTarget2;
+import boomerang.guided.targets.ContextSensitiveAndLeftUnbalancedThisFieldTarget;
+import boomerang.guided.targets.ContextSensitiveTarget;
+import boomerang.guided.targets.IntegerCastTarget;
+import boomerang.guided.targets.LeftUnbalancedTarget;
+import boomerang.guided.targets.NestedContextAndBranchingTarget;
+import boomerang.guided.targets.NestedContextTarget;
+import boomerang.guided.targets.PingPongInterproceduralTarget;
+import boomerang.guided.targets.PingPongTarget;
+import boomerang.guided.targets.ValueOfTarget;
+import boomerang.guided.targets.WrappedInNewStringInnerTarget;
+import boomerang.guided.targets.WrappedInNewStringTarget;
+import boomerang.guided.targets.WrappedInStringTwiceTest;
 import boomerang.options.BoomerangOptions;
 import boomerang.options.IAllocationSite;
 import boomerang.options.IntAndStringAllocationSite;
 import boomerang.scope.AllocVal;
+import boomerang.scope.CallGraph;
 import boomerang.scope.ControlFlowGraph.Edge;
 import boomerang.scope.FrameworkScope;
 import boomerang.scope.Method;
@@ -22,7 +42,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import test.TestingFramework;
 import test.setup.MethodWrapper;
@@ -66,22 +85,21 @@ public class DemandDrivenGuidedAnalysisTest {
   }
 
   @Test
-  @Ignore(
-      "We need additional logic to tell the analysis to continue at some unknown parent context")
   public void leftUnbalancedTargetTest() {
     TestingFramework testingFramework = new TestingFramework();
 
     MethodWrapper methodWrapper =
         new MethodWrapper(
             LeftUnbalancedTarget.class.getName(),
-            "bar",
+            "main",
             MethodWrapper.VOID,
-            List.of("java.lang.String"));
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
-    BackwardQuery query = selectFirstFileInitArgument(m);
+    Method target = getMethodFromName(frameworkScope.getCallGraph(), m, "bar");
 
+    BackwardQuery query = selectFirstFileInitArgument(target);
     runAnalysis(frameworkScope, query, "bar");
   }
 
@@ -161,14 +179,15 @@ public class DemandDrivenGuidedAnalysisTest {
     MethodWrapper methodWrapper =
         new MethodWrapper(
             ContextSensitiveAndLeftUnbalancedTarget.class.getName(),
-            "context",
+            "main",
             MethodWrapper.VOID,
-            List.of("java.lang.String"));
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
-    BackwardQuery query = selectFirstFileInitArgument(m);
+    Method target = getMethodFromName(frameworkScope.getCallGraph(), m, "context");
 
+    BackwardQuery query = selectFirstFileInitArgument(target);
     runAnalysis(frameworkScope, query, "bar");
   }
 
@@ -179,14 +198,15 @@ public class DemandDrivenGuidedAnalysisTest {
     MethodWrapper methodWrapper =
         new MethodWrapper(
             ContextSensitiveAndLeftUnbalancedFieldTarget.class.getName(),
-            "context",
+            "main",
             MethodWrapper.VOID,
-            List.of("java.lang.String"));
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
-    BackwardQuery query = selectFirstFileInitArgument(m);
+    Method target = getMethodFromName(frameworkScope.getCallGraph(), m, "context");
 
+    BackwardQuery query = selectFirstFileInitArgument(target);
     runAnalysis(frameworkScope, query, "bar");
   }
 
@@ -196,12 +216,16 @@ public class DemandDrivenGuidedAnalysisTest {
 
     MethodWrapper methodWrapper =
         new MethodWrapper(
-            ContextSensitiveAndLeftUnbalancedThisFieldTarget.MyObject.class.getName(), "context");
+            ContextSensitiveAndLeftUnbalancedThisFieldTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
-    BackwardQuery query = selectFirstFileInitArgument(m);
+    Method target = getMethodFromName(frameworkScope.getCallGraph(), m, "context");
 
+    BackwardQuery query = selectFirstFileInitArgument(target);
     runAnalysis(frameworkScope, query, "bar");
   }
 
@@ -210,12 +234,17 @@ public class DemandDrivenGuidedAnalysisTest {
     TestingFramework testingFramework = new TestingFramework();
 
     MethodWrapper methodWrapper =
-        new MethodWrapper(ContextSensitiveAndLeftUnbalancedTarget2.class.getName(), "context");
+        new MethodWrapper(
+            ContextSensitiveAndLeftUnbalancedTarget2.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
-    BackwardQuery query = selectFirstBaseOfToString(m);
+    Method target = getMethodFromName(frameworkScope.getCallGraph(), m, "context");
 
+    BackwardQuery query = selectFirstBaseOfToString(target);
     runAnalysis(frameworkScope, query, "bar");
   }
 
@@ -369,13 +398,28 @@ public class DemandDrivenGuidedAnalysisTest {
 
     MethodWrapper methodWrapper =
         new MethodWrapper(
-            ValueOfTarget.class.getName(), "foo", MethodWrapper.VOID, List.of("int", "int"));
+            ValueOfTarget.class.getName(),
+            "main",
+            MethodWrapper.VOID,
+            List.of("java.lang.String[]"));
     FrameworkScope frameworkScope = testingFramework.getFrameworkScope(methodWrapper);
 
     Method m = testingFramework.getTestMethod();
-    BackwardQuery query = selectFirstArgOfQueryTarget(m);
+    Method target = getMethodFromName(frameworkScope.getCallGraph(), m, "foo");
 
+    BackwardQuery query = selectFirstArgOfQueryTarget(target);
     runAnalysis(frameworkScope, query, 1);
+  }
+
+  private Method getMethodFromName(CallGraph callGraph, Method method, String methodName) {
+    for (Statement statement : method.getStatements()) {
+      for (CallGraph.Edge callee : callGraph.edgesOutOf(statement)) {
+        if (callee.tgt().getName().equals(methodName)) {
+          return callee.tgt();
+        }
+      }
+    }
+    throw new RuntimeException("Could not find call to method " + methodName);
   }
 
   public static BackwardQuery selectFirstArgOfQueryTarget(Method method) {
