@@ -43,6 +43,6 @@ public class InferenceWeightFunctions implements WeightFunctions<Edge, Val, Edge
 
   @Override
   public InferenceWeight getOne() {
-    return RepresentativeWeight.one();
+    return WeightRepresentative.one();
   }
 }

@@ -11,8 +11,8 @@
  */
 package inference;
 
-import static inference.RepresentativeWeight.one;
-import static inference.RepresentativeWeight.zero;
+import static inference.WeightRepresentative.one;
+import static inference.WeightRepresentative.zero;
 
 import boomerang.scope.Method;
 import java.util.Collections;
