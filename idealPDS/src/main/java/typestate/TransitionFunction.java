@@ -26,8 +26,6 @@ public class TransitionFunction extends Weight {
 
   private final Set<ITransition> value;
 
-  private final String rep;
-
   private static TransitionFunction one;
 
   private static TransitionFunction zero;
@@ -37,7 +35,6 @@ public class TransitionFunction extends Weight {
   public TransitionFunction(Set<? extends ITransition> trans, Set<Edge> stateChangeStatements) {
     this.stateChangeStatements = stateChangeStatements;
     this.value = new HashSet<>(trans);
-    this.rep = null;
   }
 
   public TransitionFunction(ITransition trans, Set<Edge> stateChangeStatements) {
@@ -46,7 +43,6 @@ public class TransitionFunction extends Weight {
 
   private TransitionFunction(String rep) {
     this.value = Sets.newHashSet();
-    this.rep = rep;
     this.stateChangeStatements = Sets.newHashSet();
   }
 
@@ -125,7 +121,6 @@ public class TransitionFunction extends Weight {
   }
 
   public String toString() {
-    if (this.rep != null) return this.rep;
     return "Weight: " + value.toString();
   }
 
@@ -133,7 +128,6 @@ public class TransitionFunction extends Weight {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((rep == null) ? 0 : rep.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
@@ -144,9 +138,6 @@ public class TransitionFunction extends Weight {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     TransitionFunction other = (TransitionFunction) obj;
-    if (rep == null) {
-      if (other.rep != null) return false;
-    } else if (!rep.equals(other.rep)) return false;
     if (value == null) {
       return other.value == null;
     } else return value.equals(other.value);
