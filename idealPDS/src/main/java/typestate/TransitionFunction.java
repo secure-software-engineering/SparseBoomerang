@@ -29,9 +29,6 @@ public class TransitionFunction extends Weight {
 
   private final Set<ITransition> value;
 
-  private static TransitionFunction one;
-
-  private static TransitionFunction zero;
 
   private final Set<Edge> stateChangeStatements;
 
