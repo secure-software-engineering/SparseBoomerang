@@ -37,7 +37,6 @@ public class SootTestSetup implements TestSetup {
         Options.v().setPhaseOption("jb", "use-original-names:true");
 
         Options.v().setPhaseOption("cg.cha", "on");
-        Options.v().setPhaseOption("cg.cha", "verbose:true");
         Options.v().setPhaseOption("cg.cha", "all-reachable:true");
 
         Options.v().set_exclude(excludedPackages);
@@ -45,8 +44,8 @@ public class SootTestSetup implements TestSetup {
 
         SootClass sootTestCaseClass = Scene.v().forceResolve(methodWrapper.getDeclaringClass(), SootClass.BODIES);
         sootTestCaseClass.setApplicationClass();
-        // TODO Include parameters
-        String signature = methodWrapper.getReturnType() + " " + methodWrapper.getMethodName() + "()";
+
+        String signature = methodWrapper.getReturnType() + " " + methodWrapper.getMethodName() + "(" + String.join(",", methodWrapper.getParameters()) + ")";
         testMethod = sootTestCaseClass.getMethod(signature);
 
         if (testMethod == null) {

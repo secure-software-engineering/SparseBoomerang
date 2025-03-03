@@ -13,12 +13,10 @@ package test.cases.multiqueries;
 
 import org.junit.Test;
 import test.core.MultiQueryBoomerangTest;
-import test.core.selfrunning.AllocatedObject;
-import test.core.selfrunning.AllocatedObject2;
 
 public class MultiQueryTests extends MultiQueryBoomerangTest {
 
-  private final String target = MultiQueryTargets.class.getName();
+  private final String target = MultiQueryTarget.class.getName();
 
   @Test
   public void twoQueriesTest() {

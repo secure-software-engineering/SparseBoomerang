@@ -11,38 +11,16 @@ import test.core.AbstractBoomerangTest;
 
 public class ContextSpecificListTypeTest extends AbstractBoomerangTest {
 
-  public void wrongContext() {
-    List list = new WrongList();
-    method(list);
-  }
-
-  public Object method(List list) {
-    Alloc alloc = new Alloc();
-    list.add(alloc);
-    return alloc;
-  }
+  private final String target = ContextSpecificListTypeTarget.class.getName();
 
   @Ignore
   @Test
   public void testListType() {
-    wrongContext();
-    List list = new ArrayList();
-    Object query = method(list);
-    queryFor(query);
-  }
-
-  private static class WrongList extends LinkedList {
-    @Override
-    public boolean add(Object e) {
-      unreachable();
-      return false;
-    }
-
-    public void unreachable() {}
+    analyze(target, testName.getMethodName());
   }
 
   @Override
   protected BoomerangOptions createBoomerangOptions() {
-    return BoomerangOptions.builder().enableOnTheFlyCallGraph(true).build();
+    return BoomerangOptions.builder().enableOnTheFlyCallGraph(true).enableAllowMultipleQueries(true).build();
   }
 }
