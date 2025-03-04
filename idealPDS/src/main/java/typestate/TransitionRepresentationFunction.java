@@ -11,11 +11,7 @@
  */
 package typestate;
 
-import boomerang.scope.ControlFlowGraph.Edge;
-import com.google.common.collect.Sets;
-
-import java.util.HashSet;
-import java.util.Set;
+import wpds.impl.Weight;
 
 public class TransitionRepresentationFunction extends Weight {
 
