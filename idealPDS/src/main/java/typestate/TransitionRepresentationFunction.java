@@ -45,7 +45,9 @@ public class TransitionRepresentationFunction extends Weight {
     if (!(other instanceof TransitionRepresentationFunction)) {
         throw new RuntimeException();
     }
-    if (this.equals(zero())) return other;
+    if (this.equals(zero())) {
+        return other;
+    }
     if (other.equals(zero())) return this;
     if (other.equals(one()) && this.equals(one())) {
       return one();
