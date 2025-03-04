@@ -27,6 +27,7 @@ import static typestate.TransitionRepresentationFunction.zero;
 
 public class TransitionFunction extends Weight {
 
+  private final Set<ITransition> value;
 
   private final Set<Edge> stateChangeStatements;
 
@@ -54,6 +55,7 @@ public class TransitionFunction extends Weight {
       return zero();
     }
     TransitionFunction func = (TransitionFunction) other;
+    Set<ITransition> otherTransitions = func.value;
     Set<ITransition> ress = new HashSet<>();
     Set<Edge> newStateChangeStatements = new HashSet<>();
     for (ITransition first : value) {
