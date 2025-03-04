@@ -49,7 +49,9 @@ public class TransitionFunction extends Weight {
   @Override
   public Weight extendWith(Weight other) {
     if (other.equals(one())) return this;
-    if (this.equals(one())) return other;
+    if (this.equals(one())) {
+        return other;
+    }
     if (other.equals(zero()) || this.equals(zero())) {
       return zero();
     }
