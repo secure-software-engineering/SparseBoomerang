@@ -11,8 +11,7 @@
  */
 package typestate;
 
-import boomerang.scope.ControlFlowGraph.Edge;
-import com.google.common.collect.Sets;
+
 import wpds.impl.Weight;
 
 import java.util.HashSet;
