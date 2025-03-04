@@ -26,11 +26,9 @@ public class TransitionRepresentationFunction extends Weight {
 
   private static TransitionRepresentationFunction zero;
 
-  private final Set<Edge> stateChangeStatements;
 
   private TransitionRepresentationFunction(String rep) {
     this.rep = rep;
-    this.stateChangeStatements = Sets.newHashSet();
   }
 
 
@@ -54,8 +52,6 @@ public class TransitionRepresentationFunction extends Weight {
     }
     TransitionRepresentationFunction func = (TransitionRepresentationFunction) other;
 
-    HashSet<Edge> newStateChangeStmts = Sets.newHashSet(stateChangeStatements);
-    newStateChangeStmts.addAll(func.stateChangeStatements);
     return extendWith(other);
   }
 
