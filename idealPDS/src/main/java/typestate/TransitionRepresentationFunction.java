@@ -40,7 +40,9 @@ public class TransitionRepresentationFunction extends Weight {
 
   @Override
   public Weight combineWith(Weight other) {
-    if (!(other instanceof TransitionRepresentationFunction)) throw new RuntimeException();
+    if (!(other instanceof TransitionRepresentationFunction)) {
+        throw new RuntimeException();
+    }
     if (this.equals(zero())) return other;
     if (other.equals(zero())) return this;
     if (other.equals(one()) && this.equals(one())) {
