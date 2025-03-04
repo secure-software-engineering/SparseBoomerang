@@ -50,7 +50,7 @@ public class TransitionFunction extends Weight {
     if (other.equals(one())) {
         return this;
     }
-    if (this.equals(one())) {
+    if (this.equals(TransitionRepresentationFunction.one())) {
         return other;
     }
     if (other.equals(zero()) || this.equals(zero())) {
