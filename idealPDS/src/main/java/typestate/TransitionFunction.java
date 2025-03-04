@@ -22,47 +22,38 @@ import typestate.finiteautomata.ITransition;
 import typestate.finiteautomata.Transition;
 import wpds.impl.Weight;
 
+import static typestate.TransitionRepresentationFunction.one;
+import static typestate.TransitionRepresentationFunction.zero;
+
 public class TransitionFunction extends Weight {
 
   private final Set<ITransition> value;
-
-  private final String rep;
-
-  private static TransitionFunction one;
-
-  private static TransitionFunction zero;
 
   private final Set<Edge> stateChangeStatements;
 
   public TransitionFunction(Set<? extends ITransition> trans, Set<Edge> stateChangeStatements) {
     this.stateChangeStatements = stateChangeStatements;
     this.value = new HashSet<>(trans);
-    this.rep = null;
   }
 
   public TransitionFunction(ITransition trans, Set<Edge> stateChangeStatements) {
     this(new HashSet<>(Collections.singleton(trans)), stateChangeStatements);
   }
 
-  private TransitionFunction(String rep) {
-    this.value = Sets.newHashSet();
-    this.rep = rep;
-    this.stateChangeStatements = Sets.newHashSet();
-  }
-
   public Collection<ITransition> values() {
     return Lists.newArrayList(value);
   }
 
-  public Set<Edge> getLastStateChangeStatements() {
-    return stateChangeStatements;
-  }
 
   @Override
   public Weight extendWith(Weight other) {
-    if (other.equals(one())) return this;
-    if (this.equals(one())) return other;
-    if (other.equals(zero()) || this.equals(zero())) {
+    if (other.equals(one())) {
+        return this;
+    }
+    if (this.equals(TransitionRepresentationFunction.one())) {
+        return other;
+    }
+    if (other.equals(TransitionRepresentationFunction.zero()) || this.equals(TransitionRepresentationFunction.zero())) {
       return zero();
     }
     TransitionFunction func = (TransitionFunction) other;
@@ -88,8 +79,12 @@ public class TransitionFunction extends Weight {
 
   @Override
   public Weight combineWith(Weight other) {
-    if (!(other instanceof TransitionFunction)) throw new RuntimeException();
-    if (this.equals(zero())) return other;
+    if (!(other instanceof TransitionFunction)) {
+        throw new RuntimeException();
+    }
+    if (this.equals(zero())) {
+        return other;
+    }
     if (other.equals(zero())) return this;
     if (other.equals(one()) && this.equals(one())) {
       return one();
@@ -114,18 +109,7 @@ public class TransitionFunction extends Weight {
     return new TransitionFunction(transitions, newStateChangeStmts);
   }
 
-  public static TransitionFunction one() {
-    if (one == null) one = new TransitionFunction("ONE");
-    return one;
-  }
-
-  public static TransitionFunction zero() {
-    if (zero == null) zero = new TransitionFunction("ZERO");
-    return zero;
-  }
-
   public String toString() {
-    if (this.rep != null) return this.rep;
     return "Weight: " + value.toString();
   }
 
@@ -133,7 +117,6 @@ public class TransitionFunction extends Weight {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((rep == null) ? 0 : rep.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
@@ -144,9 +127,6 @@ public class TransitionFunction extends Weight {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     TransitionFunction other = (TransitionFunction) obj;
-    if (rep == null) {
-      if (other.rep != null) return false;
-    } else if (!rep.equals(other.rep)) return false;
     if (value == null) {
       return other.value == null;
     } else return value.equals(other.value);

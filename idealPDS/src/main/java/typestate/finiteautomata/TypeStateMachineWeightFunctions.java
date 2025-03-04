@@ -29,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.Node;
 import typestate.TransitionFunction;
+import typestate.TransitionRepresentationFunction;
 import typestate.finiteautomata.MatcherTransition.Parameter;
 import typestate.finiteautomata.MatcherTransition.Type;
+
 
 public abstract class TypeStateMachineWeightFunctions
     implements WeightFunctions<Edge, Val, Edge, TransitionFunction> {
@@ -38,13 +40,15 @@ public abstract class TypeStateMachineWeightFunctions
       LoggerFactory.getLogger(TypeStateMachineWeightFunctions.class);
   public Set<MatcherTransition> transition = new HashSet<>();
 
+
+
   public void addTransition(MatcherTransition trans) {
     transition.add(trans);
   }
 
   @Override
   public TransitionFunction getOne() {
-    return TransitionFunction.one();
+    return TransitionRepresentationFunction.one();
   }
 
   public TransitionFunction pop(Node<Edge, Val> curr) {
