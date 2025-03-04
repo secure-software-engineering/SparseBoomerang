@@ -22,7 +22,6 @@ import static sync.pds.weights.SetDomainRefactor.zero;
 
 public class SetDomain<N, Stmt, Fact> extends Weight {
 
-  private static SetDomain one;
   private final Collection<Node<Stmt, Fact>> nodes;
 
 
@@ -61,7 +60,7 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
 
   @Override
   public String toString() {
-    return (this==one)? "ONE" : "ZERO";
+    return nodes.toString();
   }
 
   @Override
