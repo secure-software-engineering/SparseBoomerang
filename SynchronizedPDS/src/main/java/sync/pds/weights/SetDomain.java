@@ -23,7 +23,7 @@ import static sync.pds.weights.SetDomainRefactor.zero;
 public class SetDomain<N, Stmt, Fact> extends Weight {
 
   private static SetDomain one;
-  private Collection<Node<Stmt, Fact>> nodes;
+  private final Collection<Node<Stmt, Fact>> nodes;
 
 
   private SetDomain(Collection<Node<Stmt, Fact>> nodes) {
@@ -46,7 +46,9 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
   public Weight combineWith(Weight other) {
     if (other.equals(SetDomainRefactor.zero())) return this;
     if (this.equals(SetDomainRefactor.zero())) return other;
-    if (this.equals(SetDomainRefactor.one()) || other.equals(SetDomainRefactor.one())) return one();
+    if (this.equals(SetDomainRefactor.one()) || other.equals(SetDomainRefactor.one())) {
+        return one();
+    }
     if (other instanceof SetDomain) {
       Set<Node<Stmt, Fact>> merged = Sets.newHashSet(nodes);
       merged.addAll(((SetDomain) other).nodes);

@@ -11,13 +11,10 @@
  */
 package sync.pds.weights;
 
-import com.google.common.collect.Sets;
-import de.fraunhofer.iem.Location;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class SetDomainRefactor<N, Stmt, Fact> extends Weight {
 
