@@ -60,7 +60,9 @@ public class TransitionRepresentationFunction extends Weight {
   }
 
   public static TransitionRepresentationFunction one() {
-    if (one == null) one = new TransitionRepresentationFunction("ONE");
+    if (one == null) {
+        one = new TransitionRepresentationFunction("ONE");
+    }
     return one;
   }
 
