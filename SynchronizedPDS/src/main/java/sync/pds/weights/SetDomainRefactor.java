@@ -14,25 +14,19 @@ package sync.pds.weights;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 
-public class SetDomainRefactor<N, Stmt, Fact> extends Weight {
+public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
 
   private static SetDomainRefactor one;
   private static SetDomainRefactor zero;
-  private final String rep;
+  @Nonnull private final String rep;
 
   private SetDomainRefactor(String rep) {
     this.rep = rep;
   }
 
-  private SetDomainRefactor(Collection<Node<Stmt, Fact>> nodes) {
-    this.rep = null;
-  }
-
-  public SetDomainRefactor(Node<Stmt, Fact> node) {
-    this.rep = null;
-  }
 
   @Override
   public Weight extendWith(Weight other) {
