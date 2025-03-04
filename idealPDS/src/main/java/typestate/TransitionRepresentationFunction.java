@@ -46,8 +46,6 @@ public class TransitionRepresentationFunction extends Weight {
     if (other.equals(one()) && this.equals(one())) {
       return one();
     }
-    TransitionRepresentationFunction func = (TransitionRepresentationFunction) other;
-
     return extendWith(other);
   }
 
