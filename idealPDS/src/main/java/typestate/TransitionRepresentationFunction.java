@@ -57,7 +57,9 @@ public class TransitionRepresentationFunction extends Weight {
   }
 
   public static <W extends Weight> W zero() {
-    if (zero == null) zero = new TransitionRepresentationFunction("ZERO");
+    if (zero == null) {
+        zero = new TransitionRepresentationFunction("ZERO");
+    }
     return (W)zero;
   }
 
