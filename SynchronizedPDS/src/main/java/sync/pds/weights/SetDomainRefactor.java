@@ -14,10 +14,9 @@ package sync.pds.weights;
 
 import wpds.impl.Weight;
 
-import javax.annotation.Nonnull;
 
 
-public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
+public class SetDomainRefactor extends Weight {
 
   private static SetDomainRefactor one;
   private static SetDomainRefactor zero;
@@ -48,12 +47,12 @@ public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
     return zero();
   }
 
-  public static <N extends Weight, Stmt, Fact> SetDomainRefactor<N, Stmt, Fact> one() {
+  public static SetDomainRefactor one() {
     if (one == null) one = new SetDomainRefactor("<1>");
     return one;
   }
 
-  public static <N extends Weight, Stmt, Fact> SetDomainRefactor<N, Stmt, Fact> zero() {
+  public static SetDomainRefactor zero() {
     if (zero == null) zero = new SetDomainRefactor("<0>");
     return zero;
   }
