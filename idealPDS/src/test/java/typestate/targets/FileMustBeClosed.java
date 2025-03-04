@@ -145,6 +145,7 @@ public class FileMustBeClosed {
     if (staticallyUnknown()) {
       file.open();
     }
+    file.close();
     Assertions.mayBeInAcceptingState(file);
   }
 

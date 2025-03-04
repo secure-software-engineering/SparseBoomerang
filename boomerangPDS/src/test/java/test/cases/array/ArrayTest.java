@@ -64,7 +64,6 @@ public class ArrayTest extends AbstractBoomerangTest {
     analyze(target, testName.getMethodName());
   }
 
-  @Override
   public DataFlowScope getDataFlowScope() {
     return new DataFlowScope() {
       @Override

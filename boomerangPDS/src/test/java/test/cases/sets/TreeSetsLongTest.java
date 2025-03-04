@@ -11,7 +11,6 @@
  */
 package test.cases.sets;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
@@ -19,7 +18,6 @@ public class TreeSetsLongTest extends AbstractBoomerangTest {
 
   private final String target = TreeSetsLongTest.class.getName();
 
-  @Ignore
   @Test
   public void addAndRetrieve() {
     analyze(target, testName.getMethodName());

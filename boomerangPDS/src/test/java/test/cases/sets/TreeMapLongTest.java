@@ -11,12 +11,19 @@
  */
 package test.cases.sets;
 
+import java.util.List;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
 public class TreeMapLongTest extends AbstractBoomerangTest {
 
   private final String target = TreeMapLongTarget.class.getName();
+
+  @Override
+  protected List<String> getIncludedPackages() {
+    return List.of(
+        "java.util.Map", "java.util.AbstractMap", "java.util.TreeMap", "java.util.TreeMap$Entry");
+  }
 
   @Test
   public void addAndRetrieve() {

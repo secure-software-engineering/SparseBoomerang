@@ -26,7 +26,7 @@ public class CustomSetTarget {
     int curr = 0;
 
     void add(Object o) {
-      content[o.hashCode()] = o;
+      content[curr] = o;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class CustomSetTarget {
     Iterator<Object> it;
 
     void add(Object o) {
-      content[o.hashCode()] = o;
+      content[curr] = o;
     }
 
     @Override

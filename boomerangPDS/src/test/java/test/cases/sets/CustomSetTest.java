@@ -15,12 +15,18 @@ import boomerang.scope.DataFlowScope;
 import boomerang.scope.DeclaredMethod;
 import boomerang.scope.Method;
 import boomerang.scope.WrappedClass;
+import java.util.List;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
 public class CustomSetTest extends AbstractBoomerangTest {
 
   private final String target = CustomSetTarget.class.getName();
+
+  @Override
+  protected List<String> getIncludedPackages() {
+    return List.of("java.util.Iterator");
+  }
 
   @Test
   public void mySetIteratorTest() {
@@ -32,7 +38,6 @@ public class CustomSetTest extends AbstractBoomerangTest {
     analyze(target, testName.getMethodName());
   }
 
-  @Override
   public DataFlowScope getDataFlowScope() {
     return new DataFlowScope() {
       @Override

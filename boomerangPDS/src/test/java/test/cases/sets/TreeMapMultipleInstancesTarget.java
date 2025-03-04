@@ -7,6 +7,7 @@ import test.TestMethod;
 import test.cases.fields.Alloc;
 import test.core.QueryMethods;
 
+@SuppressWarnings("unused")
 public class TreeMapMultipleInstancesTarget {
 
   @TestMethod

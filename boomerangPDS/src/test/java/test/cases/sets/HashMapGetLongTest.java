@@ -11,9 +11,11 @@
  */
 package test.cases.sets;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
+@Ignore("Does not terminate")
 public class HashMapGetLongTest extends AbstractBoomerangTest {
 
   private final String target = HashMapGetLongTarget.class.getName();

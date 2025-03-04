@@ -11,12 +11,23 @@
  */
 package test.cases.lists;
 
+import java.util.List;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
 public class VectorsLongTest extends AbstractBoomerangTest {
 
   private final String target = VectorsLongTarget.class.getName();
+
+  @Override
+  protected List<String> getIncludedPackages() {
+    return List.of(
+        "java.util.Vector",
+        "java.util.Vector$Itr",
+        "java.util.List",
+        "java.util.Arrays",
+        "java.util.Iterator");
+  }
 
   @Test
   public void addAndRetrieveWithIterator() {

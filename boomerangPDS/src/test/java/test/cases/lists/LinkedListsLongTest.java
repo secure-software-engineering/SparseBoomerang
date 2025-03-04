@@ -11,12 +11,25 @@
  */
 package test.cases.lists;
 
+import java.util.List;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
 
 public class LinkedListsLongTest extends AbstractBoomerangTest {
 
   private final String target = LinkedListsLongTarget.class.getName();
+
+  @Override
+  protected List<String> getIncludedPackages() {
+    return List.of(
+        "java.util.List",
+        "java.util.AbstractList",
+        "java.util.AbstractSequentialList",
+        "java.util.LinkedList",
+        "java.util.LinkedList$ListItr",
+        "java.util.LinkedList$Node",
+        "java.util.Iterator");
+  }
 
   @Test
   public void addAndRetrieveWithIterator() {
