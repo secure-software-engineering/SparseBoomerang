@@ -54,16 +54,16 @@ public class TransitionRepresentationFunction extends Weight {
     return extendWith(other);
   }
 
-  public static TransitionRepresentationFunction one() {
+  public static <W extends Weight> W one() {
     if (one == null) {
         one = new TransitionRepresentationFunction("ONE");
     }
-    return one;
+    return (W) one;
   }
 
-  public static TransitionRepresentationFunction zero() {
+  public static <W extends Weight> W zero() {
     if (zero == null) zero = new TransitionRepresentationFunction("ZERO");
-    return zero;
+    return (W)zero;
   }
 
   public String toString() {
