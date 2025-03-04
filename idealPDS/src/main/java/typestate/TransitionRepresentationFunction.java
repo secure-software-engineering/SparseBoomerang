@@ -14,9 +14,6 @@ package typestate;
 
 import wpds.impl.Weight;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class TransitionRepresentationFunction extends Weight {
 
   private final String rep;
