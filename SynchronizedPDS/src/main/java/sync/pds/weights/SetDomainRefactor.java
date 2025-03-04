@@ -11,17 +11,17 @@
  */
 package sync.pds.weights;
 
-import sync.pds.solver.nodes.Node;
+
 import wpds.impl.Weight;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
+
 
 public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
 
   private static SetDomainRefactor one;
   private static SetDomainRefactor zero;
-  @Nonnull private final String rep;
+  private final String rep;
 
   private SetDomainRefactor(String rep) {
     this.rep = rep;
@@ -48,12 +48,12 @@ public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
     return zero();
   }
 
-  public static <N extends Weight,Location, Stmt, Fact> SetDomainRefactor<N, Stmt, Fact> one() {
+  public static <N extends Weight, Stmt, Fact> SetDomainRefactor<N, Stmt, Fact> one() {
     if (one == null) one = new SetDomainRefactor("<1>");
     return one;
   }
 
-  public static <N extends Weight,Location, Stmt, Fact> SetDomainRefactor<N, Stmt, Fact> zero() {
+  public static <N extends Weight, Stmt, Fact> SetDomainRefactor<N, Stmt, Fact> zero() {
     if (zero == null) zero = new SetDomainRefactor("<0>");
     return zero;
   }
@@ -67,7 +67,7 @@ public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((rep == null) ? 0 : rep.hashCode());
+    result = prime * result + ( rep.hashCode());
     return result;
   }
 
@@ -77,9 +77,7 @@ public class SetDomainRefactor<N,Stmt, Fact> extends Weight {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     SetDomainRefactor other = (SetDomainRefactor) obj;
-    if (rep == null) {
-      return other.rep == null;
-    } else return rep.equals(other.rep);
+      return rep.equals(other.rep);
   }
 
 
