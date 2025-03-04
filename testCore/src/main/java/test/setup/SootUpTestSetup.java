@@ -4,7 +4,6 @@ import boomerang.scope.DataFlowScope;
 import boomerang.scope.FrameworkScope;
 import boomerang.scope.Method;
 import boomerang.scope.sootup.BoomerangPreInterceptor;
-import boomerang.scope.sootup.SootUpDataFlowScope;
 import boomerang.scope.sootup.SootUpFrameworkScope;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Nonnull;
@@ -328,6 +327,7 @@ public class SootUpTestSetup implements TestSetup {
       Optional<JavaSootMethod> sootMethod = javaView.getMethod(signature);
       sootMethod.ifPresent(entryPoints::add);
     }
-    return new SootUpFrameworkScope(javaView, cg, entryPoints, SootUpDataFlowScope.make());
+    return new SootUpFrameworkScope(
+        javaView, cg, entryPoints, DataFlowScope.EXCLUDE_PHANTOM_CLASSES);
   }
 }
