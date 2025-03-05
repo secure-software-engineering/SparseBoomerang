@@ -34,7 +34,6 @@ import org.junit.rules.Timeout;
 import test.AbstractTestingFramework;
 import test.FrameworkScopeFactory;
 import wpds.impl.NoWeight;
-import wpds.impl.Weight;
 
 public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 

@@ -7,10 +7,11 @@ import com.google.common.collect.Sets;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
-public class PathTrackingWeight extends Weight {
+public class PathTrackingWeight implements Weight {
 
   private static PathTrackingWeight one;
   /**
@@ -50,8 +51,9 @@ public class PathTrackingWeight extends Weight {
     return one;
   }
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight o) {
+  public Weight extendWith(@Nonnull Weight o) {
     if (!(o instanceof PathTrackingWeight))
       throw new RuntimeException("Cannot extend to different types of weight!");
     PathTrackingWeight other = (PathTrackingWeight) o;
@@ -86,8 +88,9 @@ public class PathTrackingWeight extends Weight {
     return new PathTrackingWeight(newAllStatements, newAllPathStatements);
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight o) {
+  public Weight combineWith(@Nonnull Weight o) {
     if (!(o instanceof PathTrackingWeight))
       throw new RuntimeException("Cannot extend to different types of weight!");
     PathTrackingWeight other = (PathTrackingWeight) o;

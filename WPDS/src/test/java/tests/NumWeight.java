@@ -12,9 +12,10 @@
 package tests;
 
 import de.fraunhofer.iem.Location;
+import javax.annotation.Nonnull;
 import wpds.impl.Weight;
 
-public class NumWeight extends Weight {
+public class NumWeight implements Weight {
 
   private int i;
 
@@ -24,8 +25,9 @@ public class NumWeight extends Weight {
 
   private NumWeight() {}
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
+  public Weight extendWith(@Nonnull Weight other) {
     if (this.equals(one())) return other;
     if (other.equals(one())) return this;
     if (this.equals(zero()) || other.equals(zero())) return zero();
@@ -33,8 +35,9 @@ public class NumWeight extends Weight {
     return new NumWeight(o.i + i);
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     if (other.equals(zero())) return this;
     if (this.equals(zero())) return other;
     NumWeight o = (NumWeight) other;

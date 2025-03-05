@@ -12,7 +12,6 @@
 package wpds.impl;
 
 import de.fraunhofer.iem.Location;
-import wpds.impl.NoWeight;
 import wpds.interfaces.State;
 
 public class UNormalRule<N extends Location, D extends State> extends NormalRule<N, D, NoWeight> {

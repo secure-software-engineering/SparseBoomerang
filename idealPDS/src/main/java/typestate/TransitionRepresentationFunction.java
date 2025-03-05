@@ -11,42 +11,48 @@
  */
 package typestate;
 
-
+import java.util.Collection;
+import javax.annotation.Nonnull;
+import typestate.finiteautomata.ITransition;
 import wpds.impl.Weight;
 
-public class TransitionRepresentationFunction extends Weight {
+public class TransitionRepresentationFunction implements TransitionFunction {
 
   private final String rep;
-
   private static TransitionRepresentationFunction one;
-
   private static TransitionRepresentationFunction zero;
-
 
   private TransitionRepresentationFunction(String rep) {
     this.rep = rep;
   }
 
-
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
+  public Collection<ITransition> values() {
+    throw new IllegalStateException("don't");
+  }
+
+  @Nonnull
+  @Override
+  public Weight extendWith(@Nonnull Weight other) {
     if (other.equals(one())) {
-        return this;
+      return this;
     }
     if (this.equals(one())) return other;
     if (other.equals(zero()) || this.equals(zero())) {
       return zero();
     }
     throw new IllegalStateException("This should not happen!");
-     }
+  }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     if (!(other instanceof TransitionRepresentationFunction)) {
-        throw new RuntimeException();
+      throw new RuntimeException();
     }
     if (this.equals(zero())) {
-        return other;
+      return other;
     }
     if (other.equals(zero())) return this;
     if (other.equals(one()) && this.equals(one())) {
@@ -57,20 +63,20 @@ public class TransitionRepresentationFunction extends Weight {
 
   public static <W extends Weight> W one() {
     if (one == null) {
-        one = new TransitionRepresentationFunction("ONE");
+      one = new TransitionRepresentationFunction("ONE");
     }
     return (W) one;
   }
 
   public static <W extends Weight> W zero() {
     if (zero == null) {
-        zero = new TransitionRepresentationFunction("ZERO");
+      zero = new TransitionRepresentationFunction("ZERO");
     }
-    return (W)zero;
+    return (W) zero;
   }
 
   public String toString() {
-    return (this==one)? "ONE" : "ZERO";
+    return (this == one) ? "ONE" : "ZERO";
   }
 
   @Override
@@ -80,6 +86,4 @@ public class TransitionRepresentationFunction extends Weight {
     result = prime * result + ((rep == null) ? 0 : rep.hashCode());
     return result;
   }
-
-
 }

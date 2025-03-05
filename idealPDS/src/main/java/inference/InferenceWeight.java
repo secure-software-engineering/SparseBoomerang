@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import wpds.impl.Weight;
 
-public class InferenceWeight extends Weight {
+public class InferenceWeight implements Weight {
 
   @Nonnull private final Set<Method> invokedMethods;
 
@@ -33,8 +33,9 @@ public class InferenceWeight extends Weight {
     this.invokedMethods = Collections.singleton(m);
   }
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
+  public Weight extendWith(@Nonnull Weight other) {
     if (other.equals(one())) {
       return this;
     }
@@ -50,8 +51,9 @@ public class InferenceWeight extends Weight {
     return new InferenceWeight(res);
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     return extendWith(other);
   }
 

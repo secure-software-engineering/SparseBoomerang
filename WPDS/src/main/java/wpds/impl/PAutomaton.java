@@ -13,7 +13,6 @@ package wpds.impl;
 
 import de.fraunhofer.iem.Location;
 import pathexpression.LabeledGraph;
-import wpds.impl.NoWeight;
 import wpds.interfaces.State;
 
 public abstract class PAutomaton<N extends Location, D extends State>

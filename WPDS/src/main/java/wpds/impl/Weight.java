@@ -11,8 +11,12 @@
  */
 package wpds.impl;
 
-public abstract class Weight {
-  public abstract Weight extendWith(Weight other);
+import javax.annotation.Nonnull;
 
-  public abstract Weight combineWith(Weight other);
+public interface Weight {
+  @Nonnull
+  Weight extendWith(@Nonnull Weight other);
+
+  @Nonnull
+  Weight combineWith(@Nonnull Weight other);
 }

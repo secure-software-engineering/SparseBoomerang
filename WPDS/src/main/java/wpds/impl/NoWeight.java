@@ -2,31 +2,33 @@ package wpds.impl;
 
 import javax.annotation.Nonnull;
 
-public class NoWeight extends Weight {
+public class NoWeight implements Weight {
 
-    static private final NoWeight INSTANCE = new NoWeight();
+  private static final NoWeight INSTANCE = new NoWeight();
 
-    private NoWeight(){
-        /* Singleton */
-    }
+  private NoWeight() {
+    /* Singleton */
+  }
 
-    @Nonnull
-    public static NoWeight getInstance(){
-      return INSTANCE;
-    }
+  @Nonnull
+  public static NoWeight getInstance() {
+    return INSTANCE;
+  }
 
-    @Override
-    public Weight extendWith(@Nonnull Weight other) {
-        return other;
-    }
+  @Nonnull
+  @Override
+  public Weight extendWith(@Nonnull Weight other) {
+    return other;
+  }
 
-    @Override
-    public Weight combineWith(@Nonnull Weight other) {
-        return other;
-    }
+  @Nonnull
+  @Override
+  public Weight combineWith(@Nonnull Weight other) {
+    return other;
+  }
 
-    @Override
-    public String toString() {
-        return "";
-    }
+  @Override
+  public String toString() {
+    return "";
+  }
 }

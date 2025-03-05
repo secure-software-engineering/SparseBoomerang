@@ -40,8 +40,8 @@ import sync.pds.solver.nodes.Node;
 import sync.pds.solver.nodes.SingleNode;
 import test.AbstractTestingFramework;
 import test.FrameworkScopeFactory;
-import wpds.impl.Transition;
 import wpds.impl.NoWeight;
+import wpds.impl.Transition;
 import wpds.impl.WeightedPAutomaton;
 import wpds.interfaces.WPAStateListener;
 

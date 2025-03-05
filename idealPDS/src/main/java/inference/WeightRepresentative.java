@@ -10,24 +10,24 @@ package inference;
  * <p>Contributors: Johannes Spaeth - initial API and implementation
  * *****************************************************************************
  */
-
+import javax.annotation.Nonnull;
 import wpds.impl.Weight;
 
-public class WeightRepresentative extends Weight {
+public class WeightRepresentative implements Weight {
 
   private static WeightRepresentative zero;
   private static WeightRepresentative one;
 
-  private WeightRepresentative() {
-  }
+  private WeightRepresentative() {}
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
+  public Weight extendWith(@Nonnull Weight other) {
     if (other.equals(one())) {
-        return this;
+      return this;
     }
     if (this.equals(one())) {
-        return other;
+      return other;
     }
     if (other.equals(zero()) || this.equals(zero())) {
       return zero();
@@ -35,27 +35,27 @@ public class WeightRepresentative extends Weight {
     throw new IllegalStateException("This should not happen!");
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     return extendWith(other);
   }
 
   public static <W extends Weight> W one() {
     if (one == null) {
-        one = new WeightRepresentative();
+      one = new WeightRepresentative();
     }
     return (W) one;
   }
 
   public static <W extends Weight> W zero() {
     if (zero == null) {
-        zero = new WeightRepresentative();
+      zero = new WeightRepresentative();
     }
     return (W) zero;
   }
 
   public String toString() {
-    return ( this == one ) ? "ONE" : "ZERO";
+    return (this == one) ? "ONE" : "ZERO";
   }
-
 }

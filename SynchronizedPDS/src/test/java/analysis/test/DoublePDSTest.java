@@ -33,8 +33,8 @@ import sync.pds.solver.nodes.NodeWithLocation;
 import sync.pds.solver.nodes.PopNode;
 import sync.pds.solver.nodes.PushNode;
 import sync.pds.solver.nodes.SingleNode;
-import wpds.impl.SummaryNestedWeightedPAutomatons;
 import wpds.impl.NoWeight;
+import wpds.impl.SummaryNestedWeightedPAutomatons;
 import wpds.interfaces.State;
 
 public class DoublePDSTest {

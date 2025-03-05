@@ -15,10 +15,11 @@ import com.google.common.collect.Sets;
 import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
-public class SetDomain<N, Stmt, Fact> extends Weight {
+public class SetDomain<N, Stmt, Fact> implements Weight {
 
   private static SetDomain one;
   private static SetDomain zero;
@@ -39,8 +40,9 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
     this.rep = null;
   }
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
+  public Weight extendWith(@Nonnull Weight other) {
     if (other.equals(one())) {
       return this;
     }
@@ -50,8 +52,9 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
     return zero();
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     if (other.equals(zero())) return this;
     if (this.equals(zero())) return other;
     if (this.equals(one()) || other.equals(one())) return one();
