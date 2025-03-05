@@ -19,7 +19,6 @@ public class PathTrackingRepesentativeWeight extends Weight {
    */
   private Set<LinkedHashSet<Node<Edge, Val>>> allPathWitness = Sets.newHashSet();
 
-  @Nonnull
   private String rep;
 
   private PathTrackingRepesentativeWeight(String rep) {
