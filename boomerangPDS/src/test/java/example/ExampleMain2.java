@@ -44,7 +44,7 @@ import soot.SootClass;
 import soot.Transform;
 import soot.Transformer;
 import soot.options.Options;
-import wpds.impl.Weight.NoWeight;
+import wpds.impl.NoWeight;
 
 public class ExampleMain2 {
   public static void main(String... args) {

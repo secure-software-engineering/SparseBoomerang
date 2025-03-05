@@ -23,7 +23,7 @@ import wpds.impl.Rule;
 import wpds.impl.UNormalRule;
 import wpds.impl.UPopRule;
 import wpds.impl.UPushRule;
-import wpds.impl.Weight.NoWeight;
+import wpds.impl.NoWeight;
 import wpds.interfaces.State;
 
 public abstract class WildcardPushdownSystem<N extends Location, D extends State>

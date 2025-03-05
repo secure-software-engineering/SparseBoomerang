@@ -32,7 +32,7 @@ import wpds.impl.PAutomaton;
 import wpds.impl.PushdownSystem;
 import wpds.impl.SummaryNestedWeightedPAutomatons;
 import wpds.impl.Transition;
-import wpds.impl.Weight.NoWeight;
+import wpds.impl.NoWeight;
 import wpds.interfaces.ReachabilityListener;
 
 public class ForwardDFSVisitorTest {
