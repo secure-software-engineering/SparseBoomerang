@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import org.junit.Assert;
 import org.junit.Test;
 import test.FrameworkScopeFactory;
-import wpds.impl.Weight.NoWeight;
+import wpds.impl.NoWeight;
 
 public class CustomFlowFunctionTest {
 

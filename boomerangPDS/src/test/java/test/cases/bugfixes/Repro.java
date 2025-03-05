@@ -16,7 +16,7 @@ import java.util.*;
 import org.junit.Test;
 import test.AbstractTestingFramework;
 import test.FrameworkScopeFactory;
-import wpds.impl.Weight.NoWeight;
+import wpds.impl.NoWeight;
 
 /**
  * This code was added to test https://github.com/CodeShield-Security/SPDS/issues/5.

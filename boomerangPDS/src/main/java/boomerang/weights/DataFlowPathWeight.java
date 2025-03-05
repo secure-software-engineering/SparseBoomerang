@@ -8,10 +8,11 @@ import boomerang.weights.PathConditionWeight.ConditionDomain;
 import com.google.common.base.Objects;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
-public class DataFlowPathWeight extends Weight {
+public class DataFlowPathWeight implements Weight {
 
   private static DataFlowPathWeight one;
 
@@ -19,7 +20,7 @@ public class DataFlowPathWeight extends Weight {
   private final PathConditionWeight condition;
 
   private DataFlowPathWeight() {
-    path = PathTrackingWeight.one();
+    path = PathTrackingRepesentativeWeight.one();
     condition = PathConditionWeight.one();
   }
 
@@ -34,12 +35,12 @@ public class DataFlowPathWeight extends Weight {
   }
 
   public DataFlowPathWeight(Statement callSite, Method callee) {
-    this.path = PathTrackingWeight.one();
+    this.path = PathTrackingRepesentativeWeight.one();
     this.condition = new PathConditionWeight(callSite, callee);
   }
 
   public DataFlowPathWeight(Statement ifStatement, Boolean condition) {
-    this.path = PathTrackingWeight.one();
+    this.path = PathTrackingRepesentativeWeight.one();
     this.condition = new PathConditionWeight(ifStatement, condition);
   }
 
@@ -49,12 +50,12 @@ public class DataFlowPathWeight extends Weight {
   }
 
   public DataFlowPathWeight(Val leftOp, ConditionDomain conditionVal) {
-    this.path = PathTrackingWeight.one();
+    this.path = PathTrackingRepesentativeWeight.one();
     this.condition = new PathConditionWeight(leftOp, conditionVal);
   }
 
   public DataFlowPathWeight(Val returnVal) {
-    this.path = PathTrackingWeight.one();
+    this.path = PathTrackingRepesentativeWeight.one();
     this.condition = new PathConditionWeight(returnVal);
   }
 
@@ -93,14 +94,16 @@ public class DataFlowPathWeight extends Weight {
     return /*"PATH" + path +*/ " COND: " + condition;
   }
 
-  public Weight extendWith(Weight other) {
+  @Nonnull
+  public Weight extendWith(@Nonnull Weight other) {
     return new DataFlowPathWeight(
         (PathTrackingWeight) path.extendWith(((DataFlowPathWeight) other).path),
         (PathConditionWeight) condition.extendWith(((DataFlowPathWeight) other).condition));
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     return new DataFlowPathWeight(
         (PathTrackingWeight) path.combineWith(((DataFlowPathWeight) other).path),
         (PathConditionWeight) condition.combineWith(((DataFlowPathWeight) other).condition));

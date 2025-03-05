@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.FrameworkScopeFactory;
-import wpds.impl.Weight.NoWeight;
+import wpds.impl.NoWeight;
 
 public class DemandDrivenGuidedAnalysisTest {
 

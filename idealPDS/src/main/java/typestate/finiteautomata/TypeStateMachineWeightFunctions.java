@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import sync.pds.solver.WeightFunctions;
 import sync.pds.solver.nodes.Node;
 import typestate.TransitionFunction;
+import typestate.TransitionFunctionImpl;
+import typestate.TransitionRepresentationFunction;
 import typestate.finiteautomata.MatcherTransition.Parameter;
 import typestate.finiteautomata.MatcherTransition.Type;
 
@@ -44,7 +46,7 @@ public abstract class TypeStateMachineWeightFunctions
 
   @Override
   public TransitionFunction getOne() {
-    return TransitionFunction.one();
+    return TransitionRepresentationFunction.one();
   }
 
   public TransitionFunction pop(Node<Edge, Val> curr) {
@@ -93,7 +95,7 @@ public abstract class TypeStateMachineWeightFunctions
     }
     return (res.isEmpty()
         ? getOne()
-        : new TransitionFunction(res, Collections.singleton(succ.stmt())));
+        : new TransitionFunctionImpl(res, Collections.singleton(succ.stmt())));
   }
 
   private TransitionFunction getMatchingTransitions(
@@ -122,7 +124,7 @@ public abstract class TypeStateMachineWeightFunctions
     if (res.isEmpty()) return getOne();
 
     LOGGER.debug("Typestate transition at {} to {}, [{}]", transitionStmt, res, type);
-    return new TransitionFunction(res, Collections.singleton(transitionEdge));
+    return new TransitionFunctionImpl(res, Collections.singleton(transitionEdge));
   }
 
   /*
@@ -190,7 +192,7 @@ public abstract class TypeStateMachineWeightFunctions
   public abstract Collection<WeightedForwardQuery<TransitionFunction>> generateSeed(Edge stmt);
 
   public TransitionFunction initialTransition() {
-    return new TransitionFunction(
+    return new TransitionFunctionImpl(
         new Transition(initialState(), initialState()), Collections.emptySet());
   }
 

@@ -12,49 +12,45 @@
 package sync.pds.weights;
 
 import com.google.common.collect.Sets;
-import de.fraunhofer.iem.Location;
 import java.util.Collection;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import sync.pds.solver.nodes.Node;
 import wpds.impl.Weight;
 
-public class SetDomain<N, Stmt, Fact> extends Weight {
+import static sync.pds.weights.SetDomainRefactor.one;
+import static sync.pds.weights.SetDomainRefactor.zero;
 
-  private static SetDomain one;
-  private static SetDomain zero;
-  private final String rep;
-  private Collection<Node<Stmt, Fact>> nodes;
+public class SetDomain<N, Stmt, Fact> implements Weight {
 
-  private SetDomain(String rep) {
-    this.rep = rep;
-  }
+  private final Collection<Node<Stmt, Fact>> nodes;
+
 
   private SetDomain(Collection<Node<Stmt, Fact>> nodes) {
     this.nodes = nodes;
-    this.rep = null;
   }
 
-  public SetDomain(Node<Stmt, Fact> node) {
-    this.nodes = Sets.newHashSet(node);
-    this.rep = null;
-  }
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
+  public Weight extendWith(@Nonnull Weight other) {
     if (other.equals(one())) {
       return this;
     }
-    if (this.equals(one())) {
+    if (this.equals(SetDomainRefactor.one())) {
       return other;
     }
     return zero();
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
-    if (other.equals(zero())) return this;
-    if (this.equals(zero())) return other;
-    if (this.equals(one()) || other.equals(one())) return one();
+  public Weight combineWith(@Nonnull Weight other) {
+    if (other.equals(SetDomainRefactor.zero())) return this;
+    if (this.equals(SetDomainRefactor.zero())) return other;
+    if (this.equals(SetDomainRefactor.one()) || other.equals(SetDomainRefactor.one())) {
+        return one();
+    }
     if (other instanceof SetDomain) {
       Set<Node<Stmt, Fact>> merged = Sets.newHashSet(nodes);
       merged.addAll(((SetDomain) other).nodes);
@@ -63,19 +59,10 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
     return zero();
   }
 
-  public static <N extends Location, Stmt, Fact> SetDomain<N, Stmt, Fact> one() {
-    if (one == null) one = new SetDomain("<1>");
-    return one;
-  }
 
-  public static <N extends Location, Stmt, Fact> SetDomain<N, Stmt, Fact> zero() {
-    if (zero == null) zero = new SetDomain("<0>");
-    return zero;
-  }
 
   @Override
   public String toString() {
-    if (rep != null) return rep;
     return nodes.toString();
   }
 
@@ -84,7 +71,6 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((nodes == null) ? 0 : nodes.hashCode());
-    result = prime * result + ((rep == null) ? 0 : rep.hashCode());
     return result;
   }
 
@@ -97,9 +83,7 @@ public class SetDomain<N, Stmt, Fact> extends Weight {
     if (nodes == null) {
       if (other.nodes != null) return false;
     } else if (!nodes.equals(other.nodes)) return false;
-    if (rep == null) {
-      return other.rep == null;
-    } else return rep.equals(other.rep);
+    return false;
   }
 
   public Collection<Node<Stmt, Fact>> elements() {

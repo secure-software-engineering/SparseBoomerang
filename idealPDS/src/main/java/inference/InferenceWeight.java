@@ -11,65 +11,53 @@
  */
 package inference;
 
+import static inference.WeightRepresentative.one;
+import static inference.WeightRepresentative.zero;
+
 import boomerang.scope.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import wpds.impl.Weight;
 
-public class InferenceWeight extends Weight {
+public class InferenceWeight implements Weight {
 
-  private final Set<Method> invokedMethods;
-  private final String rep;
-  private static InferenceWeight one;
-  private static InferenceWeight zero;
-
-  private InferenceWeight(String rep) {
-    this.rep = rep;
-    this.invokedMethods = null;
-  }
+  @Nonnull private final Set<Method> invokedMethods;
 
   private InferenceWeight(Set<Method> res) {
     this.invokedMethods = res;
-    this.rep = null;
   }
 
   public InferenceWeight(Method m) {
     this.invokedMethods = Collections.singleton(m);
-    this.rep = null;
   }
 
+  @Nonnull
   @Override
-  public Weight extendWith(Weight other) {
-    if (other.equals(one())) return this;
-    if (this.equals(one())) return other;
+  public Weight extendWith(@Nonnull Weight other) {
+    if (other.equals(one())) {
+      return this;
+    }
+    if (this.equals(one())) {
+      return other;
+    }
     if (other.equals(zero()) || this.equals(zero())) {
       return zero();
     }
     InferenceWeight func = (InferenceWeight) other;
-    Set<Method> otherInvokedMethods = func.invokedMethods;
     Set<Method> res = new HashSet<>(invokedMethods);
-    res.addAll(otherInvokedMethods);
+    res.addAll(func.invokedMethods);
     return new InferenceWeight(res);
   }
 
+  @Nonnull
   @Override
-  public Weight combineWith(Weight other) {
+  public Weight combineWith(@Nonnull Weight other) {
     return extendWith(other);
   }
 
-  public static InferenceWeight one() {
-    if (one == null) one = new InferenceWeight("ONE");
-    return one;
-  }
-
-  public static InferenceWeight zero() {
-    if (zero == null) zero = new InferenceWeight("ZERO");
-    return zero;
-  }
-
   public String toString() {
-    if (this.rep != null) return this.rep;
     return "{Func:" + invokedMethods.toString() + "}";
   }
 
@@ -77,8 +65,7 @@ public class InferenceWeight extends Weight {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((rep == null) ? 0 : rep.hashCode());
-    result = prime * result + ((invokedMethods == null) ? 0 : invokedMethods.hashCode());
+    result = prime * result + invokedMethods.hashCode();
     return result;
   }
 
@@ -88,11 +75,6 @@ public class InferenceWeight extends Weight {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     InferenceWeight other = (InferenceWeight) obj;
-    if (rep == null) {
-      if (other.rep != null) return false;
-    } else if (!rep.equals(other.rep)) return false;
-    if (invokedMethods == null) {
-      return other.invokedMethods == null;
-    } else return invokedMethods.equals(other.invokedMethods);
+    return invokedMethods.equals(other.invokedMethods);
   }
 }

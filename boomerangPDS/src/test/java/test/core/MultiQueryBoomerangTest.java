@@ -33,7 +33,7 @@ import org.junit.Rule;
 import org.junit.rules.Timeout;
 import test.AbstractTestingFramework;
 import test.FrameworkScopeFactory;
-import wpds.impl.Weight;
+import wpds.impl.NoWeight;
 
 public class MultiQueryBoomerangTest extends AbstractTestingFramework {
 
@@ -48,7 +48,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
   protected int analysisTimeout = 300 * 1000;
   private final String classPathStr = Paths.get("target/test-classes").toAbsolutePath().toString();
 
-  private WeightedBoomerang<Weight.NoWeight> solver;
+  private WeightedBoomerang<NoWeight> solver;
 
   @Override
   protected void initializeWithEntryPoint() {
@@ -133,7 +133,7 @@ public class MultiQueryBoomerangTest extends AbstractTestingFramework {
     solver = new Boomerang(frameworkScope, options);
     for (final Query query : queryForCallSites) {
       if (query instanceof BackwardQuery) {
-        BackwardBoomerangResults<Weight.NoWeight> res = solver.solve((BackwardQuery) query);
+        BackwardBoomerangResults<NoWeight> res = solver.solve((BackwardQuery) query);
         compareQuery(query, res.getAllocationSites().keySet());
       }
     }
