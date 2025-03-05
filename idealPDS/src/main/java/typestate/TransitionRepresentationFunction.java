@@ -18,12 +18,12 @@ import wpds.impl.Weight;
 
 public class TransitionRepresentationFunction implements TransitionFunction {
 
-  private final String rep;
+
   private static TransitionRepresentationFunction one;
   private static TransitionRepresentationFunction zero;
 
-  private TransitionRepresentationFunction(String rep) {
-    this.rep = rep;
+  public TransitionRepresentationFunction() {
+
   }
 
   @Nonnull
@@ -63,14 +63,14 @@ public class TransitionRepresentationFunction implements TransitionFunction {
 
   public static <W extends Weight> W one() {
     if (one == null) {
-      one = new TransitionRepresentationFunction("ONE");
+        one = new TransitionRepresentationFunction();
     }
     return (W) one;
   }
 
   public static <W extends Weight> W zero() {
     if (zero == null) {
-      zero = new TransitionRepresentationFunction("ZERO");
+        zero = new TransitionRepresentationFunction();
     }
     return (W) zero;
   }
@@ -79,11 +79,7 @@ public class TransitionRepresentationFunction implements TransitionFunction {
     return (this == one) ? "ONE" : "ZERO";
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((rep == null) ? 0 : rep.hashCode());
-    return result;
-  }
+
+
+
 }
