@@ -119,8 +119,8 @@ public class SootUpFrameworkScope implements FrameworkScope {
 
   // ---
 
-  private static final String CONSTRUCTOR_NAME = "<init>";
-  private static final String STATIC_INITIALIZER_NAME = "<clinit>";
+  public static final String CONSTRUCTOR_NAME = "<init>";
+  public static final String STATIC_INITIALIZER_NAME = "<clinit>";
 
   public JavaView getView() {
     return view;

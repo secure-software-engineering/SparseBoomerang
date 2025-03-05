@@ -11,6 +11,10 @@
  */
 package test.cases.sets;
 
+import boomerang.scope.DataFlowScope;
+import boomerang.scope.DeclaredMethod;
+import boomerang.scope.Method;
+import boomerang.scope.WrappedClass;
 import java.util.Iterator;
 import org.junit.Test;
 import test.cases.fields.Alloc;
@@ -101,5 +105,26 @@ public class CustomSetTest extends AbstractBoomerangTest {
 
       }
     }
+  }
+
+  @Override
+  public DataFlowScope getDataFlowScope() {
+    return new DataFlowScope() {
+      @Override
+      public boolean isExcluded(DeclaredMethod method) {
+        WrappedClass wrappedClass = method.getDeclaringClass();
+
+        return wrappedClass.isPhantom()
+            || wrappedClass.getFullyQualifiedName().equals("java.lang.Object");
+      }
+
+      @Override
+      public boolean isExcluded(Method method) {
+        WrappedClass wrappedClass = method.getDeclaringClass();
+
+        return wrappedClass.isPhantom()
+            || wrappedClass.getFullyQualifiedName().equals("java.lang.Object");
+      }
+    };
   }
 }

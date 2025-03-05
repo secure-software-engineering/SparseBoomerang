@@ -11,6 +11,10 @@
  */
 package test.cases.array;
 
+import boomerang.scope.DataFlowScope;
+import boomerang.scope.DeclaredMethod;
+import boomerang.scope.Method;
+import boomerang.scope.WrappedClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.core.AbstractBoomerangTest;
@@ -117,5 +121,26 @@ public class ArrayTest extends AbstractBoomerangTest {
 
   private static class C {
     Object f;
+  }
+
+  @Override
+  public DataFlowScope getDataFlowScope() {
+    return new DataFlowScope() {
+      @Override
+      public boolean isExcluded(DeclaredMethod method) {
+        WrappedClass wrappedClass = method.getDeclaringClass();
+
+        return wrappedClass.isPhantom()
+            || wrappedClass.getFullyQualifiedName().equals("java.lang.System");
+      }
+
+      @Override
+      public boolean isExcluded(Method method) {
+        WrappedClass wrappedClass = method.getDeclaringClass();
+
+        return wrappedClass.isPhantom()
+            || wrappedClass.getFullyQualifiedName().equals("java.lang.System");
+      }
+    };
   }
 }

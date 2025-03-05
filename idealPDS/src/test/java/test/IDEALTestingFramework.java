@@ -160,7 +160,9 @@ public abstract class IDEALTestingFramework extends AbstractTestingFramework {
     for (Statement stmt : m.getStatements()) {
       if (!(stmt.containsInvokeExpr())) continue;
       for (Edge callSite : frameworkScope.getCallGraph().edgesOutOf(stmt)) {
-        parseExpectedQueryResults(callSite.tgt(), queries, visited);
+        if (callSite.tgt().isDefined()) {
+          parseExpectedQueryResults(callSite.tgt(), queries, visited);
+        }
       }
       InvokeExpr invokeExpr = stmt.getInvokeExpr();
       String invocationName = invokeExpr.getMethod().getName();
